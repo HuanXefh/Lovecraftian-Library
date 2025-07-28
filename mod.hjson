@@ -1,0 +1,22 @@
+name: lovec
+displayName: Lovecraftian Library
+subtitle: "V101"
+
+
+hidden: true
+
+
+author: MaboroshiX
+// Repo: TODO
+minGameVersion: 147
+dependencies: []
+softDependencies: []
+
+
+description:
+'''
+A simple (or not) library mod I made mostly for myself, intended for building javascript mods.
+For wanderers only, it may not work well with vanilla gameplay.
+'''
+
+version: 100.25072303

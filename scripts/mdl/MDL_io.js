@@ -1,0 +1,154 @@
+/*
+  ========================================
+  Section: Definition
+  ========================================
+*/
+
+
+  /* <---------- import ----------> */
+
+
+  const MDL_content = require("lovec/mdl/MDL_content");
+
+
+  /* <---------- base ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes an arc 2D point.
+   * ---------------------------------------- */
+  const _wr_pon2 = function(wr, pon2) {
+    wr.i(pon2.pack());
+  };
+  exports._wr_pon2 = _wr_pon2;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an arc 2D point.
+   * ---------------------------------------- */
+  const _rd_pon2 = function(rd) {
+    return Point2.unpack(rd.i());
+  };
+  exports._rd_pon2 = _rd_pon2;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes a list of arc 2D points.
+   * ---------------------------------------- */
+  const _wr_pon2s = function(wr, pon2s) {
+    let iCap = pon2s.iCap();
+    wr.i(iCap);
+
+    let i = 0;
+    while(i < iCap) {
+      _wr_pon2(wr, pon2s[i]);
+      i++;
+    };
+  };
+  exports._wr_pon2s = _wr_pon2s;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads a list of arc 2D points.
+   * ---------------------------------------- */
+  const _rd_pon2s = function(rd, pon2s) {
+    let iCap = rd.i();
+    let i = 0;
+    while(i < iCap) {
+      pon2s.push(_rd_pon2(rd));
+      i++;
+    };
+  };
+  exports._rd_pon2s = _rd_pon2s;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes an arc 2D vector.
+   * ---------------------------------------- */
+  const _wr_vec2 = function(wr, vec2) {
+    wr.f(vec2.x);
+    wr.f(vec2.y);
+  };
+  exports._wr_vec2 = _wr_vec2;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an arc 2D vector.
+   * ---------------------------------------- */
+  const _rd_vec2 = function(rd) {
+    return new Vec2(rd.f(), rd.f());
+  };
+  exports._rd_vec2 = _rd_vec2;
+
+
+  /* <---------- content ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes a content.
+   * ---------------------------------------- */
+  const _wr_ct = function(wr, ct) {
+    wr.str(ct == null ? "null" : ct.name);
+  };
+  exports._wr_ct = _wr_ct;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads a content.
+   * ---------------------------------------- */
+  const _rd_ct = function(rd) {
+    return MDL_content._ct(rd.str(), null, true);
+  };
+  exports._rd_ct = _rd_ct;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes an array of contents.
+   * ---------------------------------------- */
+  const _wr_cts = function(wr, cts) {
+    let iCap = cts.iCap();
+    wr.i(iCap);
+
+    let i = 0;
+    while(i < iCap) {
+      let ct = cts[i];
+      wr.str(ct == null ? "null" : ct.name);
+      i++;
+    };
+  };
+  exports._wr_cts = _wr_cts;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an array of contents.
+   * ---------------------------------------- */
+  const _rd_cts = function(rd, cts) {
+    let iCap = rd.i();
+    let i = 0;
+    while(i < iCap) {
+      let ct = MDL_content._ct(rd.str(), null, true);
+      if(ct != null) cts.pushUnique(ct);
+      i++;
+    };
+  };
+  exports._rd_cts = _rd_cts;

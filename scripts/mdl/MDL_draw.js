@@ -1,0 +1,1671 @@
+/*
+  ========================================
+  Section: Definition
+  ========================================
+*/
+
+
+  /* <---------- import ----------> */
+
+
+  const ANNO = require("lovec/glb/BOX_anno");
+  const PARAM = require("lovec/glb/GLB_param");
+  const VAR = require("lovec/glb/GLB_var");
+  const VARGEN = require("lovec/glb/GLB_varGen");
+
+
+  const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_entity = require("lovec/mdl/MDL_entity");
+  const MDL_pos = require("lovec/mdl/MDL_pos");
+
+
+  /* <---------- base ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Generalized color thing.
+   * ---------------------------------------- */
+  const _color = function(color_gn) {
+    if(color_gn == null) return;
+    if(color_gn instanceof Color) return color_gn;
+    if(typeof color_gn == "boolean") return color_gn ? Pal.accent : Pal.remove;
+    if(typeof color_gn == "string") return Color.valueOf(color_gn);
+    if((color_gn instanceof Item) || (color_gn instanceof Liquid) || (color_gn instanceof Team)) return color_gn.color;
+
+    return Color.white;
+  };
+  exports._color = _color;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Checks if two colors are the same in RGBA.
+   * ---------------------------------------- */
+  const _isSameColor = function(color1_gn, color2_gn) {
+    if(color1_gn == null || color2_gn == null) return;
+
+    let rawColor1 = _color(color1_gn).rgba();
+    let rawColor2 = _color(color2_gn).rgba();
+
+    return rawColor1 === rawColor2;
+  };
+  exports._isSameColor = _isSameColor;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the default color from the icon of a content.
+   * For 32x32 sprite, this returns color at (15, 15).
+   * ---------------------------------------- */
+  const _iconColor = function(ct_gn, useTmp) {
+    let color = useTmp ? Tmp.c1 : new Color(0, 0, 0, 1);
+    if(Vars.headless || ct_gn == null) return color;
+
+    let ct = MDL_content._ct(ct_gn, null, true);
+    if(ct == null) return color;
+    let pix = Core.atlas.getPixmap(ct.fullIcon);
+
+    return color.set(pix.get(Math.round(pix.width * 0.5) - 1, Math.round(pix.height * 0.5) - 1));
+  };
+  exports._iconColor = _iconColor;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {draw} that every building should have.
+   * Used if {this.super$draw} is not called.
+   * ---------------------------------------- */
+  const comp_draw_baseBuilding = function(b) {
+    b.block.variant === 0 || b.block.variantRegions == null ?
+      Draw.rect(b.block.region, b.x, b.y, b.drawrot()) :
+      Draw.rect(b.block.variantRegions[Mathf.randomSeed(b.tile.pos(), 0, Math.max(0, b.block.variantRegions.length - 1))], b.x, b.y, b.drawRot());
+
+    b.drawTeamTop();
+  };
+  exports.comp_draw_baseBuilding = comp_draw_baseBuilding;
+
+
+  /* <---------- pixmap ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws pixels from {pix2} on top of {pix1}.
+   * ---------------------------------------- */
+  const _pix_stack = function(pix1, pix2) {
+    var w = pix1.width;
+    var h = pix1.height;
+    let pix = new Pixmap(w, h);
+
+    for(let x = 0; x < w; x++) {
+      for(let y = 0; y < h; y++) {
+        let rawColor;
+        let rawColor1 = pix1.getRaw(x, y);
+        let rawColor2;
+        if(pix2 == null) {rawColor = Tmp.c1.set(rawColor1).rgba()} else {
+          rawColor2 = pix2.getRaw(x, y);
+          rawColor = (pix2.getA(x, y) < 36) ? Tmp.c1.set(rawColor1).rgba() : Tmp.c1.set(rawColor2).rgba();
+        };
+
+        pix.setRaw(x, y, rawColor);
+      };
+    };
+
+    return pix;
+  };
+  exports._pix_stack = _pix_stack;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Converts pixels from the icon region of {blk} to an icon tag pixmap.
+   * ---------------------------------------- */
+  const _pix_blockTag = function(blk, w) {
+    if(w == null) w = 32;
+    let hw = w / 2;
+    let pixBlk = Core.atlas.getPixmap(MDL_content._regBlk(blk, true));
+    let wBlk = pixBlk.width;
+    let hBlk = pixBlk.height;
+    let pix = new Pixmap(w, w);
+
+    for(let x = hw; x < w; x++) {
+      for(let y = 0; y < hw; y++) {
+        let fracX = (x - hw) / hw;
+        let fracY = y / hw;
+        let rawColor = pixBlk.getRaw(Math.round(wBlk * fracX), Math.round(hBlk * fracY));
+
+        pix.setRaw(x, y, rawColor);
+      };
+    };
+
+    return pix;
+  };
+  exports._pix_blockTag = _pix_blockTag;
+
+
+  /* <---------- region ----------> */
+
+
+  /* normal */
+
+
+  const drawRegion_normal = function(x, y, reg, ang, regScl, color_gn, a, z, shouldMixcol, mixcolA) {
+    if(reg == null) return;
+
+    if(ang == null) ang = 0.0;
+    if(regScl == null) regScl = 1.0;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    var w = reg.width * 2.0 * regScl / Vars.tilesize;
+    var h = reg.height * 2.0 * regScl / Vars.tilesize;
+
+    if(z != null) Draw.z(z);
+    if(shouldMixcol) {
+      Draw.mixcol(_color(color_gn), Object.val(mixcolA, 1.0));
+      Draw.color(Color.white);
+    } else {
+      Draw.color(_color(color_gn));
+    };
+    Draw.alpha(a);
+    Draw.rect(reg, x, y, w, h, ang);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_normal = drawRegion_normal;
+
+
+  const drawRegion_side = function(x, y, reg1, reg2, rot, color_gn, a, z) {
+    if(reg1 == null || reg2 == null) return;
+
+    if(rot == null) rot = 0;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    if(z != null) Draw.z(z);
+    Draw.color(_color(color_gn));
+    Draw.alpha(a);
+    Draw.rect(rot > 1 ? reg1 : reg2, x, y, rot * 90.0);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_side = drawRegion_side;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Better use this in DrawBase for some floor blocks.
+   * Randomly chooses one in {regs} to draw over the floor.
+   * Higher {denom} means sparser.
+   * ---------------------------------------- */
+  const drawRegion_randomOverlay = function(t, regs, denom, off1, off2) {
+    if(t == null || regs == null) return;
+    if(!(t.block() instanceof AirBlock) || !(t.overlay() instanceof AirBlock)) return;
+
+    let iCap = regs.iCap();
+    if(iCap === 0) return;
+    if(denom == null) denom = 80;
+    if(off1 == null) off1 = 0;
+    if(off2 == null) off2 = 0;
+
+    var shouldDraw = Math.floor(Mathf.randomSeed(t.pos() + off1, 0, denom)) === 0;
+    if(shouldDraw) {
+      var regInd = Math.floor(Mathf.randomSeed(t.pos() + 114514 + off2, 0, iCap));
+      drawRegion_normal(t.worldx(), t.worldy(), regs[regInd], 0.0, 1.0, Color.white, 1.0, VAR.lay_randOv);
+    };
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_randomOverlay = drawRegion_randomOverlay;
+
+
+  /* icon */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws something like Icon.power, not in a table now.
+   * ---------------------------------------- */
+  const drawRegion_icon = function(x, y, icon, ang, regScl, color_gn, a) {
+    if(icon == null) return;
+
+    if(ang == null) ang = 0.0;
+    if(regScl == null) regScl = 1.0;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    Draw.color(_color(color_gn));
+    Draw.alpha(a * 0.8);
+    Draw.rect(icon.getRegion(), x, y, 6.0 * regScl, 6.0 * regScl);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_icon = drawRegion_icon;
+
+
+  const drawRegion_redCross = function(x, y) {
+    drawRegion_icon(x, y, Icon.cancel, 0.0, 1.0, Color.scarlet, 1.0);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_redCross = drawRegion_redCross;
+
+
+  /* status */
+
+
+  const drawRegion_status = function(x, y, size, color_gn, z) {
+    if(size == null) size = 1;
+    if(color_gn == null) color_gn = Color.green;
+    if(z == null) z = Layer.power + 1.0;
+
+    var mtp = size > 1 ? 1.0 : 0.64;
+    var x_fi = x + size * Vars.tilesize * 0.5 - Vars.tilesize * 0.5 * mtp;
+    var y_fi = y - size * Vars.tilesize * 0.5 + Vars.tilesize * 0.5 * mtp;
+
+    Draw.z(z);
+    Draw.color(Pal.gray);
+    Fill.square(x_fi, y_fi, mtp * 2.5, 45.0);
+    Draw.color(_color(color_gn));
+    Fill.square(x_fi, y_fi, mtp * 1.5, 45.0);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_status = drawRegion_status;
+
+
+  const drawRegion_statusBuild = function(b, color_gn_ow) {
+    if(b == null) return;
+
+    drawRegion_status(b, b.block.size, olor_gn_ow != null ? color_gn_ow : b.status().color);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_statusBuild = drawRegion_statusBuild;
+
+
+  /* shadow */
+
+
+  const drawRegion_shadow = function(x, y, reg, ang, regScl, a, z) {
+    if(reg == null) return;
+    if(a < 0.0001) return;
+
+    var w = reg.width * 2.0 * regScl / Vars.tilesize;
+    var h = reg.height * 2.0 * regScl / Vars.tilesize;
+
+    if(z != null) Draw.z(z);
+    Draw.mixcol(Pal.shadow, 1.0);
+    Draw.alpha(a * 0.22);
+    Draw.rect(reg, x, y, w, h, ang);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_shadow = drawRegion_shadow;
+
+
+  const drawRegion_blurredShadow = function(x, y, reg, ang, regScl, a, z) {
+    const thisFun = drawRegion_blurredShadow;
+
+    if(reg == null) return;
+    if(a < 0.0001) return;
+
+    if(PARAM.drawCircleShadow) {
+      Drawf.shadow(x, y, reg.width * 0.3 * regScl, a);
+      return;
+    };
+
+    if(!PARAM.drawBlurredShadow) {
+      drawRegion_shadow(x, y, reg, ang, regScl, a, z);
+      return;
+    };
+
+    let iCap = thisFun.params.iCap();
+    if(z != null) Draw.z(z);
+    Draw.mixcol(Pal.shadow, 1.0);
+    for(let i = 0; i < iCap; i += 2) {
+
+      let a_i = a * thisFun.params[i];
+      let regScl_i = regScl * thisFun.params[i + 1];
+      let w_i = reg.width * 2.0 * regScl_i / Vars.tilesize;
+      let h_i = reg.height * 2.0 * regScl_i / Vars.tilesize;
+
+      Draw.alpha(a_i);
+      Draw.rect(reg, x, y, w_i, h_i, ang);
+
+    };
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__)
+  .setProp({
+    "params": [
+      0.18, 1.0,
+      0.09, 1.05,
+      0.05, 1.1,
+      0.03, 1.15,
+    ],
+  });
+  exports.drawRegion_blurredShadow = drawRegion_blurredShadow;
+
+
+  /* fade */
+
+
+  const drawRegion_fade = function(x, y, reg, ang, regScl, fadeScl, color_gn, a, z) {
+    if(reg == null) return;
+
+    if(fadeScl == null) fadeScl = 1.0;
+    if(a == null) a = 1.0;
+    var a_fi = a * Math.abs(Math.sin(Time.time * 0.065 / fadeScl));
+
+    drawRegion_normal(x, y, reg, ang, regScl, color_gn, a_fi, z);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_fade = drawRegion_fade;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * This fading region will become opaque when {frac} approaches 1.0 (not linearly).
+   * Used for some very dangerous blocks like reactors.
+   * ---------------------------------------- */
+  const drawRegion_fadeAlert = function(x, y, frac, reg, ang, regScl, color_gn, a, z) {
+    if(reg == null) return;
+
+    var a_fi = 1.0 - Math.pow(Mathf.clamp(Object.val(frac, 0.0)) - 1.0, 2);
+
+    drawRegion_fade(x, y, reg, ang, regScl, 0.2, color_gn, a_fi, z);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_fadeAlert = drawRegion_fadeAlert;
+
+
+  /* rotator */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Spin sprite I think.
+   * {tProg} is supposed to be a building's {totalProgress}, use {rate} to change the speed of rotation.
+   * Only change {sides} according to your sprite's symmetry.
+   * ---------------------------------------- */
+  const drawRegion_rotator = function(x, y, tProg, reg, ang, regScl, rate, sides, color_gn, a, z) {
+    if(tProg == null || reg == null) return;
+
+    if(ang == null) ang = 0.0;
+    if(regScl == null) regScl = 1.0;
+    if(rate == null) rate = 6.0;
+    if(sides == null) side = 4;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    var w = reg.width * 2.0 * regScl / Vars.tilesize;
+    var h = reg.width * 2.0 * regScl / Vars.tilesize;
+    var ang_fd = 360.0 / sides;
+    var ang_fi = Mathf.mod(tProg * rate + ang, ang_fd);
+
+    if(z != null) Draw.z(z);
+    Draw.color(_color(color_gn));
+    Draw.alpha(a);
+    Draw.rect(reg, x, y, w, h, ang_fi);
+    Draw.alpha(ang_fi / ang_fd);
+    Draw.rect(reg, x, y, w, h, ang_fi - ang_fd);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_rotator = drawRegion_rotator;
+
+
+  /* wobble */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Mainly used for trees, they always wobble.
+   * ---------------------------------------- */
+  const drawRegion_wobble = function(x, y, reg, ang, regScl, scl, mag, wobX, wobY, color_gn, a, z, shouldMixcol, mixcolA) {
+    if(reg == null) return;
+
+    if(ang == null) ang = 0.0;
+    if(regScl == null) regScl = 1.0;
+    if(scl == null) scl = 1.0;
+    if(mag == null) mag = 1.0;
+    if(wobX == null) wobX = 1.0;
+    if(wobY == null) wobY = 1.0;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    if(!PARAM.drawWobble) {
+      drawRegion_normal(x, y, reg, ang, regScl, color_gn, a, z, shouldMixcol, mixcolA);
+    } else {
+      let w = reg.width * reg.scl() * regScl;
+      let h = reg.height * reg.scl() * regScl;
+      let ang_fi = ang + Mathf.sin(Time.time + x, 50.0, 0.5) + Mathf.sin(Time.time - y, 65.0, 0.9) + Mathf.sin(Time.time + y - x, 85.0, 0.9);
+
+      if(z != null) Draw.z(z);
+      if(shouldMixcol) {
+        Draw.mixcol(_color(color_gn), Object.val(mixcolA, 1.0));
+        Draw.color(Color.white);
+      } else {
+        Draw.color(_color(color_gn));
+      };
+      Draw.alpha(a);
+      Draw.rectv(reg, x, y, w, h, ang_fi, vec2 => vec2.add(
+        (Mathf.sin(vec2.y * 3.0 + Time.time, 60.0 * scl, 0.5 * mag) + Mathf.sin(vec2.x * 3.0 - Time.time, 70.0 * scl, 0.8 * mag)) * 1.5 * wobX,
+        (Mathf.sin(vec2.x * 3.0 + Time.time + 8.0, 66.0 * scl, 0.55 * mag) + Mathf.sin(vec2.y * 3.0 - Time.time, 50.0 * scl, 0.2 * mag)) * 1.5 * wobY,
+      ));
+      Draw.reset();
+    };
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_wobble = drawRegion_wobble;
+
+
+  /* flame */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Alternative for DrawFlame, where you don't have a fixed -top region.
+   * Light is not included.
+   * ---------------------------------------- */
+  const drawRegion_flame = function(x, y, warmup, reg, rad, radIn, radScl, radMag, radInMag, color_gn, a) {
+    if(warmup == null || reg == null) return;
+
+    if(rad == null) rad = 2.5;
+    if(radIn == null) radIn = 1.5;
+    if(radScl == null) radScl = 5.0;
+    if(radMag == null) radMag = 2.0;
+    if(radInMag == null) radInMag = 1.0;
+    if(color_gn == null) color_gn = "ffc999";
+    if(a == null) a = 1.0;
+
+    var param1 = 0.3;
+    var param2 = 0.06;
+    var param3 = Mathf.random(0.1);
+    var a_fi = a * ((1.0 - param1) + Mathf.absin(Time.time, 8.0, param1) + Mathf.random(param2) - param2) * warmup;
+    var rad_fi = rad + Mathf.absin(Time.time, radScl, radMag) + param3;
+    var radIn_fi = radIn + Mathf.absin(Time.time, radScl, radInMag) + param3;
+
+    Draw.z(Layer.block + 0.01);
+    Draw.alpha(a * warmup);
+    Draw.rect(reg, x, y);
+    Draw.alpha(a_fi);
+    Draw.tint(_color(color_gn));
+    Fill.circle(x, y, rad_fi);
+    Draw.color(1.0, 1.0, 1.0, a * warmup);
+    Fill.circle(x, y, radIn_fi);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_flame = drawRegion_flame;
+
+
+  /* shape */
+
+
+  const drawRegion_scan = function(x, y, tProg, warmup, size, color_gn, a, z) {
+    if(tProg == null || warmup == null) return;
+
+    if(size == null) size = 1;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    if(z != null) Draw.z(z);
+    Draw.color(_color(color_gn));
+    Draw.alpha(warmup * a);
+    Lines.lineAngleCenter(
+      x + Mathf.sin(tProg, 6.0, size * Vars.tilesize / 3.0),
+      y,
+      90.0,
+      size * Vars.tilesize / 2.0,
+    );
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_scan = drawRegion_scan;
+
+
+  const drawRegion_torch = function(x, y, warmup, len, w, size, ang, color1_gn, color2_gn, a, z) {
+    if(warmup == null) return;
+
+    if(len == null) len = 0.0;
+    if(len < 0.0001) return;
+    if(w == null) w = 6.0;
+    if(size == null) size = 0;
+    if(ang == null) ang = 0.0;
+    if(color1_gn == null) color1_gn = Pal.accent;
+    if(color2_gn == null) color2_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    var color1 = _color(color1_gn);
+    var color2 = _color(color2_gn);
+    var offRad = size * Vars.tilesize * 0.5;
+    var x_fi = x + Mathf.cosDeg(ang) * offRad;
+    var y_fi = y + Mathf.sinDeg(ang) * offRad;
+    var len_f = len * 0.4 * warmup;
+    var len_t = len * warmup;
+    var w_f = w * 0.3 * warmup;
+    var w_t = w * 1.2 * warmup;
+    var lenScl = 1.0 + Mathf.sin(Time.time, 1.0, 0.07);
+
+    Drawf.light(x_fi, y_fi, x + Mathf.cosDeg(ang) * len * 1.2, y + Mathf.sinDeg(ang) * len * 1.2, w_t * 6.0, color1, a * 0.65);
+    Draw.z(z != null ? z : VAR.lay_bulFlame);
+    for(let i = 0; i < 4; i++) {
+      let frac_i = 1.0 - i / 3.0;
+      let a_i = Mathf.lerp(a, a * 0.4, frac_i);
+      let len_i = Mathf.lerp(len_f, len_t, frac_i);
+      let w_i = Mathf.lerp(w_f, w_t, frac_i)
+      Draw.color(Tmp.c2.set(color2).lerp(color1, frac_i));
+      Draw.alpha(a_i);
+      Drawf.flame(x_fi, y_fi, 12, ang, len_i * lenScl, w_i, 0.2);
+    };
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_torch = drawRegion_torch;
+
+
+  /* glow */
+
+
+  const drawRegion_glow = function(x, y, reg, color_gn, a, pulse, pulseScl) {
+    if(reg == null) return;
+
+    if(color_gn == null) color_gn = "ff3838";
+    if(a == null) a = 1.0;
+    if(pulse == null) pulse = 0.3;
+    if(pulseScl == null) pulseScl = 10.0;
+
+    var a_fi = a * (1.0 - pulse + Mathf.absin(pulseScl, pulse));
+
+    Draw.z(Layer.blockAdditive);
+    Draw.blend(Blending.additive);
+    Draw.color(_color(color_gn));
+    Draw.alpha(a_fi);
+    Draw.rect(reg, x, y);
+    Draw.blend();
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_glow = drawRegion_glow;
+
+
+  const drawRegion_heat = function(x, y, heatFrac, reg, size) {
+    if(reg == null) reg = VARGEN.blockHeatRegs[Object.val(size, 1)];
+
+    drawRegion_glow(x, y, reg, null, Mathf.clamp(Object.val(heatFrac, 1.0)), null, null);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_heat = drawRegion_heat;
+
+
+  /* light */
+
+
+  const drawRegion_light = function(x, y, warmup, rad, size, sinScl, sinMag, color_gn, a) {
+    if(warmup == null) return;
+
+    if(rad == null) rad = 40.0;
+    if(size == null) size = 1;
+    if(sinScl == null) sinScl = 16.0;
+    if(sinMag == null) sinMag = 6.0;
+    if(color_gn == null) color_gn = "ffc999";
+    if(a == null) a = 0.65;
+
+    Drawf.light(x, y, (rad + Mathf.absin(sinScl, sinMag)) * warmup * size, _color(color_gn), a);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_light = drawRegion_light;
+
+
+  /* plan */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A transparent region that shrinks and expands with time.
+   * Used to indicate placement.
+   * ---------------------------------------- */
+  const drawRegion_plan = function(x, y, reg, ang, regScl, color_gn, a) {
+    if(reg == null) return;
+
+    if(ang == null) ang = 0.0;
+    if(regScl == null) regScl = 1.0;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    var regScl_fi = regScl * (0.825 + Math.sin(Time.time * 0.65) * 0.075);
+    var w = reg.width * 2.0 * regScl_fi / Vars.tilesize;
+    var h = reg.height * 2.0 * regScl_fi / Vars.tilesize;
+
+    Draw.z(Layer.power - 0.01);
+    Draw.color(_color(color_gn));
+    Draw.alpha(0.75 * a);
+    Draw.rect(reg, x, y, ang, w, h);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_plan = drawRegion_plan;
+
+
+  const drawRegion_planBlk = function(blk_gn, t, color_gn) {
+    if(t == null) return;
+
+    var blk = MDL_content._ct(blk_gn, "blk");
+    if(blk == null) return;
+    var reg = MDL_content._regBlk(blk);
+
+    drawRegion_plan(t.worldx() + blk.offset, t.worldy() + blk.offset, reg, color_gn);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_planBlk = drawRegion_planBlk;
+
+
+  /* content */
+
+
+  const drawRegion_rs = function(x, y, rs_gn, size, z) {
+    let rs = MDL_content._ct(rs_gn, "rs");
+    if(rs == null) return;
+
+    if(size == null) size = 0;
+
+    var x_fi = x - Vars.tilesize * 0.5 * size;
+    var y_fi = y + Vars.tilesize * 0.5 * size;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.mixcol(Color.darkGray, 1.0);
+    Draw.rect(rs.uiIcon, x_fi, y_fi - 1.0, 6.0, 6.0);
+    Draw.mixcol();
+    Draw.rect(rs.uiIcon, x_fi, y_fi, 6.0, 6.0);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRegion_rs = drawRegion_rs;
+
+
+  /* <---------- line ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The most normal way of drawing lines, an inner bar and the outline.
+   * ---------------------------------------- */
+  const drawLine_normal = function(x1, y1, x2, y2, color_gn, a, isDashed, noBot, z) {
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    var amtSeg = Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0);
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    if(!noBot) {
+      Lines.stroke(3.0, Pal.gray);
+      Draw.alpha(a);
+      isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
+    };
+    Lines.stroke(1.0, _color(color_gn));
+    Draw.alpha(a);
+    isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawLine_normal = drawLine_normal;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The line has no outline, and it fades in and out with time.
+   * ---------------------------------------- */
+  const drawLine_flicker = function(x1, y1, x2, y2, stroke, scl, color_gn, isDashed, z) {
+    if(stroke == null) stroke = 1.5;
+    if(scl == null) scl = 1.0;
+    if(color_gn == null) color_gn = Pal.accent;
+
+    var amtSeg = Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0);
+    var scl_fi = scl * 15.0;
+    var a = 0.35 + Math.sin(Time.time / scl_fi) * 0.25;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Lines.stroke(stroke, _color(color_gn));
+    Draw.alpha(a);
+    isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawLine_flicker = drawLine_flicker;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * It's laser but not vanilla mining beam. Mostly used to indicate power connection.
+   * ---------------------------------------- */
+  const drawLine_laser = function(x1, y1, x2, y2, strokeScl, color1_gn, color2_gn, hasLight, z) {
+    if(strokeScl == null) strokeScl = 1.0;
+    if(color1_gn == null) color1_gn = Pal.accent;
+    if(color2_gn == null) color2_gn = Color.white;
+
+    var scl = (1.0 + Math.sin(Time.time * 0.065) * 0.2) * strokeScl;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Lines.stroke(3.0 * scl, _color(color1_gn));
+    Draw.alpha(Vars.renderer.laserOpacity);
+    Lines.line(x1, y1, x2, y2);
+    Fill.circle(x1, y1, 2.4 * scl);
+    Fill.circle(x2, y2, 2.4 * scl);
+    Lines.stroke(1.0 * scl, _color(color2_gn));
+    Draw.alpha(Vars.renderer.laserOpacity);
+    Fill.circle(x1, y1, 1.2 * scl);
+    Fill.circle(x2, y2, 1.2 * scl);
+    Lines.line(x1, y1, x2, y2);
+    if(hasLight) Drawf.light(x1, y1, x2, y2);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawLine_laser = drawLine_laser;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a wire that connects two positions.
+   * ---------------------------------------- */
+  const drawLine_wire = function(x1, y1, x2, y2, mat, strokeScl, glowA, z) {
+    if(mat == null) mat = "copper"
+    if(strokeScl == null) strokeScl = 1.0;
+    if(glowA == null) glowA = 1.0;
+
+    let wireReg = VARGEN.wireRegMap.get(mat);
+    let wireEndReg = VARGEN.wireEndRegMap.get(mat);
+    if(wireReg == null || wireEndReg == null) return;
+
+    var ang = Mathf.angle(x2 - x1, y2 - y1);
+    var dx = Mathf.cosDeg(ang) * Draw.scl * 4.0 * strokeScl;
+    var dy = Mathf.sinDeg(ang) * Draw.scl * 4.0 * strokeScl;
+
+    Draw.z(z != null ? z : Layer.power);
+    Draw.color(Color.white, 1.0);
+    Draw.rect(wireEndReg, x1, y1, wireEndReg.width * wireEndReg.scl() * 0.5 * strokeScl, wireEndReg.height * wireEndReg.scl() * 0.5 * strokeScl, ang + 180.0);
+    Draw.rect(wireEndReg, x2, y2, wireEndReg.width * wireEndReg.scl() * 0.5 * strokeScl, wireEndReg.height * wireEndReg.scl() * 0.5 * strokeScl, ang);
+    Lines.stroke(6.0 * strokeScl);
+    Lines.line(wireReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
+    Draw.z(Layer.blockAdditive);
+    Lines.stroke(12.0 * strokeScl);
+    Draw.alpha(glowA * (1.0 - 0.6 + Mathf.absin(7.0, 0.6)) * 0.35);
+    Draw.blend(Blending.additive);
+    Lines.line(VARGEN.wireGlowReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
+    Draw.blend();
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawLine_wire = drawLine_wire;
+
+
+  /* <---------- rect ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Ordinary rectangular range indicator.
+   * {2 * r + size} is the total width in blocks.
+   * ---------------------------------------- */
+  const drawRect_normal = function(x, y, r, size, color_gn, a, isDashed, noBot, z) {
+    if(r == null) r = 0;
+    if(size == null) size = 1;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    var hw = (size * 0.5 + r) * Vars.tilesize;
+    var amtSeg = (size + r * 2) * 2;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    if(!noBot) {
+      Lines.stroke(3.0, Pal.gray);
+      Draw.alpha(a);
+      if(isDashed) {
+        Lines.dashLine(x - hw, y - hw, x + hw, y - hw, seg);
+        Lines.dashLine(x + hw, y - hw, x + hw, y + hw, seg);
+        Lines.dashLine(x + hw, y + hw, x - hw, y + hw, seg);
+        Lines.dashLine(x - hw, y + hw, x - hw, y - hw, seg);
+      } else {
+        Lines.line(x - hw, y - hw, x + hw, y - hw);
+        Lines.line(x + hw, y - hw, x + hw, y + hw);
+        Lines.line(x + hw, y + hw, x - hw, y + hw);
+        Lines.line(x - hw, y + hw, x - hw, y - hw);
+      };
+    };
+    Lines.stroke(1.0, _color(color_gn));
+    Draw.alpha(a);
+    if(isDashed) {
+      Lines.dashLine(x - hw, y - hw, x + hw, y - hw, seg);
+      Lines.dashLine(x + hw, y - hw, x + hw, y + hw, seg);
+      Lines.dashLine(x + hw, y + hw, x - hw, y + hw, seg);
+      Lines.dashLine(x - hw, y + hw, x - hw, y - hw, seg);
+    } else {
+      Lines.line(x - hw, y - hw, x + hw, y - hw);
+      Lines.line(x + hw, y - hw, x + hw, y + hw);
+      Lines.line(x + hw, y + hw, x - hw, y + hw);
+      Lines.line(x - hw, y + hw, x - hw, y - hw);
+    };
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRect_normal = drawRect_normal;
+
+
+  const drawRect_normalPlace = function(blk, tx, ty, r, color_gn, isDashed) {
+    drawRect_normal(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, r, blk.size, color_gn, 1.0, isDashed);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRect_normalPlace = drawRect_normalPlace;
+
+
+  const drawRect_normalSelect = function(b, r, color_gn, isDashed) {
+    drawRect_normal(b.x, b.y, r, b.block.size, color_gn, 1.0, isDashed);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRect_normalSelect = drawRect_normalSelect;
+
+
+  const drawRect_build = function(b, color_gn, isDashed) {
+    drawRect_normal(b.x, b.y, 0, b.block.size, color_gn, 1.0, isDashed);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawRect_build = drawRect_build;
+
+
+  /* <---------- circle ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Classic circular range indicator.
+   * {rad} and {r} are different by the way.
+   * ---------------------------------------- */
+  const drawCircle_normal = function(x, y, rad, color_gn, a, isDashed, noBot, z) {
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    if(!noBot) {
+      Lines.stroke(3.0, Pal.gray);
+      Draw.alpha(a);
+      isDashed ? Lines.dashCircle(x, y, rad) : Lines.circle(x, y, rad);
+    };
+    Lines.stroke(1.0, _color(color_gn));
+    Draw.alpha(a);
+    isDashed ? Lines.dashCircle(x, y, rad) : Lines.circle(x, y, rad);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawCircle_normal = drawCircle_normal;
+
+
+  const drawCircle_normalPlace = function(blk, tx, ty, rad, color_gn, isDashed) {
+    drawCircle_normal(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, rad, color_gn, 1.0, isDashed);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawCircle_normalPlace = drawCircle_normalPlace;
+
+
+  const drawCircle_normalSelect = function(b, rad, color_gn, isDashed) {
+    drawCircle_normal(b.x, b.y, rad, color_gn, 1.0, isDashed);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawCircle_normalSelect = drawCircle_normalSelect;
+
+
+  /* <---------- area ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A filled square, what else can it be?
+   * ---------------------------------------- */
+  const drawArea_normal = function(x, y, size, color_gn, a, z) {
+    if(size == null) size = 1;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.color(_color(color_gn));
+    Draw.alpha(a * 0.7);
+    Fill.rect(x, y, size * Vars.tilesize, size * Vars.tilesize);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawArea_normal = drawArea_normal;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The square slightly shrinks in and out with time.
+   * Used as tile indicator.
+   * ---------------------------------------- */
+  const drawArea_tShrink = function(t, size, color_gn, a, z) {
+    if(size == null) size = 1;
+    var off = size % 2 === 0 ? 4.0 : 0.0;
+    var size_fi = (0.75 + Math.sin(Time.time * 0.065) * 0.15) * size;
+    drawArea_normal(t.worldx() + off, t.worldy() + off, size_fi, color_gn, a, z);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawArea_tShrink = drawArea_tShrink;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A filled area that covers a building.
+   * ---------------------------------------- */
+  const drawArea_build = function(b, pad, color_gn, a, z) {
+    if(b == null) return;
+
+    if(pad == null) pad = 0.0;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    var w = b.block.size * Vars.tilesize - pad * 2.0;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.color(_color(color_gn));
+    Draw.alpha(a * 0.5);
+    Fill.rect(b.x, b.y, w, w);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawArea_build = drawArea_build;
+
+
+  /* <---------- disk ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A disk that fades in and out.
+   * Usually in red to visualize explosion range.
+   * ---------------------------------------- */
+  const drawDisk_warning = function(x, y, rad, scl, color_gn, a, z) {
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return;
+    if(scl == null) scl = 1.0;
+    if(color_gn == null) color_gn = Pal.remove;
+    if(a == null) a = 1.0;
+
+    var a_fi = a * (0.15 + Math.sin(Time / scl / 15.0) * 0.15);
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.color(_color(color_gn));
+    Draw.alpha(a_fi);
+    Fill.circle(x, y, rad);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawDisk_warning = drawDisk_warning;
+
+
+  /* <---------- pulse ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The hollow squares expand and disappear.
+   * ---------------------------------------- */
+  const drawPulse_rect = function(x, y, rad, scl, color_gn, a, z) {
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return;
+    if(scl == null) scl = 1.0;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    var stroke_f = rad * 0.25;
+    var stroke_t = 0.2;
+
+    var frac1 = 1.0 - (Time.time / scl / 150.0) % 1.0;
+    var frac2 = (frac1 + 0.5) % 1.0;
+    var rads = [
+      Math.min(1.0 + Math.pow(1.0 - frac1, 0.5) * rad, rad),
+      Math.min(1.0 + Math.pow(1.0 - frac2, 0.5) * rad, rad),
+    ];
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.color(_color(color_gn));
+    Draw.alpha(a * 0.7);
+    var rad_i;
+    for(let i = 0; i < 2; i++) {
+      rad_i = rads[i];
+      Lines.stroke(Mathf.lerp(stroke_f, stroke_t, rad_i / rad));
+      Lines.line(x - rad_i, y - rad_i, x + rad_i, y - rad_i);
+      Lines.line(x + rad_i, y - rad_i, x + rad_i, y + rad_i);
+      Lines.line(x + rad_i, y + rad_i, x - rad_i, y + rad_i);
+      Lines.line(x - rad_i, y + rad_i, x - rad_i, y - rad_i);
+    };
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawPulse_rect = drawPulse_rect;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Now they are rings.
+   * Used for impact range indication.
+   * ---------------------------------------- */
+  const drawPulse_circle = function(x, y, rad, scl, color_gn, a, z) {
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return;
+    if(scl == null) scl = 1.0;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    var scl_fi = scl * 150.0;
+    var a_fi = a * 0.5;
+    var stroke_f = rad * 0.25;
+    var stroke_t = 0.2;
+
+    var frac1 = 1.0 - (Time.time / scl_fi) % 1.0;
+    var frac2 = (frac1 + 0.25) % 1.0;
+    var frac3 = (frac2 + 0.25) % 1.0;
+    var frac4 = (frac3 + 0.25) % 1.0;
+    var rads = [
+      Math.min(1.0 + (1.0 - frac1) * rad, rad),
+      Math.min(1.0 + (1.0 - frac2) * rad, rad),
+      Math.min(1.0 + (1.0 - frac3) * rad, rad),
+      Math.min(1.0 + (1.0 - frac4) * rad, rad),
+    ];
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.color(_color(color_gn));
+    Draw.alpha(a_fi);
+    var rad_i;
+    for(let i = 0; i < 4; i++) {
+      rad_i = rads[i];
+      Lines.stroke(Mathf.lerp(stroke_f, stroke_t, rad_i / rad));
+      Lines.circle(x, y, rad_i);
+    };
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawPulse_circle = drawPulse_circle;
+
+
+  /* <---------- connector ----------> */
+
+
+  const drawConnector_rect = function(b, ob) {
+    if(b == null || ob == null) return;
+
+    drawRect_build(b);
+    drawRect_build(ob);
+    drawLine_normal(b.x, b.y, ob.x, ob.y);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawConnector_rect = drawConnector_rect;
+
+
+  const drawConnector_area = function(b, ob) {
+    if(b == null || ob == null) return;
+
+    drawArea_build(b);
+    drawArea_build(ob);
+    drawLine_flicker(b.x, b.y, ob.x, ob.y);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawConnector_area = drawConnector_area;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Mass driver indicators.
+   * ---------------------------------------- */
+  const drawConnector_circleArrow = function(b, b_f, b_t, bs_f, bs_t) {
+    if(b == null) return;
+
+    var param = Mathf.absin(Time.time, 6.0, 1.0);
+    var param1 = b.block.size === 1 ? 1.0 : b.block.size * 0.5 + 1.0;
+    Drawf.circles(b.x, b.y, param1 * Vars.tilesize + param - 2.0, Pal.accent);
+
+    if(b_f != null) {
+      Drawf.circles(b_f.x, b_f.y, param1 * Vars.tilesize + param - 2.0, Pal.place);
+      Drawf.arrow(b_f.x, b_f.y, b.x, b.y, b.block.size * Vars.tilesize + param, param + 4.0, Pal.place);
+    };
+
+    if(bs_f != null) {
+      bs_f.forEach(ob => {
+        Drawf.circles(ob.x, ob.y, param1 * Vars.tilesize + param - 2.0, Pal.place);
+        Drawf.arrow(ob.x, ob.y, b.x, b.y, b.block.size * Vars.tilesize + param, param + 4.0, Pal.place);
+      });
+    };
+
+    if(b_t != null) {
+      let param2 = b_t.block.size === 1 ? 1.0 : b_t.block.size * 0.5 + 1.0;
+
+      Drawf.circles(b_t.x, b_t.y, param2 * Vars.tilesize + param - 2.0, Pal.place);
+      Drawf.arrow(b.x, b.y, b_t.x, b_t.y, b.block.size * Vars.tilesize + param, param + 4.0, Pal.accent);
+    };
+
+    if(bs_t != null) {
+      bs_t.forEach(ob => {
+        let param2 = ob.block.size === 1 ? 1.0 : ob.block.size * 0.5 + 1.0;
+
+        Drawf.circles(ob.x, ob.y, param2 * Vars.tilesize + param - 2.0, Pal.place);
+        Drawf.arrow(b.x, b.y, ob.x, ob.y, b.block.size * Vars.tilesize + param, param + 4.0, Pal.accent);
+      });
+    };
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawConnector_circleArrow = drawConnector_circleArrow;
+
+
+  /* <---------- progress ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A regular progress bar.
+   * ---------------------------------------- */
+  const drawProgress_bar = function(x, y, frac, size, color_gn, a, offW, offTy, z) {
+    if(frac == null) return;
+
+    if(size == null) size = 1;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+    if(a < 0.0001) return;
+    if(offW == null) offW = 0.0;
+    if(offTy == null) offTy = 0;
+
+    var w = (size + 1) * Vars.tilesize + offW;
+    var offY = (offTy + size * 0.5 + 0.5) * Vars.tilesize;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Lines.stroke(5.0, Pal.gray);
+    Draw.alpha(a * 0.7);
+    Lines.line(x - w * 0.5, y + offY, x + w * 0.5, y + offY);
+    Lines.stroke(3.0, _color(color_gn));
+    Draw.alpha(a * 0.2);
+    Lines.line(x - w * 0.5, y + offY, x + w * 0.5, y + offY);
+    Draw.alpha(a * 0.7);
+    Lines.line(x - w * 0.5, y + offY, Mathf.lerp(x - w * 0.5, x + w * 0.5, Mathf.clamp(frac)), y + offY);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawProgress_bar = drawProgress_bar;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Progress ring.
+   * ----------------------------------------
+   * DEDICATION:
+   *
+   * Inspired by New Horizon.
+   * ---------------------------------------- */
+  const drawProgress_circle = function(x, y, frac, rad, ang, color_gn, a, noBot, rev, stroke_ow, z) {
+    if(frac == null) return;
+
+    if(rad == null) rad = 24.0;
+    if(ang == null) ang = 0.0;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+    if(a < 0.0001) return;
+
+    var color = _color(color_gn);
+
+    var sides = Lines.circleVertices(rad) * (noBot ? 2 : 1);
+    var ang_side = 360.0 / sides * (rev ? -1.0 : 1.0);
+    var iCap = Math.round(sides * Mathf.clamp(frac));
+    var stroke = Object.val(stroke_ow, 5.0);
+    var radIn = rad - stroke * 0.5 * (noBot ? 1.0 : 0.6);
+    var radOut = rad + stroke * 0.5 * (noBot ? 1.0 : 0.6);
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    if(!noBot) {
+      Lines.stroke(stroke, Pal.gray);
+      Draw.alpha(a * 0.7);
+      Lines.circle(x, y, rad);
+      Lines.stroke(stroke * 0.6, color);
+      Draw.alpha(a * 0.2);
+      Lines.circle(x, y, rad);
+    };
+    Draw.color(color);
+    Draw.alpha(noBot ? 1.0 : 0.7);
+    for(let i = 0; i < iCap; i++) {
+      let ang_i = ang_side * i + ang;
+      Fill.quad(
+        x + radIn * Mathf.cosDeg(ang_i),
+        y + radIn * Mathf.sinDeg(ang_i),
+        x + radIn * Mathf.cosDeg(ang_i + ang_side),
+        y + radIn * Mathf.sinDeg(ang_i + ang_side),
+        x + radOut * Mathf.cosDeg(ang_i + ang_side),
+        y + radOut * Mathf.sinDeg(ang_i + ang_side),
+        x + radOut * Mathf.cosDeg(ang_i),
+        y + radOut * Mathf.sinDeg(ang_i),
+      );
+    };
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawProgress_circle = drawProgress_circle;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A filled area, the height grows as {frac} increases.
+   * ---------------------------------------- */
+  const drawProgress_vArea = function(x, y, frac, size, color_gn, a, offX, offY, wScl, hScl, z) {
+    if(frac == null) return;
+
+    if(size == null) size = 1;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+    if(a < 0.0001) return;
+    if(offX == null) offX = 0.0;
+    if(offY == null) offY = 0.0;
+    if(wScl == null) wScl = 1.0;
+    if(hScl == null) hScl = 1.0;
+
+    var frac_fi = Mathf.clamp(frac);
+    if(frac_fi > 0.9999) return;
+
+    var w = size * Vars.tilesize * wScl;
+    var h = size * Vars.tilesize * hScl * frac_fi;
+    var y_fi = y + offY + Mathf.lerp(w * -0.5, 0.0, frac_fi);
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.color(_color(color_gn));
+    Draw.alpha(a * 0.3);
+    Fill.rect(x + offX, y_fi, w, h);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawProgress_vArea = drawProgress_vArea;
+
+
+  const drawProgress_vAreaMul = function(x, y, fracs, size, color_gn, a, z) {
+    if(fracs == null) return;
+
+    let iCap = fracs.iCap();
+    if(iCap === 0) return;
+    var segW = size * Vars.tilesize / iCap;
+    var wScl = 1.0 / iCap;
+
+    for(let i = 0; i < iCap; i++) {
+      let frac_i = fracs[i];
+      let offX_i = segW * (i - 0.5 * (iCap - 1.0));
+      drawProgress_vArea(x, y, frac_i, size, color_gn, a, offX_i, 0.0, wScl, 1.0, z);
+    };
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawProgress_vAreaMul = drawProgress_vAreaMul;
+
+
+  /* <---------- text ----------> */
+
+
+  const drawText = function(x, y, str, sizeScl, color_gn, align, offX, offY, offZ) {
+    if(str == null || str === "") return;
+
+    if(sizeScl == null) sizeScl = 1.0;
+    if(color_gn == null) color_gn = Color.white;
+    if(align == null) align = Align.center;
+    if(offX == null) offX = 0.0;
+    if(offY == null) offY = 0.0;
+    if(offZ == null) offZ = 0.0;
+
+    var z = Drawf.text();
+
+    var font = Fonts.outline;
+    var layout = Pools.obtain(GlyphLayout, () => new GlyphLayout());
+    var useInt = font.usesIntegerPositions();
+
+    Draw.z(Layer.playerName + 0.5 + offZ);
+    font.setUseIntegerPositions(false);
+    font.getData().setScale(0.25 / Scl.scl(1.0) * sizeScl);
+    layout.setText(font, str);
+    font.setColor(_color(color_gn));
+    font.draw(str, x + offX, y + offY, 0, align, false);
+
+    Draw.reset();
+    Pools.free(layout);
+    font.getData().setScale(1.0);
+    font.setColor(Color.white);
+    font.setUseIntegerPositions(useInt);
+
+    Draw.z(z);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawText = drawText;
+
+
+  const drawText_place = function(blk, tx, ty, str, valid, offTy) {
+    if(blk == null || str == null) return;
+
+    if(valid == null) valid = true;
+    if(offTy == null) offTy = 0;
+
+    blk.drawPlaceText(str, tx + blk.offset / Vars.tilesize, ty + blk.offset / Vars.tilesize + offTy, valid);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawText_place = drawText_place;
+
+
+  const drawText_select = function(b, str, valid, offTy) {
+    if(b == null) return;
+
+    drawText_place(b.block, b.x / Vars.tilesize, b.y / Vars.tilesize, str, valid, offTy);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawText_select = drawText_select;
+
+
+  /* <---------- unit ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The method used to draw unit health bar and more.
+   * Will draw nothing if the unit is hidden by trees.
+   * Also works with buildings.
+   * ---------------------------------------- */
+  const drawUnit_healthBar = function(unit, healthFrac, size, color_gn, a, offW, offTy, segScl, armor, shield, speedMtp, dpsMtp, z) {
+    if(unit == null || healthFrac == null) return;
+    if(unit.dead || (unit instanceof Unit && MDL_cond._isCovered(unit))) return;
+
+    if(size == null) size = 1;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+    if(a < 0.0001) return;
+    if(offW == null) offW = 0.0;
+    if(offTy == null) offTy = 0;
+    if(segScl == null) segScl = 1.0;
+
+    var frac = Mathf.clamp(healthFrac);
+    var color_fi = Tmp.c1.set(_color(color_gn)).lerp(Color.white, MDL_entity._flashFrac(unit));
+    var x = unit.x;
+    var y = unit.y;
+    var a_fi = a * 0.7;
+    var w = (size + 1) * Vars.tilesize + offW;
+    var offY = (offTy + size * 0.5 + 1.5) * Vars.tilesize;
+    var amtSeg = Math.ceil(w / 4.0 / segScl);
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw + 1.0));
+    Lines.stroke(10.0, Pal.gray);
+    Draw.alpha(a_fi);
+    Lines.line(x - w * 0.5 + 2.5, y + offY + 2.5, x + w * 0.5 - 2.5, y + offY + 2.5);
+    Lines.stroke(3.0, color_fi);
+    Draw.alpha(a_fi * 0.3);
+    Lines.line(x - w * 0.5, y + offY, x + w * 0.5, y + offY);
+    Draw.alpha(a_fi);
+    Lines.line(x - w * 0.5, y + offY, Mathf.lerp(x - w * 0.5, x + w * 0.5, frac), y + offY);
+
+    Lines.stroke(1.0, Pal.gray);
+    Draw.alpha(a_fi);
+    var segW = (w + 5.0) / (amtSeg + 1);
+    var x_i;
+    var y1_i;
+    var y2_i;
+    for(let i = 0; i < amtSeg; i++) {
+      x_i = x - w * 0.5 - 2.5 + segW * (i + 1);
+      y1_i = y + offY + 2.0;
+      y2_i = y + offY - 2.0;
+
+      Lines.line(x_i, y1_i, x_i, y2_i);
+    };
+
+    drawText(
+      unit.x,
+      unit.y,
+      Strings.autoFixed(unit.maxHealth, 0),
+      0.8,
+      color_fi,
+      Align.center,
+      0.0,
+      offY + 6.0,
+    );
+
+    if(armor != null) drawText(
+      unit.x,
+      unit.y,
+      Strings.autoFixed(armor, 0),
+      1.2,
+      Color.gray,
+      Align.right,
+      -w * 0.5 - 4.0,
+      offY + 4.0,
+    );
+
+    if(shield != null && shield > 0.0) drawText(
+      unit.x,
+      unit.y,
+      Strings.autoFixed(shield, 0),
+      1.2,
+      Pal.techBlue,
+      Align.left,
+      w * 0.5 + 4.0,
+      offY + 4.0,
+    );
+
+    if(speedMtp != null && size > 2.9999) drawText(
+      unit.x,
+      unit.y,
+      "S: " + Strings.fixed(speedMtp, 2),
+      0.6,
+      Color.gray,
+      Align.left,
+      -w * 0.5 - 2.5,
+      offY + 5.0,
+    );
+
+    if(dpsMtp != null && size > 2.9999) drawText(
+      unit.x,
+      unit.y,
+      "D: " + Strings.fixed(dpsMtp, 2),
+      0.6,
+      Color.gray,
+      Align.right,
+      w * 0.5 + 2.5,
+      offY + 5.0,
+    );
+
+    if(unit instanceof Unit) {
+      let stackSta = MDL_entity._stackStaFirst(unit);
+      if(stackSta != null) {
+        let y_sta = y - unit.type.hitSize * 0.5 - 8.0;
+        let stackStaFrac = Mathf.clamp(1.0 - (unit == null ? 0.0 : unit.getDuration(stackSta)) / stackSta.ex_getBurstTime());
+
+        drawProgress_circle(x, y_sta, stackStaFrac, 2.75, 90.0, Color.white, 1.0, false, true, 2.25);
+        Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw + 1.01));
+        Draw.rect(stackSta.uiIcon, x, y_sta, 4.0, 4.0);
+      };
+    };
+
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawUnit_healthBar = drawUnit_healthBar;
+
+
+  const drawUnit_reload = function(unit, mtIds, color_gn, a, offW, offTy, frac_ow, z) {
+    if(unit == null) return;
+    if(unit.dead || (unit instanceof Unit && MDL_cond._isCovered(unit))) return;
+
+    if(color_gn == null) color_gn = Pal.techBlue;
+    if(a == null) a = 1.0;
+    if(a < 0.0001) return;
+    if(offW == null) offW = 0.0;
+    if(offTy == null) offTy = 0.0;
+
+    var frac = 0.0;
+    if(frac_ow != null) {frac = frac_ow} else {
+      if(mtIds == null) return;
+
+      frac = MDL_entity._reloadFrac(unit, mtIds);
+    };
+    if(frac > 0.9999 || frac < 0.0001) return;
+
+    var x = unit.x;
+    var y = unit.y;
+    var hitSize = MDL_entity._hitSize(unit);
+    var w = (hitSize + 8.0 + offW) * 1.7;
+    var offY = hitSize * 0.5 + 4.0 + (offTy + 1.25) * Vars.tilesize;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw + 1.0));
+    Lines.stroke(5.0, Pal.gray);
+    Draw.alpha(a * 0.5);
+    Lines.line(x - w * 0.5, y - offY, x + w * 0.5, y - offY);
+    Lines.stroke(3.0, _color(color_gn));
+    Draw.alpha(a * 0.25);
+    Lines.line(x - w * 0.5, y - offY, x + w * 0.5, y - offY);
+    Draw.alpha(a * 0.5);
+    Lines.line(x - w * 0.5, y - offY, Mathf.lerp(x - w * 0.5, x + w * 0.5, frac), y - offY);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawUnit_reload = drawUnit_reload;
+
+
+  /* <---------- status effect ----------> */
+
+
+  const drawStatus_fade = function(e, reg, color_gn) {
+    if(e == null || reg == null) return;
+
+    if(color_gn == null) color_gn = Color.white;
+
+    var regScl = MDL_entity._hitSize(e) * 0.1;
+
+    drawRegion_fade(e.x, e.y, reg, 0.0, regScl, 0.5, color_gn, 0.5, Layer.effect + VAR.lay_offDrawOver);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawStatus_fade = drawStatus_fade;
+
+
+  /* <---------- debug ----------> */
+
+
+  const drawDebug_cross = function(x, y, ang, color) {
+    if(ang == null) ang = 0.0;
+    if(color == null) color = Color.white;
+
+    const x1 = x - 3.0 * Mathf.cosDeg(ang - 45.0);
+    const y1 = y - 3.0 * Mathf.sinDeg(ang - 45.0);
+    const x2 = x + 3.0 * Mathf.cosDeg(ang - 45.0);
+    const y2 = y + 3.0 * Mathf.sinDeg(ang - 45.0);
+    const x3 = x - 3.0 * Mathf.cosDeg(ang + 45.0);
+    const y3 = y - 3.0 * Mathf.sinDeg(ang + 45.0);
+    const x4 = x + 3.0 * Mathf.cosDeg(ang + 45.0);
+    const y4 = y + 3.0 * Mathf.sinDeg(ang + 45.0);
+
+    Draw.z(VAR.lay_debugTop);
+    Lines.stroke(1.0);
+    Draw.color(color);
+    Lines.line(x1, y1, x2, y2);
+    Lines.line(x3, y3, x4, y4);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawDebug_cross = drawDebug_cross;
+
+
+  const drawDebug_tri = function(x, y, ang, color) {
+    if(ang == null) ang = 0.0;
+    if(color == null) color = Color.white;
+
+    const x1 = x + 3.0 * Mathf.cosDeg(ang + 90.0);
+    const y1 = y + 3.0 * Mathf.sinDeg(ang + 90.0);
+    const x2 = x + 3.0 * Mathf.cosDeg(ang + 210.0);
+    const y2 = y + 3.0 * Mathf.sinDeg(ang + 210.0);
+    const x3 = x + 3.0 * Mathf.cosDeg(ang + 330.0);
+    const y3 = y + 3.0 * Mathf.sinDeg(ang + 330.0);
+
+    Draw.z(VAR.lay_debugTop);
+    Lines.stroke(0.7);
+    Draw.color(color);
+    Lines.line(x1, y1, x2, y2);
+    Lines.line(x2, y2, x3, y3);
+    Lines.line(x3, y3, x1, y1);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawDebug_tri = drawDebug_tri;
+
+
+  const drawDebug_hitSize = function(e) {
+    if(e == null) return;
+
+    const rad = MDL_entity._hitSize(e) * 0.5;
+    const x1 = e.x + rad * Mathf.cosDeg(e.rotation);
+    const y1 = e.y + rad * Mathf.sinDeg(e.rotation);
+    const offRad = 0.01 + e.vel.len() * 24.0;
+    const x2 = e.x + (rad + offRad) * Mathf.cosDeg(e.rotation);
+    const y2 = e.y + (rad + offRad) * Mathf.sinDeg(e.rotation);
+
+    Draw.z(VAR.lay_debugTop);
+    Lines.stroke(1.0);
+    Draw.color(Pal.place);
+    Lines.circle(e.x, e.y, rad);
+    Draw.color(Pal.accent);
+    Lines.line(x1, y1, x2, y2);
+    Draw.reset();
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawDebug_hitSize = drawDebug_hitSize;
+
+
+  const drawDebug_target = function(unit) {
+    if(unit == null) return;
+
+    var e_tg = MDL_pos._unit_tg(unit.x, unit.y, unit.team, unit.range());
+    if(e_tg == null) return;
+
+    Draw.z(VAR.lay_debugTop);
+    Lines.stroke(0.5);
+    Draw.color(Color.scarlet);
+    Lines.line(unit.x, unit.y, e_tg.x, e_tg.y);
+    Draw.reset();
+    drawDebug_cross(e_tg.x, e_tg.y, 0.0, Color.scarlet);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawDebug_target = drawDebug_target;
+
+
+  const drawDebug_aim = function(bul) {
+    if(bul == null) return;
+    if(bul.aimX < 0.0 || bul.aimY < 0.0) return;
+
+    Draw.z(VAR.lay_debugTop);
+    Lines.stroke(0.5);
+    Draw.color(Pal.heal);
+    Lines.line(bul.x, bul.y, bul.aimX, bul.aimY);
+    Draw.reset();
+    drawDebug_tri(bul.aimX, bul.aimY, 0.0, Pal.heal);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.drawDebug_aim = drawDebug_aim;

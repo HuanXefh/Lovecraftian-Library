@@ -1,0 +1,494 @@
+const db = {
+
+
+  "param": {
+
+
+    "amount": {
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Generic amount parameter for the block.
+       * ---------------------------------------- */
+      "base": [],
+
+    },
+
+
+    "range": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Generic range parameter for the block.
+       * ---------------------------------------- */
+      "base": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Range of impact wave.
+       * ---------------------------------------- */
+      "impact": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Range of EP detection.
+       * ---------------------------------------- */
+      "ep": [],
+
+
+    },
+
+
+    "speed": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Generic speed parameter for the block.
+       * ---------------------------------------- */
+      "base": [],
+
+
+    },
+
+
+    "multiplier": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Multiplier on fuel consumption speed.
+       * ---------------------------------------- */
+      "fuelCons": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Multiplier on fuel level used.
+       * ---------------------------------------- */
+      "fuelLvl": [],
+
+
+    },
+
+
+    "time": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Generic time parameter for the block.
+       * ---------------------------------------- */
+      "base": [],
+
+
+    },
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Corrosion resistence for the block.
+     * ---------------------------------------- */
+    "corRes": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Heat resistence for the block.
+     * ---------------------------------------- */
+    "heatRes": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * How many pollution points the block generates per block.
+     * ---------------------------------------- */
+    "pol": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Pollution tolerance.
+     * Some buildings may halt.
+     * ---------------------------------------- */
+    "polTol": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * @DYNAMIC: b => {...}
+     * Core energy points provided/used by a block.
+     * Core block provides 5 points by default.
+     * ---------------------------------------- */
+    "cep": {
+
+
+      "prov": [],
+
+
+      "use": [],
+
+
+    },
+
+
+  },
+
+
+  "map": {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * The only faction a block belongs to.
+     * Format: {nmBlk, faction}.
+     * ---------------------------------------- */
+    "faction": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Factory family map. Factories included in the same processes belong to the same family.
+     * For instance, jaw crusher and hammer crusher can be classified as rock crusher.
+     * A factory can be included in multiple families.
+     * Format: {nmBlk, facFami}.
+     * ---------------------------------------- */
+    "facFami": [],
+
+
+  },
+
+
+  "group": {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * When building recipe dictionary, these blocks will be ignored to allow customized modification.
+     * Useful cauz it's javascript, no new classes.
+     * ---------------------------------------- */
+    "noRcDict": {
+
+
+      "cons": [],
+
+
+      "prod": [],
+
+
+    },
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Material groups, used mainly for corrosion.
+     * ---------------------------------------- */
+    "material": {
+
+
+      "wood": [],
+
+
+      "copper": [],
+
+
+      "lead": [],
+
+
+      "iron": [],
+
+
+      "steel": [],
+
+
+      "galvanized": [],
+
+
+      "stainless": [],
+
+
+      "glass": [],
+
+
+      "cement": [],
+
+
+      "rubber": [],
+
+
+    },
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * These blocks will trigger item reaction.
+     * Only works for item blocks.
+     * ---------------------------------------- */
+    "exposed": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Theses blocks will get damaged if containing viscous fluids.
+     * ---------------------------------------- */
+    "cloggable": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Theses blocks can short-circuit if soaked in water.
+     * ---------------------------------------- */
+    "shortCircuit": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * These blocks provide magnetic disturbance.
+     * ---------------------------------------- */
+    "magnetic": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * These blocks will only accept items from a material hoist or other tall buildings.
+     * Does not work for all types of blocks.
+     * ---------------------------------------- */
+    "tall": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * These blocks won't drop loot when destroyed.
+     * ---------------------------------------- */
+    "noLoot": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * These blocks have reload bars.
+     * ---------------------------------------- */
+    "showReload": [
+
+      "mass-driver",
+      "payload-mass-driver",
+      "large-payload-mass-driver",
+      "shockwave-tower",
+
+      "lancer",
+      "ripple",
+      "foreshadow",
+      "meltdown",
+      "titan",
+      "afflict",
+      "scathe",
+
+    ],
+
+
+  },
+
+
+  "grpParam": {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Color used for faction-related texts.
+     * ---------------------------------------- */
+    "factionColor": [
+
+      "none", "999999",
+
+      "carbonic", "67798e",
+      "emerald-tide", "748e6b",
+      "enclosure", "d4c0d8",
+      "hexagram-steel", "bfbfbf",
+      "other-world", "d1cb9e",
+      "outpost-military", "8ca9e8",
+      "rim-builder", "acacd8",
+      "zeta-chemistry", "806c94",
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Base corrosion resistence for each material group.
+     * ---------------------------------------- */
+    "corRes": [
+
+      "wood", 1.0,
+      "copper", 1.5,
+      "lead", 1.5,
+      "iron", 1.5,
+      "steel", 2.0,
+      "galvanized", 4.0,
+      "stainless", 6.5,
+      "glass", 12.5,
+      "cement", 3.0,
+      "rubber", 8.5,
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Base heat resistence for each material group.
+     * ---------------------------------------- */
+    "heatRes": [
+
+      "wood", 60.0,
+      "copper", 800.0,
+      "lead", 300.0,
+      "iron", 1400.0,
+      "steel", 1000.0,
+      "galvanized", 1000.0,
+      "stainless", 1000.0,
+      "glass", 250.0,
+      "cement", 300.0,
+      "rubber", 120.0,
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Maps a wire material to texture region name.
+     * ---------------------------------------- */
+    "wireMatReg": [
+
+      "copper", "lovec-ast-wire-copper",
+
+    ],
+
+
+  },
+
+
+  "class": {
+
+
+    "reload": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * These blocks have reload in (0.0, 1.0).
+       * ---------------------------------------- */
+      "frac": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * These blocks have reversed reload calculation (decreasing).
+       * ---------------------------------------- */
+      "rev": [
+
+        LaserTurret,
+
+      ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Combination.
+       * ---------------------------------------- */
+      "revFrac": [
+
+        MassDriver,
+
+      ],
+
+
+    },
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * These blocks by default cannot hold auxilliary fluids.
+     * ---------------------------------------- */
+    "nonAux": [
+
+      LiquidBlock,
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to read generalized craft time for blocks.
+     * This affects calculation of consumption/production rates.
+     * ---------------------------------------- */
+    "craftTime": [
+
+      Drill, blk => blk.drillTime,
+      BeamDrill, blk => blk.drillTime,
+      WallCrafter, (blk, isDrillTime) => isDrillTime ? blk.drillTime : blk.boostItemUseTime,
+
+      Pump, blk => blk.consumeTime,
+      Fracker, blk => blk.itemUseTime,
+
+      ConsumeGenerator, blk => blk.itemDuration,
+      NuclearReactor, blk => blk.itemDuration,
+      ImpactReactor, blk => blk.itemDuration,
+
+      GenericCrafter, blk => blk.craftTime,
+
+      Reconstructor, blk => blk.constructTime,
+
+      MendProjector, blk => blk.useTime,
+      RegenProjector, blk => blk.optionalUseTime,
+      OverdriveProjector, blk => blk.useTime,
+      ForceProjector, blk => blk.phaseUseTime,
+
+      LandingPad, blk => blk.cooldownTime,
+
+    ],
+
+
+  },
+
+
+};
+
+
+Object.mergeDB(db, "DB_block");
+
+
+exports.db = db;

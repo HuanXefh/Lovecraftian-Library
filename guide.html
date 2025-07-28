@@ -1,0 +1,822 @@
+<a name="page-top"></a>
+
+<head>
+  <title>Lovec Lib Guide</title>
+  <style media="screen">
+
+
+    /* <---------- meta ----------> */
+
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+
+    /* <---------- main ----------> */
+
+
+    body {
+
+      padding: 24px 48px;
+
+      font-family: "Times New Roman", Times, serif;
+      color: #000000;
+
+    }
+
+
+    p {
+
+      padding-left: 24px;
+      padding-right: 24px;
+
+      line-height: 1.2;
+      font-size: 18px;
+
+    }
+
+
+    p.end {
+
+      text-align: right;
+      padding-right: 48px;
+
+    }
+
+
+    h1 {
+
+      text-align: left;
+      font-size: 24px;
+
+    }
+
+
+    h2 {
+
+      text-align: left;
+      font-size: 20px;
+
+    }
+
+
+    h1.title {
+
+      text-align: center;
+      font-size: 32px;
+
+    }
+
+
+    div.code > pre {
+
+      border: 1px solid black;
+
+      margin: 18px;
+
+      line-height: 1.5;
+      font-size: 14px;
+
+    }
+
+
+    ul > li {
+
+      line-height: 1.2;
+      font-size: 18px;
+
+    }
+
+
+    table {
+
+      border: 1px solid black;
+      border-collapse: collapse;
+
+      margin: 18px;
+
+      text-align: left;
+      font-size: 18px;
+
+    }
+
+
+    th {
+
+      border: 1px solid black;
+
+      padding: 6px;
+
+    }
+
+
+    td {
+
+      border: 1px solid black;
+
+      padding: 6px;
+
+    }
+
+
+    /* <---------- menu ----------> */
+
+
+    ul.menu {
+
+      column-count: 1;
+      column-gap: 64px;
+
+      list-style-type: none;
+
+    }
+
+
+    ul.menu > li.sub > a {
+
+      padding-left: 40px;
+
+    }
+
+
+  </style>
+</head>
+
+
+<body>
+
+  <div>
+    <h1 class="title">Lovec Lib: A Guide Book</h1>
+    <br>
+    <p><strong>Lovec lib</strong> is a javascript mod that provides some methods for mostly my other mods. However, any other javascript mods can utilize it if the author is familiar enough with JS <del>(and stuck in javascript like me)</del>. This document aims to explain how the lib works and some concepts brought along with it.</p>
+    <br>
+  </div>
+
+  <hr><br>
+
+  <div>
+    <h1>Menu</h1>
+    <br>
+    <ul class="menu">
+
+      <li><a href="#intro">Introduction</a></li><br>
+      <li class="sub"><a href="#intro-struct">Library Structure</a></li><br>
+      <li class="sub"><a href="#intro-struct">Extending A Template</a></li><br>
+
+      <li><a href="#func">Functionality</a></li><br>
+      <li class="sub"><a href="#func-class">Class</a></li><br>
+      <li class="sub"><a href="#func-tag">Coding Tags</a></li><br>
+      <li class="sub"><a href="#func-anno">Annotation</a></li><br>
+      <li class="sub"><a href="#func-merge">Auto-merge</a></li><br>
+      <li class="sub"><a href="#func-ver">Version Check</a></li><br>
+
+      <li><a href="#game">Game Mechanics</a></li><br>
+      <li class="sub"><a href="#game-fluid">Fluids</a></li><br>
+      <li class="sub"><a href="#game-aux">Abstract Fluids</a></li><br>
+      <li class="sub"><a href="#game-loot">Loot Unit</a></li><br>
+      <li class="sub"><a href="#game-recipe">Recipe Factories</a></li><br>
+
+    </ul>
+    <br>
+  </div>
+
+  <hr><br>
+
+  <div>
+    <a name="intro"><h1>Introduction</h1></a>
+    <br>
+
+    <div>
+      <a name="intro-struct"><h2>Library Structure</h2></a>
+      <p>Javascript files in Lovec are categorized based on their use. At the first glance it may be way more complex than most js mods, but you don't need all of them at most time. The key is to know what files to check and import when you need something.</p>
+      <table>
+
+        <tr>
+          <th>Category</th>
+          <th>Use</th>
+          <th>Note</th>
+        </tr>
+
+        <tr>
+          <td><strong>aux</strong></td>
+          <td>Various auxilliary files, including recipes for multi-crafters.</td>
+          <th></th>
+        </tr>
+
+        <tr>
+          <td><strong>blk</strong></td>
+          <td>Template for blocks.</td>
+          <td>A type of template.</td>
+        </tr>
+
+        <tr>
+          <td><strong>cls</strong></td>
+          <td>Definition for classes.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>ct</strong></td>
+          <td>Where {extend} is used and contents are created.</td>
+          <td>Should be loaded in main.js.</td>
+        </tr>
+
+        <tr>
+          <td><strong>db</strong></td>
+          <td>Stores static parameters.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>blk</strong></td>
+          <td>Template for environmental blocks.</td>
+          <td>A type of template.</td>
+        </tr>
+
+        <tr>
+          <td><strong>frag</strong></td>
+          <td>Collection of game related methods, including component methods.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>glb</strong></td>
+          <td>Stores global parameters and objects.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>math</strong></td>
+          <td>Deals with mathematical problems.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>mdl</strong></td>
+          <td>Collection of more generic methods.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>mod</strong></td>
+          <td>Deals with cross-mod interactions.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>rs</strong></td>
+          <td>Template for items and fluids.</td>
+          <td>A type of template.</td>
+        </tr>
+
+        <tr>
+          <td><strong>run</strong></td>
+          <td>Codes usually run only once.</td>
+          <td>Not expected to be imported except RUN_version.</td>
+        </tr>
+
+        <tr>
+          <td><strong>sta</strong></td>
+          <td>Template for status effects.</td>
+          <td>A type of template.</td>
+        </tr>
+
+        <tr>
+          <td><strong>tp</strong></td>
+          <td>Stores static objects.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><strong>unit</strong></td>
+          <td>Template for unit types.</td>
+          <td>A type of template.</td>
+        </tr>
+
+        <tr>
+          <td><strong>wea</strong></td>
+          <td>Template for weathers.</td>
+          <td>A type of template.</td>
+        </tr>
+
+      </table>
+      <br>
+    </div>
+
+    <div>
+      <a name="intro-struct"><h2>Extending A Template</h2></a>
+      <br>
+    </div>
+  </div>
+
+  <hr><br>
+
+  <div>
+    <a name="func"><h1>Functionality</h1></a>
+    <br>
+
+    <div>
+      <a name="func-class"><h2>Class</h2></a>
+      <p>The <strong>class</strong> keyword is reserved for javascript mods. We have to use the primitive form of class in early js, the <strong>Function</strong>. In Lovec, functions are divided into methods and function classes. Let {fun} be a function, then {fun.isClass()} will return false if it's a method, or true if function class.</p>
+      <p>To create a function class:</p>
+      <div class="code"><pre><code>
+        const YourClass = function() {
+          this.init.apply(this, arguments);
+        }.initClass();
+
+        YourClass.prototype.init = function(...) {
+          ...
+        };
+      </code></pre></div>
+      <p>The {initClass} method called on {YourClass} is required to turn it into function class. The {init} on the prototype, however, is used to set up the behavior of the constructor. Once you have created the class, you can simply create instances by {new YourClass(...)}. To define methods (or properties) for the class and its instances:</p>
+      <div class="code"><pre><code>
+        YourClass.testClassMethod = function(...) {
+          // {this} here refers to {YourClass}
+          ...
+        };
+
+        YourClass.prototype.testInstanceMethod = function(...) {
+          // {this} here refers to the instance
+          ...
+        };
+      </code></pre></div>
+      <p>It's quite simple if you know how prototype works. If you'd like to export the class:</p>
+      <div class="code"><pre><code>
+        // In class file
+        module.exports = YourClass;
+
+        // In other file
+        const YourClass = require(...);
+        let ins = new YourClass(...);
+      </code></pre></div>
+      <p>At most time classes inherit methods from a parent called super class. To do that in Lovec:</p>
+      <div class="code"><pre><code>
+        const YourClass = function() {
+          this.init.apply(this, arguments);
+        }.extendClass(*your super class*).initClass();
+
+        YourClass.prototype.init = function(...) {
+          // Can be ommited if no need
+          this.super("init", ...);
+          ...
+        };
+      </code></pre></div>
+      <p>The {extendClass} method should always be called <strong>BEFORE</strong> {initClass}. If there's a super class, the {super} method can be used in class methods and instance methods to call the corresponding functions defined in the super class, just like:</p>
+      <div class="code"><pre><code>
+        YourClass.testClassMethod = function(arg1, arg2, arg3) {
+          // Use arguments that the super method actually needs!
+          this.super("testClassMethod", arg1, arg2, arg3);
+          ...
+        };
+      </code></pre></div>
+      <br>
+    </div>
+
+    <div>
+      <a name="func-tag"><h2>Coding Tags</h2></a>
+      <p>To avoid abuse of note, tags are used to mark some objects. Tags are used in note and start with "@" (NOT annotation), here's a list of tags and their meaning:</p>
+      <table>
+
+        <tr>
+          <th>Tag</th>
+          <th>Meaning</th>
+          <th>Description</th>
+        </tr>
+
+        <tr>
+          <td><i>@ARGS</i></td>
+          <td>In any file. <br> Note of function arguments when not explicitly shown in the definition.</td>
+          <td>Possible arguments.</td>
+        </tr>
+
+        <tr>
+          <td><i>@CONTENTGEN</i></td>
+          <td>In DB file. <br> The array receives elements later, which are added by codes.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@DYNAMIC</i></td>
+          <td>In DB file. <br> Getter functions can be used here for dynamic value.</td>
+          <td>Getter format.</td>
+        </tr>
+
+        <tr>
+          <td><i>@INHERITED</i></td>
+          <td>In class file. <br> This method is inherited from the super class, {this.super} can be used.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@NAMEGEN</i></td>
+          <td>In template file. <br> The content name will be generated if not set in bundle.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@NOSUPER</i></td>
+          <td>In template file. <br> {this.super$xxx} should not be used in the content files.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@NULL</i></td>
+          <td>In any file. <br> This parameter can be null.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@PARAM</i></td>
+          <td>In template file. <br> The key is expected to be set by the modder.</td>
+          <td>Use of the parameter.</td>
+        </tr>
+
+        <tr>
+          <td><i>@SINGLESIZE</i></td>
+          <td>In template file. <br> The block is expected to be one block large, set size to 1.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@SPEC</i></td>
+          <td>In content file. <br> The lines below are special and for this content only.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@TABLE</i></td>
+          <td>In any file. <br> Note for table parts.</td>
+          <td>Part name.</td>
+        </tr>
+
+        <tr>
+          <td><i>@VERSION</i></td>
+          <td>In any file. <br> The method or property is changed after this version.</td>
+          <td>Lovec version.</td>
+        </tr>
+
+      </table>
+      <br>
+    </div>
+
+    <div>
+      <a name="func-anno"><h2>Annotation</h2></a>
+      <br>
+    </div>
+
+    <div>
+      <a name="func-merge"><h2>Auto-merge</h2></a>
+      <p>Auto-merge is used for <strong>DB files</strong>. Lovec by default only reads DB files defined locally, to access the data from other mods, DB files in Lovec will simply search other DB files in loaded mods and try extending their arrays with copied data.</p>
+      <div class="code"><pre><code>
+        // Defined in "lovec/scripts/db/DB_test"
+        const db = {
+          "arr": [0, 1],
+          "obj": {
+            "arr1": [0, 1],
+            "obj1": {
+              "arr2": [0, 1],
+            },
+          },
+          "str": "ohno",
+        };
+        exports.db = db;
+
+        // Defined in "your-mod/scripts/db/DB_test"
+        const db = {
+          "arr": [2, 3],
+          "obj": {
+            "arr1": [0, 1],
+            "obj1": {
+              "arr2": [4, 5],
+              "arr3": [6, 7],
+            },
+          },
+          "num": 7,
+        };
+        exports.db = db;
+
+
+        // The object generated after auto-merge
+        const db = {
+          "arr": [0, 1, 2, 3],
+          "obj": {
+            "arr1": [0, 1, 0, 1],
+            "obj1": {
+              "arr2": [0, 1, 4, 5],
+            },
+          },
+          "str": "ohno",
+        };
+      </code></pre></div>
+      <p>{db} in DB files should contain objects and arrays only, which are the targets of auto-merge. Strings, numbers and functions are not merged, always put them in an array. Since it's only called in Lovec DB files, it only merges fields that DBs in Lovec have (in the code above "arr3" is ommited).</p>
+      <p>Auto-merge only supports a maximum of 3-layer depth, it's impractical to dig deeper on most occassions. In the {db} below "arr2" in "obj2" is too deep to merge.</p>
+      <div class="code"><pre><code>
+        const db = {
+          "obj": {
+            "arr": [],
+            "obj1": {
+              "arr1": [],
+              "obj2": {
+                "arr2": [],
+              },
+            },
+          },
+        };
+      </code></pre></div>
+      <br>
+    </div>
+
+    <div>
+      <a name="func-ver"><h2>Version Check</h2></a>
+      <p>You can't simply require a mod as the dependency when it's updated often. As the mod updates, methods can be changed and sometimes that will lead to random crash. It's important to tell the user they are using outdated mods.</p>
+      <p>Lovec has provided a way to check if the currently loaded mods meet the minimum version requirements, which is defined in <strong>RUN_version</strong>. For example, if you'd like to require Lovec v101 and Lovec Lab v101, you will need put this block at the top of your <strong>main.js</strong>.</p>
+      <div class="code"><pre><code>
+        if(require("lovec/run/RUN_version").checkVersion(*your mod name*, [
+          "lovec", 101,
+          "loveclab", 101,
+        ])) return;
+      </code></pre></div>
+      <p>It will prevent loading of your mod scripts and throws an error dialog to inform the user of outdated or missing mods.</p>
+      <p>Version here takes format of "xxx.xxx" for convenience of comparison, digits after the decimal point are used for beta versions (e.g. 100.25063001, use date to make it larger for newer versions). If you need run version check on your own dependencies, the version stat in mod.json or mod.hjson cannot be like "xxx.xxx.xxx" or contain letters.</p>
+      <p>However, if you don't create a library, it does not matter how you write the mod version, since it's not a dependency.</p>
+      <br>
+    </div>
+  </div>
+
+  <hr><br>
+
+  <div>
+    <a name="game"><h1>Game Mechanics</h1></a>
+    <br>
+
+    <div>
+      <a name="game-fluid"><h2>Fluids</h2></a>
+      <br>
+    </div>
+
+    <div>
+      <a name="game-aux"><h2>Abstract Fluids</h2></a>
+      <br>
+    </div>
+
+    <div>
+      <a name="game-loot"><h2>Loot Units</h2></a>
+      <br>
+    </div>
+
+    <div>
+      <a name="game-recipe"><h2>Recipe Factories</h2></a>
+      <p>Lovec has javascript-based multi-crafters, see BLK_recipeFactory and its child templates.</p>
+      <p>Recipe factories generally require recipe files which are put in "scripts/aux/rc". A recipe file should be named after its owner building (more precisely, the internal name), without mod name prefix. For the format of a recipe file, you can check the files in <strong>Project Reindustrialization</strong>.</p>
+      <p>Most parameters are included in the "recipes" array, which is a 2-array comprised of recipe header and recipe object. Recipe header is a string that is unique to a recipe, it replaces the old numeric id used in Reind. Recipe object is the main place where a recipe is defined, here's a table for its fields (you don't need all of them):</p>
+      <table>
+
+        <tr>
+          <th>Field</th>
+          <th>Description</th>
+          <th>Note</th>
+        </tr>
+
+        <tr>
+          <td><i>icon</i></td>
+          <td>The icon shown for this recipe in config table. <br> Expected to be a content name.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>category</i></td>
+          <td>Category the recipe is in.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>isGenerated</i></td>
+          <td>Whether the recipe is generated by codes.</td>
+          <td>Do not manually set this.</td>
+        </tr>
+
+        <tr>
+          <td><i>validGetter</i></td>
+          <td>A boolean function that determines whether the recipe is available now. <br> Format: b => {...}</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>lockedBy</i></td>
+          <td>Recipe is locked until these contents are unlocked/researched.</td>
+          <td>Always an array!</td>
+        </tr>
+
+        <tr>
+          <td><i>timeScl</i></td>
+          <td>Multiplier on the final crafting time.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>ignoreItemFullness</i></td>
+          <td>Wether the building continues consuming when full of item ouputs.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>tempReq</i></td>
+          <td>For BLK_furnaceFactory only. <br> The furnace temperature required to start crafting.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>tempAllowed</i></td>
+          <td>For BLK_furnaceFactory only. <br> The maximum temperature allowed for the recipe.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>durabDecMtp</i></td>
+          <td>For BLK_durabilityFactory only. <br> Multiplier on the durability decrease rate.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>tooltip</i></td>
+          <td>The extra info used in tooltip. <br> Note that it's a bundle piece, do not write text here!</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td align="center" colspan="3"><strong>I/O fields</strong></td>
+        </tr>
+
+        <tr>
+          <td><i>ci</i></td>
+          <td>Continuous input.</td>
+          <td>Fluids only.</td>
+        </tr>
+
+        <tr>
+          <td><i>bi</i></td>
+          <td>Batch input.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>aux</i></td>
+          <td>Auxilliary input.</td>
+          <td>Better for auxilliary fluids only.</td>
+        </tr>
+
+        <tr>
+          <td><i>reqOpt</i></td>
+          <td>Whether at least one optional input is needed for crafting.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>opt</i></td>
+          <td>Optional input.</td>
+          <td>Items only.</td>
+        </tr>
+
+        <tr>
+          <td><i>co</i></td>
+          <td>Continuous output.</td>
+          <td>Fluids only.</td>
+        </tr>
+
+        <tr>
+          <td><i>bo</i></td>
+          <td>Batch output.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>failP</i></td>
+          <td>Probability of failure.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>fo</i></td>
+          <td>Failed output. Used instead of BO when failed.</td>
+          <td>Items only.</td>
+        </tr>
+
+        <tr>
+          <td align="center" colspan="3"><strong>Event fields</strong></td>
+        </tr>
+
+        <tr>
+          <td><i>updateScr</i></td>
+          <td>Script called when the building updates (even when not active).</td>
+          <td>Not called if building is disabled (e.g. by logic).</td>
+        </tr>
+
+        <tr>
+          <td><i>runScr</i></td>
+          <td>Script called when the building is running.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>craftScr</i></td>
+          <td>Script called when the building finishes crafting (when it produces items).</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>stopScr</i></td>
+          <td>Script called when the building becomes inactive from active.</td>
+          <td></td>
+        </tr>
+
+      </table>
+      <p>The other object named "base" is used for properties that is shared among all recipes. For example, "baseCi" is combined with every "ci" to be read later.</p>
+      <table>
+
+        <tr>
+          <th>Field</th>
+          <th>Description</th>
+          <th>Note</th>
+        </tr>
+
+        <tr>
+          <td><i>baseCi</i></td>
+          <td>Shared continuous input.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseBi</i></td>
+          <td>Shared batch input.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseAux</i></td>
+          <td>Shared auxilliary input.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseOpt</i></td>
+          <td>Shared optional input.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseCo</i></td>
+          <td>Shared continuous output.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseBo</i></td>
+          <td>Shared batch output.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseFo</i></td>
+          <td>Shared failed output.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseUpdateScr</i></td>
+          <td>Shared update script.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseRunScr</i></td>
+          <td>Shared run script.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseCraftScr</i></td>
+          <td>Shared craft script.</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td><i>baseStopScr</i></td>
+          <td>Shared stop script.</td>
+          <td></td>
+        </tr>
+
+      </table>
+      <br>
+    </div>
+  </div>
+
+  <br><hr>
+
+  <div>
+    <p class="end"><i>By Mabo. Last edited: Jul 23, 2025</i></p>
+  </div>
+
+</body>
+
+<a name="page-bot"></a>
