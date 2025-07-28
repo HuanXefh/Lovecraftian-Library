@@ -38,7 +38,6 @@
    * NOTE:
    *
    * Registers a new packet handler.
-   *
    * ---------------------------------------- */
   const __packetHandler = function(mode, header, payloadCaller) {
     const thisFun = __packetHandler;
@@ -187,7 +186,7 @@
     var pow_fi = rad == null ? pow : (pow * (1.0 - Mathf.clamp(MATH_geometry._dst(x, y, unit.x, unit.y) / rad)) * 4.0);
     if(unit.flying) pow_fi *= 2.5;
 
-    var vec2 = Tmp.v1.set(unit).sub(x, y).nor().scl(pow_fi * 80.0);
+    let vec2 = Tmp.v1.set(unit).sub(x, y).nor().scl(pow_fi * 80.0);
     if(ang != null) vec.setAngle(ang + (pow_fi < 0.0 ? 180.0 : 0.0));
 
     unit.impulse(vec2);
@@ -200,7 +199,6 @@
    *
    * Spawns a loot unit.
    * It's item on the ground which can be picked up by player units.
-   * Loot units won't survive save loading for some reason.
    * ---------------------------------------- */
   const spawnLoot = function(x, y, itm_gn, amt, rad, repeat) {
     const thisFun = spawnLoot;
@@ -269,8 +267,8 @@
           // Prevent drowning to death
           if(unit.drownTime > 0.98) unit.remove();
 
-          // Let a player unit to take the item
-          if(PARAM.drawLootAmount && TIMER.timerState_unit && Mathf.chance(0.3)) {
+          // Let a player unit take the item
+          if(TIMER.timerState_unit && Mathf.chance(0.3)) {
             let unit_pl = MDL_pos._unit_pl(unit.x, unit.y, null, VAR.rad_lootRad);
             if(unit_pl != null && MATH_geometry._dst(unit.x, unit.y, unit_pl.x, unit_pl.y) < unit_pl.hitSize * 0.5 + VAR.rad_lootPickRad) {
               if(FRAG_item.takeUnitLoot(unit_pl, unit)) MDL_effect.showBetween_itemTransfer(unit.x, unit.y, unit_pl);
@@ -428,7 +426,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Applys damage to a bullet.
+   * Applies damage to a bullet.
    * Destroys the bullet if bullet damage is reduced to below zero.
    * ---------------------------------------- */
   const damageBul = function(bul, dmg) {

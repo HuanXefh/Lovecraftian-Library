@@ -88,6 +88,7 @@
    * NOTE:
    *
    * Converts array to json payload.
+   * The array should only contain primitive values!
    * ---------------------------------------- */
   Array.toPayload = function(arr) {
     return JSON.stringify(Object.fromArr(arr));

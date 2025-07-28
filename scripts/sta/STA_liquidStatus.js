@@ -26,7 +26,7 @@
    * sta.burstDamage: f    // @PARAM: Damage dealt when the effect bursts.
    * sta.burstDamagePerc: frac    // @PARAM: Damage dealt by ratio of max health.
    * sta.burstScr: unit => {...}    // @PARAM: Script called when the effect bursts.
-   * sta.burstEff: eff    // @PARAM, @NULL: Effect shown when status effect bursts.
+   * sta.burstEff: eff    // @PARAM: Effect shown when status effect bursts.
    * sta.burstEffColor: color    // @PARAM: Color for {burstEff}.
    * ---------------------------------------- */
 
@@ -91,7 +91,7 @@
       unit.unapply(sta);
       FRAG_attack.damage(unit, dmg, true);
       sta.burstScr(unit)
-      if(sta.burstEff != null) sta.burstEff.at(unit.x, unit.y, unit.type.hitSize * 1.1, sta.burstEffColor);
+      sta.burstEff.at(unit.x, unit.y, unit.type.hitSize * 1.1, sta.burstEffColor);
     };
   };
 

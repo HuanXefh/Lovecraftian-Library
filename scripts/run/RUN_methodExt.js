@@ -157,11 +157,14 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Merges two DB files.
+   * Merges all found DB files with the same name, in "scripts/db".
+   * Cross-mod.
    * ---------------------------------------- */
-  Object.mergeDB = function(dbObj, nmFi) {
+  Object.mergeDB = function(dbObj, nmFi, nmModCur) {
+    if(nmModCur == null) nmModCur = "lovec";
+
     Vars.mods.eachEnabled(mod => {
-      if(mod.name !== "lovec") {
+      if(mod.name !== nmModCur) {
         let dbFi = null;
         var path = mod.name + "/db/" + nmFi;
         try {dbFi = require(path)} catch(err) {dbFi = null};
@@ -181,6 +184,9 @@
 
   Function.air = function() {};
   Function.airZero = function() {return 0.0};
+  Function.airOne = function() {return 1.0};
+  Function.airOneMinus = function() {return -1.0};
+  Function.airInfinity = function() {return Infinity};
   Function.airNull = function() {return null};
   Function.airFalse = function() {return false};
   Function.airTrue = function() {return true};
@@ -1458,7 +1464,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Returns a index array.
+   * Returns an index array.
    *
    * Example:
    * [5, 6, 9, 0, 1].toIndArr()    // Returns [0, 1, 2, 3, 4]

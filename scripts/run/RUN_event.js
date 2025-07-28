@@ -327,48 +327,38 @@
 
   MDL_event._c_onUpdate(() => {
 
-
     evComp_update_test();
     evComp_update_unit();
-
 
   }, 45262222);
 
 
   MDL_event._c_onDraw(() => {
 
-
     evComp_draw_test();
     evComp_draw_unitStat();
     evComp_draw_buildStat();
-
 
   }, 12597784);
 
 
   MDL_event._c_onBDamage((b, bul) => {
 
-
     evComp_damage_buildDamageDisplay(b, bul);
-
 
   }, 45751111);
 
 
   MDL_event._c_onUnitDamage((unit, bul) => {
 
-
     evComp_damage_unitDamageDisplay(unit, bul);
-
 
   }, 76523545);
 
 
   MDL_event._c_onUnitDestroy(unit => {
 
-
     evComp_destroy_unitRemains(unit);
     evComp_destroy_deathStatus(unit);
-
 
   }, 47596662);

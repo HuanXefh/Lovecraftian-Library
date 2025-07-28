@@ -148,7 +148,7 @@
 
 
     // Set settings
-    // NOTE: I don't think there's need to create a module for this. Just check {MDL_util._cfg()}.
+    // NOTE: I don't think there's need to create a module for this. Just check {MDL_util._cfg}.
     Vars.ui.settings.addCategory(MDL_bundle._term("lovec", "settings"), tb => {
 
       tb.checkPref("lovec-test-draw", false);
