@@ -35,6 +35,9 @@
 */
 
 
+  /* <---------- object ----------> */
+
+
   /* <---------- function ----------> */
 
 
@@ -76,9 +79,6 @@
   ptp.setTodo = function(todoInfo) {
     return this.setAnno(ANNO.__TODO__(todoInfo));
   };
-
-
-  /* <---------- function ----------> */
 
 
   /* <---------- array ----------> */

@@ -8,6 +8,7 @@
   /* <---------- base ----------> */
 
 
+  exports.json = new Json();
   exports.jsonReader = new JsonReader();
 
 

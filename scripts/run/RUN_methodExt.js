@@ -36,6 +36,11 @@
   Object.air = {};
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns {val} if not {null}, or returns {def} instead.
+   * ---------------------------------------- */
   Object.val = function(val, def) {
     return val == null ? def : val;
   };

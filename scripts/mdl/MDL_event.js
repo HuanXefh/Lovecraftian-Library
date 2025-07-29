@@ -14,7 +14,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Called on after all contents initialized.
+   * Called on after all contents are initialized (after {postInit}).
    * ---------------------------------------- */
   const _c_onInit = function(scr, id) {
     const thisFun = _c_onInit;
