@@ -48,14 +48,11 @@
   const PARENT = require("lovec/env/ENV_materialFloor");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   /* <---------- component ----------> */
 
 
   function comp_init(blk) {
-    if(MATH_base.fEqual(blk.speedMultiplier, 1.0)) blk.speedMultiplier = 0.65;
+    if(Number(blk.speedMultiplier).fEqual(1.0)) blk.speedMultiplier = 0.65;
   };
 
 

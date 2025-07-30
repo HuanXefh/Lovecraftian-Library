@@ -14,9 +14,6 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
@@ -1067,7 +1064,7 @@
 
               if(isGen) tb3.add(MDL_bundle._term("lovec", "generated-recipe").color(Color.gray)).left().row();
 
-              if(!MATH_base.fEqual(timeScl, 1.0)) tb3.add(MDL_text._statText(
+              if(!timeScl.fEqual(1.0)) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "time-required"),
                 Strings.fixed(timeScl, 1) + "x (" + Strings.autoFixed(blk.craftTime * timeScl / 60.0, 2) + "s)",
               )).left().row();
@@ -1094,7 +1091,7 @@
                 TP_stat.rs_heatUnits.localized(),
               )).left().row();
 
-              if(!MATH_base.fEqual(durabDecMtp, 1.0)) tb3.add(MDL_text._statText(
+              if(!durabDecMtp.fEqual(1.0)) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "abrasion-multiplier"),
                 Number(durabDecMtp).perc(),
               )).left().row();

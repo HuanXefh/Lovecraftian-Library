@@ -276,7 +276,7 @@
           };
 
           // Randomly merge loots with the same item
-          if(Mathf.chance(0.002)) {
+          if(Mathf.chance(0.005)) {
             let loot = MDL_pos._loot(unit.x, unit.y, VAR.rad_lootMergeRad, unit);
             if(loot != null && loot.item() === unit.item()) {
               unit.stack.amount += loot.stack.amount;

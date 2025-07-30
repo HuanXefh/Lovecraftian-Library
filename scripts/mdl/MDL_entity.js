@@ -174,6 +174,26 @@
   exports._flashFrac = _flashFrac;
 
 
+  const _elev = function(unit) {
+    return unit == null ? 0.0 : Mathf.clamp(unit.elevation, unit.type.shadowElevation, 1.0) * unit.type.shadowElevationScl * (1.0 - unit.drownTime);
+  };
+  exports._elev = _elev;
+
+
+  const _reloadMtp = function(unit, isClamped) {
+    var mtp = unit == null ? 1.0 : unit.reloadMultiplier * (unit.disarmed ? 0.0 : 1.0);
+
+    return !isClamped ? mtp : Mathf.clamp(mtp);
+  };
+  exports._reloadMtp = _reloadMtp;
+
+
+  const _ctrl = function(unit) {
+    return unit == null ? null : Function.tryProp(unit.controller).call(unit);
+  };
+  exports._ctrl = _ctrl;
+
+
   const _stackStaFirst = function(unit) {
     for(let sta of VARGEN.stackStas) {
       if(unit.hasEffect(sta)) return sta;

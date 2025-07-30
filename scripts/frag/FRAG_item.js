@@ -397,6 +397,21 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Used for unit mining.
+   * ---------------------------------------- */
+  const addUnitItem_mine = function(unit, x, y, itm) {
+    if(unit == null || itm == null) return false;
+
+    Call.transferItemToUnit(itm, x, y, unit);
+
+    return true;
+  };
+  exports.addUnitItem_mine = addUnitItem_mine;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Lets a unit transfer its items to another unit.
    * ---------------------------------------- */
   const transUnitItem = function(unit, unit_t, amt, p) {

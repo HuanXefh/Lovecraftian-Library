@@ -18,6 +18,18 @@
   const DB_item = require("lovec/db/DB_item");
 
 
+  /* <---------- key binding ----------> */
+
+
+  const LovecBinding = {};
+
+
+  const __LovecBinding = function(nm, keyBind) {
+    LovecBinding[nm] = keyBind;
+  };
+  exports.__LovecBinding = __LovecBinding;
+
+
   /* <---------- sprite ----------> */
 
 
@@ -44,7 +56,7 @@
     exports.wireRegMap = wireRegMap;
     exports.wireEndRegMap = wireEndRegMap;
     exports.wireGlowReg = Core.atlas.find("lovec-ast-wire-glow");
-
+    exports.wireShaReg = Core.atlas.find("lovec-ast-wire-shadow");
 
 
   }, 25777741);
@@ -136,3 +148,15 @@
 
 
   }, 79532268);
+
+
+  /* <---------- misc ----------> */
+
+
+  MDL_event._c_onLoad(() => {
+
+
+    exports.LovecBinding = LovecBinding;
+
+
+  }, 54888119);

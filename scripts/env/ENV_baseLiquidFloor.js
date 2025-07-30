@@ -71,11 +71,11 @@
     blk.walkSoundPitchMax = 1.05;
 
     blk.isLiquid = true;
-    if(MATH_base.fEqual(blk.speedMultiplier, 1.0)) {
+    if(Number(blk.speedMultiplier).fEqual(1.0)) {
       blk.speedMultiplier = blk.shallow ? 0.8 : 0.5;
       if(liq != null) blk.speedMultiplier *= MATH_base.applyInterp(1.0, 0.2, liq.viscosity, Interp.linear, 0.5, 1.0);
     };
-    if(MATH_base.fEqual(blk.drownTime, 0.0)) blk.drownTime = blk.shallow ? 0.0 : VAR.time_drownDef;
+    if(Number(blk.drownTime).fEqual(0.0)) blk.drownTime = blk.shallow ? 0.0 : VAR.time_drownDef;
     if(blk.status !== StatusEffects.none) blk.statusDuration = VAR.time_liqStaDef * (blk.shallow ? 1.0 : 2.0);
     blk.supportsOverlay = true;
 
@@ -83,7 +83,7 @@
     blk.albedo = 0.9;
     blk.walkEffect = Fx.ripple;
 
-    if(liq != null && MATH_base.fEqual(blk.liquidMultiplier, 1.0)) blk.liquidMultiplier = blk.shallow ? 0.5 : 1.0;
+    if(liq != null && Number(blk.liquidMultiplier).fEqual(1.0)) blk.liquidMultiplier = blk.shallow ? 0.5 : 1.0;
 
     if(liq != null) MDL_content.rename(
       blk,

@@ -85,9 +85,6 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const FRAG_item = require("lovec/frag/FRAG_item");
   const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
@@ -179,9 +176,9 @@
     }}));
 
     var fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk, 1.0);
-    if(!MATH_base.fEqual(fuelConsMtp, 1.0)) blk.stats.add(TP_stat.blk0fac_fuelConsMtp, Number(fuelConsMtp).perc());
+    if(!fuelConsMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelConsMtp, Number(fuelConsMtp).perc());
     var fuelLvlMtp = DB_block.db["param"]["multiplier"]["fuelLvl"].read(blk, 1.0);
-    if(!MATH_base.fEqual(fuelLvlMtp, 1.0)) blk.stats.add(TP_stat.blk0fac_fuelLvlMtp, Number(fuelLvlMtp).perc());
+    if(!fuelLvlMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelLvlMtp, Number(fuelLvlMtp).perc());
   };
 
 

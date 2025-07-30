@@ -28,6 +28,13 @@
   let upSupTime = 180;
 
 
+  let shouldLoadParam = false;
+  const forceLoadParam = function() {
+    shouldLoadParam = true;
+  };
+  exports.forceLoadParam = forceLoadParam;
+
+
 /*
   ========================================
   Section: Application
@@ -59,7 +66,7 @@
     exports.updateSuppressed = upSup_i-- > 0;
 
 
-    if(TIMER.timerState_paramGlobal) {
+    if(TIMER.timerState_paramGlobal || shouldLoadParam) {
 
 
       // Param
@@ -109,6 +116,9 @@
       exports.displayDamage = MDL_util._cfg("damagedisplay-show");
       exports.damageDisplayThreshold = MDL_util._cfg("damagedisplay-min", true);
       exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
+
+
+      shouldLoadParam = false;
 
 
     };

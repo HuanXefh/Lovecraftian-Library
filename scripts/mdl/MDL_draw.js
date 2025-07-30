@@ -803,9 +803,13 @@
     Draw.rect(wireEndReg, x2, y2, wireEndReg.width * wireEndReg.scl() * 0.5 * strokeScl, wireEndReg.height * wireEndReg.scl() * 0.5 * strokeScl, ang);
     Lines.stroke(6.0 * strokeScl);
     Lines.line(wireReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
-    Draw.z(Layer.blockAdditive);
-    Lines.stroke(12.0 * strokeScl);
-    Draw.alpha(glowA * (1.0 - 0.6 + Mathf.absin(7.0, 0.6)) * 0.35);
+    Draw.z(Layer.block + 0.1);
+    Lines.stroke(20.0 * strokeScl);
+    Draw.alpha(0.3);
+    Lines.line(VARGEN.wireShaReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
+    Draw.z((z != null ? z : Layer.power) + 0.01);
+    Lines.stroke(8.0 * strokeScl);
+    Draw.alpha(glowA * (0.4 + Mathf.absin(15.0, 0.6)) * 0.25);
     Draw.blend(Blending.additive);
     Lines.line(VARGEN.wireGlowReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
     Draw.blend();

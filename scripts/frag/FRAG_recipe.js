@@ -32,6 +32,11 @@
   const rcDictProd = {};
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Adds an item consumption term to recipe dictionary.
+   * ---------------------------------------- */
   const addItmConsTerm = function(blk_gn, itm_gn, amt, p, data) {
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -52,6 +57,11 @@
   exports.addItmConsTerm = addItmConsTerm;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Adds a fluid consumption term to recipe dictionary.
+   * ---------------------------------------- */
   const addFldConsTerm = function(blk_gn, liq_gn, amt, data) {
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -70,6 +80,11 @@
   exports.addFldConsTerm = addFldConsTerm;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Adds an item production term to recipe dictionary.
+   * ---------------------------------------- */
   const addItmProdTerm = function(blk_gn, itm_gn, amt, p, data) {
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -90,6 +105,11 @@
   exports.addItmProdTerm = addItmProdTerm;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Adds a fluid production term to recipe dictionary.
+   * ---------------------------------------- */
   const addFldProdTerm = function(blk_gn, liq_gn, amt, data) {
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -108,6 +128,11 @@
   exports.addFldProdTerm = addFldProdTerm;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns an array or 3-array of all blocks that consume the resource.
+   * ---------------------------------------- */
   const _consumers = function(rs_gn, appendData) {
     const arr = [];
 
@@ -134,6 +159,11 @@
   exports._consumers = _consumers;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns an array or 3-array of all blocks that produce the resource.
+   * ---------------------------------------- */
   const _producers = function(rs_gn, appendData) {
     const arr = [];
 
@@ -766,6 +796,12 @@
 
 
     /* ----------------------------------------
+     * NOTE:
+     *
+     * Reads consumers and output lists of blocks to build the recipe dictionary.
+     * Methods used for each block class are defined in {DB_misc.db["recipe"]}.
+     * This only works for java mods, since js mods don't create classes.
+     * ----------------------------------------
      * IMPORTANT:
      *
      * Use {Core.app.post} for methods that modify recipe dictionary, after client load.

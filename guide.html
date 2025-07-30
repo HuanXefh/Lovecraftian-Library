@@ -146,14 +146,18 @@
 
 <body>
 
+
   <div>
-    <h1 class="title">Lovec Lib: A Guide Book</h1>
+    <h1 class="title">LovecLib: A Guide Book</h1>
     <br>
-    <p><strong>Lovec lib</strong> is a javascript mod that provides some methods for mostly my other mods. However, any other javascript mods can utilize it if the author is familiar enough with JS <del>(and stuck in javascript like me)</del>. This document aims to explain how the lib works and some concepts brought along with it.</p>
+    <p><strong>LovecLib</strong> is a javascript mod that provides some methods for mostly my other mods. However, any other javascript mods can utilize it if the author is familiar enough with JS <del>(and stuck in javascript like me)</del>. This document aims to explain how the lib works and some concepts brought along with it.</p>
+    <p>Note that the lib is still subject to change, and the document may not be updated that frequently. Some information can be inaccurate.</p>
     <br>
   </div>
 
+
   <hr><br>
+
 
   <div>
     <h1>Menu</h1>
@@ -171,6 +175,9 @@
       <li class="sub"><a href="#func-merge">Auto-merge</a></li><br>
       <li class="sub"><a href="#func-ver">Version Check</a></li><br>
 
+      <li><a href="#mdl">Important Modules</a></li><br>
+      <li class="sub"><a href="#mdl-event">MDL_event</a></li><br>
+
       <li><a href="#game">Game Mechanics</a></li><br>
       <li class="sub"><a href="#game-fluid">Fluids</a></li><br>
       <li class="sub"><a href="#game-aux">Abstract Fluids</a></li><br>
@@ -181,15 +188,18 @@
     <br>
   </div>
 
+
   <hr><br>
+
 
   <div>
     <a name="intro"><h1>Introduction</h1></a>
     <br>
 
+
     <div>
       <a name="intro-struct"><h2>Library Structure</h2></a>
-      <p>Javascript files in Lovec are categorized based on their use. At the first glance it may be way more complex than most js mods, but you don't need all of them at most time. The key is to know what files to check and import when you need something.</p>
+      <p>Javascript files in Lovec are categorized based on their uses. At the first glance it may be way more complex than most js mods, but you don't need all of them at most time. The key is to know what files to check and import when you need something.</p>
       <table>
 
         <tr>
@@ -304,17 +314,27 @@
       <br>
     </div>
 
+
     <div>
       <a name="intro-struct"><h2>Extending A Template</h2></a>
+      <p>To extend a template, you should find a template file first. Template files serve as collections of pre-defined methods. As you can see in <strong>Library Structure</strong>, files in <strong>blk</strong> folder are templates for blocks, every {BLK_xxx} is a template file that you can extend to create your own contents.</p>
+      <p>Template files are meant to be used in a content file (CT file), which is in the <strong>ct</strong> folder. A CT file may consists of three parts in two sections: import (definition), auxilliary (definition) and application. Application is simply where you write {extend(..., {...})}, I won't talk about it since that's basic knowledge for a javascript modder.</p>
+      <p>In the import part, besides importing modules you need, it's important to set the right <strong>TEMPLATE</strong>. If you are creating conveyor blocks, write {const TEMPLATE = require("lovec/blk/BLK_conveyor")} or similiar line to require your own conveyor template. Generic methods for a type of contents should always be defined in a template file, NOT the content file, especially in the object in extend which is completely not reusable. If you're doing it right, you are expected to import few files in a CT file, on most occasions TEMPLATE is the only one required.</p>
+      <p>Most CT files in ProjReind have auxilliary part, where {_std} and {_std_b} are defined. The two methods are local and responsible for outputting objects used in extend. Some objects (e.g. in {CT_BLK_recipeFactory}) are really long and if you put them in extend instead of using a function, you'll get f**ked up by the huge gap between each content, and it's torture to edit every single object when something changes.</p>
+      <p>I can't export {_std} (<del>sounds kinda wierd</del>). CT files are only meant to be required in the scope of your own mod, if you use require on them in cross-mod situations something may break. For your own CT files, you have to copy {_std} or write your own ones.</p>
+      <p>You may have found that {this.super$xxx} is ommited in some methods randomly. In the template file, methods tagged with <i>@NOSUPER</i> are expected to be used with the super method not called.</p>
       <br>
     </div>
   </div>
 
+
   <hr><br>
+
 
   <div>
     <a name="func"><h1>Functionality</h1></a>
     <br>
+
 
     <div>
       <a name="func-class"><h2>Class</h2></a>
@@ -370,12 +390,14 @@
           ...
         };
       </code></pre></div>
+      <p>If you leave the method untouched, it will be exactly the same as the counterpart in the super class.</p>
       <br>
     </div>
 
+
     <div>
       <a name="func-tag"><h2>Coding Tags</h2></a>
-      <p>To avoid abuse of note, tags are used to mark some objects. Tags are used in note and start with "@" (NOT annotation), here's a list of tags and their meaning:</p>
+      <p>To avoid abuse of note, tags are used to mark some objects. Tags are used in note and start with "@" (NOT annotation which is defined in another way), here's a list of tags and their meaning:</p>
       <table>
 
         <tr>
@@ -460,10 +482,24 @@
       <br>
     </div>
 
+
     <div>
       <a name="func-anno"><h2>Annotation</h2></a>
+      <p>It's totally different from the one used in Java. In Lovec, <strong>annotation</strong> is used to modify a function. For example, {__SERVER__} will make a method only runs on server side. Annotations in Lovec are defined in {BOX_anno} which is in <strong>glb</strong>, the annotation class is defined in {CLS_annotation}.</p>
+      <p>Annotation may appear to have arguments, although it's actually a function that returns new annotations based on the arguments. Take {__INIT__} as an example, the sole argument is a function which is called after the difinition of the parent function:</p>
+      <div class="code"><pre><code>
+        const foo = function() {
+          ...
+        }
+        .setAnno(ANNO.__INIT__(function() {
+          ...
+        }));
+      </code></pre></div>
+      <p>{BOX_anno} is usually imported as {ANNO} since it's in <strong>glb</strong>. To apply annotation to a function, simply call {setAnno} on it. However the function should not be directly declared with the function keyword, as {setAnno} works by returning the modified version.</p>
+      <p>At most time, {this} in the annotation (including the function used in {__INIT__}) refers to the parent function. However, inside an arrow function {this} will always be the global object, which is why I discourage using arrow functions in annotation-related codes.</p>
       <br>
     </div>
+
 
     <div>
       <a name="func-merge"><h2>Auto-merge</h2></a>
@@ -480,7 +516,7 @@
           },
           "str": "ohno",
         };
-        exports.db = db;
+
 
         // Defined in "your-mod/scripts/db/DB_test"
         const db = {
@@ -494,7 +530,6 @@
           },
           "num": 7,
         };
-        exports.db = db;
 
 
         // The object generated after auto-merge
@@ -527,10 +562,11 @@
       <br>
     </div>
 
+
     <div>
       <a name="func-ver"><h2>Version Check</h2></a>
       <p>You can't simply require a mod as the dependency when it's updated often. As the mod updates, methods can be changed and sometimes that will lead to random crash. It's important to tell the user they are using outdated mods.</p>
-      <p>Lovec has provided a way to check if the currently loaded mods meet the minimum version requirements, which is defined in <strong>RUN_version</strong>. For example, if you'd like to require Lovec v101 and Lovec Lab v101, you will need put this block at the top of your <strong>main.js</strong>.</p>
+      <p>Lovec has provided a way to check if the currently loaded mods meet the minimum version requirements, which is defined in <strong>RUN_version</strong>. For example, if you'd like to require Lovec v101 and Lovec Lab v101, you will need put this at the top of your <strong>main.js</strong>.</p>
       <div class="code"><pre><code>
         if(require("lovec/run/RUN_version").checkVersion(*your mod name*, [
           "lovec", 101,
@@ -544,31 +580,60 @@
     </div>
   </div>
 
+
   <hr><br>
+
+
+  <div>
+    <a name="mdl"><h1>Important Modules</h1></a>
+    <br>
+
+
+    <div>
+      <a name="mdl-event"><h2>MDL_event</h2></a>
+      <p>The module handles events, methods here are just encased {Events.run(...)} or {Events.on(...)}.</p>
+      <p>It's important to know that, if required cross-mod, a script can be run multiple times. For example:</p>
+      <div class="code"><pre><code>
+        Events.run(ClientLoadEvent, () => print("ohno"));
+        MDL_event._c_onLoad(() => print("ohsh"));
+        MDL_event._c_onLoad(() => print("ohyes"), 15227481);
+      </code></pre></div>
+      <p>If required by 3 mods, after client load you'll find 3 "ohno"s, 3 "ohsh"s and 1 "ohyes" in the console. The numeric id used here prevents repetition, which is applied to all methods defined in {MDL_event}.</p>
+      <br>
+    </div>
+  </div>
+
+
+  <hr><br>
+
 
   <div>
     <a name="game"><h1>Game Mechanics</h1></a>
     <br>
+
 
     <div>
       <a name="game-fluid"><h2>Fluids</h2></a>
       <br>
     </div>
 
+
     <div>
       <a name="game-aux"><h2>Abstract Fluids</h2></a>
       <br>
     </div>
+
 
     <div>
       <a name="game-loot"><h2>Loot Units</h2></a>
       <br>
     </div>
 
+
     <div>
       <a name="game-recipe"><h2>Recipe Factories</h2></a>
       <p>Lovec has javascript-based multi-crafters, see BLK_recipeFactory and its child templates.</p>
-      <p>Recipe factories generally require recipe files which are put in "scripts/aux/rc". A recipe file should be named after its owner building (more precisely, the internal name), without mod name prefix. For the format of a recipe file, you can check the files in <strong>Project Reindustrialization</strong>.</p>
+      <p>Recipe factories generally require recipe files which are put in "scripts/aux/rc". A recipe file should be named after its owner building (more precisely, the internal name), without mod name prefix. For the format of a recipe file, you can check the files in Project Reindustrialization.</p>
       <p>Most parameters are included in the "recipes" array, which is a 2-array comprised of recipe header and recipe object. Recipe header is a string that is unique to a recipe, it replaces the old numeric id used in Reind. Recipe object is the main place where a recipe is defined, here's a table for its fields (you don't need all of them):</p>
       <table>
 
@@ -811,11 +876,14 @@
     </div>
   </div>
 
+
   <br><hr>
 
+
   <div>
-    <p class="end"><i>By Mabo. Last edited: Jul 23, 2025</i></p>
+    <p class="end"><i>By Mabo. Last edited: Jul 29, 2025</i></p>
   </div>
+
 
 </body>
 

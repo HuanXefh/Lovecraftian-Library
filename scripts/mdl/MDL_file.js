@@ -64,6 +64,15 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * "Mindustry/saves/mods/data/lovec".
+   * ---------------------------------------- */
+  const lovecData = mod.child("data").child("lovec");
+  exports.lovecData = lovecData;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Returns the root directory of a mod.
    * ---------------------------------------- */
   const _root = function(nmMod) {
@@ -193,8 +202,8 @@
    *
    * Returns the string in a text file.
    * ---------------------------------------- */
-  const _txt = function(fi) {
-    if(fi == null || fi.extension() !== "txt") return "";
+  const _txt = function(fi, bypassExt) {
+    if(fi == null || (!bypassExt && fi.extension() !== "txt")) return "";
 
     return fi.readString();
   };
@@ -206,12 +215,98 @@
    *
    * Writes {str} in a text file.
    * ---------------------------------------- */
-  const __txt = function(fi, str, shouldAppend) {
-    if(fi == null || fi.extension() !== "txt" || str == null) return;
+  const __txt = function(fi, str, shouldAppend, bypassExt) {
+    if(fi == null || (!bypassExt && fi.extension() !== "txt") || str == null) return;
 
     fi.writeString(str, Boolean(shouldAppend));
   };
   exports.__txt = __txt;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads a .csv file and returns the result as an array.
+   * ---------------------------------------- */
+  const _csv = function(fi, bypassExt) {
+    const arr = [];
+
+    if(fi == null || (!bypassExt && fi.extension() !== "csv")) return arr;
+
+    var str = fi.readString();
+    let tmp = "";
+    let i = 0;
+    let iCap = str.iCap();
+    while(i < iCap) {
+      let l = str[i];
+      if(l === ",") {
+        arr.push(tmp);
+        tmp = "";
+      } else if(l === " ") {
+        let j = 0;
+        let jCap = i;
+        while(j < jCap) {
+          let ol = str[i - j];
+          if(ol === " ") {
+            // Do nothing, check previous letter
+          } else if(ol === "," || ol.charCodeAt(0) === 13 || ol.charCodeAt(0) === 10) {
+            // Do nothing
+            break;
+          } else {
+            let k = 0;
+            let kCap = j + 1;
+            while(k < kCap) {
+              tmp += " ";
+            };
+            break;
+          };
+          j++;
+        };
+      } else if(l.charCodeAt(0) === 13) {
+        let ol = str[i + 1];
+        if(ol.charCodeAt(0) === 10 || ol == null) {
+          arr.push(tmp);
+          tmp = "";
+        };
+      } else if(l.charCodeAt(0) === 10) {
+        // Do nothing
+      } else {
+        tmp += l;
+      };
+      i++;
+    };
+    if(i > 0) arr.push(tmp);
+
+    return arr;
+  };
+  exports._csv = _csv;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes a .csv file with given n-array.
+   * ---------------------------------------- */
+  const __csv = function(fi, arr, ord, bypassExt) {
+    if(fi == null || (!bypassExt && fi.extension() !== "csv") || arr == null) return;
+
+    if(ord == null) ord = 2;
+
+    var str = "";
+    let i = 0;
+    let iCap = arr.iCap();
+    while(i < iCap) {
+      str += String(arr[i]);
+      str += ",";
+      if((i + 1) % ord === 0) {
+        str += String.fromCharCode(13) + String.fromCharCode(10);
+      };
+      i++;
+    };
+
+    fi.writeString(str);
+  };
+  exports.__csv = __csv;
 
 
   /* ----------------------------------------
@@ -231,3 +326,16 @@
     return fiSeq.size === 0 ? null : fiSeq.get(0);
   };
   exports._json_ct = _json_ct;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns the current Lovec data file.
+   * ---------------------------------------- */
+  const _lsav = function() {
+    if(Vars.state.isMenu()) return null;
+
+    return lovecData.child(Vars.control.saves.getCurrent().file.nameWithoutExtension() + ".lsav");
+  };
+  exports._lsav = _lsav;

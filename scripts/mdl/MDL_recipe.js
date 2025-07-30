@@ -11,9 +11,6 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const FRAG_recipe = require("lovec/frag/FRAG_recipe");
 
 
@@ -479,7 +476,7 @@
       let strTempAllowed = !isFinite(tempAllowed) ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-allowed"), Strings.fixed(tempAllowed, 2), TP_stat.rs_heatUnits.localized());
 
       let durabDecMtp = _durabDecMtp(rcMdl, rcHeader);
-      let strDurabDecMtp = MATH_base.fEqual(durabDecMtp, 1.0) ? null : MDL_text._statText(MDL_bundle._term("lovec", "abrasion-multiplier"), Number(durabDecMtp).perc());
+      let strDurabDecMtp = durabDecMtp.fEqual(1.0) ? null : MDL_text._statText(MDL_bundle._term("lovec", "abrasion-multiplier"), Number(durabDecMtp).perc());
 
       let strIsGen = _isGen(rcMdl, rcHeader) ? MDL_bundle._term("lovec", "generated-recipe") : null;
 

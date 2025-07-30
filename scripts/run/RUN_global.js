@@ -34,6 +34,7 @@
 
   const MATH_base = require("lovec/math/MATH_base");
   const MATH_geometry = require("lovec/math/MATH_geometry");
+  const MATH_probability = require("lovec/math/MATH_probability");
   const MATH_statistics = require("lovec/math/MATH_statistics");
 
 
@@ -109,6 +110,7 @@
 
       math_base: MATH_base,
       math_geometry: MATH_geometry,
+      math_probability: MATH_probability,
       math_statistics: MATH_statistics,
 
 

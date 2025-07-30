@@ -264,7 +264,7 @@
                   tb2.add(MDL_text._statText(
                     MDL_bundle._term("lovec", "rate"),
                     craftRate == null ? "-" : ((craftRate < 0.01 ? "<0.01" : Number(craftRate).deciDigit(2)) + "/s"),
-                  )).left().tooltip(Number(craftRate).deciDigit(7) + "/s", true).row();
+                  )).left().tooltip(typeof craftRate !== "number" ? "-" : (craftRate.deciDigit(7) + "/s"), true).row();
 
                   tb2.table(Styles.none, tb3 => {
 

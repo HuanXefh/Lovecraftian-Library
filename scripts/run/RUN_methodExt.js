@@ -199,6 +199,9 @@
   Function.airObj = function() {return Object.air};
 
 
+  Function.self = function(val) {return val};
+
+
   /* ----------------------------------------
    * NOTE:
    *
@@ -423,6 +426,21 @@
     let uint32Arr = new Uint32Array(arrBuffer);
 
     return uint32Arr[0].toString(2).padStart(32, "0");
+  };
+
+
+  /* condition */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Float equality.
+   * ---------------------------------------- */
+  ptp.fEqual = function(num, tol) {
+    if(num == null) return false;
+
+    return Math.abs(this - num) < Object.val(tol, 0.0001);
   };
 
 
@@ -908,6 +926,47 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Pulls out elements at the start of an array.
+   * If {forResult} set to {true}, this returns removed elements.
+   * ---------------------------------------- */
+  ptp.shiftAll = function(amt, forResult) {
+    if(amt == null) amt = 1;
+
+    let i = 0;
+    if(!forResult) {
+
+      while(i < amt) {
+        this.unshift();
+      };
+      return this;
+
+    } else {
+
+      let arr = [];
+      while(i < amt) {
+        arr.push(this.shift());
+      };
+      return arr;
+
+    };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Puts elements at the start of an array.
+   * ---------------------------------------- */
+  ptp.unshiftAll = function(eles_p) {
+    !(eles_p instanceof Array) ? this.unshift(eles_p) : eles_p.reverse().forEach(ele => this.unshift(ele));
+
+    return this;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Empties the array.
    * ---------------------------------------- */
   ptp.clear = function() {
@@ -1122,21 +1181,30 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Sums up numbers in the array.
+   * Calls operation on numbers in the array.
    * ---------------------------------------- */
-  ptp.sum = function(ord, off) {
-    var val = 0.0;
+  ptp.eachOper = function(scr, ord, off) {
     if(ord == null) ord = 1;
     if(off == null) off = 0;
 
+    let tmp = 0.0;
     let iCap = this.iCap();
-    if(iCap === 0) return val;
     for(let i = 0; i < iCap; i += ord) {
-      let tmpVal = Number(this[i + off]);
-      if(!isNaN(tmpVal)) val += tmpVal;
+      let tmp1 = Number(this[i + off]);
+      if(!isNaN(tmp1)) tmp = scr(tmp, tmp1);
     };
 
-    return val;
+    return tmp;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Sums up numbers in the array.
+   * ---------------------------------------- */
+  ptp.sum = function(ord, off) {
+    return this.eachOper((val0, val) => val0 + val, ord, off);
   };
 
 
@@ -1146,19 +1214,31 @@
    * A variant of {sum} that uses values from {mapF}.
    * ---------------------------------------- */
   ptp.sumBy = function(mapF, ord, off) {
-    var val = 0.0;
-    if(mapF == null) mapF = ele => ele;
-    if(ord == null) ord = 1;
-    if(off == null) off = 0;
+    if(mapF == null) mapF = Function.self;
 
-    let iCap = this.iCap();
-    if(iCap === 0) return val;
-    for(let i = 0; i < iCap; i+= ord) {
-      let tmpVal = Number(this[i + off]);
-      if(!isNaN(tmpVal)) val += mapF(tmpVal);
-    };
+    return this.eachOper((val0, val) => val0 + mapF(val), ord, off);
+  };
 
-    return val;
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Calculates product of numbers in the array.
+   * ---------------------------------------- */
+  ptp.prod = function(ord, off) {
+    return this.eachOper((val0, val) => val0 * val, ord, off);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {prod} that uses values from {mapF}.
+   * ---------------------------------------- */
+  ptp.prodBy = function(mapF, ord, off) {
+    if(mapF == null) mapF = Function.self;
+
+    return this.eachOper((val0, val) => val0 * mapF(val), ord, off);
   };
 
 
@@ -1310,6 +1390,167 @@
 
 
   /* array calculation */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a numeric array interacts with another numeric array.
+   * Result is returned as a new array.
+   * ---------------------------------------- */
+  ptp.numOper = function(arr, scr) {
+    const arr0 = [];
+
+    if(arr == null || scr == null) return arr0;
+
+    let iCap = Math.max(this.length, arr.length);
+    if(iCap === 0) return arr0;
+    for(let i = 0; i < iCap; i++) {
+      arr0.push(scr(Object.val(this[i], 0.0), Object.val(arr[i], 0.0)));
+    };
+
+    return arr0;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a numeric array adds another numeric array.
+   * ---------------------------------------- */
+  ptp.numAdd = function(arr) {
+    return this.numOper(arr, (val1, val2) => val1 + val2);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a numeric array substracts another numeric array.
+   * ---------------------------------------- */
+  ptp.numSub = function(arr) {
+    return this.numOper(arr, (val1, val2) => val1 - val2);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a numeric array multiplies another numeric array.
+   * ---------------------------------------- */
+  ptp.numMul = function(arr) {
+    return this.numOper(arr, (val1, val2) => val1 * val2);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a numeric array get divided by another numeric array.
+   * ---------------------------------------- */
+  ptp.numDiv = function(arr) {
+    return this.numOper(arr, (val1, val2) => val1 / val2);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a numeric array mods another numeric array.
+   * ---------------------------------------- */
+  ptp.numMod = function(arr) {
+    return this.numOper(arr, (val1, val2) => val1 % val2);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a numeric array use elements from another numeric array as power.
+   * ---------------------------------------- */
+  ptp.numPow = function(arr) {
+    return this.numOper(arr, (val1, val2) => Math.pow(val1, val2));
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Calls cumulative operation on the array.
+   * ---------------------------------------- */
+  ptp.cumOper = function(scr) {
+    const arr = [];
+
+    let tmp = 0.0;
+    let i = 0;
+    let iCap = this.iCap();
+    while(i < iCap) {
+      tmp = scr(tmp, this[i]);
+      arr.push(Number(tmp));
+      i++;
+    };
+
+    return arr;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Cummulative version of {sum} that returns an array.
+   * ---------------------------------------- */
+  ptp.cumSum = function() {
+    return this.cumOper((val0, val) => val0 + val);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Cummulative version of {prod} that returns an array.
+   * ---------------------------------------- */
+  ptp.cumProd = function() {
+    return this.cumOper((val0, val) => val0 * val);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns difference array of the given array.
+   *
+   * Example:
+   * [0, 5, 12, 18, 12].diff();    // Returns [5, 7, 6, -6]
+   * [0, 5, 12, 16, 12].diff(2);    // Returns [2, -1, -12]
+   * ---------------------------------------- */
+  ptp.diff = function(repeat) {
+    const thisFun = ptp.diff;
+
+    if(repeat == null) repeat = 1;
+
+    let arr0 = this;
+    let i = 0;
+    while(i < repeat) {
+      arr0 = thisFun.funScr(arr0);
+      i++;
+    };
+
+    return arr0;
+  }
+  .setProp({
+    "funScr": arr => {
+      const arr0 = [];
+
+      let i = 0;
+      let iCap = arr.iCap() - 1;
+      while(i < iCap) {
+        arr0.push(arr[i + 1] - arr[i]);
+        i++;
+      };
+
+      return arr0;
+    },
+  });
 
 
   /* ----------------------------------------

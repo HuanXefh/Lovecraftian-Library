@@ -48,9 +48,6 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
 
@@ -81,8 +78,8 @@
       liq.boilPoint = MDL_flow._boilPon(liq) / 50.0;
     };
 
-    if(MATH_base.fEqual(liq.temperature, 0.5)) liq.temperature = MDL_flow._tempWrap(liq);
-    if(MATH_base.fEqual(liq.viscosity, 0.5)) liq.viscosity = MDL_flow._viscWrap(liq);
+    if(Number(liq.temperature).fEqual(0.5)) liq.temperature = MDL_flow._tempWrap(liq);
+    if(Number(liq.viscosity).fEqual(0.5)) liq.viscosity = MDL_flow._viscWrap(liq);
   };
 
 
@@ -95,9 +92,9 @@
 
     if(liq.explosiveness > 0.0) liq.stats.addPercent(Stat.explosiveness, liq.explosiveness);
     if(liq.flammability > 0.0) liq.stats.addPercent(Stat.flammability, liq.flammability);
-    if(!MATH_base.fEqual(liq.temperature, 0.5)) liq.stats.add(Stat.temperature, Number(liq.temperature).perc());
-    if(!MATH_base.fEqual(liq.heatCapacity, 0.5)) liq.stats.addPercent(Stat.heatCapacity, liq.heatCapacity);
-    if(!liq.gas && !MATH_base.fEqual(liq.viscosity, 0.5)) liq.stats.add(Stat.viscosity, Number(liq.viscosity).perc());
+    if(!Number(liq.temperature).fEqual(0.5)) liq.stats.add(Stat.temperature, Number(liq.temperature).perc());
+    if(!Number(liq.heatCapacity).fEqual(0.5)) liq.stats.addPercent(Stat.heatCapacity, liq.heatCapacity);
+    if(!liq.gas && !Number(liq.viscosity).fEqual(0.5)) liq.stats.add(Stat.viscosity, Number(liq.viscosity).perc());
 
     if(liq.effect !== StatusEffects.none) liq.stats.add(TP_stat.rs_fluidStatus, StatValues.content([liq.effect].toSeq()));
 
@@ -107,7 +104,7 @@
     liq.stats.add(TP_stat.rs_dens, liq.gas ? Number(dens).sci(-3) : Strings.fixed(dens, 2));
 
     var fHeat = MDL_flow._fHeat(liq);
-    if(!MATH_base.fEqual(fHeat, 26.0)) liq.stats.add(TP_stat.rs_fHeat, fHeat, TP_stat.rs_heatUnits);
+    if(!fHeat.fEqual(26.0)) liq.stats.add(TP_stat.rs_fHeat, fHeat, TP_stat.rs_heatUnits);
 
     var eleGrpB = MDL_flow._eleGrpB(liq);
     if(eleGrpB !== "!ERR") liq.stats.add(TP_stat.rs_eleGrp, eleGrpB);

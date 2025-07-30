@@ -47,9 +47,6 @@
   const PARENT = require("lovec/rs/RS_baseItem");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -70,7 +67,7 @@
 
   function comp_setStats(itm) {
     itm.stats.add(TP_stat.rs_isOre, true);
-    if(!MATH_base.fEqual(itm.sintTemp, 100.0)) itm.stats.add(TP_stat.rs_sintTemp, itm.sintTemp, TP_stat.rs_heatUnits);
+    if(!Number(itm.sintTemp).fEqual(100.0)) itm.stats.add(TP_stat.rs_sintTemp, itm.sintTemp, TP_stat.rs_heatUnits);
 
     const oreblks = MDL_content._oreBlks(itm);
     if(oreblks.length > 0) itm.stats.add(TP_stat.rs_blockRelated, extend(StatValue, {display(tb) {

@@ -50,6 +50,22 @@ const db = {
   /* ----------------------------------------
    * NOTE:
    *
+   * Used to generate new key bindings.
+   * Format: {nm, keyCode, categ}.
+   * ---------------------------------------- */
+  "keyBind": [
+
+    "lovec-setting-toggle-unit-stat", KeyCode.unset, "lovec",
+    "lovec-setting-toggle-damage-display", KeyCode.unset, "lovec",
+
+    "lovec-player-drop-loot", KeyCode.unset, "lovec",
+
+  ],
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * List of config names and their value getters.
    * Used in {MDL_util._cfg}.
    * ---------------------------------------- */

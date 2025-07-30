@@ -43,9 +43,6 @@
   /* <---------- import ----------> */
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const FRAG_unit = require("lovec/frag/FRAG_unit");
 
 
@@ -65,7 +62,7 @@
     if(MDL_cond._isNonRobot(utp)) utp.stats.add(TP_stat.utp_notRobot, true);
 
     var polTol = MDL_pollution._polTol(utp);
-    if(!MATH_base.fEqual(polTol, 500.0)) utp.stats.add(TP_stat.blk_polTol, polTol, TP_stat.blk_polUnits);
+    if(!polTol.fEqual(500.0)) utp.stats.add(TP_stat.blk_polTol, polTol, TP_stat.blk_polUnits);
   };
 
 
