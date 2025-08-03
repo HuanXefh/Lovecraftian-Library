@@ -25,6 +25,7 @@
   const ANNO = require("lovec/glb/BOX_anno");
   const EFF = require("lovec/glb/GLB_eff");
   const PARAM = require("lovec/glb/GLB_param");
+  const SAVE = require("lovec/glb/GLB_save");
   const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
@@ -101,6 +102,7 @@
       anno: ANNO,
       eff: EFF,
       param: PARAM,
+      save: SAVE,
       var: VAR,
       varGen: VARGEN,
 

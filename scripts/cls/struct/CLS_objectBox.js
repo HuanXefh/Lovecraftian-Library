@@ -3,6 +3,8 @@
  *
  * A container formed from an object, not expected to be modified afterwards.
  * Do not try iteration on this.
+ *
+ * Object boxes are named like {BOX_xxx}.
  * ---------------------------------------- */
 
 

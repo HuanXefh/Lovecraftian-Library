@@ -13,6 +13,9 @@ const CLS_annotation = require("lovec/cls/struct/CLS_annotation");
 const CLS_objectBox = require("lovec/cls/struct/CLS_objectBox");
 
 
+const MDL_event = require("lovec/mdl/MDL_event");
+
+
 /* <---------- meta ----------> */
 
 
@@ -63,6 +66,38 @@ const BOX_annotation = new CLS_objectBox({
   "__INIT__": scr => new CLS_annotation(function(){}, function() {
 
     scr.call(this);
+
+  }),
+
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The method is called in update.
+   * Set up id to avoid duplicates. Use {intv} and {boolF} to set how frequently and when the method is called.
+   * By default the method itself is run on each update. Set {scr} for customized behavior.
+   *
+   * If {boolF} is costy, set {checkTimerFirst} to {true}.
+   * ---------------------------------------- */
+  "__UPDATE__": (id, intv, scr, boolF, checkTimerFirst) => new CLS_annotation(function() {}, function() {
+
+    if(intv == null) intv = 1.0;
+    if(scr == null) scr = fun => fun();
+    if(boolF == null) boolF = Function.airTrue;
+
+    let timer = new Interval(1);
+    let tmp = this;
+    MDL_event._c_onUpdate(() => {
+
+      if(checkTimerFirst ?
+          (!timer.get(intv) || !boolF()) :
+          (!boolF() || !timer.get(intv))
+      ) return;
+
+      scr(tmp);
+
+    }, id);
 
   }),
 

@@ -525,15 +525,15 @@
    * ---------------------------------------- */
   const initRc = function(rcMdl, blkInit) {
     _rcHeaders(rcMdl).forEach(rcHeader => {
-      let timeSclInit = _timeScl(rcMdl, rcHeader);
+      let timeScl = _timeScl(rcMdl, rcHeader);
       _ci(rcMdl, rcHeader, blkInit);
-      _bi(rcMdl, rcHeader, blkInit, timeSclInit);
+      _bi(rcMdl, rcHeader, blkInit, timeScl);
       _aux(rcMdl, rcHeader, blkInit);
       _opt(rcMdl, rcHeader, blkInit);
       _co(rcMdl, rcHeader, blkInit);
       let failP = _failP(rcMdl, rcHeader);
-      _bo(rcMdl, rcHeader, blkInit, timeSclInit, failP);
-      _fo(rcMdl, rcHeader, blkInit, timeSclInit, failP);
+      _bo(rcMdl, rcHeader, blkInit, timeScl, failP);
+      _fo(rcMdl, rcHeader, blkInit, timeScl, failP);
     });
   };
   exports.initRc = initRc;

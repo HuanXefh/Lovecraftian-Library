@@ -109,6 +109,20 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Iterates through an object.
+   * ---------------------------------------- */
+  Object.iterate = function(obj, scr) {
+    if(obj == null) return;
+
+    for(let key in obj) {
+      scr(key, obj[key]);
+    };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Merges two objects.
    * Only objects and arrays should be present in the object.
    * ---------------------------------------- */
@@ -253,6 +267,7 @@
 
   ptp.getSuper = Function.airNull;
   ptp.isClass = Function.airFalse;
+  ptp.isAbstrClass = Function.airFalse;
 
 
   /* ----------------------------------------
@@ -262,7 +277,7 @@
    * This is required for a class to function properly.
    *
    * New methods added:
-   * fun.isClass();    // Whether the function is a class function.
+   * fun.isClass();    // Whether the function is a function class.
    * ins.getClass();    // Returns class of the instance.
    * ins.setProp(obj);    // Lets an instance copy properties of an object.
    * ---------------------------------------- */
@@ -271,7 +286,7 @@
     let ins = this.prototype;
 
     if(cls.getSuper() == null) cls.getSuper = () => Function;
-    cls.isClass = () => true;
+    cls.isClass = Function.airTrue;
     ins.getClass = () => cls;
     ins.setProp = obj => {
       for(let key in obj) {
@@ -281,6 +296,29 @@
 
     return cls;
   },
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Sets up an abstract class to be extended.
+   * Creating new instance of this class directly is not allowed.
+   * Don't call super in child classes, that's dumb idea.
+   *
+   * There's nothing called abstract method here, just set it empty.
+   *
+   * New methods added:
+   * fun.isAbstrClass();    // Whether the function is an abstract function class.
+   * ---------------------------------------- */
+  ptp.initAbstrClass = function() {
+    this.initClass();
+    this.isAbstrClass = Function.airTrue;
+    this.prototype.init = function() {
+      throw new Error("Cannot create instances of an abstract class.");
+    };
+
+    return this;
+  };
 
 
   /* ----------------------------------------
@@ -299,15 +337,19 @@
     if(cls == null || !cls.isClass()) return this;
 
     Object.assign(this, cls);
+    this.isAbstrClass = Function.airFalse;
     this.getSuper = () => cls;
     this.super = function(nmFun) {
-      let funParent = this.getSuper()[nmFun];
+      let clsParent = this.getSuper();
+      if(clsParent.isAbstrClass()) throw new Error("Calling super methods from an abstract class is not allowed.");
+      let funParent = clsParent[nmFun];
       if(funParent != null) return funParent.apply(this, Array.from(arguments).splice(1));
     };
     this.prototype = Object.create(cls.prototype);
     this.prototype.constructor = this;
     this.prototype.super = function(nmFun) {
       let clsParent = this.getClass().getSuper();
+      if(clsParent.isAbstrClass()) throw new Error("Calling super methods from an abstract class is not allowed.");
       let funParent = clsParent.prototype[nmFun];
       if(funParent != null) return funParent.apply(new clsParent(), Array.from(arguments).splice(1));
     };
@@ -936,7 +978,8 @@
     if(!forResult) {
 
       while(i < amt) {
-        this.unshift();
+        this.shift();
+        i++;
       };
       return this;
 
@@ -945,6 +988,7 @@
       let arr = [];
       while(i < amt) {
         arr.push(this.shift());
+        i++;
       };
       return arr;
 

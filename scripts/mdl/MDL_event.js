@@ -77,6 +77,27 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Called when saving a world.
+   * ---------------------------------------- */
+  const _c_onWorldSave = function(scr, id) {
+    const thisFun = _c_onWorldSave;
+
+    if(id != null && thisFun.ids.includes(id)) return;
+    if(id != null) thisFun.ids.push(id);
+
+    Events.run(SaveWriteEvent, () => {
+      scr();
+    });
+  }
+  .setProp({
+    "ids": [],
+  });
+  exports._c_onWorldSave = _c_onWorldSave;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Called every frame when the game is not paused.
    * ---------------------------------------- */
   const _c_onUpdate = function(scr, id) {

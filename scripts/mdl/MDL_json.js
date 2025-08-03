@@ -34,7 +34,7 @@
   const parseEx = function(fi) {
     const thisFun = parseEx;
 
-    if(fi == null) return;
+    if(fi == null || !fi.exists()) return null;
 
     let jsonStr = fi.readString("UTF-8");
     if(fi.extension() === "json") jsonStr = jsonStr.replace("#", "\\#");

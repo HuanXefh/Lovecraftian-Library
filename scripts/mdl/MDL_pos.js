@@ -19,46 +19,38 @@
   /* <---------- meta ----------> */
 
 
-  const pons2_size2Offset = [
-    new Point2(0, 0), new Point2(1, 0),
-    new Point2(0, 1), new Point2(1, 1),
-  ];
-  exports.pons2_size2Offset = pons2_size2Offset;
-
-
-  const pons2_size3Offset = [
-    new Point2(-1, -1), new Point2(0, -1), new Point2(1, -1),
-    new Point2(-1, 0), new Point2(0, 0), new Point2(1, 0),
-    new Point2(-1, 1), new Point2(0, 1), new Point2(1, 1),
-  ];
-  exports.pons2_size3Offset = pons2_size3Offset;
-
-
-  const pons2_size4Offset = [
-    new Point2(-1, -1), new Point2(0, -1), new Point2(1, -1), new Point2(2, -1),
-    new Point2(-1, 0), new Point2(0, 0), new Point2(1, 0), new Point2(2, 0),
-    new Point2(-1, 1), new Point2(0, 1), new Point2(1, 1), new Point2(2, 1),
-    new Point2(-1, 2), new Point2(0, 2), new Point2(1, 2), new Point2(2, 2),
-  ];
-  exports.pons2_size4Offset = pons2_size4Offset;
-
-
-  const pons2_size5Offset = [
-    new Point2(-2, -2), new Point2(-1, -2), new Point2(0, -2), new Point2(1, -2), new Point2(2, -2),
-    new Point2(-2, -1), new Point2(-1, -1), new Point2(0, -1), new Point2(1, -1), new Point2(2, -1),
-    new Point2(-2, 0), new Point2(-1, 0), new Point2(0, 0), new Point2(1, 0), new Point2(2, 0),
-    new Point2(-2, 1), new Point2(-1, 1), new Point2(0, 1), new Point2(1, 1), new Point2(2, 1),
-    new Point2(-2, 2), new Point2(-1, 2), new Point2(0, 2), new Point2(1, 2), new Point2(2, 2),
-  ];
-  exports.pons2_size5Offset = pons2_size5Offset;
-
-
   const sizeOffsetPons2 = [
-    [new Point2(0, 0)],
-    pons2_size2Offset,
-    pons2_size3Offset,
-    pons2_size4Offset,
-    pons2_size5Offset,
+
+    [
+      new Point2(0, 0)
+    ],
+
+    [
+      new Point2(0, 0), new Point2(1, 0),
+      new Point2(0, 1), new Point2(1, 1),
+    ],
+
+    [
+      new Point2(-1, -1), new Point2(0, -1), new Point2(1, -1),
+      new Point2(-1, 0), new Point2(0, 0), new Point2(1, 0),
+      new Point2(-1, 1), new Point2(0, 1), new Point2(1, 1),
+    ],
+
+    [
+      new Point2(-1, -1), new Point2(0, -1), new Point2(1, -1), new Point2(2, -1),
+      new Point2(-1, 0), new Point2(0, 0), new Point2(1, 0), new Point2(2, 0),
+      new Point2(-1, 1), new Point2(0, 1), new Point2(1, 1), new Point2(2, 1),
+      new Point2(-1, 2), new Point2(0, 2), new Point2(1, 2), new Point2(2, 2),
+    ],
+
+    [
+      new Point2(-2, -2), new Point2(-1, -2), new Point2(0, -2), new Point2(1, -2), new Point2(2, -2),
+      new Point2(-2, -1), new Point2(-1, -1), new Point2(0, -1), new Point2(1, -1), new Point2(2, -1),
+      new Point2(-2, 0), new Point2(-1, 0), new Point2(0, 0), new Point2(1, 0), new Point2(2, 0),
+      new Point2(-2, 1), new Point2(-1, 1), new Point2(0, 1), new Point2(1, 1), new Point2(2, 1),
+      new Point2(-2, 2), new Point2(-1, 2), new Point2(0, 2), new Point2(1, 2), new Point2(2, 2),
+    ],
+
   ];
   exports.sizeOffsetPons2 = sizeOffsetPons2;
 
@@ -69,7 +61,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Maps a coordinate float to tile integer.
+   * Converts a coordinate float to tile integer.
    * ---------------------------------------- */
   const _tCoord = function(coord) {
     return Math.round(coord / Vars.tilesize);
@@ -858,15 +850,15 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Iterates through buildings in range and match {boolF}.
-   * Much less costy than use {ts}!
+   * Iterates through buildings in range that match {boolF}.
+   * Much less costy than using {ts}!
    * ---------------------------------------- */
-  const _it_bs = function(x, y, rad, team, scr, boolF) {
+  const _it_bs = function(x, y, rad, team, boolF, scr) {
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return;
     if(team === undefined) team = null;
-    if(scr == null) scr = Function.air;
     if(boolF == null) boolF = Function.airTrue;
+    if(scr == null) scr = Function.air;
 
     Vars.indexer.eachBlock(team, x, y, rad, boolF, scr);
   };

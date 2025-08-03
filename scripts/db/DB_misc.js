@@ -230,6 +230,21 @@ const db = {
   },
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Properties that is saved in a .lsav file.
+   * Format: {header, def, arrMode}.
+   * ---------------------------------------- */
+  "lsav": [
+
+    "useless-field", "ohno", null,
+
+    "scanner-draw", true, null,
+
+  ],
+
+
   "drama": {
 
 
