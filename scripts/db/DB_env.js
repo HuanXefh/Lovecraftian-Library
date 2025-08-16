@@ -38,11 +38,22 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Weather entries for a map, used only for campaign maps but works for any map.
+       * Weather entries for a map (always permanent), used for campaign maps but works for any map.
        * No need to set weathers for those maps in editor.
-       * Format: {nmMap, wes}.
+       * No weathers from vanilla game or other mods for now.
+       * Format: {nmMap, nmWeas}.
        * ---------------------------------------- */
-      "we": [],
+      "we": [
+
+        // For weather test only
+        "test-001-blocks", [
+          "loveclab-wea0amb-anthymist-normal",
+          "loveclab-wea0deco-heavy-rain",
+          "loveclab-wea0deco-steam-flow",
+          "loveclab-wea0deco-fog-black",
+        ],
+
+      ],
 
 
       /* ----------------------------------------

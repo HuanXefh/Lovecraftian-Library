@@ -43,10 +43,11 @@
   /* <---------- time ----------> */
 
 
-  exports.time_liqIntv = 3.0;
+  exports.time_liqIntv = 4.0;
+  exports.time_heatIntv = 30.0;
   exports.time_paramIntv = 90.0;
   exports.time_paramGlobalIntv = 110.0;
-  exports.time_paramLarge = 600.0;
+  exports.time_paramLargeIntv = 600.0;
   exports.time_lightningIntv = 40.0;
   exports.time_unitIntv = 20.0;
 
@@ -58,6 +59,7 @@
   exports.time_stackStaExtDef = 120.0;
 
 
+  exports.time_extraInfoCooldown = 50.0;
   exports.time_lootProtection = 240.0;
   exports.time_lootLifetime = 7200.0;
 
@@ -115,10 +117,13 @@
 
 
   exports.ct_colorMtp = 1.15;
+  exports.ct_colorMtpHigh = 1.5;
   exports.ct_auxCap = 1.0;
 
 
   exports.blk_terFlrThr = 0.75;
+  exports.blk_presDmgFrac = 0.015;
+  exports.blk_presDmgMin = 3.0;
   exports.blk_corDmgFrac = 0.0135;
   exports.blk_corDmgMin = 2.0;
   exports.blk_clogViscThr = 0.75;

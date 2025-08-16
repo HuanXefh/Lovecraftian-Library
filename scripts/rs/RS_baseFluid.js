@@ -45,6 +45,7 @@
 
 
   const PARENT = require("lovec/rs/RS_baseResource");
+  const PARAM = require("lovec/glb/GLB_param");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
@@ -135,6 +136,11 @@
   };
 
 
+  function comp_willBoil(liq) {
+    return liq.gas || liq.boilPoint * 50.0 < PARAM.glbHeat - 0.0001;
+  };
+
+
 /*
   ========================================
   Section: Application
@@ -178,13 +184,21 @@
     /* <---------- resource (specific) ----------> */
 
 
+    // @NOSUPER
+    willBoil: function(liq) {
+      return comp_willBoil(liq);
+    },
+
+
     /* <---------- resource (extended) ----------> */
 
 
     // @NOSUPER
     ex_getTags: function(liq) {
-      return [];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": [],
+    }),
 
 
   };

@@ -17,12 +17,19 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * @ARGS: x1, y1, x2, y2 | x1, y1, z1, x2, y2, z2 | ...
    * Simply calculates distance.
    * ---------------------------------------- */
-  const _dst = function(x1, y1, x2, y2) {
-    if(x1 == null || y1 == null || x2 == null || y2 == null) return MATH_base.maxDst;
+  const _dst = function() {
+    var val = 0.0;
+    let i = 0;
+    let iCap = arguments.length / 2;
+    while(i < iCap) {
+      val += Math.pow(arguments[i + iCap] - arguments[i], 2);
+      i++;
+    };
 
-    return Mathf.dst(x1, y1, x2, y2);
+    return Math.sqrt(val);
   };
   exports._dst = _dst;
 
@@ -30,14 +37,41 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * @ARGS: x1, y1, x2, y2 | x1, y1, z1, x2, y2, z2 | ...
    * Manhattan distance.
    * ---------------------------------------- */
-  const _dstManh = function(x1, y1, x2, y2) {
-    if(x1 == null || y1 == null || x2 == null || y2 == null) return MATH_base.maxDst;
+  const _dstManh = function() {
+    var val = 0.0;
+    let i = 0;
+    let iCap = arguments.length / 2;
+    while(i < iCap) {
+      val += Math.abs(arguments[i + iCap] - arguments[i]);
+      i++;
+    };
 
-    return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+    return val;
   };
   exports._dstManh = _dstManh;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: x1, y1, x2, y2 | x1, y1, z1, x2, y2, z2 | ...
+   * Chebyshev distance.
+   * ---------------------------------------- */
+  const _dstCheb = function() {
+    var val = 0.0;
+    let i = 0;
+    let iCap = arguments.length / 2;
+    while(i < iCap) {
+      val = Math.max(val, arguments[i + iCap] - arguments[i]);
+      i++;
+    };
+
+    return val;
+  };
+  exports._dstCheb = _dstCheb;
 
 
   /* <---------- area ----------> */

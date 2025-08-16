@@ -109,8 +109,10 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return ["rs-intmd", "rs-chunks"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["rs-intmd", "rs-chunks"],
+    }),
 
 
     // @NOSUPER

@@ -11,6 +11,7 @@ const db = {
      * ---------------------------------------- */
     "robotOnly": [
 
+      "loveclab-sta-haste",
       "loveclab-sta0liq-sea-water-corrosion",
       "loveclab-sta0liq-brine-corrosion",
       "loveclab-sta0death-recycle-mark",
@@ -38,7 +39,11 @@ const db = {
      * Missile units will be immune to these.
      * By default missiles are immune to {STA_deathStatus}.
      * ---------------------------------------- */
-    "missileImmune": [],
+    "missileImmune": [
+
+      "loveclab-sta-haste",
+
+    ],
 
 
     /* ----------------------------------------
@@ -49,6 +54,7 @@ const db = {
      * ---------------------------------------- */
     "lootImmune": [
 
+      "loveclab-sta-haste",
       "loveclab-sta-hidden-well",
       "loveclab-sta0liq-sea-water-corrosion",
       "loveclab-sta0liq-brine-corrosion",

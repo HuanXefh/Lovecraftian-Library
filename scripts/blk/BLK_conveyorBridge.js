@@ -46,7 +46,6 @@
 
 
   const PARENT = require("lovec/blk/BLK_baseItemDistributor");
-  const PARAM = require("lovec/glb/GLB_param");
   const TIMER = require("lovec/glb/GLB_timer");
 
 
@@ -54,12 +53,6 @@
 
 
   const DB_block = require("lovec/db/DB_block");
-
-
-  /* <---------- auxilliary ----------> */
-
-
-  const bridgeChainArr = [];
 
 
   /* <---------- component ----------> */
@@ -88,26 +81,6 @@
 
   function comp_drawSelect(b) {
     MDL_draw.drawRegion_rs(b.x, b.y, b.lastTg, b.block.size);
-
-    if(!PARAM.drawBridgeTransportLine) return;
-
-    var ot = b.tile.nearby(b.config());
-    var tmpB = b;
-    var tmpOb = null;
-    var isFirst = true;
-    bridgeChainArr.clear().push(tmpB);
-    while(ot != null) {
-      tmpOb = ot.build;
-      if(tmpOb != null && !bridgeChainArr.includes(tmpOb)) {
-        if(!isFirst) MDL_draw.drawConnector_circleArrow(tmpOb, tmpB);
-        bridgeChainArr.push(tmpOb);
-        tmpB = ot.build;
-        // Idk why but on rare occasions this throws NullPointerException
-        if(tmpB == null || tmpB.config() == null) break;
-        ot = tmpB.tile.nearby(tmpB.config());
-        isFirst = false;
-      } else break;
-    };
   };
 
 
@@ -203,8 +176,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-dis", "blk-brd"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-dis", "blk-brd"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

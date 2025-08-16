@@ -232,6 +232,12 @@
   exports._isCoreBlock = _isCoreBlock;
 
 
+  const _isPump = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pump");
+  };
+  exports._isPump = _isPump;
+
+
   const _isFCond = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fcond");
   };
@@ -291,7 +297,7 @@
 
 
   const _isAuxBlk = function(blk_gn) {
-    return _isHCond(blk_gn) || _isACond(blk_gn) || _isACont(blk_gn);
+    return _isPump(blk_gn) || _isHCond(blk_gn);
   };
   exports._isAuxBlk = _isAuxBlk;
 
@@ -302,16 +308,10 @@
   exports._isHCond = _isHCond;
 
 
-  const _isACond = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-acond");
+  const _isCog = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cog");
   };
-  exports._isACond = _isACond;
-
-
-  const _isACont = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-acont");
-  };
-  exports._isACont = _isACont;
+  exports._isCog = _isCog;
 
 
   const _canShortCircuit = function(blk_gn) {
@@ -376,6 +376,18 @@
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-wall");
   };
   exports._isWall = _isWall;
+
+
+  const _isProjector = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-proj");
+  };
+  exports._isProjector = _isProjector;
+
+
+  const _isRepairer = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-mend");
+  };
+  exports._isRepairer = _isRepairer;
 
 
   const _isLogicBlock = function(blk_gn) {
@@ -527,6 +539,21 @@
     return true;
   };
   exports._isEnemy = _isEnemy;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this entity can be healed.
+   * ---------------------------------------- */
+  const _canHeal = function(e, team) {
+    if(e == null) return false;
+    if(team != null && e.team !== team) return false;
+    if(!e.damaged() || (e instanceof Building && e.isHealSuppressed())) return false;
+
+    return true;
+  };
+  exports._canHeal = _canHeal;
 
 
   const _isBuildingActive = function(b) {
@@ -838,19 +865,19 @@
 
 
   const _isFadeSta = function(sta_gn) {
-    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "blk-fade");
+    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-fade");
   };
   exports._isFadeSta = _isFadeSta;
 
 
   const _isBlkSta = function(sta_gn) {
-    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "blk-sta");
+    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-blk");
   };
   exports._isBlkSta = _isBlkSta;
 
 
   const _isDeathSta = function(sta_gn) {
-    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "death-sta");
+    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-death");
   };
   exports._isDeathSta = _isDeathSta;
 
@@ -859,7 +886,7 @@
     let sta = MDL_content._ct(sta_gn, "sta");
     if(sta == null) return false;
 
-    var cond = Function.funTry(sta.ex_isStackSta, false).call(sta);
+    var cond = Function.tryFun(sta.ex_isStackSta, false, sta);
 
     return cond;
   };

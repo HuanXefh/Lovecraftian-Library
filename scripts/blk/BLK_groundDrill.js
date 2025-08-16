@@ -23,16 +23,16 @@
   /* ----------------------------------------
    * KEY:
    *
+   * b.useCep: bool    // @PARAM
    * b.useAccel: bool    // @PARAM: Whether this drill spins faster when ready to output.
    * b.timeDrilledInc: 0.0
-   * b.useCep: bool    // @PARAM: Whether this drill is affected by core energy.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * PARAM:
    *
-   * DB_block.db["param"]["cep"]["use"]    // @PARAM: CEPs used by this block.
+   * DB_block.db["param"]["cep"]["use"]    // @PARAM
    * ---------------------------------------- */
 
 
@@ -49,21 +49,13 @@
   const PARENT = require("lovec/blk/BLK_baseDrill");
 
 
-  const FRAG_faci = require("lovec/frag/FRAG_faci");
-
-
   const MDL_cond = require("lovec/mdl/MDL_cond");
 
 
   /* <---------- component ----------> */
 
 
-  function comp_setStats(blk) {
-    FRAG_faci.comp_setStats_cep(blk);
-  };
-
-
-  function comp_update(b) {
+  function comp_updateTile(b) {
     if(b.dominantItem == null || !b.useAccel) return;
 
     // DEDICATION: Inspired by Psammos
@@ -72,18 +64,8 @@
   };
 
 
-  function comp_drawSelect(b) {
-    if(b.useCep) FRAG_faci.comp_drawSelect_cep(b);
-  };
-
-
   function comp_canMine(blk, t) {
     return !MDL_cond._isDepthOre(t.overlay());
-  };
-
-
-  function comp_updateEfficiencyMultiplier(b) {
-    if(b.useCep) b.efficiency *= FRAG_faci._cepEffcCur(b.team);
   };
 
 
@@ -107,7 +89,6 @@
 
     setStats: function(blk) {
       PARENT.setStats(blk);
-      comp_setStats(blk);
     },
 
 
@@ -131,7 +112,7 @@
 
     updateTile: function(b) {
       PARENT.updateTile(b);
-      comp_update(b);
+      comp_updateTile(b);
     },
 
 
@@ -147,7 +128,6 @@
 
     drawSelect: function(b) {
       PARENT.drawSelect(b);
-      comp_drawSelect(b);
     },
 
 
@@ -163,7 +143,7 @@
 
 
     updateEfficiencyMultiplier: function(b) {
-      comp_updateEfficiencyMultiplier(b);
+      PARENT.updateEfficiencyMultiplier(b);
     },
 
 
@@ -172,8 +152,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-min", "blk-drl"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-min", "blk-drl"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

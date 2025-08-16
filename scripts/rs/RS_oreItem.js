@@ -120,8 +120,10 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return ["rs-ore"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["rs-ore"],
+    }),
 
 
   };

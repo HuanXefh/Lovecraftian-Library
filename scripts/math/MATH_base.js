@@ -28,9 +28,6 @@
    * Gaussian function.
    * ---------------------------------------- */
   const _f_gaussian = function(x, mu, sigma) {
-    if(mu == null) mu = 0.0;
-    if(sigma == null) sigma = 1.0;
-
     return 1.0 / Math.sqrt(2.0 * Math.PI * Math.pow(sigma, 2))
       * Math.exp(-1.0 * Math.pow(x - mu, 2) / (2.0 * Math.pow(sigma, 2)));
   };
@@ -45,27 +42,29 @@
   const _f_deri = function(x, mathFun) {
     const delta = 0.00001;
 
-    if(mathFun == null) mathFun = Function.self;
-
     return (mathFun(x + delta) - mathFun(x)) / delta;
   };
   exports._f_deri = _f_deri;
 
 
-  /* <---------- condition ----------> */
-
-
   /* ----------------------------------------
    * NOTE:
    *
-   * Float equality.
+   * Calculates Riemann sum of {mathFun} over (base, cap).
+   * Uses midpoints for less error.
    * ---------------------------------------- */
-  const fEqual = function(num, param, tol) {
-    if(tol == null) tol = 0.0001;
+  const _f_riemannSum = function(base, cap, mathFun, segAmt) {
+    if(segAmt == null) segAmt = 1000;
 
-    return Math.abs(num - param) < tol;
+    var val = 0.0;
+    var dx = (cap - base) / segAmt;
+    for(let i = 0; i < segAmt; i++) {
+      val += mathFun(base + dx * (0.5 + i));
+    };
+
+    return val * dx;
   };
-  exports.fEqual = fEqual;
+  exports._f_riemannSum = _f_riemannSum;
 
 
   /* <---------- interpolation ----------> */
@@ -80,7 +79,7 @@
     if(param_f == null) param_f = 0.0;
     if(param_t == null) param_t = 1.0;
     if(param == null) param = 0.0;
-    if(fEqual(param_f, param_t)) return 0.0;
+    if(Number(param_f).fEqual(param_t)) return 0.0;
 
     return (param - param_f) / (param_t - param_f);
   };

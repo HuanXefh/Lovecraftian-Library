@@ -75,7 +75,7 @@
   function comp_updateTile(b) {
     FRAG_fluid.comp_updateTile_capAux(b);
     FRAG_fluid.comp_updateTile_flammable(b);
-    FRAG_fluid.comp_updateTile_pressure(b);
+    FRAG_fluid.comp_updateTile_pressuredBuilding(b);
   };
 
 
@@ -163,8 +163,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-fac"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-fac"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

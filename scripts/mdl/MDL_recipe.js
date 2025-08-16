@@ -11,15 +11,22 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const CLS_recipeBuilder = require("lovec/cls/util/builder/CLS_recipeBuilder");
+
+
   const FRAG_recipe = require("lovec/frag/FRAG_recipe");
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_text = require("lovec/mdl/MDL_text");
 
 
   const TP_stat = require("lovec/tp/TP_stat");
+
+
+  const DB_item = require("lovec/db/DB_item");
 
 
   /* <---------- base ----------> */
@@ -555,7 +562,7 @@
         let amt = raw[i + 1];
         arr.push(ct, amt);
         if(blkInit != null) {
-          FRAG_recipe.addFldConsTerm(
+          MDL_recipeDict.addFldConsTerm(
             blkInit,
             ct,
             amt,
@@ -591,14 +598,14 @@
           arr.push(ct, amt, p);
           if(blkInit != null) {
             ct instanceof Item ?
-              FRAG_recipe.addItmConsTerm(
+              MDL_recipeDict.addItmConsTerm(
                 blkInit,
                 ct,
                 amt / Object.val(timeSclInit, 1.0),
                 p,
                 {"ct": _iconNm(rcMdl, rcHeader)},
               ) :
-              FRAG_recipe.addFldConsTerm(
+              MDL_recipeDict.addFldConsTerm(
                 blkInit,
                 ct,
                 amt / blkInit.craftTime / Object.val(timeSclInit, 1.0),
@@ -618,14 +625,14 @@
             tmpArr.push(ct, amt, p);
             if(blkInit != null) {
               ct instanceof Item ?
-                FRAG_recipe.addItmConsTerm(
+                MDL_recipeDict.addItmConsTerm(
                   blkInit,
                   ct,
                   amt / Object.val(timeSclInit, 1.0),
                   p,
                   {"ct": _iconNm(rcMdl, rcHeader)},
                 ) :
-                FRAG_recipe.addFldConsTerm(
+                MDL_recipeDict.addFldConsTerm(
                   blkInit,
                   ct,
                   amt / blkInit.craftTime / Object.val(timeSclInit, 1.0),
@@ -662,7 +669,7 @@
         let amt = raw[i + 1];
         arr.push(ct, amt);
         if(blkInit != null) {
-          FRAG_recipe.addFldConsTerm(
+          MDL_recipeDict.addFldConsTerm(
             blkInit,
             ct,
             amt,
@@ -707,7 +714,7 @@
         let mtp = raw[i + 3];
         arr.push(ct, amt, p, mtp);
         if(blkInit != null) {
-          FRAG_recipe.addItmConsTerm(
+          MDL_recipeDict.addItmConsTerm(
             blkInit,
             ct,
             amt / Object.val(timeSclInit, 1.0),
@@ -740,7 +747,7 @@
         let amt = raw[i + 1];
         arr.push(ct, amt);
         if(blkInit != null) {
-          FRAG_recipe.addFldProdTerm(
+          MDL_recipeDict.addFldProdTerm(
             blkInit,
             ct,
             amt,
@@ -773,7 +780,7 @@
         let p = raw[i + 2];
         arr.push(ct, amt, p);
         if(blkInit != null) {
-          FRAG_recipe.addItmProdTerm(
+          MDL_recipeDict.addItmProdTerm(
             blkInit,
             ct,
             amt / Object.val(timeSclInit, 1.0),
@@ -819,7 +826,7 @@
         let p = raw[i + 2];
         arr.push(ct, amt, p);
         if(blkInit != null) {
-          FRAG_recipe.addItmProdTerm(
+          MDL_recipeDict.addItmProdTerm(
             blkInit,
             ct,
             amt / Object.val(timeSclInit, 1.0),
@@ -969,24 +976,24 @@
    * NOTE:
    *
    * Used in recipe generator, adds recipe to the recipe object.
-   * Recipe generators should be called on client load.
+   * Use {CLS_recipeBuilder} to modify the I/O fields.
+   * ----------------------------------------
+   * IMPORTANT:
+   *
+   * Recipe generators should be called on CLIENT LOAD.
    * ---------------------------------------- */
-  const addRc = function(rc, nmCt, categ, objF, ci, bi, aux, reqOpt, opt, co, bo, failP, fo) {
+  const addRc = function(rc, nmCt, categ, objF, rcBuilderObj) {
     let rcObj = {
       "icon": nmCt,
       "category": categ,
       "isGenerated": true,
     };
 
-    if(ci != null) rcObj["ci"] = ci;
-    if(bi != null) rcObj["bi"] = bi;
-    if(aux != null) rcObj["aux"] = aux;
-    if(reqOpt != null) rcObj["reqOpt"] = reqOpt;
-    if(opt != null) rcObj["opt"] = opt;
-    if(co != null) rcObj["co"] = co;
-    if(bo != null) rcObj["bo"] = bo;
-    if(failP != null) rcObj["failP"] = failP;
-    if(fo != null) rcObj["fo"] = fo;
+    if(rcBuilderObj != null) {
+      for(let key in rcBuilderObj) {
+        rcObj[key] = rcBuilderObj[key];
+      };
+    };
 
     if(objF != null) objF(rcObj);
 
@@ -1001,7 +1008,8 @@
    * Recipe generator: rock crusher.
    * Converts ore items into chunks.
    * ---------------------------------------- */
-  const _gen_rockCrusher = function(rc, objF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor, boolF) {
+  const _gen_rockCrusher = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
+    if(boolF == null) boolF = Function.airTrue;
     if(amtI == null) amtI = 1;
     if(pI == null) pI = 1.0;
     if(amtO == null) amtO = 1;
@@ -1009,17 +1017,25 @@
     if(minHardness == null) minHardness = 0;
     if(maxHardness == null) maxHardness = Infinity;
     if(abrasionFactor == null) abrasionFactor = 1.0;
-    if(boolF == null) boolF = (itm, itmParent) => true;
 
     VARGEN.intmds["rs-chunks"].forEach(itm => {
       let itmParent = itm.ex_getParent();
       let hardness = itmParent.hardness;
-      if(hardness > minHardness && hardness < maxHardness && boolF(itm, itmParent)) {
-        addRc(rc, itm.name, "rock-crushing", obj => {
-          if(objF != null) objF(obj);
+      if(hardness < minHardness || hardness > maxHardness || !boolF(itm, itmParent)) return;
+
+      addRc(
+        rc,
+        itm.name,
+        "rock-crushing",
+        obj => {
           obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Math.max(hardness - minHardness, 0) / 10.0);
-        }, null, [itmParent.name, amtI, pI], null, null, null, null, [itm.name, amtO, pO], null, null);
-      };
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi([itmParent.name, amtI, pI])
+        .__bo([itm.name, amtO, pO])
+        .build(),
+      );
     });
   };
   exports._gen_rockCrusher = _gen_rockCrusher;
@@ -1028,10 +1044,12 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Recipe generator: pulverizer.
-   * Converts ore items into dust.
+   * Recipe generator: rock crusher.
+   * Converts some rocks into aggregate.
+   * See {DB_item.db["group"]["aggregate"]}.
    * ---------------------------------------- */
-  const _gen_pulverizer = function(rc, objF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor, boolF) {
+  const _gen_rockCrusher_aggregate = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
+    if(boolF == null) boolF = Function.airTrue;
     if(amtI == null) amtI = 1;
     if(pI == null) pI = 1.0;
     if(amtO == null) amtO = 1;
@@ -1039,17 +1057,79 @@
     if(minHardness == null) minHardness = 0;
     if(maxHardness == null) maxHardness = Infinity;
     if(abrasionFactor == null) abrasionFactor = 1.0;
-    if(boolF == null) boolF = (itm, itmParent) => true;
+
+    // Coarse aggregate to fine aggregate on top of everything
+    addRc(
+      rc,
+      "loveclab-item0buil-coarse-aggregate",
+      "aggregate-crushing",
+      obj => {
+        if(objF != null) objF(obj);
+      },
+      new CLS_recipeBuilder()
+      .__bi(["loveclab-item0buil-coarse-aggregate", amtI, pI])
+      .__bo(["loveclab-item0buil-fine-aggregate", amtO, pO])
+      .build(),
+    );
+
+    DB_item.db["group"]["aggregate"].forEachRow(2, (nmItm, mtp) => {
+      let itm = MDL_content._ct(nmItm, "rs");
+      if(itm == null) return;
+      let hardness = itm.hardness;
+      if(hardness < minHardness || hardness > maxHardness || !boolF(itm)) return;
+
+      addRc(
+        rc,
+        nmItm,
+        "aggregate-crushing",
+        obj => {
+          obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Math.max(hardness - minHardness, 0) / 10.0);
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi([nmItm, Math.round(amtI * Math.max(mtp, 1.0)), pI * Math.min(mtp, 1.0)])
+        .__bo(["loveclab-item0buil-coarse-aggregate", amtO, pO])
+        .build(),
+      );
+    });
+  };
+  exports._gen_rockCrusher_aggregate = _gen_rockCrusher_aggregate;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Recipe generator: pulverizer.
+   * Converts ore items into dust.
+   * ---------------------------------------- */
+  const _gen_pulverizer = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
+    if(boolF == null) boolF = Function.airTrue;
+    if(amtI == null) amtI = 1;
+    if(pI == null) pI = 1.0;
+    if(amtO == null) amtO = 1;
+    if(pO == null) pO = 1.0;
+    if(minHardness == null) minHardness = 0;
+    if(maxHardness == null) maxHardness = Infinity;
+    if(abrasionFactor == null) abrasionFactor = 1.0;
 
     VARGEN.intmds["rs-dust"].forEach(itm => {
       let itmParent = itm.ex_getParent();
       let hardness = itmParent.hardness;
-      if(hardness > minHardness && hardness < maxHardness && boolF(itm, itmParent)) {
-        addRc(rc, itm.name, "pulverization", obj => {
-          if(objF != null) objF(obj);
+      if(hardness < minHardness || hardness > maxHardness || !boolF(itm, itmParent)) return;
+
+      addRc(
+        rc,
+        itm.name,
+        "pulverization",
+        obj => {
           obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Math.max(hardness - minHardness, 0) / 10.0);
-        }, null, [itmParent.name, amtI, pI], null, null, null, null, [itm.name, amtO, pO], null, null);
-      };
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi([itmParent.name, amtI, pI])
+        .__bo([itm.name, amtO, pO])
+        .build(),
+      );
     });
   };
   exports._gen_pulverizer = _gen_pulverizer;

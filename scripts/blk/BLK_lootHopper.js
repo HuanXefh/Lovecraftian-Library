@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A storage block that collects loots over it.
+   * A storage block that collects loots on top of it.
    * ---------------------------------------- */
 
 
@@ -170,8 +170,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return [];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": [],
+    }),
 
 
     /* <---------- build (extended) ----------> */

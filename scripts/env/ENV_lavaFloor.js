@@ -46,10 +46,10 @@
   const PARENT = require("lovec/env/ENV_baseLiquidFloor");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const MDL_draw = require("lovec/mdl/MDL_draw");
+
+
+  const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
 
 
   /* <---------- component ----------> */
@@ -59,7 +59,7 @@
     blk.walkSound = Sounds.splash;
 
     blk.speedMultiplier = 0.05;
-    blk.cacheLayer = CacheLayer.slag;
+    blk.cacheLayer = TP_cacheLayer.shader0surf_flr0liq_lava;
     blk.albedo = 0.2;
     blk.emitLight = true;
     blk.lightRadius = 40.0;
@@ -104,8 +104,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-env"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-env"],
+    }),
 
 
     // @NOSUPER

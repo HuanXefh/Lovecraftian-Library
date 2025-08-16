@@ -159,8 +159,8 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These fluids will fumes.
-     * I mean extra effects for the puddle, don't put gas here.
+     * These fluids will fume.
+     * I mean extra visual effects for the puddle, don't put gas here.
      * ---------------------------------------- */
     "fuming": [],
 

@@ -24,6 +24,7 @@
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_text = require("lovec/mdl/MDL_text");
 
 
@@ -51,7 +52,7 @@
    * Gets amount of CEPs provided by {blk_gn}.
    * ---------------------------------------- */
   const _cepProv = function(blk_gn, b) {
-    var blk = MDL_content._ct(blk_gn, "blk");
+    let blk = MDL_content._ct(blk_gn, "blk");
     var tmp = blk == null ? 0.0 : DB_block.db["param"]["cep"]["prov"].read(blk.name, MDL_cond._isCoreBlock(blk) ? 5.0 : 0.0);
 
     return tmp !== "function" ?
@@ -67,7 +68,7 @@
    * Gets amount of CEPs used by {blk_gn}.
    * ---------------------------------------- */
   const _cepUse = function(blk_gn, b) {
-    var blk = MDL_content._ct(blk_gn, "blk");
+    let blk = MDL_content._ct(blk_gn, "blk");
     var tmp = blk == null ? 0.0 : DB_block.db["param"]["cep"]["use"].read(blk.name, 0.0);
 
     return tmp !== "function" ?
@@ -146,14 +147,16 @@
    * Gets the drill speed for {blk}.
    * ---------------------------------------- */
   const _drillSpd = function(blk, boosted) {
-    var spd = 0.0;
-    if(blk instanceof Drill) {
-      spd = Math.pow(blk.size, 2) / blk.drillTime * 60.0 * (boosted ? Math.pow(blk.liquidBoostIntensity, 2) : 1.0);
-    } else if(blk instanceof BeamDrill) {
-      spd = blk.size / blk.drillTime * 60.0 * (boosted ? blk.optionalBoostIntensity : 1.0);
+    const arr = DB_block.db["class"]["drillSpd"];
+    let getter = null;
+    let i = 0;
+    let iCap = arr.iCap();
+    while(i < iCap) {
+      if(blk instanceof arr[i]) getter = arr[i + 1];
+      i += 2;
     };
 
-    return spd;
+    return getter(blk, Object.val(boosted, false));
   };
   exports._drillSpd = _drillSpd;
 
@@ -193,6 +196,7 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * @METHOD: blk.ex_getFuelType, blk.ex_getBlockedFuels
    * Gets the fuel tuple for a furnace.
    * Format: {fuelRs, fuelPon, fuelLvl}.
    * ---------------------------------------- */
@@ -243,6 +247,12 @@
   exports._fuelTup = _fuelTup;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @FIELD: b.fuelPonCur
+   * Returns the fraction used in {Mathf.lerp}.
+   * ---------------------------------------- */
   const _tempTgFrac = function(b, fuelRs) {
     if(fuelRs == null || b.fuelPonCur < 0.0001) return 0.0;
 
@@ -308,14 +318,16 @@
   exports._glbPol = _glbPol;
 
 
+  const comp_setStats_pol = function(blk) {
+    let pol = _pol(blk);
+    if(!Number(pol).fEqual(0.0)) blk.stats.add(pol > 0.0 ? TP_stat.blk_pol : TP_stat.blk_polRed, Math.abs(pol), TP_stat.blk_polUnits);
+  };
+  exports.comp_setStats_pol = comp_setStats_pol;
+
+
   /* <---------- terrain ----------> */
 
 
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the terrain at {t}.
-   * ---------------------------------------- */
   const ters = [
     "dirt",
     "lava",
@@ -328,6 +340,13 @@
     "sand",
     "sea",
   ];
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the terrain at {t}.
+   * ---------------------------------------- */
   const _ter = function(t, size) {
     if(t == null) return null;
 
@@ -340,7 +359,7 @@
     let countObj = {};
     ters.forEach(ter => countObj[ter] = 0);
     ts.forEach(ot => {
-      let ter = Function.funTry(ot.floor().ex_getMatGrp).call(ot.floor());
+      let ter = Function.tryFun(ot.floor().ex_getMatGrp, null, ot.floor());
       if(ter != null) countObj[ter] += 1;
     });
 
@@ -447,12 +466,143 @@
   exports.comp_canPlaceOn_ter = comp_canPlaceOn_ter;
 
 
+  /* <---------- torque ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Calculates RPM that can be gained from other buildings.
+   * ---------------------------------------- */
+  const _rpmSpare = function(b, applyCons) {
+    var val = 0.0;
+    b.proximity.each(ob => {
+      if((!ob.block.rotate ?
+        true :
+        ob.relativeTo(b) === b.rotation
+      ) && ob.liquids != null) {
+        let rate = MDL_recipeDict._prodAmt(VARGEN.auxTor, ob.block) * 60.0;
+        !applyCons ?
+          val += rate :
+          val += FRAG_fluid.addLiquid(ob, b, VARGEN.auxTor, -rate);
+      };
+    });
+
+    return val;
+  };
+  exports._rpmSpare = _rpmSpare;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @FIELD: b.rotBool
+   * @METHOD: b.ex_getRpmCur, b.ex_getRotBool
+   * Calculates the desired RPM for {b} now, for cogwheels only.
+   * This does not include spared RPM.
+   * ---------------------------------------- */
+  const _rpmTg_cogwheel = function(b, setRotBool) {
+    const thisFun = _rpmTg_cogwheel;
+
+    var val = 0.0;
+    let tmpB = null;
+    let sizeCheck = b.block.size;
+    if(sizeCheck % 2 === 0) throw new Error("Size of a cogwheel cannot be an even number!");
+    while(sizeCheck > 0) {
+      for(let i = 0; i < 4; j++) {
+        let ob = thisFun.funScr(b, sizeCheck, i);
+        if(ob == null) continue;
+
+        let oval = ob.ex_getRpmCur() * ob.block.size / b.block.size;
+        if(oval > val) {
+          if(ob.ex_getRotBool() !== b.rotBool) val = oval;
+          tmpB = ob;
+        };
+      };
+      sizeCheck -= 2;
+    };
+
+    if(setRotBool && tmpB != null) {
+      b.rotBool = !tmpB.ex_getRotBool();
+    };
+
+    return val;
+  }
+  .setProp({
+    "funScr": (b, sizeCheck, ind) => {
+      let pon2;
+      let dstT = (sizeCheck + 1) / 2;
+      switch(ind) {
+        case 0 :
+          pon2 = new Point2(-dstT, 0);
+          break;
+        case 1 :
+          pon2 = new Point2(0, -dstT);
+          break;
+        case 2 :
+          pon2 = new Point2(dstT, 0);
+          break;
+        case 3 :
+          pon2 = new Point2(0, dstT);
+          break;
+      };
+
+      let ot = b.tile.nearby(pon2);
+      if(ot == null) return null;
+      let ob = ot.build;
+      if(ob == null || !MDL_cond._isCog(ob.block) || ob.block.size) return null;
+
+      return ob;
+    },
+  });
+  exports._rpmTg_cogwheel = _rpmTg_cogwheel;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @FIELD: b.rpmCur, b.rotBool
+   * Cogwheels will sync RPM with other cogwheels.
+   * Only 1-block cogwheels can interact with torque consumers/producers.
+   * ---------------------------------------- */
+  const comp_updateTile_cogwheel = function(b) {
+    // Slow down
+    let rpmDecRate = 0.025 / b.block.size;
+    b.rpmCur -= rpmDecRate * b.edelta();
+    b.totalProgress += b.rpmCur;
+
+    // Supply torque
+    if(b.block.size === 1 && TIMER.timerState_liq) {
+      let rate = b.rpmCur / 60.0 * b.edelta() * VAR.time_liqIntv;
+      b.proximity.each(ob => {
+        FRAG_fluid.addLiquid(ob, b, VARGEN.auxTor, rate);
+        // For test
+        if(ob.block instanceof LiquidSource && ob.source === VARGEN.auxTor) b.rpmCur = 999.0;
+      });
+    };
+
+    if(TIMER.timerState_param) {
+      let rpmSpare = b.block.size !== 1 ? 0.0 : _rpmSpare(b, true);
+      if(rpmSpare > 0.0) {
+        // Gain RPM from torque producers
+        b.rpmCur = rpmSpare + rpmDecRate * VAR.time_paramIntv;
+        b.rotBool = true;
+      } else {
+        // Gain RPM from fastest cogwheel
+        b.rpmCur = _rpmTg_cogwheel(b, true);
+      };
+    };
+  };
+  exports.comp_updateTile_cogwheel = comp_updateTile_cogwheel;
+
+
   /* <---------- tree ----------> */
 
 
   /* ----------------------------------------
    * NOTE:
    *
+   * @METHOD: blk.ex_getTreeGrp
    * Gets resource level of a tree (or mushroom).
    * ---------------------------------------- */
   const _treeRsLvl = function(blk) {
@@ -532,15 +682,13 @@
 
         // Team buildings
         let cepUse = 0.0;
-        team.data().buildings.toArray().forEachFast(b => {
+        team.data().buildings.each(b => {
 
-          if(b.liquids != null && DB_block.db["class"]["nonAux"].hasIns(b.block)) FRAG_fluid.comp_updateTile_aux(b);
+          if(b.liquids != null && b.liquids.currentAmount() > 0.0 && DB_block.db["class"]["nonAux"].hasIns(b.block)) FRAG_fluid.comp_updateTile_aux(b);
 
           if(MDL_cond._isBuildingActive(b)) {
-
             cepUse += _cepUse(b.block, b);
             if(Mathf.chance(VAR.p_polUpdateP)) glbPol += _pol(b.block);
-
           };
 
         });

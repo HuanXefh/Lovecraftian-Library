@@ -23,6 +23,7 @@
 
 
   const PARAM = require("lovec/glb/GLB_param");
+  const VARGEN = require("lovec/glb/GLB_varGen");
 
 
   const MDL_event = require("lovec/mdl/MDL_event");
@@ -34,34 +35,28 @@
   /* <---------- base ----------> */
 
 
-  const rules = Vars.state.rules;
+  let rules = null;
+  let nmMapCur = "";
   let hasInit = false;
-  let tmpNmMap = "";
   let hasWe = false;
 
 
   function comp_init() {
+    rules = Vars.state.rules;
     hasWe = false;
 
-
-    if(Vars.state.isGame()) {
-
-      // Weather
-      Groups.weather.clear();
-      let wes = DB_env.db["param"]["map"]["we"].read(PARAM.mapCur.plainName(), Array.air);
-      if(wes.length > 0) rules.weather = wes.toSeq();
-
-    };
+    hasInit = true;
   };
 
 
   function comp_updateBase() {
-    if(PARAM.mapCur == null) return;
+    let nmMap = PARAM.mapCur == null || Vars.state.isMenu() ?
+      "" :
+      PARAM.mapCur.plainName();
 
-    let nmMapCur = PARAM.mapCur.plainName();
-    if(Vars.state.isMenu() || nmMapCur !== tmpNmMap) {
-      tmpNmMap = nmMapCur;
+    if(nmMap !== nmMapCur) {
       hasInit = false;
+      nmMapCur = nmMap;
     };
 
     if(!hasInit) comp_init();
@@ -69,12 +64,22 @@
 
 
   function comp_updateWeather() {
-    if(PARAM.mapCur == null || hasWe || !Vars.state.isGame()) return;
+    if(hasWe || !Vars.state.isGame() || Vars.state.isEditor() || PARAM.mapCur == null) return;
 
-    let wes = DB_env.db["param"]["map"]["we"].read(PARAM.mapCur.plainName(), Array.air);
-    if(wes.length > 0) {
-      rules.weather = wes.toSeq();
+    let nmWeas = DB_env.db["param"]["map"]["we"].read(PARAM.mapCur.plainName(), Array.air);
+    if(nmWeas.length > 0) {
       Groups.weather.clear();
+      
+      let weSeq = new Seq();
+      nmWeas.forEach(nmWea => {
+        let we = VARGEN.wes[nmWea];
+        if(we == null) {
+          Log.warn("[LOVEC] Invalid weather name: " + nmWea);
+        } else {
+          weSeq.add(we);
+        };
+      });
+      rules.weather = weSeq;
     };
 
     hasWe = true;
@@ -89,6 +94,8 @@
 
 
   MDL_event._c_onUpdate(() => {
+
     comp_updateBase();
     comp_updateWeather();
+
   }, 72663182);

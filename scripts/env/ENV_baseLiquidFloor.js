@@ -83,7 +83,7 @@
     blk.albedo = 0.9;
     blk.walkEffect = Fx.ripple;
 
-    if(liq != null && Number(blk.liquidMultiplier).fEqual(1.0)) blk.liquidMultiplier = blk.shallow ? 0.5 : 1.0;
+    if(liq != null && Number(blk.liquidMultiplier).fEqual(1.0)) blk.liquidMultiplier = blk.shallow ? 1.0 : 1.5;
 
     if(liq != null) MDL_content.rename(
       blk,
@@ -129,8 +129,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-env"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-env"],
+    }),
 
 
     // @NOSUPER

@@ -923,6 +923,25 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Iterates through units in range that match {boolF}.
+   * ---------------------------------------- */
+  const _it_units = function(x, y, rad, team, boolF, scr) {
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return;
+    if(team === undefined) team = null;
+    if(boolF == null) boolF = Function.airTrue;
+    if(scr == null) scr = Function.air;
+
+    Units.nearby(team, x, y, rad, unit => {
+      if(boolF(unit)) scr(unit);
+    });
+  };
+  exports._it_units = _it_units;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Gets a random loot unit near (x, y), return {null} if not found.
    * ---------------------------------------- */
   const _loot = function(x, y, rad, caller) {

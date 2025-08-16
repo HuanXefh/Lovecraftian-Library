@@ -13,11 +13,11 @@
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_event = require("lovec/mdl/MDL_event");
-  const MDL_flow = require("lovec/mdl/MDL_flow");
   const MDL_test = require("lovec/mdl/MDL_test");
   const MDL_util = require("lovec/mdl/MDL_util");
 
 
+  const DB_env = require("lovec/db/DB_env");
   const DB_misc = require("lovec/db/DB_misc");
 
 
@@ -25,7 +25,22 @@
 
 
   let upSup_i = 0;
-  let upSupTime = 180;
+  let upSupTime = 300;
+
+
+  let secretCode = "";
+
+
+  // Not in {MDL_flow} to avoid coupling of modules
+  const _glbHeat = function() {
+    let pla = Vars.state.planet;
+    if(pla == null) return 0.0;
+
+    let nmPla = pla.name;
+    let nmMap = Vars.state.map.plainName();
+
+    return DB_env.db["param"]["map"]["heat"].read(nmMap, DB_env.db["param"]["pla"]["heat"].read(nmPla, 0.26)) * 100.0;
+  };
 
 
   let shouldLoadParam = false;
@@ -40,6 +55,20 @@
   Section: Application
   ========================================
 */
+
+
+  // Time to spawn bugs
+  exports.debug = (function() {
+
+    if(Core.settings.getString("lovec-misc-secret-code", "").includes("<anuke-mode>")) {
+
+      Log.info("[LOVEC] " + "Debug mode".color(Pal.accent) + " is enabled.");
+
+      return true;
+
+    } else return false;
+
+  })();
 
 
   // Whether required by other mods
@@ -57,13 +86,15 @@
   MDL_event._c_onLoad(() => {
 
 
-  });
+  }, 59556227);
 
 
   MDL_event._c_onUpdate(() => {
 
 
-    exports.updateSuppressed = upSup_i-- > 0;
+    upSup_i--
+    exports.updateSuppressed = upSup_i > 0;
+    exports.updateDeepSuppressed = upSup_i > -upSupTime;
 
 
     if(TIMER.timerState_paramGlobal || shouldLoadParam) {
@@ -80,7 +111,7 @@
       exports.mapCur = Vars.state.map;
 
 
-      exports.glbHeat = MDL_flow._glbHeat();
+      exports.glbHeat = _glbHeat();
 
 
       /* <---------- setting ----------> */
@@ -91,14 +122,14 @@
 
 
       exports.drawWobble = MDL_util._cfg("draw-wobble");
-      exports.drawBlurredShadow = MDL_util._cfg("draw0shadow-blurred");
-      exports.drawCircleShadow = MDL_util._cfg("draw0shadow-circle");
       exports.drawStaticLoot = MDL_util._cfg("draw0loot-static");
       exports.drawLootAmount = MDL_util._cfg("draw0loot-amount");
       exports.treeAlpha = (Groups.player.size() > 1) ? 1.0 : MDL_util._cfg("draw0tree-alpha", true);
       exports.checkTreeDst = MDL_util._cfg("draw0tree-player") && MDL_cond._isCoverable(unit_pl);
+      exports.showExtraInfo = MDL_util._cfg("draw0aux-extra-info");
       exports.drawBridgeTransportLine = MDL_util._cfg("draw0aux-bridge");
       exports.drawRouterHeresy = MDL_util._cfg("draw0aux-router");
+      exports.drawFluidHeat = MDL_util._cfg("draw0aux-fluid-heat");
 
 
       exports.showIconTag = MDL_util._cfg("icontag-show");
@@ -116,6 +147,15 @@
       exports.displayDamage = MDL_util._cfg("damagedisplay-show");
       exports.damageDisplayThreshold = MDL_util._cfg("damagedisplay-min", true);
       exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
+
+
+      secretCode = MDL_util._cfg("misc-secret-code");
+
+
+      if(secretCode.includes("<crash>")) {
+        Core.settings.put("lovec-misc-secret-code", "");
+        throw new Error("You definitely know what <crash> means don't you?");
+      };
 
 
       shouldLoadParam = false;

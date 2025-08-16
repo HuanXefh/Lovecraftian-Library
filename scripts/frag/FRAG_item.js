@@ -8,9 +8,13 @@
   /* <---------- import ----------> */
 
 
+  const ANNO = require("lovec/glb/BOX_anno");
+
+
   const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_net = require("lovec/mdl/MDL_net");
 
 
   /* <---------- item module ----------> */
@@ -500,6 +504,43 @@
     return true;
   };
   exports.takeUnitLoot = takeUnitLoot;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {takeUnitLoot} used for client side.
+   * ---------------------------------------- */
+  const takeUnitLoot_client = function(unit, loot, max) {
+    if(unit == null || loot == null) return false;
+
+    let itm = loot.item();
+    if(itm == null || !unit.acceptsItem(itm)) return false;
+    let amt = loot.stack.amount;
+    if(amt < 1) return false;
+    if(max == null) max = Infinity;
+
+    var amtTrans = Math.max(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max), 0);
+    if(amtTrans < 1) return false;
+
+    let payload = Array.toPayload([
+      unit.id,
+      loot.id,
+      max,
+    ]);
+
+    MDL_net.sendPacket("client", "lovec-client-unit-take-loot", payload, true, true);
+
+    return true;
+  }
+  .setAnno(ANNO.__INIT__, null, function() {
+    MDL_net.__packetHandler("server", "lovec-client-unit-take-loot", payload => {
+      let arr = Array.fromPayload(payload);
+      takeUnitLoot(Groups.unit.getById(arr[0]), Groups.unit.getById(arr[1]), arr[2]);
+    });
+  })
+  .setAnno(ANNO.__CLIENT__);
+  exports.takeUnitLoot_client = takeUnitLoot_client;
 
 
   /* ----------------------------------------

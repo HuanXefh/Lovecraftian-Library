@@ -121,8 +121,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-min"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-min"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

@@ -78,27 +78,52 @@
   /* <---------- damage ----------> */
 
 
-  const damage = function(e, dmg, pierceArmor, flashBuilding) {
-    if(e == null) return;
-    if(dmg < 0.0001) return;
+  const damage = function(e, dmg, pierceArmor) {
+    if(e == null) return false;
+    if(dmg < 0.0001) return false;
 
     var dmg_fi = MDL_entity._dmgTake(e, dmg, pierceArmor);
     if(e instanceof Building) {
       MDL_effect.showAt_dmg(e.x, e.y, dmg, null, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health");
-      if(flashBuilding) MDL_effect.showAt_flash(e);
+      MDL_effect.showAt_flash(e);
     } else {
       MDL_effect.showAt_dmg(e.x, e.y, dmg, null, e.shield > dmg_fi ? "shield" : "health");
     };
 
     pierceArmor ? e.damagePierce(dmg, true) : e.damage(dmg, true);
+
+    return true;
   };
   exports.damage = damage;
+
+
+  const heal = function(e, healAmt) {
+    if(e == null) return false;
+    if(healAmt < 0.0001) return false;
+
+    if(e instanceof Building) {
+      MDL_effect.showAt_dmg(e.x, e.y, healAmt, null, "heal");
+      MDL_effect.showAt_flash(e, Pal.heal);
+
+      e.recentlyHealed();
+    } else {
+      MDL_effect.showAt_dmg(e.x, e.y, healAmt, null, "heal");
+      e.healTime = 1.0;
+    };
+
+    e.heal(healAmt);
+
+    return true;
+  };
+  exports.heal = heal;
 
 
   /* <---------- ranged ----------> */
 
 
   const apply_explosion = function(x, y, dmg, rad, shake, noSound) {
+    if(!Vars.state.rules.reactorExplosions) return;
+
     if(dmg == null) dmg = 0.0;
     if(dmg < 0.0001) return;
     if(rad == null) rad = 40.0;

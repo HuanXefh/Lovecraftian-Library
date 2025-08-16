@@ -149,8 +149,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-core"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-core"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

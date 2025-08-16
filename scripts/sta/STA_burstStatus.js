@@ -139,8 +139,10 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return [];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": [],
+    }),
 
 
     // @NOSUPER

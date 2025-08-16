@@ -336,6 +336,9 @@
   const _lsav = function() {
     if(Vars.state.isMenu()) return null;
 
-    return lovecData.child("saves").child(Vars.control.saves.getCurrent().file.nameWithoutExtension() + ".lsav");
+    let saveSlotCur = Vars.control.saves.getCurrent();
+    if(saveSlotCur == null) return null;
+
+    return lovecData.child("saves").child(saveSlotCur.file.nameWithoutExtension() + ".lsav");
   };
   exports._lsav = _lsav;

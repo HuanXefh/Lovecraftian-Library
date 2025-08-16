@@ -22,7 +22,7 @@
   /* ----------------------------------------
    * KEY:
    *
-   * sta.killedScr: unit => {...}    // @PARAM: The function run when the unit is killed.
+   * sta.killedScr: unit => {...}   // @PARAM: The function run when the unit is killed.
    * ---------------------------------------- */
 
 
@@ -84,9 +84,11 @@
 
 
     // @NOSUPER
-    ex_getTags: function(blk) {
-      return ["death-sta"];
-    },
+    ex_getTags: function(sta) {
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["sta-death"],
+    }),
 
 
   };

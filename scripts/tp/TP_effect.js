@@ -327,7 +327,8 @@
     if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_draw._color(color_gn).cpy();
+    color.a = 0.5;
 
     return extend(ParticleEffect, {
 

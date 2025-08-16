@@ -48,6 +48,7 @@
   const PARENT = require("lovec/rs/RS_baseFluid");
 
 
+  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_table = require("lovec/mdl/MDL_table");
@@ -63,7 +64,7 @@
     liq.intmdParent = MDL_content._ct(liq.intmdParent, "rs");
 
     MDL_event._c_onLoad(() => {
-      liq.shownPlanets.add(Vars.content.planet("lovec-pla0sun-veibrus"));
+      if(MDL_cond._isIntmd(liq)) liq.shownPlanets.add(Vars.content.planet("lovec-pla0sun-veibrus"));
     });
   };
 
@@ -102,6 +103,11 @@
     },
 
 
+    update: function(liq, puddle) {
+      PARENT.update(liq, puddle)
+    },
+
+
     loadIcon: function(liq) {
       PARENT.loadIcon(liq);
     },
@@ -115,13 +121,21 @@
     /* <---------- resource (specific) ----------> */
 
 
+    // @NOSUPER
+    willBoil: function(liq) {
+      return PARENT.willBoil(liq);
+    },
+
+
     /* <---------- resource (extended) ----------> */
 
 
     // @NOSUPER
     ex_getTags: function(liq) {
-      return ["rs-intmd"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["rs-intmd"],
+    }),
 
 
     // @NOSUPER

@@ -4,6 +4,20 @@ const db = {
   "param": {
 
 
+    "color": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Generic color parameter for the block.
+       * ---------------------------------------- */
+      "base": [],
+
+
+    },
+
+
     "amount": {
 
       /* ----------------------------------------
@@ -93,13 +107,71 @@ const db = {
       "base": [],
 
 
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Time used for duration like status duration.
+       * ---------------------------------------- */
+      "dur": [],
+
+
+    },
+
+
+    "heal": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Generic heal amount.
+       * ---------------------------------------- */
+      "amount": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Generic heal percent.
+       * ---------------------------------------- */
+      "percent": [],
+
+
     },
 
 
     /* ----------------------------------------
      * NOTE:
      *
+     * Diameter of the fluid pipe, independent of block size.
+     * ---------------------------------------- */
+    "pipeDiam": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Maximum pressure allowed in the block.
+     * If unset, group parameter will be used.
+     * ---------------------------------------- */
+    "presRes": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Maximum vacuum allowed in the block.
+     * Note that vacuum is set in negative values.
+     * If unset, group parameter will be used.
+     * ---------------------------------------- */
+    "vacRes": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * Corrosion resistence for the block.
+     * If unset, group parameter will be used.
      * ---------------------------------------- */
     "corRes": [],
 
@@ -108,6 +180,7 @@ const db = {
      * NOTE:
      *
      * Heat resistence for the block.
+     * If unset, group parameter will be used.
      * ---------------------------------------- */
     "heatRes": [],
 
@@ -115,7 +188,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * How many pollution points the block generates per block.
+     * How many pollution points the block generates (per tile).
      * ---------------------------------------- */
     "pol": [],
 
@@ -342,6 +415,48 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
+     * Base pressure resistence for each material group.
+     * ---------------------------------------- */
+    "presRes": [
+
+      "wood", 1.0,
+      "copper", 7.0,
+      "lead", 7.0,
+      "iron", 5.0,
+      "steel", 12.0,
+      "galvanized", 12.0,
+      "stainless", 12.0,
+      "glass", 10.0,
+      "cement", 5.0,
+      "rubber", 3.0,
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Base vacuum resistence for each material group.
+     * ---------------------------------------- */
+    "vacRes": [
+
+      "wood", 0.0,
+      "copper", -3.0,
+      "lead", -3.0,
+      "iron", -3.0,
+      "steel", -7.0,
+      "galvanized", -7.0,
+      "stainless", -7.0,
+      "glass", -10.0,
+      "cement", -3.0,
+      "rubber", -7.0,
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * Base corrosion resistence for each material group.
      * ---------------------------------------- */
     "corRes": [
@@ -445,6 +560,19 @@ const db = {
     "nonAux": [
 
       LiquidBlock,
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to read drill speed for display.
+     * ---------------------------------------- */
+    "drillSpd": [
+
+      Drill, (blk, boosted) => Math.pow(blk.size, 2) / blk.drillTime * 60.0 * (boosted ? Math.pow(blk.liquidBoostIntensity, 2) : 1.0),
+      BeamDrill, (blk, boosted) => blk.size / blk.drillTime * 60.0 * (boosted ? blk.optionalBoostIntensity : 1.0),
 
     ],
 

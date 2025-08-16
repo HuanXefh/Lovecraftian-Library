@@ -261,8 +261,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-pow", "blk-pow0trans", "blk-node"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-pow", "blk-pow0trans", "blk-node"],
+    }),
 
 
     // @NOSUPER

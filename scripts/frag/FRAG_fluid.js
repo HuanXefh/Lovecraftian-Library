@@ -12,6 +12,7 @@
   const PARAM = require("lovec/glb/GLB_param");
   const TIMER = require("lovec/glb/GLB_timer");
   const VAR = require("lovec/glb/GLB_var");
+  const VARGEN = require("lovec/glb/GLB_varGen");
 
 
   const FRAG_attack = require("lovec/frag/FRAG_attack");
@@ -26,6 +27,9 @@
   const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
+  const TP_stat = require("lovec/tp/TP_stat");
+
+
   const DB_fluid = require("lovec/db/DB_fluid");
 
 
@@ -37,11 +41,12 @@
    *
    * Adds liquid to {b}, with {b_f} as the source.
    * Set {returnFrac} to {true} for efficiency calculation.
+   * Use negative {rate} for reduction.
    * ---------------------------------------- */
-  const addLiquid = function(b, b_f, liq, rate, returnFrac) {
+  const addLiquid = function(b, b_f, liq, rate, forced, returnFrac) {
     let amtTrans = 0.0;
     if(b == null || liq == null) return amtTrans;
-    if(b.liquids == null || !b.acceptLiquid(b_f, liq)) return amtTrans;
+    if(b.liquids == null || (!forced && rate > 0.0 && !b.acceptLiquid(b_f, liq))) return amtTrans;
 
     if(rate == null) rate = 0.0;
     if(Math.abs(rate) < 0.0001) return amtTrans;
@@ -51,7 +56,7 @@
       -Math.min(-rate * b.edelta(), b.liquids.get(liq));
     b.handleLiquid(b_f, liq, amtTrans);
 
-    return returnFrac ? Math.abs(amtTrans / rate) : amtTrans;
+    return returnFrac ? Math.abs(amtTrans / rate) : Math.abs(amtTrans);
   };
   exports.addLiquid = addLiquid;
 
@@ -60,11 +65,12 @@
    * NOTE:
    *
    * Used when a large amount of liquid is produced at once.
+   * Use negative {amt} for reduction.
    * ---------------------------------------- */
-  const addLiquidBatch = function(b, b_f, liq, amt) {
+  const addLiquidBatch = function(b, b_f, liq, amt, forced) {
     let amtTrans = 0.0;
     if(b == null || liq == null) return amtTrans;
-    if(b.liquids == null || !b.acceptLiquid(b_f, liq)) return amtTrans;
+    if(b.liquids == null || (!forced && amt > 0.0 && !b.acceptLiquid(b_f, liq))) return amtTrans;
 
     if(amt == null) amt = 0.0;
     if(Math.abs(amt) < 0.0001) return amtTrans;
@@ -74,7 +80,7 @@
       -Math.min(-amt, b.liquids.get(liq));
     b.handleLiquid(b_f, liq, amtTrans);
 
-    return amtTrans;
+    return Math.abs(amtTrans);
   };
   exports.addLiquidBatch = addLiquidBatch;
 
@@ -110,41 +116,37 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * @FIELD: b.liqEnd, b.presTmp
    * Moves liquid from {b} to {b_t} occasionally.
    * Mostly used for conduits.
    * Do not use this unless you understand everything here.
    * ---------------------------------------- */
   const moveLiquid = function(b, b_t, liq) {
     let amtTrans = 0.0;
-    if(b == null || b_t == null || liq == null) return amtTrans;
-    if(b.liquids == null) return amtTrans;
+    if(PARAM.updateSuppressed || b_t == null || liq == null) return amtTrans;
 
     // Called occasionally to update params in {b}
     if(TIMER.timerState_liq) {
-      b.liqEnd = _liqEnd(b, b_t);
-      if(b.liqEnd == null) {
-        b.tmpFlow = 0.0;
-      } else {
-        b.tmpRate = MDL_flow._flow(
-          b,
-          b_t,
-          b.liquids.get(liq) / b.block.liquidCapacity,
-          b_t.liquids.get(liq) / b_t.block.liquidCapacity,
-          b.ex_accPres("read"),
-          liq.viscosity,
-        );
-      };
+      b.liqEnd = b_t.getLiquidDestination(b, liq);
     };
 
     if(b.liqEnd == null || b.liqEnd.liquids == null) return amtTrans;
 
-    if(b.team === b.liqEnd.team && b.liqEnd.acceptLiquid(b, liq)) {
+    amtTrans = transLiquid(
+      b,
+      b.liqEnd,
+      liq,
+      b.block.liquidCapacity * Math.max(b.liquids.get(liq) / b.block.liquidCapacity - b.liqEnd.liquids.get(liq) / b.liqEnd.block.liquidCapacity, 0.0),
+    );
 
-      amtTrans = transLiquid(b, b_t, liq, b.tmpRate);
+    if(
+      !b.liqEnd.block.consumesLiquid(liq)
+      && b.liqEnd.liquids.current() !== b.liquids.current()
+      && b.liqEnd.liquids.currentAmount() / b.liqEnd.block.liquidCapacity > 0.1
+      && b.liquids.currentAmount() / b.block.liquidCapacity > 0.1
+    ) {
 
-    } else if(!b.liqEnd.block.consumesLiquid(liq) && b.liqEnd.liquids.currentAmount() / b.liqEnd.block.liquidCapacity > 0.1 && b.liquids.currentAmount() / b.block.liquidCapacity > 0.1) {
-
-      // TODO
+      // TODO: Call reaction
 
     };
 
@@ -157,28 +159,32 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets the transportation destination.
-   * Any building with the tag {"blk-fjunc"} will be considered a junction.
+   * Lets a block that contains pressure/vacuum dump it, which affects {presBase}.
+   * Not regular {dumpLiquid}.
    * ---------------------------------------- */
-  const _liqEnd = function(b, b_t) {
-    if(b == null || b_t == null) return;
-    if(b.liquids == null) return;
-    if(!(b_t.block instanceof LiquidJunction) || !MDL_cond._isFJunc(b_t.block)) return b_t;
+  const dumpPres = function(b, rate, isVac, splitAmt, fluidType) {
+    let amtTrans = 0.0;
+    if(b == null || b.liquids == null) return amtTrans;
 
-    var rot_t = b.relativeTo(b_t);
-    let end = "tmp";
-    let t = b_t.tile;
-    while(end === "tmp") {
-      end = (t == null) ? null : t.build;
-      if(end != null && (b_t.block instanceof LiquidJunction || MDL_cond._isFJunc(end.block)) && end.team == b.team) {
-        t = end.tile.nearby(rot_t);
-        end = "tmp";
-      };
-    };
+    if(splitAmt == null) splitAmt = 1;
+    if(fluidType == null) fluidType = "both";
 
-    return end;
+    let liqCur = b.liquids.current();
+    b.proximity.each(ob => {
+      ob = ob.getLiquidDestination(b, liqCur);
+      if(ob.ex_accPresBase == null || MDL_cond._isPump(ob.block)) return;
+      if(fluidType !== "both" && ob.block.ex_getFluidType != null && ob.block.ex_getFluidType() !== fluidType) return;
+
+      let amt = addLiquid(b, b, isVac ? VARGEN.auxVac : VARGEN.auxPres, -rate / splitAmt);
+      if(amt < 0.0001) return;
+
+      ob.ex_accPresBase(ob.ex_accPresBase("read") + amt * (isVac ? -1.0 : 1.0));
+      amtTrans += amt;
+    });
+
+    return amtTrans;
   };
-  exports._liqEnd = _liqEnd;
+  exports.dumpPres = dumpPres;
 
 
   /* <---------- puddle ----------> */
@@ -253,7 +259,7 @@
       let ob = ot.build;
       let dmg = Time.delta * ob.maxHealth * VAR.blk_shortCircuitDmgFrac / 60.0;
       ob.damagePierce(dmg);
-      MDL_effect.showAtP(0.05, ob.x, ob.y, EFF.heatSmog);
+      if(Mathf.chance(0.05)) MDL_effect.showAt(ob.x, ob.y, EFF.heatSmog);
       if(Mathf.chanceDelta(0.01)) FRAG_attack.apply_lightning(ob.x, ob.y, null, null, null, 6, 4);
     });
   };
@@ -342,6 +348,11 @@
   exports.comp_updateTile_capAux = comp_updateTile_capAux;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * If the building contains flammable fluids and there's fire nearby, detonate it.
+   * ---------------------------------------- */
   const comp_updateTile_flammable = function(b) {
     if(!Vars.state.rules.reactorExplosions) return;
     if(!Mathf.chanceDelta(0.004) || b.liquids == null) return;
@@ -357,50 +368,128 @@
   exports.comp_updateTile_flammable = comp_updateTile_flammable;
 
 
-  const comp_updateTile_pressure = function(b) {
-    // TODO
-  }
-  .setTodo("Pressure, how to get pressure in a building generally, how it explodes.");
-  exports.comp_updateTile_pressure = comp_updateTile_pressure;
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @METHOD: b.ex_getPresTmp
+   * ---------------------------------------- */
+  const comp_setBars_pres = function(blk) {
+    if(MDL_cond._isPump(blk)) return;
+
+    blk.addBar("lovec-pressure", b => new Bar(
+      prov(() => Core.bundle.format("bar.lovec-bar-pressure-amt", Strings.fixed(b.ex_getPresTmp(), 2))),
+      prov(() => b.ex_getPresTmp() > 0.0 ? Color.valueOf("b8d3e0") : Color.valueOf("6992aa")),
+      () => Mathf.clamp(b.ex_getPresTmp() / (b.ex_getPresTmp() > 0.0 ? MDL_flow._presRes(blk) : MDL_flow._vacRes(blk))),
+    ));
+  };
+  exports.comp_setBars_pres = comp_setBars_pres;
 
 
   /* ----------------------------------------
    * NOTE:
    *
+   * @FIELD: b.presTmp, b.presBase, b.presRes, b.vacRes
+   * Used in a liquid block, controls the pressure/vacuum transfered.
+   * ---------------------------------------- */
+  const comp_updateTile_pres = function(b) {
+    if(PARAM.updateSuppressed || MDL_cond._isPump(b.block)) return;
+
+    // Damage the building if over limit
+    if(!PARAM.updateDeepSuppressed && Mathf.chance(0.02) && (b.presTmp > (b.presRes + 0.5) || b.presTmp < (b.vacRes - 0.5))) {
+      var dmg = b.edelta() * (b.maxHealth * VAR.blk_presDmgFrac + VAR.blk_presDmgMin) * (b.presTmp > 0.0 ? (b.presTmp / b.presRes) : (b.presTmp / b.vacRes));
+      b.damagePierce(dmg);
+    };
+
+    // Base pressure gradually drops to zero
+    b.presBase -= b.presBase * 0.01666667 * b.edelta();
+    if(Number(b.presBase).fEqual(0.0, 0.005)) b.presBase = 0.0;
+
+    if(!TIMER.timerState_liq || Number(b.presTmp).fEqual(0.0, 0.005)) return;
+
+    if(b.block.rotate) {
+      // If rotatable, supply the building in front of this
+      let ob = b.nearby(b.rotation);
+      if(ob != null && ob.team === b.team) {
+        addLiquid(ob, b, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Number(b.presTmp).roundFixed(1) * VAR.time_liqIntv);
+      };
+    } else {
+      // If not, supply all possible consumers around this
+      let div = 0;
+      let aux = b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac;
+      let ob_fi;
+      b.proximity.each(ob => {
+        ob_fi = ob.getLiquidDestination(b, aux);
+        if(ob_fi.acceptLiquid(b, aux)) div++;
+      });
+      if(div !== 0) b.proximity.each(ob => {
+        ob_fi = ob.getLiquidDestination(b, aux);
+        addLiquid(ob_fi, b, aux, Number(b.presTmp).roundFixed(1) / div * VAR.time_liqIntv);
+      });
+    };
+  };
+  exports.comp_updateTile_pres = comp_updateTile_pres;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * If a building containing pressure/vacuum is severely damaged, it has chance to explode.
+   * ---------------------------------------- */
+  const comp_updateTile_pressuredBuilding = function(b) {
+    // TODO
+  }
+  .setTodo("Pressure, how to get pressure in a building generally, how it explodes.");
+  exports.comp_updateTile_pressuredBuilding = comp_updateTile_pressuredBuilding;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @FIELD: b.corRes
    * Deals corrosion damage to the building. See {DB_fluid} for parameters.
    * ---------------------------------------- */
   const comp_updateTile_corrosion = function(b) {
+    const thisFun = comp_updateTile_corrosion;
+
     if(PARAM.updateSuppressed) return;
     if(!Mathf.chanceDelta(0.02)) return;
 
     let liqCur = b.liquids.current();
     var amt = b.liquids.get(liqCur);
     if(amt < 0.05) return;
-    var corPow = MDL_flow._corPow(liqCur);
+    var corPow = thisFun.funMap.get(liqCur.id);
+    if(corPow == null) {
+      corPow = MDL_flow._corPow(liqCur);
+      thisFun.funMap.put(liqCur.id, corPow);
+    };
     var corMtp = MDL_flow._corMtp(b.block, liqCur);
     if(corPow < 0.01 && corMtp > 1.0) corPow = 1.0;
     if(corPow < 0.01) return;
-    var corRes = MDL_flow._corRes(b.block);
+    var corRes = b.corRes;
 
     var dmg = b.edelta() * (b.maxHealth * VAR.blk_corDmgFrac + VAR.blk_corDmgMin) * corPow * corMtp / corRes;
     b.damagePierce(dmg);
 
     if(Mathf.chance(0.5)) MDL_effect.showAt_corrosion(b.x, b.y, b.block.size, liqCur.color);
-  };
+  }
+  .setProp({
+    "funMap": new ObjectMap(),
+  });
   exports.comp_updateTile_corrosion = comp_updateTile_corrosion;
 
 
   /* ----------------------------------------
    * NOTE:
    *
+   * @FIELD: b.cloggable
    * Just another type of corrosion damage, but based on viscosity.
    * ---------------------------------------- */
   const comp_updateTile_cloggable = function(b) {
     if(PARAM.updateSuppressed) return;
-    if(!Mathf.chanceDelta(0.02) || !MDL_cond._isCloggable(b.block)) return;
+    if(!Mathf.chanceDelta(0.02) || !b.cloggable) return;
 
     let liqCur = b.liquids.current();
-    var visc = liq.viscosity;
+    var visc = liqCur.viscosity;
     var viscThr = VAR.blk_clogViscThr;
     if(visc < viscThr) return;
     var amt = b.liquids.get(liqCur);
@@ -410,7 +499,7 @@
     var dmg = b.edelta() * (b.maxHealth * VAR.blk_clogDmgFrac + VAR.blk_clogDmgMin) * Mathf.lerp(0.5, 1.0, amt / cap) * Mathf.lerp(0.5, 1.0, (visc / viscThr) / 0.25);
     b.damagePierce(dmg);
 
-    if(Mathf.chance(0.5)) MDL_effect.showAt_corrosion(b.x, b.y, b.block.size, liqCur.color);
+    if(Mathf.chance(0.5)) MDL_effect.showAt_corrosion(b.x, b.y, b.block.size, liqCur.color, true);
   };
   exports.comp_updateTile_cloggable = comp_updateTile_cloggable;
 
@@ -418,12 +507,14 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * @FIELD: b.heatRes
    * Damages the building if fluid heat exceeds its heat resistence.
    * ---------------------------------------- */
   const comp_updateTile_fHeat = function(b) {
+    if(PARAM.updateSuppressed) return;
     if(!Mathf.chanceDelta(0.02)) return;
 
-    var heatRes = MDL_flow._heatRes(b.block);
+    var heatRes = b.heatRes;
     if(!isFinite(heatRes)) return;
     var fHeat = MDL_flow._fHeat_b(b);
     if(fHeat < heatRes + 0.0001) return;
@@ -436,22 +527,29 @@
   exports.comp_updateTile_fHeat = comp_updateTile_fHeat;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @FIELD: b.heatRes
+   * ---------------------------------------- */
   const comp_draw_fHeat = function(b, reg) {
+    if(!PARAM.drawFluidHeat) return;
+    if(!VARGEN.hotFlds.includes(b.liquids.current())) return;
+
     var fHeat = MDL_flow._fHeat_b(b);
-    if(fHeat < 0.01) return;
-    var heatRes = MDL_flow._heatRes(b.block);
+    var heatRes = b.heatRes;
     if(!isFinite(heatRes)) return;
 
-    MDL_draw.drawRegion_heat(b.x, b.y, Mathf.clamp(fHeat * 1.2 / heatRes), reg, b.block.size);
+    MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(Mathf.clamp(fHeat * 0.75 / heatRes), 3), reg, b.block.size);
   };
   exports.comp_draw_fHeat = comp_draw_fHeat;
 
 
   const comp_setBars_fHeat = function(blk) {
     blk.addBar("lovec-fheat", b => new Bar(
-      MDL_bundle._term("lovec", "fluid-heat"),
-      Pal.lightOrange,
-      () => Mathf.clamp(MDL_flow._fHeat(b) / MDL_flow._heatRes(blk)),
+      prov(() => Core.bundle.format("bar.lovec-bar-fluid-heat-amt", Strings.fixed(MDL_flow._fHeat_b(b), 2) + " " + TP_stat.rs_heatUnits.localized())),
+      prov(() => Pal.lightOrange),
+      () => Mathf.clamp(MDL_flow._fHeat_b(b) / MDL_flow._heatRes(blk)),
     ));
   };
   exports.comp_setBars_fHeat = comp_setBars_fHeat;

@@ -9,6 +9,7 @@
    * NOTE:
    *
    * Items that are considered to be waste.
+   * Unlike fluid, waste item has no relation with intermediate.
    * ---------------------------------------- */
 
 
@@ -99,8 +100,10 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return ["rs-was"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["rs-was"],
+    }),
 
 
   };

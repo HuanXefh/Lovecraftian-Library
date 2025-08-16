@@ -88,8 +88,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-env", "blk-tree"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-env", "blk-tree"],
+    }),
 
 
     // @NOSUPER

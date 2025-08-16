@@ -425,9 +425,21 @@
         </tr>
 
         <tr>
+          <td><i>@FIELD</i></td>
+          <td>In component method. <br> These fields should be defined to use the method.</td>
+          <td>Field names.</td>
+        </tr>
+
+        <tr>
           <td><i>@INHERITED</i></td>
           <td>In class file. <br> This method is inherited from the super class, {this.super} can be used.</td>
           <td></td>
+        </tr>
+
+        <tr>
+          <td><i>@METHOD</i></td>
+          <td>In component method. <br> These methods should be defined to use the method.</td>
+          <td>Method names.</td>
         </tr>
 
         <tr>
@@ -486,14 +498,14 @@
     <div>
       <a name="func-anno"><h2>Annotation</h2></a>
       <p>It's totally different from the one used in Java. In Lovec, <strong>annotation</strong> is used to modify a function. For example, {__SERVER__} will make a method only runs on server side. Annotations in Lovec are defined in {BOX_anno} which is in <strong>glb</strong>, the annotation class is defined in {CLS_annotation}.</p>
-      <p>Annotation may appear to have arguments, although it's actually a function that returns new annotations based on the arguments. Take {__INIT__} as an example, the sole argument is a function which is called after the difinition of the parent function:</p>
+      <p>Annotation may appear to have arguments. Take {__INIT__} as an example, the sole argument is a function which is called after the definition of the parent function (as the 3rd argument in {setAnno} since it's loading argument):</p>
       <div class="code"><pre><code>
         const foo = function() {
           ...
         }
-        .setAnno(ANNO.__INIT__(function() {
+        .setAnno(ANNO.__INIT__, null, function() {
           ...
-        }));
+        });
       </code></pre></div>
       <p>{BOX_anno} is usually imported as {ANNO} since it's in <strong>glb</strong>. To apply annotation to a function, simply call {setAnno} on it. However the function should not be directly declared with the function keyword, as {setAnno} works by returning the modified version.</p>
       <p>At most time, {this} in the annotation (including the function used in {__INIT__}) refers to the parent function. However, inside an arrow function {this} will always be the global object, which is why I discourage using arrow functions in annotation-related codes.</p>

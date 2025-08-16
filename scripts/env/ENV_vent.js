@@ -58,6 +58,7 @@
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
+  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
@@ -95,6 +96,25 @@
       blk.pons2 = MDL_pos.sizeOffsetPons2[ventSize - 1];
       blk.offDraw = (ventSize % 2 === 0) ? 4.0 : 0.0;
     };
+
+    // Bypass {drawBase} or the sprite is cut
+    MDL_event._c_onDraw(() => {
+      if(Vars.state.isMenu()) return;
+
+      blk.drawnMap.each((t, bool) => {
+        if(!bool) return;
+        if(!MDL_cond._posVisible(t.worldx(), t.worldy(), 64.0)) return;
+
+        let z = Draw.z();
+        Draw.z(VAR.lay_vent);
+        Draw.rect(MDL_content._regVari(blk, t), t.worldx() + blk.offDraw, t.worldy() + blk.offDraw);
+        Draw.z(z);
+      });
+    });
+
+    MDL_event._c_onWorldLoadStart(() => {
+      blk.drawnMap.clear();
+    });
   };
 
 
@@ -107,17 +127,7 @@
   function comp_drawBase(blk, t) {
     blk.parent.drawBase(t);
 
-    // NOTE: I have to bypass {drawBase} or the region is cut for one tile only. This sucks tbh.
-    if(blk.checkAdjacent(t) && !blk.drawnMap.get(t, false)) MDL_event._c_onDraw(() => {
-      if(blk.checkAdjacent(t)) {
-        let z = Draw.z();
-        Draw.z(VAR.lay_vent);
-        Draw.rect(MDL_content._regVari(blk, t), t.worldx() + blk.offDraw, t.worldy() + blk.offDraw);
-        Draw.z(z);
-
-        blk.drawnMap.put(t, true);
-      };
-    });
+    blk.drawnMap.put(t, blk.checkAdjacent(t));
   };
 
 
@@ -209,13 +219,15 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-env", "blk-vent"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-env", "blk-vent"],
+    }),
 
 
     // @NOSUPER
     ex_getMatGrp: function(blk) {
-      let matGrp = Function.funTry(blk.parent.ex_getMatGrp).call(blk.parent);
+      let matGrp = Function.tryFun(blk.parent.ex_getMatGrp, null, blk.parent);
 
       return Object.val(matGrp, "");
     },

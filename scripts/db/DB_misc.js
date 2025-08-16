@@ -1,4 +1,5 @@
 // NOTE: Be careful with any module here to avoid looped reference!
+const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_cond = require("lovec/mdl/MDL_cond");
 
 
@@ -6,6 +7,57 @@ const db = {
 
 
   "block": {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Extra text information shown when mouse hovered over a tile.
+     * Put functions that return string here to build final string. Yep string only.
+     * Tile won't be {null} here. It's safe to return {undefined} or {null}.
+     * Format: {(t, b) => str}.
+     * ---------------------------------------- */
+    "extraInfo": [
+
+      // Ore item info
+      (t, b) => {
+        let itm = t.wallDrop() || t.drop();
+        if(itm == null) return;
+
+        var str = ""
+        + MDL_bundle._term("lovec", "ore") + ": " + Strings.stripColors(itm.localizedName) + "\n"
+        + MDL_bundle._term("lovec", "ore-hardness") + ": " + itm.hardness + "\n";
+
+        return str;
+      },
+
+      // Ore liquid info
+      (t, b) => {
+        let liq = t.floor().liquidDrop;
+        if(liq == null) return;
+
+        var str = ""
+        + MDL_bundle._term("lovec", "liquid") + ": " + Strings.stripColors(liq.localizedName)
+        + "\n"
+        + MDL_bundle._term("lovec", "liquid-multiplier") + ": " + Number(t.floor().liquidMultiplier).perc()
+        + "\n";
+
+        return str;
+      },
+
+      // Conveyor info
+      (t, b) => {
+        if(b == null || (!(b.block instanceof Conveyor) && !(b.block instanceof Duct) && !(b.block instanceof StackConveyor))) return;
+        let itm = b.items.first();
+        if(itm == null) return;
+
+        var str = ""
+        + MDL_bundle._term("lovec", "item") + ": " + Strings.stripColors(itm.localizedName) + "\n";
+
+        return str;
+      },
+
+    ],
 
 
     "nodeLinkFilter": [
@@ -58,7 +110,8 @@ const db = {
     "lovec-setting-toggle-unit-stat", KeyCode.unset, "lovec",
     "lovec-setting-toggle-damage-display", KeyCode.unset, "lovec",
 
-    "lovec-player-drop-loot", KeyCode.unset, "lovec",
+    "lovec-player-drop-loot", KeyCode.l, "lovec",
+    "lovec-player-take-loot", KeyCode.k, "lovec",
 
   ],
 
@@ -82,12 +135,12 @@ const db = {
     "draw-wobble", useScl => Core.settings.getBool("lovec-draw-wobble", false),
     "draw0loot-static", useScl => Core.settings.getBool("lovec-draw0loot-static", true),
     "draw0loot-amount", useScl => Core.settings.getBool("lovec-draw0loot-amount", true),
-    "draw0shadow-blurred", useScl => Core.settings.getBool("lovec-draw0shadow-blurred", true),
-    "draw0shadow-circle", useScl => Core.settings.getBool("lovec-draw0shadow-circle", false),
     "draw0tree-alpha", useScl => Core.settings.getInt("lovec-draw0tree-alpha", 10) * (useScl ? 0.1 : 1.0),
     "draw0tree-player", useScl => Core.settings.getBool("lovec-draw0tree-player", true),
+    "draw0aux-extra-info", useScl => Core.settings.getBool("lovec-draw0aux-extra-info", true),
     "draw0aux-bridge", useScl => Core.settings.getBool("lovec-draw0aux-bridge", true),
     "draw0aux-router", useScl => Core.settings.getBool("lovec-draw0aux-router", true),
+    "draw0aux-fluid-heat", useScl => Core.settings.getBool("lovec-draw0aux-fluid-heat", true),
 
     "icontag-show", useScl => Core.settings.getBool("lovec-icontag-show", true),
     "icontag-interval", useScl => Core.settings.getInt("lovec-icontag-interval", 4) * (useScl ? 10.0 : 1.0),
@@ -102,6 +155,8 @@ const db = {
     "unit0stat-build", useScl => Core.settings.getBool("lovec-unit0stat-build", true),
     "unit0stat-mouse", useScl => Core.settings.getBool("lovec-unit0stat-mouse", true),
     "unit0remains-lifetime", useScl => Core.settings.getInt("lovec-unit0remains-lifetime", 12) * (useScl ? 300.0 : 1.0),
+
+    "misc-secret-code", useScl => Core.settings.getString("lovec-misc-secret-code", ""),
 
   ],
 
@@ -196,7 +251,7 @@ const db = {
       },
 
       BeamDrill, (blk, dictProdItm, dictProdFld) => {
-        Vars.content.items().each(itm => itm.hardness <= blk.tier && !(blk.blockedItems != null && blk.blockedItems.contains(itm)) && Vars.content.blocks().toArray().some(oblk => (oblk instanceof Prop || (oblk instanceof OverlayFloor && oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, blk.size, {"icon": "lovec-icon-mining"}));
+        Vars.content.items().each(itm => itm.hardness <= blk.tier && !(blk.blockedItems != null && blk.blockedItems.contains(itm)) && Vars.content.blocks().toArray().some(oblk => (oblk instanceof Prop || oblk instanceof TallBlock || (oblk instanceof OverlayFloor && oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, blk.size, {"icon": "lovec-icon-mining"}));
       },
 
       WallCrafter, (blk, dictProdItm, dictProdFld) => {
@@ -230,19 +285,37 @@ const db = {
   },
 
 
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Properties that is saved in a .lsav file.
-   * Format: {header, def, arrMode}.
-   * ---------------------------------------- */
-  "lsav": [
+  "lsav": {
 
-    "useless-field", "ohno", null,
 
-    "scanner-draw", true, null,
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Properties that is saved in a .lsav file.
+     * Format: {header, def, arrMode}.
+     * ---------------------------------------- */
+    "header": [
 
-  ],
+      "useless-field", "ohno", null,
+
+      "scanner-draw", true, null,
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Properties here are safe to be set by client sides.
+     * ---------------------------------------- */
+    "safe": [
+
+      "scanner-draw",
+
+    ],
+
+
+  },
 
 
   "drama": {

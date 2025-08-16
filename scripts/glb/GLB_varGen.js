@@ -15,6 +15,7 @@
 
   const DB_block = require("lovec/db/DB_block");
   const DB_env = require("lovec/db/DB_env");
+  const DB_fluid = require("lovec/db/DB_fluid");
   const DB_item = require("lovec/db/DB_item");
 
 
@@ -45,6 +46,21 @@
       play: new TextureRegionDrawable(Core.atlas.find("lovec-icon-play")),
       swap: new TextureRegionDrawable(Core.atlas.find("lovec-icon-swap")),
     };
+
+
+    exports.blockHeatRegs = [
+      Core.atlas.find("error"),
+      MDL_content._regHeat(1),
+      MDL_content._regHeat(2),
+      MDL_content._regHeat(3),
+      MDL_content._regHeat(4),
+      MDL_content._regHeat(5),
+      MDL_content._regHeat(6),
+      MDL_content._regHeat(7),
+      MDL_content._regHeat(8),
+      MDL_content._regHeat(9),
+      MDL_content._regHeat(10),
+    ];
 
 
     let wireRegMap = new ObjectMap();
@@ -78,22 +94,36 @@
     ].pushAll(DB_env.db["extraMainTeam"]);
 
 
-    exports.blockHeatRegs = [
-      Core.atlas.find("error"),
-      MDL_content._regHeat(1),
-      MDL_content._regHeat(2),
-      MDL_content._regHeat(3),
-      MDL_content._regHeat(4),
-      MDL_content._regHeat(5),
-      MDL_content._regHeat(6),
-      MDL_content._regHeat(7),
-      MDL_content._regHeat(8),
-      MDL_content._regHeat(9),
-      MDL_content._regHeat(10),
-    ];
+    exports.lovecPlas = Vars.content.planets().select(pla => pla.accessible && (pla.minfo.mod == null ? "" : pla.minfo.mod.name) === "loveclab").toArray();
+
+
+    let wes = {};
+    Vars.content.weathers().each(wea => {
+      if(wea.ex_getWePermanent == null) return;
+
+      wes[wea.name] = wea.ex_getWePermanent();
+    });
+    exports.wes = wes;
 
 
     exports.sandItms = Vars.content.items().select(itm => DB_item.db["group"]["sand"].includes(itm.name)).toArray();
+
+
+    exports.hotFlds = (function() {
+      const arr = [];
+      let li = DB_fluid.db["param"]["fHeat"];
+      let i = 0;
+      let iCap = li.iCap();
+      while(i < iCap) {
+        if(li[i + 1] > 49.9999) {
+          let ct = MDL_content._ct(li[i], "rs");
+          if(ct != null) arr.push(ct);
+        };
+        i += 2;
+      };
+
+      return arr;
+    })();
 
 
     exports.fuelItms = Vars.content.items().select(itm => DB_item.db["param"]["fuel"]["level"].includes(itm.name)).toArray();
@@ -157,6 +187,12 @@
 
 
     exports.LovecBinding = LovecBinding;
+
+
+    exports.auxPres = Vars.content.liquid("loveclab-aux0aux-pressure");
+    exports.auxVac = Vars.content.liquid("loveclab-aux0aux-vacuum");
+    exports.auxHeat = Vars.content.liquid("loveclab-aux0aux-heat");
+    exports.auxTor = Vars.content.liquid("loveclab-aux0aux-torque");
 
 
   }, 54888119);

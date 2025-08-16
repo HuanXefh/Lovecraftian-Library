@@ -108,6 +108,9 @@
   /* <---------- import ----------> */
 
 
+  const FRAG_faci = require("lovec/frag/FRAG_faci");
+
+
   const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_cond = require("lovec/mdl/MDL_cond");
 
@@ -123,6 +126,8 @@
 
   function comp_setStats(blk) {
     if(MDL_cond._canShortCircuit(blk)) blk.stats.add(TP_stat.blk_shortCircuit, true);
+
+    FRAG_faci.comp_setStats_pol(blk);
   };
 
 
@@ -221,8 +226,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return [];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": [],
+    }),
 
 
     /* <---------- build (extended) ----------> */

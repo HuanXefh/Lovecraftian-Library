@@ -90,7 +90,7 @@
 
       unit.unapply(sta);
       FRAG_attack.damage(unit, dmg, true);
-      sta.burstScr(unit)
+      sta.burstScr(unit);
       sta.burstEff.at(unit.x, unit.y, unit.type.hitSize * 1.1, sta.burstEffColor);
     };
   };
@@ -134,8 +134,10 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return [];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": [],
+    }),
 
 
     // @NOSUPER

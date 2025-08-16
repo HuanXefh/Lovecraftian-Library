@@ -216,7 +216,7 @@
       FRAG_recipe.produce_liq(b, b.progIncLiq, b.timeScl, b.co);
       FRAG_recipe.consume_liq(b, b.progIncLiq, b.timeScl, b.ci, b.aux);
 
-      MDL_effect.showAroundP(b.block.updateEffectChance * b.warmup, b.x, b.y, b.block.updateEffect, b.block.size * 0.5 * Vars.tilesize, 0.0);
+      if(Mathf.chance(b.block.updateEffectChance * b.warmup)) MDL_effect.showAround(b.x, b.y, b.block.updateEffect, b.block.size * 0.5 * Vars.tilesize, 0.0);
       // Run script
       if(b.scrTup != null) b.scrTup[1](b);
       // Stop script
@@ -225,7 +225,8 @@
     };
 
     b.totalProgress += b.warmup * b.edelta();
-    if(!b.noDump) FRAG_recipe.dump(b, b.co, b.dumpTup);
+    // {splitAmt} and {presFluidType} are used in {BLK_pumpFactory}
+    if(!b.noDump) FRAG_recipe.dump(b, b.co, b.dumpTup, b.splitAmt, b.presFluidType);
   };
 
 
@@ -316,6 +317,18 @@
       };
       MDL_table.__reqMultiRs(tb, b, rss);
     };
+  };
+
+
+  function comp_displayBars(b, tb) {
+    FRAG_recipe._inputLiqs(b.ci, b.bi, b.aux).concat(FRAG_recipe._outputLiqs(b.co, b.bo)).forEach(liq => {
+      tb.add(new Bar(
+        liq.localizedName,
+        Object.val(liq.barColor, liq.color),
+        () => b.liquids.get(liq) / b.block.liquidCapacity,
+      )).growX();
+      tb.row();
+    });
   };
 
 
@@ -503,6 +516,11 @@
     },
 
 
+    displayBars: function(b, tb) {
+      comp_displayBars(b, tb);
+    },
+
+
     // @NOSUPER
     acceptItem: function(b, b_f, itm) {
       return comp_acceptItem(b, b_f, itm);
@@ -563,8 +581,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-fac"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-fac"],
+    }),
 
 
     // @NOSUPER

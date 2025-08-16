@@ -18,10 +18,10 @@
   /* <---------- base ----------> */
 
 
-  const timer_mem = new Interval(3)
+  const timer_mem = new Interval(3);
 
 
-  const timer_effc = new Interval(3);
+  const timer_effc = new Interval(4);
   const timer_param = new Interval(3);
 
 
@@ -52,9 +52,10 @@
     exports.timerState_effc = timer_effc.get(0, MDL_util._cfg("interval-efficiency", true));
     exports.timerState_rsCur = timer_effc.get(1, 180.0);
     exports.timerState_liq = timer_effc.get(2, VAR.time_liqIntv);
+    exports.timerState_heat = timer_effc.get(3, VAR.time_heatIntv);
     exports.timerState_param = timer_param.get(0, VAR.time_paramIntv);
     exports.timerState_paramGlobal = timer_param.get(1, VAR.time_paramGlobalIntv);
-    exports.timerState_paramLarge = timer_param.get(2, VAR.time_paramLarge);
+    exports.timerState_paramLarge = timer_param.get(2, VAR.time_paramLargeIntv);
 
 
     exports.timerState_lightning = timer_lightning.get(VAR.time_lightningIntv);

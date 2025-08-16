@@ -30,8 +30,8 @@ CLS_annotation.prototype.init = function(funCaller, loadScr) {
     return funCaller == null ? false : funCaller.apply(fun, annoArgs);
   };
 
-  this.onLoad = function(fun) {
-    if(loadScr != null) loadScr.call(fun);
+  this.onLoad = function(fun, annoLoadArgs) {
+    if(loadScr != null) loadScr.apply(fun, annoLoadArgs);
   };
 
 };

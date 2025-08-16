@@ -38,6 +38,8 @@
   exports.blk_attrReq = newIns_stat("blk-attrreq");
   exports.blk_terReq = newIns_stat("blk-terreq");
   exports.blk_terBan = newIns_stat("blk-terban");
+  exports.blk_pol = newIns_stat("blk-pol");
+  exports.blk_polRed = newIns_stat("blk-polred");
   exports.blk_polTol = newIns_stat("blk-poltol");
 
 
@@ -78,6 +80,26 @@
   /* block (liquid) */
 
 
+  exports.blk0liq_presOutput = newIns_stat("blk0liq-presoutput", StatCat.liquids);
+  exports.blk0liq_vacOutput = newIns_stat("blk0liq-vacoutput", StatCat.liquids);
+  exports.blk0liq_splitAmt = newIns_stat("blk0liq-splitamt", StatCat.liquids);
+
+
+  exports.blk0liq_matGrp = newIns_stat("blk0liq-matgrp");
+  exports.blk0liq_cloggable = newIns_stat("blk0liq-cloggable");
+  exports.blk0liq_presRes = newIns_stat("blk0liq-presres");
+  exports.blk0liq_presReq = newIns_stat("blk0liq-presreq");
+  exports.blk0liq_vacRes = newIns_stat("blk0liq-vacres");
+  exports.blk0liq_vacReq = newIns_stat("blk0liq-vacreq");
+  exports.blk0liq_pipeDiam = newIns_stat("blk0liq-pipediam");
+
+
+  /* block (heat) */
+
+
+  exports.blk0heat_heatRes = newIns_stat("blk0heat-heatres");
+
+
   /* block (power) */
 
 
@@ -89,6 +111,11 @@
 
   exports.blk0misc_cepProv = newIns_stat("blk0misc-cepprov");
   exports.blk0misc_cepUse = newIns_stat("blk0misc-cepuse");
+  exports.blk0misc_repairAmt = newIns_stat("blk0misc-repairamt");
+  exports.blk0misc_unitRepairAmt = newIns_stat("blk0misc-unitrepairamt");
+  exports.blk0misc_repairR = newIns_stat("blk0misc-repairr");
+  exports.blk0misc_repairIntv = newIns_stat("blk0misc-repairintv");
+  exports.blk0misc_status = newIns_stat("blk0misc-status");
 
 
   /* resource */

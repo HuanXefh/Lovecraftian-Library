@@ -56,7 +56,29 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Called when loading a world.
+   * Called when starting loading a world.
+   * It's known to be called before {drawBase}.
+   * ---------------------------------------- */
+  const _c_onWorldLoadStart = function(scr, id) {
+    const thisFun = _c_onWorldLoadStart;
+
+    if(id != null && thisFun.ids.includes(id)) return;
+    if(id != null) thisFun.ids.push(id);
+
+    Events.on(WorldLoadBeginEvent, () => {
+      scr();
+    });
+  }.
+  setProp({
+    "ids": [],
+  });
+  exports._c_onWorldLoadStart = _c_onWorldLoadStart;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Called when finishing loading a world.
    * ---------------------------------------- */
   const _c_onWorldLoad = function(scr, id) {
     const thisFun = _c_onWorldLoad;

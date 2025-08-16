@@ -220,8 +220,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-min", "blk-harv"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-min", "blk-harv"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

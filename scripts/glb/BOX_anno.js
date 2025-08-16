@@ -3,6 +3,8 @@
  *
  * A collection of all annotations defined in Lovec.
  * Annotations should always be set first, e.g. before setting properties.
+ *
+ * In case you don't know, 1st argument for regular arguments, 2nd argument for loading arguments.
  * ---------------------------------------- */
 
 
@@ -17,6 +19,9 @@ const MDL_event = require("lovec/mdl/MDL_event");
 
 
 /* <---------- meta ----------> */
+
+
+let isDebug = Core.settings.getString("lovec-misc-secret-code", "").includes("<anuke-mode>");
 
 
 const BOX_annotation = new CLS_objectBox({
@@ -42,7 +47,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Marks an outdated method.
    * ---------------------------------------- */
-  "__DEPRECATED__": verInfo => new CLS_annotation(function() {
+  "__DEPRECATED__": new CLS_annotation(function(verInfo) {
 
     Log.warn(
       "[LOVEC] An used method is " + "deprecated".color(Pal.remove) + " after " + verInfo + ", better avoid using it!"
@@ -63,7 +68,7 @@ const BOX_annotation = new CLS_objectBox({
    * Don't use arrow function, or {this} will be the global object.
    * Don't use {MDL_event}, the function is exported before it's called.
    * ---------------------------------------- */
-  "__INIT__": scr => new CLS_annotation(function(){}, function() {
+  "__INIT__": new CLS_annotation(function(){}, function(scr) {
 
     scr.call(this);
 
@@ -80,7 +85,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * If {boolF} is costy, set {checkTimerFirst} to {true}.
    * ---------------------------------------- */
-  "__UPDATE__": (id, intv, scr, boolF, checkTimerFirst) => new CLS_annotation(function() {}, function() {
+  "__UPDATE__": new CLS_annotation(function() {}, function(id, intv, scr, boolF, checkTimerFirst) {
 
     if(intv == null) intv = 1.0;
     if(scr == null) scr = fun => fun();
@@ -107,7 +112,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Marks an unfinished method.
    * ---------------------------------------- */
-  "__TODO__": todoInfo => new CLS_annotation(function(){}, function() {
+  "__TODO__": new CLS_annotation(function(){}, function(todoInfo) {
 
     if(Core.settings.getBool("lovec-test-todo", false)) {
       Time.run(60.0, () => {
@@ -119,6 +124,18 @@ const BOX_annotation = new CLS_objectBox({
 
 
   /* <---------- condition ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Method won't be called if not debug mode.
+   * ---------------------------------------- */
+  "__DEBUG__": new CLS_annotation(function() {
+
+    return !isDebug;
+
+  }),
 
 
   /* ----------------------------------------

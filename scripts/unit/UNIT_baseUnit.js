@@ -117,8 +117,10 @@
 
     // @NOSUPER
     ex_getTags: function(utp) {
-      return ["utp-lovec"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["utp-lovec"],
+    }),
 
 
   };

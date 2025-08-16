@@ -95,7 +95,7 @@
 
   function comp_setStats(blk) {
     let durabTime = DB_block.db["param"]["time"]["base"].read(blk.name, Infinity);
-    if(isFinite(durabTime) && durabTime > 0.0) blk.stats.add(TP_stat.blk0fac_durabTime, Number(durabTime / 3600.0 * 0.75).deciDigit(2), StatUnit.minutes);
+    if(isFinite(durabTime) && durabTime > 0.0) blk.stats.add(TP_stat.blk0fac_durabTime, Number(durabTime / 3600.0 * 0.75).roundFixed(2), StatUnit.minutes);
   };
 
 
@@ -111,7 +111,7 @@
       if(b.durab < 0.0) {
         b.durab = 0.0;
         b.durabMode = "inc";
-        FRAG_attack.damage(b, b.maxHealth * 0.75, true, true);
+        FRAG_attack.damage(b, b.maxHealth * 0.75, true);
       };
 
     } else {
@@ -248,6 +248,11 @@
     },
 
 
+    displayBars: function(b, tb) {
+      PARENT.displayBars(b, tb);
+    },
+
+
     // @NOSUPER
     acceptItem: function(b, b_f, itm) {
       return PARENT.acceptItem(b, b_f, itm);
@@ -309,8 +314,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-fac"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-fac"],
+    }),
 
 
     // @NOSUPER

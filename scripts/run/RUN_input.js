@@ -23,10 +23,16 @@
 
 
   const PARAM = require("lovec/glb/GLB_param");
+  const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const FRAG_item = require("lovec/frag/FRAG_item");
+
+
   const MDL_call = require("lovec/mdl/MDL_call");
+  const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_util = require("lovec/mdl/MDL_util");
@@ -69,15 +75,25 @@
   });
 
 
-  function listener_player_dropLoot(unit) {
+  function listener_player_loot(unit) {
     if(!PARAM.modded || Vars.state.isPaused() || unit == null) return;
-    if(unit.stack.amount < 1) return;
-    if(!Core.input.keyTap(Binding.respawn) && !Core.input.keyTap(VARGEN.LovecBinding["lovec-player-drop-loot"])) return;
 
-    Vars.net.client() ?
-      MDL_call.spawnLootClient(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
-      MDL_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
-    unit.clearItem();
+    if(Core.input.keyTap(Binding.respawn) || Core.input.keyTap(VARGEN.LovecBinding["lovec-player-drop-loot"])) {
+      if(unit.stack.amount > 0) {
+        Vars.net.client() ?
+          MDL_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
+          MDL_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
+        unit.clearItem();
+      };
+    };
+
+    if(Core.input.keyTap(VARGEN.LovecBinding["lovec-player-take-loot"])) {
+      let loot = Units.closest(Team.derelict, unit.x, unit.y, VAR.rad_lootPickRad, ounit => MDL_cond._isLoot(ounit));
+      if(Vars.net.client() ?
+          FRAG_item.takeUnitLoot_client(unit, loot) :
+          FRAG_item.takeUnitLoot(unit, loot)
+      ) MDL_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
+    };
   };
 
 
@@ -102,7 +118,7 @@
 
 
     listener_setting_toggle();
-    listener_player_dropLoot(unit_pl);
+    listener_player_loot(unit_pl);
 
 
   }, 70216990);

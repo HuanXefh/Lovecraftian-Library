@@ -20,6 +20,9 @@
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
+  const DB_misc = require("lovec/db/DB_misc");
+
+
   /* <---------- base ----------> */
 
 
@@ -78,17 +81,158 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Used when radius and/or color parameters are dynamic and costy to get.
+   * Format for {drawF}: {(blk, tx, ty, rot, rad, color) => {...}}.
+   * ---------------------------------------- */
+  const bufferedDraw_place = function(blk, tx, ty, rot, radGetter, colorGetter, drawF) {
+    const thisFun = bufferedDraw_place;
+
+    if(drawF == null) return;
+
+    if(radGetter == null) radGetter = Function.airZero;
+    if(colorGetter == null) colorGetter = Function.airWhite;
+
+    let tmpBlk = thisFun.funTup[0];
+    var tmpTx = thisFun.funTup[1];
+    var tmpTy = thisFun.funTup[2];
+    var tmpRot = thisFun.funTup[3];
+    if(blk !== tmpBlk || tx !== tmpTx || ty !== tmpTy || rot !== tmpRot) {
+      thisFun.funTup.clear().push(blk, tx, ty, rot, radGetter(), colorGetter(), drawF);
+      tmpBlk = thisFun.funTup[0];
+      tmpTx = thisFun.funTup[1];
+      tmpTy = thisFun.funTup[2];
+      tmpRot = thisFun.funTup[3];
+    };
+
+    thisFun.funTup[6](tmpBlk, tmpTx, tmpTy, tmpRot, thisFun.funTup[4], thisFun.funTup[5]);
+  }
+  .setProp({
+    "funTup": [],
+  });
+  exports.bufferedDraw_place = bufferedDraw_place;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawPlace} that every block should have.
+   * Used if {this.super$drawPlace} is not called.
+   * ---------------------------------------- */
+  const comp_drawPlace_baseBuilding = function(blk, tx, ty, rot, valid) {
+    blk.drawPotentialLinks(tx, ty);
+    blk.drawOverlay(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, rot);
+  };
+  exports.comp_drawPlace_baseBuilding = comp_drawPlace_baseBuilding;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * {draw} that every building should have.
    * Used if {this.super$draw} is not called.
    * ---------------------------------------- */
   const comp_draw_baseBuilding = function(b) {
     b.block.variant === 0 || b.block.variantRegions == null ?
       Draw.rect(b.block.region, b.x, b.y, b.drawrot()) :
-      Draw.rect(b.block.variantRegions[Mathf.randomSeed(b.tile.pos(), 0, Math.max(0, b.block.variantRegions.length - 1))], b.x, b.y, b.drawRot());
+      Draw.rect(b.block.variantRegions[Mathf.randomSeed(b.tile.pos(), 0, Math.max(0, b.block.variantRegions.length - 1))], b.x, b.y, b.drawrot());
 
     b.drawTeamTop();
   };
   exports.comp_draw_baseBuilding = comp_draw_baseBuilding;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Shows extra information for a tile/building.
+   * See {DB_misc.db["block"]["extraInfo"]}.
+   * ---------------------------------------- */
+  const comp_drawSelect_extraInfo = function(t) {
+    const thisFun = comp_drawSelect_extraInfo;
+
+    if(t == null) return;
+
+    if(t === thisFun.tmpT) {
+      thisFun.tmpCd--;
+    } else {
+      thisFun.tmpT = t;
+      thisFun.tmpCd = VAR.time_extraInfoCooldown;
+      thisFun.tmpStr = null;
+    };
+
+    if(thisFun.tmpCd > 0.0) return;
+
+    var x = t.build == null ? t.worldx() : t.build.x;
+    var y = t.build == null ? t.worldy() : t.build.y;
+    var offX = !PARAM.drawBuildStat || t.build == null ? 0.0 : ((VAR.r_offBuildStat + t.build.block.size * 0.5) * Vars.tilesize - 8.0);
+    var offY = -(!PARAM.drawBuildStat || t.build == null ? 10.0 : ((VAR.r_offBuildStat + t.build.block.size * 0.5) * Vars.tilesize + 2.0));
+
+    if(thisFun.tmpStr == null) {
+      thisFun.tmpStr = "";
+      DB_misc.db["block"]["extraInfo"].forEachFast(strGetter => thisFun.tmpStr += Object.val(strGetter(t, t.build), ""));
+    };
+
+    drawText(x + offX, y + offY, thisFun.tmpStr, 0.8, Color.white, Align.left, 0.0, 0.0, 10.0);
+  }.setProp({
+    "tmpT": null,
+    "tmpCd": 0.0,
+    "tmpStr": null,
+  });
+  exports.comp_drawSelect_extraInfo = comp_drawSelect_extraInfo;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Shows how bridges are connected and the transport destination.
+   * ---------------------------------------- */
+  const comp_drawSelect_bridgeLine = function(b) {
+    const thisFun = comp_drawSelect_bridgeLine;
+
+    if(!PARAM.drawBridgeTransportLine) return;
+
+    if(b.block instanceof DirectionBridge) {
+
+      let tmpB = b;
+      let tmpOb = b.findLink();
+      var isFirst = true;
+      thisFun.funArr.clear().push(tmpB);
+      while(tmpOb != null) {
+        if(!thisFun.funArr.includes(tmpOb)) {
+          if(!isFirst) drawConnector_circleArrow(tmpOb, tmpB);
+          thisFun.funArr.push(tmpOb);
+          tmpB = tmpOb;
+          tmpOb = tmpB.findLink();
+          isFirst = false;
+        } else break;
+      };
+
+    } else {
+
+      let ot = b.tile.nearby(b.config());
+      let tmpB = b;
+      let tmpOb = null;
+      var isFirst = true;
+      thisFun.funArr.clear().push(tmpB);
+      while(ot != null) {
+        tmpOb = ot.build;
+        if(tmpOb != null && !thisFun.funArr.includes(tmpOb)) {
+          if(!isFirst) drawConnector_circleArrow(tmpOb, tmpB);
+          thisFun.funArr.push(tmpOb);
+          tmpB = ot.build;
+          // Idk why but on rare occasions this throws NullPointerException
+          if(tmpB == null || tmpB.config() == null) break;
+          ot = tmpB.tile.nearby(tmpB.config());
+          isFirst = false;
+        } else break;
+      };
+
+    };
+  }
+  .setProp({
+    "funArr": [],
+  });
+  exports.comp_drawSelect_bridgeLine = comp_drawSelect_bridgeLine;
 
 
   /* <---------- pixmap ----------> */
@@ -291,70 +435,6 @@
   exports.drawRegion_statusBuild = drawRegion_statusBuild;
 
 
-  /* shadow */
-
-
-  const drawRegion_shadow = function(x, y, reg, ang, regScl, a, z) {
-    if(reg == null) return;
-    if(a < 0.0001) return;
-
-    var w = reg.width * 2.0 * regScl / Vars.tilesize;
-    var h = reg.height * 2.0 * regScl / Vars.tilesize;
-
-    if(z != null) Draw.z(z);
-    Draw.mixcol(Pal.shadow, 1.0);
-    Draw.alpha(a * 0.22);
-    Draw.rect(reg, x, y, w, h, ang);
-    Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports.drawRegion_shadow = drawRegion_shadow;
-
-
-  const drawRegion_blurredShadow = function(x, y, reg, ang, regScl, a, z) {
-    const thisFun = drawRegion_blurredShadow;
-
-    if(reg == null) return;
-    if(a < 0.0001) return;
-
-    if(PARAM.drawCircleShadow) {
-      Drawf.shadow(x, y, reg.width * 0.3 * regScl, a);
-      return;
-    };
-
-    if(!PARAM.drawBlurredShadow) {
-      drawRegion_shadow(x, y, reg, ang, regScl, a, z);
-      return;
-    };
-
-    let iCap = thisFun.params.iCap();
-    if(z != null) Draw.z(z);
-    Draw.mixcol(Pal.shadow, 1.0);
-    for(let i = 0; i < iCap; i += 2) {
-
-      let a_i = a * thisFun.params[i];
-      let regScl_i = regScl * thisFun.params[i + 1];
-      let w_i = reg.width * 2.0 * regScl_i / Vars.tilesize;
-      let h_i = reg.height * 2.0 * regScl_i / Vars.tilesize;
-
-      Draw.alpha(a_i);
-      Draw.rect(reg, x, y, w_i, h_i, ang);
-
-    };
-    Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__)
-  .setProp({
-    "params": [
-      0.18, 1.0,
-      0.09, 1.05,
-      0.05, 1.1,
-      0.03, 1.15,
-    ],
-  });
-  exports.drawRegion_blurredShadow = drawRegion_blurredShadow;
-
-
   /* fade */
 
 
@@ -423,52 +503,6 @@
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports.drawRegion_rotator = drawRegion_rotator;
-
-
-  /* wobble */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Mainly used for trees, they always wobble.
-   * ---------------------------------------- */
-  const drawRegion_wobble = function(x, y, reg, ang, regScl, scl, mag, wobX, wobY, color_gn, a, z, shouldMixcol, mixcolA) {
-    if(reg == null) return;
-
-    if(ang == null) ang = 0.0;
-    if(regScl == null) regScl = 1.0;
-    if(scl == null) scl = 1.0;
-    if(mag == null) mag = 1.0;
-    if(wobX == null) wobX = 1.0;
-    if(wobY == null) wobY = 1.0;
-    if(color_gn == null) color_gn = Color.white;
-    if(a == null) a = 1.0;
-
-    if(!PARAM.drawWobble) {
-      drawRegion_normal(x, y, reg, ang, regScl, color_gn, a, z, shouldMixcol, mixcolA);
-    } else {
-      let w = reg.width * reg.scl() * regScl;
-      let h = reg.height * reg.scl() * regScl;
-      let ang_fi = ang + Mathf.sin(Time.time + x, 50.0, 0.5) + Mathf.sin(Time.time - y, 65.0, 0.9) + Mathf.sin(Time.time + y - x, 85.0, 0.9);
-
-      if(z != null) Draw.z(z);
-      if(shouldMixcol) {
-        Draw.mixcol(_color(color_gn), Object.val(mixcolA, 1.0));
-        Draw.color(Color.white);
-      } else {
-        Draw.color(_color(color_gn));
-      };
-      Draw.alpha(a);
-      Draw.rectv(reg, x, y, w, h, ang_fi, vec2 => vec2.add(
-        (Mathf.sin(vec2.y * 3.0 + Time.time, 60.0 * scl, 0.5 * mag) + Mathf.sin(vec2.x * 3.0 - Time.time, 70.0 * scl, 0.8 * mag)) * 1.5 * wobX,
-        (Mathf.sin(vec2.x * 3.0 + Time.time + 8.0, 66.0 * scl, 0.55 * mag) + Mathf.sin(vec2.y * 3.0 - Time.time, 50.0 * scl, 0.2 * mag)) * 1.5 * wobY,
-      ));
-      Draw.reset();
-    };
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports.drawRegion_wobble = drawRegion_wobble;
 
 
   /* flame */
@@ -842,10 +876,10 @@
       Lines.stroke(3.0, Pal.gray);
       Draw.alpha(a);
       if(isDashed) {
-        Lines.dashLine(x - hw, y - hw, x + hw, y - hw, seg);
-        Lines.dashLine(x + hw, y - hw, x + hw, y + hw, seg);
-        Lines.dashLine(x + hw, y + hw, x - hw, y + hw, seg);
-        Lines.dashLine(x - hw, y + hw, x - hw, y - hw, seg);
+        Lines.dashLine(x - hw, y - hw, x + hw, y - hw, amtSeg);
+        Lines.dashLine(x + hw, y - hw, x + hw, y + hw, amtSeg);
+        Lines.dashLine(x + hw, y + hw, x - hw, y + hw, amtSeg);
+        Lines.dashLine(x - hw, y + hw, x - hw, y - hw, amtSeg);
       } else {
         Lines.line(x - hw, y - hw, x + hw, y - hw);
         Lines.line(x + hw, y - hw, x + hw, y + hw);
@@ -856,10 +890,10 @@
     Lines.stroke(1.0, _color(color_gn));
     Draw.alpha(a);
     if(isDashed) {
-      Lines.dashLine(x - hw, y - hw, x + hw, y - hw, seg);
-      Lines.dashLine(x + hw, y - hw, x + hw, y + hw, seg);
-      Lines.dashLine(x + hw, y + hw, x - hw, y + hw, seg);
-      Lines.dashLine(x - hw, y + hw, x - hw, y - hw, seg);
+      Lines.dashLine(x - hw, y - hw, x + hw, y - hw, amtSeg);
+      Lines.dashLine(x + hw, y - hw, x + hw, y + hw, amtSeg);
+      Lines.dashLine(x + hw, y + hw, x - hw, y + hw, amtSeg);
+      Lines.dashLine(x - hw, y + hw, x - hw, y - hw, amtSeg);
     } else {
       Lines.line(x - hw, y - hw, x + hw, y - hw);
       Lines.line(x + hw, y - hw, x + hw, y + hw);
@@ -1016,7 +1050,7 @@
     if(color_gn == null) color_gn = Pal.remove;
     if(a == null) a = 1.0;
 
-    var a_fi = a * (0.15 + Math.sin(Time / scl / 15.0) * 0.15);
+    var a_fi = a * (0.15 + Math.sin(Time.time / scl / 15.0) * 0.15);
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.color(_color(color_gn));
@@ -1380,9 +1414,12 @@
 
 
   const drawText_select = function(b, str, valid, offTy) {
-    if(b == null) return;
+    if(b == null || str == null) return;
 
-    drawText_place(b.block, b.x / Vars.tilesize, b.y / Vars.tilesize, str, valid, offTy);
+    if(valid == null) valid = true;
+    if(offTy == null) offTy = 0;
+
+    b.block.drawPlaceText(str, b.x / Vars.tilesize, b.y / Vars.tilesize + offTy, valid);
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports.drawText_select = drawText_select;

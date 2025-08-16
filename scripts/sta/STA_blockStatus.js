@@ -94,9 +94,11 @@
 
 
     // @NOSUPER
-    ex_getTags: function(blk) {
-      return ["blk-sta"];
-    },
+    ex_getTags: function(sta) {
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["sta-blk"],
+    }),
 
 
     // @NOSUPER

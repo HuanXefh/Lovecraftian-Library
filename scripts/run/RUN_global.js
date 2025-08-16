@@ -24,6 +24,7 @@
 
   const ANNO = require("lovec/glb/BOX_anno");
   const EFF = require("lovec/glb/GLB_eff");
+  const JAVA = require("lovec/glb/GLB_java");
   const PARAM = require("lovec/glb/GLB_param");
   const SAVE = require("lovec/glb/GLB_save");
   const VAR = require("lovec/glb/GLB_var");
@@ -53,6 +54,7 @@
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_file = require("lovec/mdl/MDL_file");
   const MDL_json = require("lovec/mdl/MDL_json");
+  const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
   const MDL_test = require("lovec/mdl/MDL_test");
   const MDL_ui = require("lovec/mdl/MDL_ui");
@@ -96,11 +98,14 @@
 
 
   MDL_event._c_onLoad(() => {
+
+
     global.lovec = {
 
 
       anno: ANNO,
       eff: EFF,
+      java: JAVA,
       param: PARAM,
       save: SAVE,
       var: VAR,
@@ -126,9 +131,10 @@
       mdl_cond: MDL_cond,
       mdl_content: MDL_content,
       mdl_draw: MDL_draw,
+      mdl_effect: MDL_effect,
       mdl_file: MDL_file,
       mdl_json: MDL_json,
-      mdl_effect: MDL_effect,
+      mdl_pos: MDL_pos,
       mdl_recipe: MDL_recipe,
       mdl_ui: MDL_ui,
 
@@ -147,114 +153,120 @@
       db_unit: DB_unit,
 
 
-      print: {
+      modded: PARAM.modded,
 
 
-        printLiq(tx, ty) {
-          MDL_test._i_liq(tx, ty);
-        },
+    };
 
 
-        printCep(team) {
-          if(!Vars.state.isGame()) {
-            MDL_test._i_notInGame();
-            return;
-          };
-
-          if(team == null) team = Vars.player.team();
-          Log.info(
-            "[LOVEC] CEP stats for " + team.toString().color(team.color)
-              + "\n- CEP provided: " + Strings.fixed(FRAG_faci._cepCapCur(team), 2)
-              + "\n- CEP used: " + Strings.fixed(FRAG_faci._cepUseCur(team), 2)
-              + "\n- CEP fraction: " + Number(FRAG_faci._cepFracCur(team)).perc()
-              + "\n- CEP efficiency: " + Number(FRAG_faci._cepEffcCur(team)).perc()
-          );
-        },
+    global.lovec.print = {
 
 
+      printLiq(tx, ty) {
+        MDL_test._i_liq(tx, ty);
       },
 
 
-      tool: {
+      printCep(team) {
+        if(!Vars.state.isGame()) {
+          MDL_test._i_notInGame();
+          return;
+        };
 
-
-        propListener: {
-
-
-          setState(bool) {
-            propListenerState = Boolean(bool);
-
-            propListenerInd = 1;
-          },
-
-
-          setProp(propGetter) {
-            propListenerGetter = null;
-            if(propGetter != null && propGetter instanceof Function) propListenerGetter = propGetter;
-
-            propListenerInd = 1;
-          },
-
-
-          setInterval(time) {
-            propListenerIntv = Mathf.clamp(time, 6.0, 600.0);
-            if(isNaN(propListenerIntv)) propListenerIntv = 120.0;
-
-            propListenerInd = 1;
-          },
-
-
-        },
-
-
-        drawTester: {
-
-
-          setState(bool) {
-            drawTesterState = Boolean(bool);
-          },
-
-
-          setGetter(xGetter, yGetter) {
-            if(xGetter != null) drawTesterXGetter = xGetter;
-            if(yGetter != null) drawTesterYGetter = yGetter;
-          },
-
-
-          setDrawF(drawF) {
-            drawTesterDrawF = drawF;
-          },
-
-
-        },
-
-
-        timeControl(param) {
-          var timeScl = Number(param);
-          // NOTE: Too large {timeScl} will BREAK your save forever.
-          if(isNaN(timeScl) || timeScl < 0.0 || timeScl > 50.0) {
-            MDL_test._i_invalidArgs();
-            return;
-          };
-
-          Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0 * timeScl);
-          MDL_test._i_timeControl(timeScl);
-        },
-
-
-        cheat() {
-          Core.scene.add(TP_table._winDial("NOPE", tb => {
-            tb.add("[red]Just no way.[]");
-          }));
-
-          Log.info("[LOVEC] Nice try :)");
-        },
-
-
+        if(team == null) team = Vars.player.team();
+        Log.info(
+          "[LOVEC] CEP stats for " + team.toString().color(team.color)
+            + "\n- CEP provided: " + Strings.fixed(FRAG_faci._cepCapCur(team), 2)
+            + "\n- CEP used: " + Strings.fixed(FRAG_faci._cepUseCur(team), 2)
+            + "\n- CEP fraction: " + Number(FRAG_faci._cepFracCur(team)).perc()
+            + "\n- CEP efficiency: " + Number(FRAG_faci._cepEffcCur(team)).perc()
+        );
       },
 
 
     };
+
+
+    global.lovec.tool = {
+
+
+      timeControl(param) {
+        var timeScl = Number(param);
+        // NOTE: Too large {timeScl} will BREAK your save forever.
+        if(isNaN(timeScl) || timeScl < 0.0 || timeScl > 50.0) {
+          MDL_test._i_invalidArgs();
+          return;
+        };
+
+        Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0 * timeScl);
+        MDL_test._i_timeControl(timeScl);
+      },
+
+
+      propListener: {
+
+
+        setState(bool) {
+          propListenerState = Boolean(bool);
+
+          propListenerInd = 1;
+        },
+
+
+        setProp(propGetter) {
+          propListenerGetter = null;
+          if(propGetter != null && propGetter instanceof Function) propListenerGetter = propGetter;
+
+          propListenerInd = 1;
+        },
+
+
+        setInterval(time) {
+          propListenerIntv = Mathf.clamp(time, 6.0, 600.0);
+          if(isNaN(propListenerIntv)) propListenerIntv = 120.0;
+
+          propListenerInd = 1;
+        },
+
+
+      },
+
+
+      drawTester: {
+
+
+        setState(bool) {
+          drawTesterState = Boolean(bool);
+        },
+
+
+        setGetter(xGetter, yGetter) {
+          if(xGetter != null) drawTesterXGetter = xGetter;
+          if(yGetter != null) drawTesterYGetter = yGetter;
+        },
+
+
+        setDrawF(drawF) {
+          drawTesterDrawF = drawF;
+        },
+
+
+      },
+
+
+      cheat() {
+        Core.scene.add(TP_table._winDial("NOPE", tb => {
+          tb.add("[red]Just no way.[]");
+        }));
+
+        Log.info("[LOVEC] Nice try :)");
+      },
+
+
+
+    };
+
+
   }, 75112593);
 
 

@@ -111,8 +111,8 @@
   exports._reloadFrac = _reloadFrac;
 
 
-  const _dmgTake = function(e, dmg, pierceArmor) {
-    return pierceArmor ? dmg : Math.max(dmg - _armor(e), dmg * 0.1);
+  const _dmgTake = function(e, dmg, piercesArmor) {
+    return piercesArmor ? dmg : Math.max(dmg - _armor(e), dmg * 0.1);
   };
   exports._dmgTake = _dmgTake;
 
@@ -160,7 +160,7 @@
   const _bSpd = function(b) {
     if(b == null) return 0.0;
 
-    return b.efficiency * Function.propTry(b.timeScale).call(b);
+    return b.efficiency * Function.tryProp(b.timeScale, b);
   };
   exports._bSpd = _bSpd;
 
@@ -189,7 +189,7 @@
 
 
   const _ctrl = function(unit) {
-    return unit == null ? null : Function.tryProp(unit.controller).call(unit);
+    return unit == null ? null : Function.tryProp(unit.controller, unit);
   };
   exports._ctrl = _ctrl;
 

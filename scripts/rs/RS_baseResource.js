@@ -163,8 +163,10 @@
 
     // @NOSUPER
     ex_getTags: function(rs) {
-      return [];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": [],
+    }),
 
 
   };

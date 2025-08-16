@@ -10,7 +10,7 @@
    *
    * Base for most vegetation.
    * I'm calling mushroom a tree and you can't stop me.
-   * Shadow is generated so you don't need a sprite for that.
+   * No variants!
    * This is not the template for creating trees! Check something like {ENV_tree} instead.
    * ---------------------------------------- */
 
@@ -61,7 +61,6 @@
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
-  const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
@@ -113,21 +112,36 @@
     var a = PARAM.treeAlpha;
     if(a < 0.0001) return;
 
-    let reg = MDL_content._regVari(blk, t);
     var ang = Mathf.randomSeed(t.pos(), 0.0, 360.0);
-    var offAng = Mathf.randomSeed(t.pos(), 45.0, 75.0);
-    var regScl = Mathf.randomSeed(t.pos(), 0.75, 1.5);
 
     // Transparentization
     if(PARAM.checkTreeDst) {
-      let dst = MATH_geometry._dst(t.worldx(), t.worldy(), MDL_pos._playerX(), MDL_pos._playerY());
-      if(dst < reg.width * VAR.rad_treeScl) a *= 0.37;
+      let dst = Mathf.dst(t.worldx(), t.worldy(), MDL_pos._playerX(), MDL_pos._playerY());
+      if(dst < blk.region.width * VAR.rad_treeScl) a *= 0.37;
     };
 
-    PARAM.drawCircleShadow ?
-      Drawf.shadow(t.worldx(), t.worldy(), reg.width * 0.225 * regScl, a * 0.6) :
-      MDL_draw.drawRegion_blurredShadow(t.worldx() + blk.shadowOffset, t.worldy() + blk.shadowOffset, reg, ang, regScl * 1.1, a, blk.drawTup[0] - 0.0005);
-    MDL_draw.drawRegion_wobble(t.worldx(), t.worldy(), reg, ang, regScl, blk.drawTup[1], blk.drawTup[2], blk.drawTup[3], blk.drawTup[3], Color.white, a, blk.drawTup[0]);
+    // Shadow
+    if(blk.shadow.found()) {
+      Draw.z(blk.drawTup[0] - 0.0005);
+      Draw.rect(blk.shadow, t.worldx() + blk.shadowOffset, t.worldy() + blk.shadowOffset, ang);
+    };
+
+    // Wobble region, no {MDL_draw} for performance
+    Draw.alpha(a);
+    !PARAM.drawWobble ?
+      Draw.rect(blk.region, t.worldx(), t.worldy(), ang) :
+      Draw.rectv(
+        blk.region,
+        t.worldx(),
+        t.worldy(),
+        blk.region.width * blk.region.scl(),
+        blk.region.height * blk.region.scl(),
+        ang + Mathf.sin(Time.time + t.worldx(), 50.0, 0.5) + Mathf.sin(Time.time - t.worldy(), 65.0, 0.9) + Mathf.sin(Time.time + t.worldy() - t.worldx(), 85.0, 0.9),
+        vec2 => vec2.add(
+          (Mathf.sin(vec2.y * 3.0 + Time.time, 60.0 * blk.drawTup[1], 0.5 * blk.drawTup[2]) + Mathf.sin(vec2.x * 3.0 - Time.time, 70.0 * blk.drawTup[1], 0.8 * blk.drawTup[2])) * 1.5 * blk.drawTup[3],
+          (Mathf.sin(vec2.x * 3.0 + Time.time + 8.0, 66.0 * blk.drawTup[1], 0.55 * blk.drawTup[2]) + Mathf.sin(vec2.y * 3.0 - Time.time, 50.0 * blk.drawTup[1], 0.2 * blk.drawTup[2])) * 1.5 * blk.drawTup[3],
+      ));
+    Draw.reset();
   };
 
 
@@ -170,8 +184,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-env", "blk-tree"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-env", "blk-tree"],
+    }),
 
 
     // @NOSUPER

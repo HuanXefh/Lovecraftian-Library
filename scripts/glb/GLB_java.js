@@ -10,6 +10,8 @@
    *
    * On rare occasions java classes are needed, e.g. {config} of a block.
    * Don't try java things other than that.
+   *
+   * Classes here are not class objects!
    * ---------------------------------------- */
 
 
@@ -127,3 +129,10 @@
 
   const VEC3_ARRAY = getArrayClass(Vec2);
   exports.VEC3_ARRAY = VEC3_ARRAY;
+
+
+  /* <---------- misc ----------> */
+
+
+  const ADAPTER = Packages.rhino.JavaAdapter;
+  exports.ADAPTER = ADAPTER;

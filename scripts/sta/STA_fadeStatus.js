@@ -113,8 +113,10 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return ["sta-fade"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["sta-fade"],
+    }),
 
 
   };

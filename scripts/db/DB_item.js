@@ -72,17 +72,22 @@ const db = {
      * NOTE:
      *
      * Items here are not mineable by regular drills by default, a sand miner is required.
-     * Note that {BLK_sandMiner} is defined in Lovec Lab.
      * ---------------------------------------- */
     "sand": [
 
       "sand",
 
-      "loveclab-item0ore-sand",
-      "loveclab-item0ore-sand-river",
-      "loveclab-item0ore-sand-sea",
-
     ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Items here can be crushed for aggregate.
+     * Used for recipe generation.
+     * Format: {nmItm, reqAmtMtp}.
+     * ---------------------------------------- */
+    "aggregate": [],
 
 
     /* ----------------------------------------
@@ -100,7 +105,7 @@ const db = {
    * NOTE:
    *
    * These tags can have icon tag sprites, which will be shown over the resource icon.
-   * Also, items or fluids with these tags will be categorized in {GLB_varGen}.
+   * Also, items or fluids with these tags will be categorized in {GLB_varGen.intmds}.
    * Icon tags will only be shown when the tag sprites are found.
    * For your own mod, you need create your own "sprites/icons/rs0tag" folder and put sprites there.
    * ---------------------------------------- */
@@ -109,6 +114,7 @@ const db = {
     "rs-p1",
     "rs-p2",
 
+    "rs-blend",
     "rs-chunks",
     "rs-clean",
     "rs-conc",

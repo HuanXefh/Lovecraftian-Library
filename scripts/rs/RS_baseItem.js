@@ -128,8 +128,10 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return [];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": [],
+    }),
 
 
   };

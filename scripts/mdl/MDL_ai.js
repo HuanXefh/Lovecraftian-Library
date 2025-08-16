@@ -46,14 +46,15 @@
   exports.lookAt = lookAt;
 
 
-  const shootAt_begin = function(unit, x, y) {
-    // TODO
-  }
-  .setTodo("Lets a unit shoot at (x, y).");
-  exports.shootAt_begin = shootAt_begin;
+  const shootAt = function(unit, x, y, bool) {
+    if(unit == null) return;
 
-
-  const shootAt_end = function(unit) {
-    // TODO
+    if(!bool) {
+      unit.controlWeapons(false);
+    } else {
+      unit.type.faceTarget ?
+        unit.aimLook(x, y) :
+        unit.aim(x, y);
+    };
   };
-  exports.shootAt_end = shootAt_end;
+  exports.shootAt = shootAt;

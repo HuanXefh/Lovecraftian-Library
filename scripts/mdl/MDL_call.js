@@ -25,70 +25,11 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_effect = require("lovec/mdl/MDL_effect");
+  const MDL_net = require("lovec/mdl/MDL_net");
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
   const DB_status = require("lovec/db/DB_status");
-
-
-  /* <---------- packet ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Registers a new packet handler.
-   * ---------------------------------------- */
-  const __packetHandler = function(mode, header, payloadCaller) {
-    const thisFun = __packetHandler;
-
-    if(header == null) return;
-    if(thisFun.headers.includes(header)) throw new Error("A header name conflicts with existing headers: " + header);
-
-    if(mode == null) mode = "client";
-    if(!mode.equalsAny(thisFun.modes)) return;
-
-    if(payloadCaller == null) payloadCaller = Function.air;
-
-    if(mode === "client" || mode === "both") Vars.netClient.addPacketHandler(header, payloadCaller);
-    if(mode === "server" || mode === "both") Vars.netServer.addPacketHandler(header, payloadCaller);
-
-    thisFun.headers.push(header);
-  }
-  .setProp({
-    "modes": ["client", "server", "both"],
-    "headers": [],
-  });
-  exports.__packetHandler = __packetHandler;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Sends out a packet.
-   * ---------------------------------------- */
-  const sendPacket = function(mode, header, payload, isReliable, useConnection) {
-    const thisFun = sendPacket;
-
-    if(header == null || payload == null) return;
-
-    if(mode == null) mode = "server";
-    if(!mode.equalsAny(thisFun.modes)) return;
-
-    if(mode === "server") {
-      isReliable ?
-        Call.serverPacketReliable(header, payload) :
-        Call.serverPacketUnreliable(header, payload);
-    } else {
-      isReliable ?
-        (useConnection ? Call.clientPacketReliable(Vars.player.con, header, payload) : Call.clientPacketReliable(header, payload)) :
-        (useConnection ? Call.clientPacketUnreliable(Vars.player.con, header, payload) : Call.clientPacketUnreliable(header, payload));
-    };
-  }
-  .setProp({
-    "modes": ["client", "server"],
-  });
-  exports.sendPacket = sendPacket;
 
 
   /* <---------- unit ----------> */
@@ -130,7 +71,7 @@
    *
    * A variant of {spawnUnit} used on client side.
    * ---------------------------------------- */
-  const spawnUnitClient = function(x, y, utp, team, rad, ang, repeat) {
+  const spawnUnit_client = function(x, y, utp, team, rad, ang, repeat) {
     let utp = MDL_content._ct(utp_gn, "utp");
     if(utp == null) return;
 
@@ -144,15 +85,15 @@
       repeat,
     ]);
 
-    sendPacket("client", "lovec-client-unit-spawn", payload, true, true);
+    MDL_net.sendPacket("client", "lovec-client-unit-spawn", payload, true, true);
   }
-  .setAnno(ANNO.__INIT__(function() {
-    __packetHandler("server", "lovec-client-unit-spawn", payload => {
+  .setAnno(ANNO.__INIT__, null, function() {
+    MDL_net.__packetHandler("server", "lovec-client-unit-spawn", payload => {
       spawnUnit.apply(this, Array.fromPayload(payload));
     });
-  }))
+  })
   .setAnno(ANNO.__CLIENT__);
-  exports.spawnUnitClient = spawnUnitClient;
+  exports.spawnUnit_client = spawnUnit_client;
 
 
   /* ----------------------------------------
@@ -215,7 +156,7 @@
 
     spawnUnit(x, y, thisFun.funUtp, Team.derelict, rad, null, repeat, unit => {
       unit.addItem(itm, amt);
-      EFF.circlePulseDynamic.at(unit.x, unit.y, 5.0, Pal.accent);
+      MDL_effect.showAt_global(unit.x, unit.y, EFF.circlePulseDynamic, 5.0, Pal.accent);
       MDL_effect.showBetween_line(x, y, unit, Pal.accent);
     });
   }
@@ -267,8 +208,8 @@
           // Prevent drowning to death
           if(unit.drownTime > 0.98) unit.remove();
 
-          // Let a player unit take the item
-          if(TIMER.timerState_unit && Mathf.chance(0.3)) {
+          // Let a player unit take the item, only meant for mobile player
+          if(Vars.mobile && TIMER.timerState_unit && Mathf.chance(0.5)) {
             let unit_pl = MDL_pos._unit_pl(unit.x, unit.y, null, VAR.rad_lootRad);
             if(unit_pl != null && MATH_geometry._dst(unit.x, unit.y, unit_pl.x, unit_pl.y) < unit_pl.hitSize * 0.5 + VAR.rad_lootPickRad) {
               if(FRAG_item.takeUnitLoot(unit_pl, unit)) MDL_effect.showBetween_itemTransfer(unit.x, unit.y, unit_pl);
@@ -347,7 +288,7 @@
    *
    * A variant of {spawnLoot} used on client side.
    * ---------------------------------------- */
-  const spawnLootClient = function(x, y, itm_gn, amt, rad, repeat) {
+  const spawnLoot_client = function(x, y, itm_gn, amt, rad, repeat) {
     if(!PARAM.modded) return;
 
     let itm = MDL_content._ct(itm_gn, "rs");
@@ -362,15 +303,15 @@
       repeat,
     ]);
 
-    sendPacket("client", "lovec-client-loot-spawn", payload, true, true);
+    MDL_net.sendPacket("client", "lovec-client-loot-spawn", payload, true, true);
   }
-  .setAnno(ANNO.__INIT__(function() {
-    __packetHandler("server", "lovec-client-loot-spawn", payload => {
+  .setAnno(ANNO.__INIT__, null, function() {
+    MDL_net.__packetHandler("server", "lovec-client-loot-spawn", payload => {
       spawnLoot.apply(this, Array.fromPayload(payload));
     });
-  }))
+  })
   .setAnno(ANNO.__CLIENT__);
-  exports.spawnLootClient = spawnLootClient;
+  exports.spawnLoot_client = spawnLoot_client;
 
 
   /* ----------------------------------------

@@ -166,8 +166,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-dis", "blk-gate", "blk-router"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-dis", "blk-gate", "blk-router"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

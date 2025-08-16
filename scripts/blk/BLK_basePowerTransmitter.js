@@ -149,8 +149,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-pow", "blk-pow0trans"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-pow", "blk-pow0trans"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

@@ -9,6 +9,7 @@
 
 
   const EFF = require("lovec/glb/GLB_eff");
+  const VARGEN = require("lovec/glb/GLB_varGen");
 
 
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
@@ -17,177 +18,6 @@
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
-  const MDL_event = require("lovec/mdl/MDL_event");
-  const MDL_recipe = require("lovec/mdl/MDL_recipe");
-
-
-  const DB_block = require("lovec/db/DB_block");
-  const DB_misc = require("lovec/db/DB_misc");
-
-
-  /* <---------- dictionary ----------> */
-
-
-  const rcDictCons = {};
-  const rcDictProd = {};
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Adds an item consumption term to recipe dictionary.
-   * ---------------------------------------- */
-  const addItmConsTerm = function(blk_gn, itm_gn, amt, p, data) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-    if(blk == null) return;
-    let itm = MDL_content._ct(itm_gn, "rs");
-    if(itm == null) return;
-
-    if(amt == null) amt = 0;
-    if(amt < 1) return;
-    if(p == null) p = 1.0;
-    if(p < 0.0001) return;
-
-    rcDictCons["item"][itm.id].push(
-      blk,
-      amt * p,
-      Object.val(data, Object.air),
-    );
-  };
-  exports.addItmConsTerm = addItmConsTerm;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Adds a fluid consumption term to recipe dictionary.
-   * ---------------------------------------- */
-  const addFldConsTerm = function(blk_gn, liq_gn, amt, data) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-    if(blk == null) return;
-    let liq = MDL_content._ct(liq_gn, "rs");
-    if(liq == null) return;
-
-    if(amt == null) amt = 0.0;
-    if(amt < 0.0001) return;
-
-    rcDictCons["fluid"][liq.id].push(
-      blk,
-      amt,
-      Object.val(data, Object.air),
-    );
-  };
-  exports.addFldConsTerm = addFldConsTerm;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Adds an item production term to recipe dictionary.
-   * ---------------------------------------- */
-  const addItmProdTerm = function(blk_gn, itm_gn, amt, p, data) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-    if(blk == null) return;
-    let itm = MDL_content._ct(itm_gn, "rs");
-    if(itm == null) return;
-
-    if(amt == null) amt = 0;
-    if(amt < 1) return;
-    if(p == null) p = 1.0;
-    if(p < 0.0001) return;
-
-    rcDictProd["item"][itm.id].push(
-      blk,
-      amt * p,
-      Object.val(data, Object.air),
-    );
-  };
-  exports.addItmProdTerm = addItmProdTerm;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Adds a fluid production term to recipe dictionary.
-   * ---------------------------------------- */
-  const addFldProdTerm = function(blk_gn, liq_gn, amt, data) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-    if(blk == null) return;
-    let liq = MDL_content._ct(liq_gn, "rs");
-    if(liq == null) return;
-
-    if(amt == null) amt = 0.0;
-    if(amt < 0.0001) return;
-
-    rcDictProd["fluid"][liq.id].push(
-      blk,
-      amt,
-      Object.val(data, Object.air),
-    );
-  };
-  exports.addFldProdTerm = addFldProdTerm;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Returns an array or 3-array of all blocks that consume the resource.
-   * ---------------------------------------- */
-  const _consumers = function(rs_gn, appendData) {
-    const arr = [];
-
-    let rs = MDL_content._ct(rs_gn, "rs");
-    if(rs == null) return arr;
-
-    const arr1 = rcDictCons[rs instanceof Item ? "item" : "fluid"][rs.id];
-    let i = 0;
-    let iCap = arr1.iCap();
-    while(i < iCap) {
-      let blk = arr1[i];
-      if(!appendData) {
-        arr.push(blk);
-      } else {
-        let amt = arr1[i + 1];
-        let data = arr1[i + 2];
-        arr.push(blk, amt, data);
-      };
-      i += 3;
-    };
-
-    return arr;
-  };
-  exports._consumers = _consumers;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Returns an array or 3-array of all blocks that produce the resource.
-   * ---------------------------------------- */
-  const _producers = function(rs_gn, appendData) {
-    const arr = [];
-
-    let rs = MDL_content._ct(rs_gn, "rs");
-    if(rs == null) return arr;
-
-    const arr1 = rcDictProd[rs instanceof Item ? "item" : "fluid"][rs.id];
-    let i = 0;
-    let iCap = arr1.iCap();
-    while(i < iCap) {
-      let blk = arr1[i];
-      if(!appendData) {
-        arr.push(blk);
-      } else {
-        let amt = arr1[i + 1];
-        let data = arr1[i + 2];
-        arr.push(blk, amt, data);
-      };
-      i += 3;
-    };
-
-    return arr;
-  };
-  exports._producers = _producers;
 
 
   /* <---------- condition ----------> */
@@ -359,6 +189,84 @@
     return cond;
   };
   exports._hasOutput_liq = _hasOutput_liq;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns an array of all liquids found in inputs.
+   * ---------------------------------------- */
+  const _inputLiqs = function(ci, bi, aux) {
+    const arr = [];
+
+    // CI
+    var i = 0;
+    var iCap = ci.iCap();
+    while(i < iCap) {
+      arr.pushUnique(ci[i]);
+      i += 2;
+    };
+
+    // BI
+    var i = 0;
+    var iCap = bi.iCap();
+    while(i < iCap) {
+      let tmp = bi[i];
+      if(!(tmp instanceof Array)) {
+        if(tmp instanceof Liquid) arr.pushUnique(tmp);
+      } else {
+        let j = 0;
+        let jCap = tmp.iCap();
+        while(j < jCap) {
+          let tmp1 = tmp[j];
+          if(tmp1 instanceof Liquid) arr.pushUnique(tmp1);
+          j += 3;
+        };
+      };
+      i += 3;
+    };
+
+    // AUX
+    var i = 0;
+    var iCap = aux.iCap();
+    while(i < iCap) {
+      arr.pushUnique(aux[i]);
+      i += 2;
+    };
+
+    return arr;
+  };
+  exports._inputLiqs = _inputLiqs;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns an array of all liquids found in outputs.
+   * ---------------------------------------- */
+  const _outputLiqs = function(co, bo) {
+    const arr = [];
+
+    // CO
+    var i = 0;
+    var iCap = co.iCap();
+    while(i < iCap) {
+      arr.pushUnique(co[i]);
+      i += 2;
+    };
+
+    // BO
+    var i = 0;
+    var iCap = bo.iCap();
+    while(i < iCap) {
+      let tmp = bo[i];
+      if(tmp instanceof Liquid) arr.pushUnique(tmp);
+      i += 3;
+    };
+
+    return arr;
+  };
+  exports._outputLiqs = _outputLiqs;
 
 
   /* ----------------------------------------
@@ -699,7 +607,7 @@
           FRAG_item.produceItem(b, tmp, amt, p);
         };
         if(!noLiq && tmp instanceof Liquid) {
-          FRAG_fluid.addLiquidBatch(b, b, tmp, amt);
+          FRAG_fluid.addLiquidBatch(b, b, tmp, amt, true);
         };
         i += 3;
       };
@@ -750,7 +658,7 @@
    *
    * Lets a multi-crafter dump some resource in it.
    * ---------------------------------------- */
-  const dump = function(b, co, dumpTup) {
+  const dump = function(b, co, dumpTup, splitAmt, fluidType) {
     if(dumpTup == null) return;
 
     if(b.liquids != null) {
@@ -759,6 +667,11 @@
       while(i < iCap) {
         let tmp = co[i];
         let dir = (b.block.liquidOutputDirections.length > i / 2) ? b.block.liquidOutputDirections[i / 2] : -1;
+        if(tmp === VARGEN.auxPres) {
+          FRAG_fluid.dumpPres(b, co[i + 1], false, splitAmt, fluidType);
+        } else if(tmp === VARGEN.auxVac) {
+          FRAG_fluid.dumpPres(b, co[i + 1], true, splitAmt, fluidType);
+        };
         b.dumpLiquid(tmp, 2.0, dir);
         i += 2;
       };
@@ -768,81 +681,3 @@
     dumpTup[1].forEach(liq => b.dumpLiquid(liq, 2.0));
   };
   exports.dump = dump;
-
-
-/*
-  ========================================
-  Section: application
-  ========================================
-*/
-
-
-  MDL_event._c_onLoad(() => {
-
-
-    // Initialize
-    rcDictCons["item"] = {};
-    rcDictCons["fluid"] = {};
-    rcDictProd["item"] = {};
-    rcDictProd["fluid"] = {};
-    Vars.content.items().each(itm => {
-      rcDictCons["item"][itm.id] = [];
-      rcDictProd["item"][itm.id] = [];
-    });
-    Vars.content.liquids().each(liq => {
-      rcDictCons["fluid"][liq.id] = [];
-      rcDictProd["fluid"][liq.id] = [];
-    });
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Reads consumers and output lists of blocks to build the recipe dictionary.
-     * Methods used for each block class are defined in {DB_misc.db["recipe"]}.
-     * This only works for java mods, since js mods don't create classes.
-     * ----------------------------------------
-     * IMPORTANT:
-     *
-     * Use {Core.app.post} for methods that modify recipe dictionary, after client load.
-     * Or some parameters are still not correctly loaded.
-     * ---------------------------------------- */
-    Core.app.post(() => Vars.content.blocks().each(blk => {
-
-      if(!DB_block.db["group"]["noRcDict"]["cons"].includes(blk.name)) {
-        blk.consumers.forEach(cons => {
-          let arr = DB_misc.db["recipe"]["consumeReader"];
-          let dictCaller = null;
-          let i = 0;
-          let iCap = arr.iCap();
-          while(i < iCap) {
-            let cls = arr[i];
-            if(cons instanceof cls) {
-              dictCaller = arr[i + 1];
-            };
-            i += 2;
-          };
-          if(dictCaller != null) dictCaller(blk, cons, rcDictCons["item"], rcDictCons["fluid"]);
-        });
-      };
-
-      if(!DB_block.db["group"]["noRcDict"]["prod"].includes(blk.name)) {
-        let arr = DB_misc.db["recipe"]["produceReader"];
-        let dictCaller = null;
-        let i = 0;
-        let iCap = arr.iCap();
-        while(i < iCap) {
-          let cls = arr[i];
-          if(blk instanceof cls) {
-            dictCaller = arr[i + 1];
-          };
-          i += 2;
-        };
-        if(dictCaller != null) dictCaller(blk, rcDictProd["item"], rcDictProd["fluid"]);
-      };
-
-    }));
-
-
-
-  }, 49527117);

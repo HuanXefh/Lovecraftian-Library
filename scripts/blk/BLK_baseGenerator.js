@@ -84,7 +84,7 @@
 
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
-    if(blk.explosionDamage > 0) MDL_draw.drawDisk_warning(tx * Vars.tilesize, ty * Vars.tilesize, blk.explosionRadius, 1.0, Pal.remove);
+    if(blk.explosionDamage > 0) MDL_draw.drawDisk_warning(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, blk.explosionRadius * Vars.tilesize);
   };
 
 
@@ -94,7 +94,7 @@
 
 
   function comp_drawSelect(b) {
-    if(b.block.explosionDamage > 0) MDL_draw.drawDisk_warning(b.x, b.y, b.block.explosionRadius, 1.0, Pal.remove);
+    if(b.block.explosionDamage > 0) MDL_draw.drawDisk_warning(b.x, b.y, b.block.explosionRadius * Vars.tilesize);
   };
 
 
@@ -185,8 +185,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-pow", "blk-pow0gen"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-pow", "blk-pow0gen"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

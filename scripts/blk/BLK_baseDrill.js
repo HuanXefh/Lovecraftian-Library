@@ -23,14 +23,14 @@
   /* ----------------------------------------
    * KEY:
    *
-   * !NOTHING
+   * b.useCep: bool    // @PARAM: Whether this drill is affected by core energy.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * PARAM:
    *
-   * !NOTHING
+   * DB_block.db["param"]["cep"]["use"]    // @PARAM: CEPs used by this block.
    * ---------------------------------------- */
 
 
@@ -81,6 +81,18 @@
       tb.row();
       MDL_table.setDisplay_ctLi(tb, blk.blockedItems.toArray());
     }}));
+
+    FRAG_faci.comp_setStats_cep(blk);
+  };
+
+
+  function comp_drawSelect(b) {
+    if(b.useCep) FRAG_faci.comp_drawSelect_cep(b);
+  };
+
+
+  function comp_updateEfficiencyMultiplier(b) {
+    if(b.useCep) b.efficiency *= FRAG_faci._cepEffcCur(b.team);
   };
 
 
@@ -144,6 +156,7 @@
 
     drawSelect: function(b) {
       PARENT.drawSelect(b);
+      comp_drawSelect(b);
     },
 
 
@@ -153,13 +166,20 @@
     /* <---------- build (specific) ----------> */
 
 
+    updateEfficiencyMultiplier: function(b) {
+      comp_updateEfficiencyMultiplier(b);
+    },
+
+
     /* <---------- block (extended) ----------> */
 
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-min", "blk-drl"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-min", "blk-drl"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

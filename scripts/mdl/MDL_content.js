@@ -142,7 +142,7 @@
   const _hasTag = function(ct, tag) {
     if(ct == null) return false;
 
-    var bool = Function.funTry(ct.ex_getTags, []).call(ct).includes(tag);
+    var bool = Function.tryFun(ct.ex_getTags, Array.air, ct).includes(tag);
 
     return bool;
   };
@@ -195,21 +195,9 @@
    * Gets the block heat region for the inputted size.
    * ---------------------------------------- */
   const _regHeat = function(size) {
-    const thisFun = _regHeat;
-
-    var ind = Math.round(size);
-    if(ind < 1 || ind > thisFun.maxInd) return;
-
-    return Core.atlas.find("lovec-ast-block-heat" + ind);
+    return Core.atlas.find("lovec-ast-block-heat" + Math.round(size));
   }
-  .setAnno(ANNO.__NONHEADLESS__)
-  .setProp({
-    "maxInd": (function() {
-      let i = 0;
-      while(Core.atlas.has("lovec-ast-block-heat" + (i + 1))) {i++};
-      return i;
-    })(),
-  });
+  .setAnno(ANNO.__NONHEADLESS__);
   exports._regHeat = _regHeat;
 
 
@@ -219,7 +207,7 @@
    * Gets a random region from variant regions, based on tile position.
    * ---------------------------------------- */
   const _regVari = function(blk_gn, t, off) {
-    let blk = _ct(blk_gn);
+    let blk = _ct(blk_gn, "blk");
     if(blk == null) return null;
 
     if(blk.variants === 0) return blk.region;
@@ -229,6 +217,31 @@
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports._regVari = _regVari;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a the base region of a turret.
+   * ---------------------------------------- */
+  const _regTurBase = function(blk_gn) {
+    let blk = _ct(blk_gn, "blk");
+    if(blk == null) return null;
+    if(blk.baseRegion != null) return blk.baseRegion;
+
+    if(blk instanceof Turret) {
+      if(blk.drawer instanceof DrawTurret) {
+        return blk.drawer.base;
+      } else if(blk.drawer instanceof DrawMulti) {
+        let drawTurret = blk.drawer.drawers.find(drawer => drawer instanceof DrawTurret);
+        if(drawTurret != null) return drawTurret.base;
+      };
+    };
+
+    return null;
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports._regTurBase = _regTurBase;
 
 
   /* random overlay */
@@ -356,7 +369,7 @@
    * Intermediate tags are listed in DB_item.db["intmdTag"].
    * ---------------------------------------- */
   const _intmdTags = function(rs) {
-    let tags = Function.funTry(rs.ex_getTags).call(rs);
+    let tags = Function.tryFun(rs.ex_getTags, null, rs);
     return tags == null ? [] : tags.filter(tag => DB_item.db["intmdTag"].includes(tag));
   };
   exports._intmdTags = _intmdTags;

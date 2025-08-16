@@ -70,12 +70,33 @@
 
 
   const _dmgText = function(dmg, dmgPerc) {
-    var str = Strings.autoFixed(dmg, 2);
-    if(dmgPerc != null && dmgPerc > 0.0) str += " + " + Number(dmgPerc).perc().color(Pal.accent);
+    var str1 = dmg == null || dmg < 0.0001 ? null : String(Number(dmg).roundFixed(2)).color(Pal.remove);
+    var str2 = dmgPerc == null || dmgPerc < 0.0001 ? null : Number(dmgPerc).perc().color(Pal.remove);
 
-    return str;
+    if(str1 == null && str2 == null) {
+      return "!ERR";
+    } else {
+      if(str1 == null) return str2;
+      if(str2 == null) return str1;
+      return str1 + " + " + str2;
+    };
   };
   exports._dmgText = _dmgText;
+
+
+  const _healText = function(healAmt, healPerc) {
+    var str1 = healAmt == null || healAmt < 0.0001 ? null : String(Number(healAmt).roundFixed(2)).color(Pal.heal);
+    var str2 = healPerc == null || healPerc < 0.0001 ? null : Number(healPerc).perc().color(Pal.heal);
+
+    if(str1 == null && str2 == null) {
+      return "!ERR";
+    } else {
+      if(str1 == null) return str2;
+      if(str2 == null) return str1;
+      return str1 + " + " + str2;
+    };
+  };
+  exports._healText = _healText;
 
 
   /* ----------------------------------------

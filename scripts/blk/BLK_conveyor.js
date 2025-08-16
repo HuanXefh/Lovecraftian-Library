@@ -173,8 +173,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-dis", "blk-conv"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-dis", "blk-conv"],
+    }),
 
 
     /* <---------- build (extended) ----------> */

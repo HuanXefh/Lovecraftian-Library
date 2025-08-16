@@ -24,12 +24,10 @@
   /* <---------- import ----------> */
 
 
-  const FRAG_recipe = require("lovec/frag/FRAG_recipe");
-
-
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
   const MDL_text = require("lovec/mdl/MDL_text");
   const MDL_ui = require("lovec/mdl/MDL_ui");
@@ -263,8 +261,8 @@
                   let craftRate = (!isFinite(craftTime) && rs instanceof Item) ? null : (rs instanceof Item ? (rcDictArr[i + 1] / craftTime * 60.0) : (rcDictArr[i + 1] * 60.0));
                   tb2.add(MDL_text._statText(
                     MDL_bundle._term("lovec", "rate"),
-                    craftRate == null ? "-" : ((craftRate < 0.01 ? "<0.01" : Number(craftRate).deciDigit(2)) + "/s"),
-                  )).left().tooltip(typeof craftRate !== "number" ? "-" : (craftRate.deciDigit(7) + "/s"), true).row();
+                    craftRate == null ? "-" : ((craftRate < 0.01 ? "<0.01" : Number(craftRate).roundFixed(2)) + "/s"),
+                  )).left().tooltip(typeof craftRate !== "number" ? "-" : (craftRate.roundFixed(7) + "/s"), true).row();
 
                   tb2.table(Styles.none, tb3 => {
 
@@ -299,7 +297,7 @@
           };
 
           // @TABLE: producer
-          let prodArr = FRAG_recipe._producers(rs, true);
+          let prodArr = MDL_recipeDict._producers(rs, true);
           if(prodArr.length > 0) {
 
             // @TABLE: consumer title
@@ -325,7 +323,7 @@
           };
 
           // @TABLE: consumer
-          let consArr = FRAG_recipe._consumers(rs, true);
+          let consArr = MDL_recipeDict._consumers(rs, true);
           if(consArr.length > 0) {
 
             // @TABLE: consumer title

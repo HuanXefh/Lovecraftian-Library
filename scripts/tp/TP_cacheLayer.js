@@ -26,5 +26,7 @@
   /* <---------- base ----------> */
 
 
-  exports.shader0surf_flr0liq_sea = newIns_shader(TP_shader.shader0surf_flr0liq_sea);
+  exports.shader0surf_flr0liq_lava = newIns_shader(TP_shader.shader0surf_flr0liq_lava);
+  exports.shader0surf_flr0liq_puddle = newIns_shader(TP_shader.shader0surf_flr0liq_puddle);
   exports.shader0surf_flr0liq_river = newIns_shader(TP_shader.shader0surf_flr0liq_river);
+  exports.shader0surf_flr0liq_sea = newIns_shader(TP_shader.shader0surf_flr0liq_sea);

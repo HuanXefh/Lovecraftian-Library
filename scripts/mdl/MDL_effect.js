@@ -17,6 +17,7 @@
   const MATH_base = require("lovec/math/MATH_base");
 
 
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_ui = require("lovec/mdl/MDL_ui");
@@ -55,7 +56,7 @@
   exports.play = play;
 
 
-  const globalPlay = function(se_gn, vol, pitch, offPitch) {
+  const play_global = function(se_gn, vol, pitch, offPitch) {
     if(se_gn == null) return;
 
     let se = _se(se_gn);
@@ -68,7 +69,7 @@
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setAnno(ANNO.__SERVER__);
-  exports.globalPlay = globalPlay;
+  exports.play_global = play_global;
 
 
   const playAt = function(x, y, se_gn, vol, pitch, offPitch) {
@@ -95,39 +96,45 @@
     if(rot == null) rot = Mathf.random(360.0);
     if(color == null) color = Color.white;
 
-    if(data == null) {
-      eff.at(x, y, rot, color);
-    } else {
+    data == null ?
+      eff.at(x, y, rot, color) :
       eff.at(x, y, rot, color, data);
-    };
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports.showAt = showAt;
 
 
-  const showAtP = function(p, x, y, eff, rot, color, data) {
-    if(!Mathf.chance(p)) return;
+  const showAt_global = function(x, y, eff, rot, color, data) {
+    if(Vars.state.isPaused() || eff == null) return;
+
+    if(rot == null) rot = Mathf.random(360.0);
+    if(color == null) color = Color.white;
 
     showAt(x, y, eff, rot, color, data);
-  };
-  exports.showAtP = showAtP;
+    data == null ?
+      Call.effect(eff, x, y, rot, color) :
+      Call.effect(eff, x, y, rot, color, data);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.showAt_global = showAt_global;
 
 
   const showAround = function(x, y, eff, rad, rot, color, data) {
     if(Vars.state.isPaused() || eff == null) return;
 
-    return showAt(x + Mathf.range(rad), y + Mathf.range(rad), eff, rot, color, data);
+    showAt(x + Mathf.range(rad), y + Mathf.range(rad), eff, rot, color, data);
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports.showAround = showAround;
 
 
-  const showAroundP = function(p, x, y, eff, rad, rot, color, data) {
-    if(!Mathf.chance(p)) return;
+  const showAround_global = function(x, y, eff, rot, color, data) {
+    if(Vars.state.isPaused() || eff == null) return;
 
-    showAround(x, y, eff, rad, rot, color, data);
-  };
-  exports.showAroundP = showAroundP;
+    showAt_global(x, y, eff, rot, color, data);
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
+  exports.showAround_global = showAround_global;
 
 
   /* <---------- special effects ----------> */
@@ -172,6 +179,25 @@
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports.showAt_dust = showAt_dust;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Creates an effect that shows click.
+   * ---------------------------------------- */
+  const showAt_click = function(x, y, team) {
+    const thisFun = showAt_click;
+
+    if(team == null) team = Team.sharded;
+
+    showAt(x, y, thisFun.funEff, 0.0, team.color);
+  }
+  .setAnno(ANNO.__NONHEADLESS__)
+  .setProp({
+    "funEff": TP_effect._circleWave(2.0, 0.0, 6.0, null, 0.75),
+  });
+  exports.showAt_click = showAt_click;
 
 
   /* ----------------------------------------
@@ -275,7 +301,7 @@
    *
    * Creates liquid corrosion effect.
    * ---------------------------------------- */
-  const showAt_corrosion = function(x, y, size, liqColor) {
+  const showAt_corrosion = function(x, y, size, liqColor, isClogging) {
     const thisFun = showAt_corrosion;
 
     if(Vars.state.isPaused()) return;
@@ -284,14 +310,18 @@
     if(liqColor == null) liqColor = Color.white;
 
     var rad = size * Vars.tilesize * 0.5;
-    showAround(x, y, thisFun.funEff, rad, 0.0, liqColor);
+    showAround(x, y, thisFun.funEff, rad, null, liqColor, Object.val(isClogging, false));
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     "funEff": new Effect(120.0, eff => {
       Draw.z(VAR.lay_effBase);
       Draw.color(eff.color);
-      Fill.circle(eff.x, eff.y, 0.8 * Interp.pow5Out.apply(1.0 - eff.fin()))
+
+      var sizeScl = Interp.pow5Out.apply(1.0 - eff.fin());
+      !eff.data ?
+        Fill.circle(eff.x, eff.y, 0.8 * sizeScl) :
+        Draw.rect("lovec-efr-glob", eff.x, eff.y, 5.0 * sizeScl, 5.0 * sizeScl, eff.rotation);
     }),
   });
   exports.showAt_corrosion = showAt_corrosion;
@@ -390,27 +420,32 @@
 
     if(color_gn == null) color_gn = Color.white;
 
-    showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.funEff, 0.0, MDL_draw._color(color_gn), e);
+    if(e instanceof Building) {
+
+      let reg = e.block instanceof BaseTurret ?
+        Object.val(MDL_content._regTurBase(e.block), e.block.region) :
+        Core.atlas.find(e.block.name + "-icon", e.block.region);
+      if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.funEff, 0.0, MDL_draw._color(color_gn), [reg, e]);
+
+    } else {
+
+      if(MDL_draw._isSameColor(color, Pal.heal)) {
+        unit.healTime = 1.0;
+      } else {
+        unit.hitTime = 1.0;
+      };
+
+    };
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     "funEff": new Effect(20.0, eff => {
-      let e = eff.data;
+      let reg = eff.data[0]
+      let e = eff.data[1];
       let color = eff.color;
       var a = eff.fout() * color.a;
 
-      if(e instanceof Building) {
-
-        var reg = Core.atlas.find(e.block.name + "-icon", e.block.region);
-        var ang = 0.0;
-        MDL_draw.drawRegion_normal(e.x, e.y, reg, ang, 1.0, color, a, Layer.effect + VAR.lay_offDrawOver, true);
-
-      } else if(e instanceof Unit) {
-
-        if(MDL_draw._isSameColor(color, Pal.heal)) {unit.healTime = 1.0}
-        else {unit.hitTime = 1.0};
-
-      };
+      MDL_draw.drawRegion_normal(e.x, e.y, reg, e.drawrot(), 1.0, color, a, Layer.effect + VAR.lay_offDrawOver, true);
     }),
   });
   exports.showAt_flash = showAt_flash;
@@ -532,19 +567,21 @@
     if(color_gn == null) color_gn = Color.white;
     if(strokeScl == null) strokeScl = 1.0;
 
-    showAt(x, y, thisFun.funEff, strokeScl, MDL_draw._color(color_gn), posIns);
+    showAt(x, y, thisFun.funEff, strokeScl, MDL_draw._color(color_gn), [x, y, posIns]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     "funEff": new Effect(40.0, eff => {
-      let e = eff.data;
+      var x = eff.data[0];
+      var y = eff.data[1];
+      let e = eff.data[2];
       var strokeScl = eff.rotation;
       let color = eff.color;
       var a = Interp.pow2In.apply(eff.fout()) * color.a;
 
       Lines.stroke(2.0 * strokeScl, color);
       Draw.alpha(a);
-      Lines.line(eff.x, eff.y, e.x, e.y);
+      Lines.line(x, y, e.x, e.y);
       Draw.reset();
     }),
   });
@@ -556,14 +593,14 @@
    *
    * Creates a item transfer effect from (x, y) to {posIns}.
    * ---------------------------------------- */
-  const showBetween_itemTransfer = function(x, y, posIns, color_gn, repeat) {
+  const showBetween_itemTransfer = function(x, y, posIns, color_gn, repeat, isGlobal) {
     if(posIns == null) return;
 
     if(color_gn == null) color_gn = Pal.accent;
     if(repeat == null) repeat = 3;
 
     for(let i = 0; i < repeat; i++) {
-      showAt(x, y, Fx.itemTransfer, 0.0, MDL_draw._color(color_gn), posIns);
+      (isGlobal ? showAt_global : showAt)(x, y, Fx.itemTransfer, 0.0, MDL_draw._color(color_gn), posIns);
     };
   }
   .setAnno(ANNO.__NONHEADLESS__);

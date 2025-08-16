@@ -120,7 +120,11 @@
     Groups.unit.each(unit => {
       var cond = true;
       if(!MDL_cond._isVisible(unit) || MDL_cond._isLoot(unit)) cond = false;
-      if((!unit.isPlayer() || !PARAM.drawPlayerStat) && !(unit.type instanceof MissileUnitType) && PARAM.drawUnitNearMouse && MATH_geometry._dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) > VAR.rad_mouseRad + unit.type.hitSize * 0.5) cond = false;
+      if(
+        (!unit.isPlayer() || !PARAM.drawPlayerStat)
+        && !(unit.type instanceof MissileUnitType) && PARAM.drawUnitNearMouse
+        && MATH_geometry._dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) > VAR.rad_mouseRad + unit.type.hitSize * 0.5
+      ) cond = false;
       if(unit.type instanceof MissileUnitType && !PARAM.drawMissileStat) cond = false;
 
       if(cond) {
@@ -161,10 +165,10 @@
   function evComp_draw_buildStat() {
     if(!PARAM.drawBuildStat) return;
 
-    var t = MDL_pos._tMouse();
-    var b = t == null ? null : t.build;
-    var unit_pl = Vars.player.unit();
-    var b_pl = (unit_pl == null || !(unit_pl instanceof BlockUnitc)) ? null : unit_pl.tile();
+    let t = MDL_pos._tMouse();
+    let b = t == null ? null : t.build;
+    let unit_pl = Vars.player.unit();
+    let b_pl = (unit_pl == null || !(unit_pl instanceof BlockUnitc)) ? null : unit_pl.tile();
 
     // Draw player building
     if(b_pl != null && PARAM.drawPlayerStat) {
@@ -252,7 +256,22 @@
       };
 
       MDL_draw.drawRect_normal(b.x, b.y, VAR.r_offBuildStat, b.block.size, Pal.accent, 0.5, false, true);
+
+      if(b.team !== Vars.player.team()) return;
+
+      if(b.block instanceof ItemBridge || b.block instanceof DirectionBridge) {
+        MDL_draw.comp_drawSelect_bridgeLine(b);
+      };
     };
+  };
+
+
+  function evComp_draw_extraInfo() {
+    if(!PARAM.showExtraInfo) return;
+
+    let t = MDL_pos._tMouse();
+    
+    MDL_draw.comp_drawSelect_extraInfo(t);
   };
 
 
@@ -263,17 +282,17 @@
     if(!PARAM.displayDamage) return;
     if(b == null || bul == null) return;
 
+    var mode = "health";
+    if(MDL_entity._bShield(b, true) > dmg) mode = "shield";
+
     var dmg = MDL_entity._bulDmg(
       bul,
-      bul.type.buildingDamageMultiplier,
+      bul.type.buildingDamageMultiplier * (mode !== "shield" ? 1.0 : bul.type.shieldDamageMultiplier),
       MATH_geometry._dst(bul.x, bul.y, b.x, b.y),
       b.block.armor,
       b.block.size * Vars.tilesize,
     );
     if(dmg < PARAM.damageDisplayThreshold) return;
-
-    var mode = "health";
-    if(MDL_entity._bShield(b, true) > dmg) mode = "shield";
 
     MDL_effect.showAt_dmg(b.x, b.y, dmg, bul.team, mode);
   };
@@ -287,17 +306,17 @@
     if(unit == null || bul == null) return;
     if(unit.type instanceof MissileUnitType && !PARAM.drawMissileStat) return;
 
+    var mode = "health";
+    if(unit.shield > dmg) mode = "shield";
+
     var dmg = MDL_entity._bulDmg(
       bul,
-      1.0 / unit.healthMultiplier,
+      1.0 / unit.healthMultiplier * (mode !== "shield" ? 1.0 : bul.type.shieldDamageMultiplier),
       MATH_geometry._dst(bul.x, bul.y, unit.x, unit.y),
       MDL_entity._armor(unit),
       unit.type.hitSize,
     );
     if(dmg < PARAM.damageDisplayThreshold) return;
-
-    var mode = "health";
-    if(unit.shield > dmg) mode = "shield";
 
     MDL_effect.showAt_dmg(unit.x, unit.y, dmg, bul.team, mode);
   };
@@ -338,6 +357,7 @@
     evComp_draw_test();
     evComp_draw_unitStat();
     evComp_draw_buildStat();
+    evComp_draw_extraInfo();
 
   }, 12597784);
 

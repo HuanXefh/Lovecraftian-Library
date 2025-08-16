@@ -29,6 +29,7 @@
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
   const MDL_util = require("lovec/mdl/MDL_util");
 
@@ -65,16 +66,22 @@
     // Set name colors
     if(!Vars.headless && MDL_util._cfg("load-colored-name")) {
       Core.app.post(() => {
+        let fetchColor = rs => {
+          let tmp = (rs.color.r + rs.color.g + rs.color.b) / 3.0;
+          return tmp < 0.1 ?
+            Tmp.c1.set(Color.white) :
+            Tmp.c1.set(rs.color).mul(tmp < 0.45 ? VAR.ct_colorMtpHigh : VAR.ct_colorMtp);
+        };
         Vars.content.items().each(itm => {
-          itm.localizedName = String(itm.localizedName).color(Tmp.c1.set(itm.color).mul(VAR.ct_colorMtp));
+          itm.localizedName = String(itm.localizedName).color(fetchColor(itm));
         });
         Vars.content.liquids().each(liq => {
-          liq.localizedName = String(liq.localizedName).color(Tmp.c1.set(liq.color).mul(VAR.ct_colorMtp));
+          liq.localizedName = String(liq.localizedName).color(fetchColor(liq));
         });
         let factions = VARGEN.factions;
         for(let faction in factions) {
           factions[faction].forEach(ct => {
-            ct.localizedName = String(ct.localizedName).color(Tmp.c1.set(MDL_content._factionColor(faction)).mul(VAR.ct_colorMtp));
+            ct.localizedName = String(ct.localizedName).color(Tmp.c1.set(MDL_content._factionColor(faction)));
           });
         };
       });
@@ -152,9 +159,11 @@
     // NOTE: I don't think there's need to create a module for this. Just check {MDL_util._cfg}.
     Vars.ui.settings.addCategory(MDL_bundle._term("lovec", "settings"), tb => {
 
-      tb.checkPref("lovec-test-draw", false);
-      tb.checkPref("lovec-test-todo", false);
-      tb.checkPref("lovec-test-memory", false);
+      if(PARAM.debug) {
+        tb.checkPref("lovec-test-draw", false);
+        tb.checkPref("lovec-test-todo", false);
+        tb.checkPref("lovec-test-memory", false);
+      };
 
       tb.checkPref("lovec-load-colored-name", true);
       tb.checkPref("lovec-load-force-modded", false);
@@ -162,14 +171,14 @@
       tb.sliderPref("lovec-interval-efficiency", 5, 1, 15, val => Strings.fixed(val * 0.1, 2) + "s");
 
       tb.checkPref("lovec-draw-wobble", false);
-      tb.checkPref("lovec-draw0shadow-blurred", true);
-      tb.checkPref("lovec-draw0shadow-circle", false);
       tb.checkPref("lovec-draw0loot-static", true);
       tb.checkPref("lovec-draw0loot-amount", true);
       tb.sliderPref("lovec-draw0tree-alpha", 10, 0, 10, val => Strings.fixed(val * 10.0, 0) + "%");
       tb.checkPref("lovec-draw0tree-player", true);
+      tb.checkPref("lovec-draw0aux-extra-info", true);
       tb.checkPref("lovec-draw0aux-bridge", true);
       tb.checkPref("lovec-draw0aux-router", true);
+      tb.checkPref("lovec-draw0aux-fluid-heat", true);
 
       tb.checkPref("lovec-icontag-show", true);
       tb.sliderPref("lovec-icontag-interval", 4, 1, 12, val => Strings.fixed(val * 0.33333333, 2) + "s");
@@ -184,7 +193,14 @@
       tb.checkPref("lovec-unit0stat-mouse", true);
       tb.sliderPref("lovec-unit0remains-lifetime", 12, 0, 60, val => Strings.fixed(val * 5.0, 0) + "s");
 
+      tb.areaTextPref("lovec-misc-secret-code", "");
+
     });
+
+
+    if(!PARAM.modded && MDL_util._loadedMod("projreind") != null) {
+      throw new Error("PARAM.modded is broken again, WTF D:");
+    };
 
 
   }, 12563333);

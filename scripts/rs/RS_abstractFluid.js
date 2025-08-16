@@ -122,8 +122,10 @@
 
     // @NOSUPER
     ex_getTags: function(aux) {
-      return ["rs-aux"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["rs-aux"],
+    }),
 
 
   };

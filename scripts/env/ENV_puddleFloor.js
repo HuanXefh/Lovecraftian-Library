@@ -46,11 +46,16 @@
   const PARENT = require("lovec/env/ENV_baseLiquidFloor");
 
 
+  const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
+
+
   /* <---------- component ----------> */
 
 
   function comp_init(blk) {
     blk.walkSound = Sounds.splash;
+
+    blk.cacheLayer = TP_cacheLayer.shader0surf_flr0liq_puddle;
   };
 
 
@@ -91,8 +96,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-env"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-env"],
+    }),
 
 
     // @NOSUPER

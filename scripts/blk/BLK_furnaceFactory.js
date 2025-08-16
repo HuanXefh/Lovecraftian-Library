@@ -88,7 +88,6 @@
   const FRAG_item = require("lovec/frag/FRAG_item");
   const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
-  const FRAG_recipe = require("lovec/frag/FRAG_recipe");
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
@@ -96,6 +95,7 @@
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
 
 
@@ -133,8 +133,8 @@
         let fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk, 1.0);
         arr.forEach(rs => {
           rs instanceof Item ?
-            FRAG_recipe.addItmConsTerm(blk, rs, 1, 1.0, {"icon": "lovec-icon-fuel", "time": FRAG_faci._fuelPon(rs) * 60.0 / fuelConsMtp}) :
-            FRAG_recipe.addFldConsTerm(blk, rs, FRAG_faci._fuelPon(rs) * fuelConsMtp, {"icon": "lovec-icon-fuel"});
+            MDL_recipeDict.addItmConsTerm(blk, rs, 1, 1.0, {"icon": "lovec-icon-fuel", "time": FRAG_faci._fuelPon(rs) * 60.0 / fuelConsMtp}) :
+            MDL_recipeDict.addFldConsTerm(blk, rs, FRAG_faci._fuelPon(rs) * fuelConsMtp, {"icon": "lovec-icon-fuel"});
         });
       });
     });
@@ -231,7 +231,7 @@
 
   function comp_setBars(blk) {
     blk.addBar("lovec-furnace-temp", b => new Bar(
-      prov(() => Core.bundle.format("bar.heatpercent", Strings.fixed(b.ex_getHeat(), 2) + " " + TP_stat.rs_heatUnits.localized(), Number(b.efficiency).deciDigit(2) * 100.0)),
+      prov(() => Core.bundle.format("bar.heatpercent", Strings.fixed(b.ex_getHeat(), 2) + " " + TP_stat.rs_heatUnits.localized(), Number(b.efficiency).roundFixed(2) * 100.0)),
       prov(() => Pal.lightOrange),
       () => b.ex_getHeatFrac(),
     ));
@@ -368,6 +368,11 @@
     },
 
 
+    displayBars: function(b, tb) {
+      PARENT.displayBars(b, tb);
+    },
+
+
     // @NOSUPER
     acceptItem: function(b, b_f, itm) {
       return comp_acceptItem(b, b_f, itm) || PARENT.acceptItem(b, b_f, itm);
@@ -433,8 +438,10 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return ["blk-fac", "blk-furn"];
-    },
+      return module.exports.ex_getTags.funArr;
+    }.setProp({
+      "funArr": ["blk-fac", "blk-furn"],
+    }),
 
 
     // @NOSUPER
