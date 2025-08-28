@@ -8,16 +8,18 @@
   /* <---------- import ----------> */
 
 
+  const EFF = require("lovec/glb/GLB_eff");
   const TIMER = require("lovec/glb/GLB_timer");
   const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const MATH_geometry = require("lovec/math/MATH_geometry");
+  const FRAG_attack = require("lovec/frag/FRAG_attack");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_flow = require("lovec/mdl/MDL_flow");
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
@@ -27,10 +29,10 @@
   const comp_update_damaged = function(utp, unit) {
     if(!TIMER.timerState_unit || !Mathf.chance(VAR.p_unitUpdateP)) return;
 
-    const healthFrac = Mathf.clamp(unit.health / unit.maxHealth);
-    const staDur = VAR.time_unitStaDef;
+    let healthFrac = Mathf.clamp(unit.health / unit.maxHealth);
+    let staDur = VAR.time_unitStaDef;
 
-    if(MDL_content._isNonRobot(utp)) {
+    if(MDL_cond._isNonRobot(utp)) {
 
       let sta1 = Vars.content.statusEffect("loveclab-sta-slightly-injured");
       let sta2 = Vars.content.statusEffect("loveclab-sta-injured");
@@ -58,10 +60,10 @@
   const comp_update_surrounding = function(utp, unit) {
     if(!TIMER.timerState_unit || !Mathf.chance(VAR.p_unitUpdateP)) return;
 
-    const t = unit.tileOn();
+    let t = unit.tileOn();
     if(t == null) return;
-    const ts = MDL_pos._tsDstManh(t, VAR.r_unitSurRange, true);
-    const staDur = VAR.time_unitStaDef;
+    let ts = MDL_pos._tsDstManh(t, VAR.r_unitSurRange, true);
+    let staDur = VAR.time_unitStaDef;
 
     // Floor
     if(MDL_cond._isOnFloor(unit)) {
@@ -73,7 +75,7 @@
 
 
       // Param
-      let dst = MATH_geometry._dst(ot.worldx(), ot.worldy(), unit.x, unit.y);
+      let dst = Mathf.dst(ot.worldx(), ot.worldy(), unit.x, unit.y);
       let oblk = ot.block();
       let ob = ot.build;
 
@@ -94,14 +96,24 @@
 
 
     });
-
-    ts.clear();
   };
   exports.comp_update_surrounding = comp_update_surrounding;
 
 
   const comp_update_heat = function(utp, unit) {
-    // TODO
+    if(!TIMER.timerState_unit || !Mathf.chance(VAR.p_unitUpdateP * 0.3)) return;
+    if(!MDL_cond._isHeatDamageable(unit)) return;
+
+    let rHeat = MDL_flow._rHeat(unit.tileOn());
+    let rHeatRes = MDL_flow._rHeatRes(utp);
+    let dmg = Time.delta * Mathf.maxZero(rHeat - rHeatRes) * 0.65;
+
+    if(dmg < 0.0001) return;
+
+    FRAG_attack.damage(unit, dmg, true, "heat");
+    if(dmg > 80.0) unit.apply(StatusEffects.melting, VAR.time_unitStaDef);
+    if(dmg > 220.0) unit.apply(Vars.content.statusEffect("loveclab-sta0bur-overheated"));
+    if(Mathf.chance(0.5)) EFF.heatSmog.at(unit);
   }
   .setTodo("Unit heat update.");
   exports.comp_update_heat = comp_update_heat;

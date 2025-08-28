@@ -60,6 +60,21 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Pushes the element only when it's not {null}.
+   * Double equality so {undefined} won't be pushed.
+   * ---------------------------------------- */
+  ptp.pushNonNull = function(ele) {
+    if(ele == null) return this;
+
+    this.push(ele);
+
+    return this;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Pushes every element from {arr_p} to the array.
    * In case of chaining, use this instead of {push}!
    * ---------------------------------------- */
@@ -96,6 +111,25 @@
       eles_p.forEachFast(ele => this.remove(ele));
 
     return this;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Remove some row in a formatted array.
+   * Note that {rowInd} for the 1st row is {0}.
+   * No negative index for reversed order.
+   * ---------------------------------------- */
+  ptp.removeRow = function(ord, rowInd) {
+    if(ord == null) ord = 1;
+    if(rowInd == null) rowInd = 0;
+    // Don't remove anything if index is negative
+    if(rowInd < 0) return;
+
+    let ind = (rowInd + 1) * ord;
+
+    return this.splice(ind, ord);
   };
 
 
@@ -287,6 +321,27 @@
   ptp.looseEquals = function(arr) {
     return this.slice().mixSort().equals(arr.slice().mixSort());
   };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {includes} used for formatted arrays.
+   * ---------------------------------------- */
+  ptp.colIncludes = function(ele, ord, off) {
+    if(ord == null) ord = 1;
+    if(off == null) off = 0;
+
+    let i = off;
+    let iCap = this.iCap();
+    while(i < iCap) {
+      if(this[i] === ele) return true;
+      i += ord;
+    };
+
+    return false;
+  };
+
 
 
   /* ----------------------------------------
@@ -555,6 +610,47 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Like {read} but returns the row index.
+   * Will return {-1} if not found.
+   * ---------------------------------------- */
+  ptp.readRowInd = function(nms_p, unordered) {
+    const thisFun = Array.prototype.readRowInd;
+
+    let i = 0;
+    let iCap = this.iCap();
+    let nms = nms_p instanceof Array ? nms_p : [nms_p];
+    let jCap = nms.iCap();
+    while(i < iCap) {
+      if(thisFun.funBoolF(nms, this, i, jCap, unordered)) return Math.round(i / (jCap + 1));
+      i += jCap + 1;
+    };
+
+    return -1;
+  }
+  .setProp({
+    "funBoolF": (nms, arr, rowCur, fieldAmt, unordered) => {
+      let i = 0;
+      if(!unordered) {
+        while(i < fieldAmt) {
+          if(arr[rowCur + i] !== nms[i]) return false;
+          i++;
+        };
+        return true;
+      } else {
+        let tmpArr = [];
+        while(i < fieldAmt) {
+          tmpArr.push(arr[rowCur + i]);
+          i++;
+        };
+        return nms.looseEquals(tmpArr);
+      };
+    },
+  });
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Returns an array of elements with the same offset (in the same column) in a formatted array.
    * ---------------------------------------- */
   ptp.readCol = function(ord, off) {
@@ -611,6 +707,50 @@
     };
 
     return arr;
+  }
+  .setProp({
+    "funBoolF": (nms, arr, rowCur, fieldAmt, unordered) => {
+      let i = 0;
+      if(!unordered) {
+        while(i < fieldAmt) {
+          if(arr[rowCur + i] !== nms[i]) return false;
+          i++;
+        };
+        return true;
+      } else {
+        let tmpArr = [];
+        while(i < fieldAmt) {
+          tmpArr.push(arr[rowCur + i]);
+          i++;
+        };
+        return nms.looseEquals(tmpArr);
+      };
+    },
+  });
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The other side of {read}, pretty much obvious.
+   * ---------------------------------------- */
+  ptp.write = function(nms_p, val, unordered) {
+    const thisFun = Array.prototype.write;
+
+    let i = 0;
+    let iCap = this.iCap();
+    let nms = nms_p instanceof Array ? nms_p : [nms_p];
+    let jCap = nms.iCap();
+    while(i < iCap) {
+      if(thisFun.funBoolF(nms, this, i, jCap, unordered)) {
+        this[i + jCap] = val;
+        return;
+      };
+      i += jCap + 1;
+    };
+
+    this.pushAll(nms);
+    this.push(val);
   }
   .setProp({
     "funBoolF": (nms, arr, rowCur, fieldAmt, unordered) => {

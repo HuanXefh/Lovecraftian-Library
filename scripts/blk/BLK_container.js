@@ -63,6 +63,8 @@
 
 
   function comp_init(blk) {
+    if(blk.selectionColumns === 4) blk.selectionColumns = 10;
+
     blk.update = true;
 
     blk.configurable = true;

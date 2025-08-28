@@ -43,11 +43,11 @@
   /* <---------- import ----------> */
 
 
+  const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_unit = require("lovec/frag/FRAG_unit");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_pollution = require("lovec/mdl/MDL_pollution");
 
 
   const TP_stat = require("lovec/tp/TP_stat");
@@ -56,12 +56,17 @@
   /* <---------- component ----------> */
 
 
+  function comp_init(utp) {
+    FRAG_faci.comp_init_outline(utp);
+  };
+
+
   function comp_setStats(utp) {
     utp.stats.remove(Stat.mineTier);
 
     if(MDL_cond._isNonRobot(utp)) utp.stats.add(TP_stat.utp_notRobot, true);
 
-    var polTol = MDL_pollution._polTol(utp);
+    var polTol = FRAG_faci._polTol(utp);
     if(!polTol.fEqual(500.0)) utp.stats.add(TP_stat.blk_polTol, polTol, TP_stat.blk_polUnits);
   };
 
@@ -85,7 +90,7 @@
 
 
     init: function(utp) {
-
+      comp_init(utp);
     },
 
 
@@ -109,10 +114,10 @@
     },
 
 
-    /* <---------- status (specific) ----------> */
+    /* <---------- unit type (specific) ----------> */
 
 
-    /* <---------- status (extra) ----------> */
+    /* <---------- unit type (extra) ----------> */
 
 
     // @NOSUPER

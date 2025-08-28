@@ -55,7 +55,7 @@
   exports.time_drownDef = 200.0;
   exports.time_flrStaDef = 40.0;
   exports.time_liqStaDef = 150.0;
-  exports.time_unitStaDef = 100.0;
+  exports.time_unitStaDef = 120.0;
   exports.time_stackStaExtDef = 120.0;
 
 
@@ -70,7 +70,7 @@
   exports.p_effPCap = 0.08;
 
 
-  exports.p_unitUpdateP = 0.25;
+  exports.p_unitUpdateP = 0.6;
   exports.p_polUpdateP = 0.2;
 
 

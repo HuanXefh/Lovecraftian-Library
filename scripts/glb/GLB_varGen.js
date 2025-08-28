@@ -63,6 +63,10 @@
     ];
 
 
+    exports.laserReg = Core.atlas.find("laser");
+    exports.laserEndReg = Core.atlas.find("laser-end");
+
+
     let wireRegMap = new ObjectMap();
     let wireEndRegMap = new ObjectMap();
     DB_block.db["grpParam"]["wireMatReg"].forEachRow(2, (wireMat, nmReg) => {
@@ -73,6 +77,27 @@
     exports.wireEndRegMap = wireEndRegMap;
     exports.wireGlowReg = Core.atlas.find("lovec-ast-wire-glow");
     exports.wireShaReg = Core.atlas.find("lovec-ast-wire-shadow");
+
+
+    let loadTex = (path) => {
+      Core.assets.load(path, Texture);
+      return Core.assets.get(path, Texture);
+    };
+
+
+    let noiseTexs = {
+      caustics: loadTex("sprites/caustics.png"),
+      clouds: loadTex("sprites/clouds.png"),
+      distortAlpha: loadTex("sprites/distortAlpha.png"),
+      fog: loadTex("sprites/fog.png"),
+      noise: loadTex("sprites/noise.png"),
+      noiseAlpha: loadTex("sprites/noiseAlpha.png"),
+    };
+    Object._it(noiseTexs, (key, tex) => {
+      tex.setFilter(Texture.TextureFilter.linear);
+      tex.setWrap(Texture.TextureWrap.repeat);
+    });
+    exports.noiseTexs = noiseTexs;
 
 
   }, 25777741);
@@ -99,9 +124,9 @@
 
     let wes = {};
     Vars.content.weathers().each(wea => {
-      if(wea.ex_getWePermanent == null) return;
+      if(wea.ex_getWeaEnPermanent == null) return;
 
-      wes[wea.name] = wea.ex_getWePermanent();
+      wes[wea.name] = wea.ex_getWeaEnPermanent();
     });
     exports.wes = wes;
 

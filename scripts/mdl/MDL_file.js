@@ -320,7 +320,7 @@
     let dirSubCt = _subContent(nmMod, ctType);
     if(dirSubCt == null) return null;
 
-    var nmCt = ct_gn instanceof UnlockableContent ? String(ct_gn.name).replace(nmMod + "-", "") : ct_gn;
+    var nmCt = ct_gn instanceof UnlockableContent ? ct_gn.name.replace(nmMod + "-", "") : ct_gn;
     let fiSeq = dirSubCt.findAll(fi => (fi.name() === nmCt + ".json") || (fi.name() === nmCt + ".hjson"));
 
     return fiSeq.size === 0 ? null : fiSeq.get(0);
@@ -342,3 +342,20 @@
     return lovecData.child("saves").child(saveSlotCur.file.nameWithoutExtension() + ".lsav");
   };
   exports._lsav = _lsav;
+
+
+  /* <---------- misc ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Tries open the file in explorer, or other file managers.
+   * Open the file directly? Nope, that's a rabbit hole.
+   * ---------------------------------------- */
+  const openFi = function(fi) {
+    if(fi == null || !fi.exists()) return false;
+
+    return Core.app.openFolder(fi.file().path);
+  };
+  exports.openFi = openFi;

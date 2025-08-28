@@ -27,7 +27,7 @@
   const DB_fluid = require("lovec/db/DB_fluid");
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   function halfLogWrap(val, val_hf, val_max, base) {
@@ -471,7 +471,7 @@
    * Gets current fluid heat in a building.
    * ---------------------------------------- */
   const _fHeat_b = function(b, forceCalculation) {
-    let def = PARAM.glbHeat;
+    let def = Object.val(PARAM.glbHeat, 26.0);
     if(b == null) return def;
 
     if(!forceCalculation) {
@@ -496,12 +496,15 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets the range tile at {t}.
+   * Gets the range heat at {t}.
    * ---------------------------------------- */
   const _rHeat = function(t) {
     if(t == null) return 0.0;
 
-    var rHeat = t.build == null ? 0.0 : (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + PARAM.glbHeat);
+    var rHeat = t.build == null ? 0.0 : (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + Object.val(PARAM.glbHeat, 26.0));
+
+    rHeat += t.floor().attributes.get(Attribute.get("lovec-attr0env-heat")) * 100.0;
+
     for(let i = 0; i < 4; i++) {
       let ot = t.nearby(i);
       if(ot == null || ot.build == null) continue;
@@ -512,3 +515,14 @@
     return rHeat;
   };
   exports._rHeat = _rHeat;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the range heat resistence for a unit type.
+   * ---------------------------------------- */
+  const _rHeatRes = function(utp) {
+    return Math.sqrt(utp.health) * utp.hitSize * 0.5;
+  };
+  exports._rHeatRes = _rHeatRes;

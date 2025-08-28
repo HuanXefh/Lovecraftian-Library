@@ -278,7 +278,7 @@ ptp.normalize = function(def) {
   if(def == null) def = 1.0;
 
   let len = this.len();
-  if(Number(def).fEqual(0.0)) return this;                // Does nothing for zero vector
+  if(def.fEqual(0.0)) return this;                // Does nothing for zero vector
   let i = 0;
   let iCap = this.dimension();
   while(i < iCap) {

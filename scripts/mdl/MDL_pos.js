@@ -21,8 +21,10 @@
 
   const sizeOffsetPons2 = [
 
+    [],
+
     [
-      new Point2(0, 0)
+      new Point2(0, 0),
     ],
 
     [
@@ -71,14 +73,14 @@
 
   const _playerX = function() {
     var unit_pl = Vars.player.unit();
-    return unit_pl == null ? null : unit_pl.x;
+    return unit_pl == null ? Infinity : unit_pl.x;
   };
   exports._playerX = _playerX;
 
 
   const _playerY = function() {
     var unit_pl = Vars.player.unit();
-    return unit_pl == null ? null : unit_pl.y;
+    return unit_pl == null ? Infinity : unit_pl.y;
   };
   exports._playerY = _playerY;
 
@@ -94,7 +96,7 @@
   const _dstT = function(tx1, ty1, tx2, ty2) {
     if(tx1 == null || ty1 == null || tx2 == null || ty2 == null) return MATH_base.maxDst;
 
-    return MATH_geometry._dst(tx1, ty1, tx2, ty2) * Vars.tilesize;
+    return Mathf.dst(tx1, ty1, tx2, ty2) * Vars.tilesize;
   };
   exports._dstT = _dstT;
 
@@ -210,7 +212,7 @@
 
     return _rayBool_base(x1, y1, x2, y2, (tx, ty) => {
       let ot = Vars.world.tile(tx, ty);
-      if(MATH_geometry._dst(x1, y1, x2, y2) < minRad) return false;
+      if(Mathf.dst(x1, y1, x2, y2) < minRad) return false;
 
       return ot != null && (ot.floor() instanceof EmptyFloor || ot.floor().isLiquid);
     });
@@ -243,14 +245,12 @@
    *
    * Gets the first insulated building on the way.
    * ---------------------------------------- */
-  const _rayGet_insulated = function(x1, y1, x2, y2) {
+  const _rayGet_insulated = function(x1, y1, x2, y2, team) {
     return _rayGet_base(x1, y1, x2, y2, (tx, ty) => {
-
       tmpRayGet = Vars.world.build(tx, ty);
 
-      if(tmpRayGet == null) return false;
+      if(tmpRayGet == null) return true;
       if(tmpRayGet.isInsulated()) return team == null ? true : tmpRayGet.team !== team;
-
     });
   };
   exports._rayGet_insulated = _rayGet_insulated;
@@ -261,14 +261,12 @@
    *
    * Gets the first laser-absorbing building on the way.
    * ---------------------------------------- */
-  const _rayGet_laser = function(x1, y1, x2, y2) {
+  const _rayGet_laser = function(x1, y1, x2, y2, team) {
     return _rayGet_base(x1, y1, x2, y2, (tx, ty) => {
-
       tmpRayGet = Vars.world.build(tx, ty);
 
       if(tmpRayGet == null) return false;
       if(tmpRayGet.block.absorbLasers) return team == null ? true : tmpRayGet.team !== team;
-
     });
   };
   exports._rayGet_laser = _rayGet_laser;
@@ -281,14 +279,37 @@
    * ---------------------------------------- */
   const _rayGet_solid = function(x1, y1, x2, y2) {
     return _rayGet_base(x1, y1, x2, y2, (tx, ty) => {
-
       tmpRayGet = Vars.world.tile(tx, ty);
 
-      return tmpRayGet != null && tmpRayGet.solid();
-
+      return tmpRayGet == null || tmpRayGet.solid();
     });
   };
   exports._rayGet_solid = _rayGet_solid;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the last non-solid tile on the way.
+   * On rare occasions the result can be {null}.
+   * ---------------------------------------- */
+  const _rayGet_nonSolid = function(x1, y1, x2, y2) {
+    let tmp = Vars.world.tile(x1, y1);
+
+    if(!_rayBool_base(x1, y1, x2, y2, (tx, ty) => {
+      tmpRayGet = Vars.world.tile(tx, ty);
+
+      if(tmpRayGet != null && !tmpRayGet.solid()) {
+        tmp = tmpRayGet;
+        return false;
+      } else return true;
+    })) {
+      tmp = Vars.world.tile(x2, y2);
+    };
+
+    return tmp;
+  };
+  exports._rayGet_nonSolid = _rayGet_nonSolid;
 
 
   /* ----------------------------------------
@@ -298,11 +319,10 @@
    * ---------------------------------------- */
   const _rayGet_unit = function(x1, y1, x2, y2, boolF, caller) {
     return _rayGet_base(x1, y1, x2, y2, (tx, ty) => {
-
       tmpRayGet = _unit(tx * Vars.tilesize, ty * Vars.tilesize, 4.0, caller);
 
-      return tmpRayGet != null && boolF(tmpRayGet);
-
+      if(tmpRayGet == null) return false;
+      return boolF(tmpRayGet);
     });
   };
   exports._rayGet_unit = _rayGet_unit;
@@ -383,7 +403,7 @@
     let i = 0;
     var t = null;
     while((i < iCap && !boolF(t)) || i === 0) {
-      t = ts[Number(iCap - 1.0).randInt()];
+      t = ts[(iCap - 1.0).randInt()];
       i++;
     };
 
@@ -704,7 +724,7 @@
     let y2 = y + rad * Mathf.sinDeg(ang + 210.0);
     let x3 = x + rad * Mathf.cosDeg(ang + 330.0);
     let y3 = y + rad * Mathf.sinDeg(ang + 330.0);
-    let r = Math.ceil(Math.abs(MATH_geometry._dst(x1, y1, x2, y2) * Mathf.sinDeg(120.0 - ang) * 0.5) / Vars.tilesize);
+    let r = Math.ceil(Math.abs(Mathf.dst(x1, y1, x2, y2) * Mathf.sinDeg(120.0 - ang) * 0.5) / Vars.tilesize);
 
     let iBase = -r;
     let iCap = r + 1;
@@ -773,44 +793,44 @@
   /* <---------- entity ----------> */
 
 
-  /* generic */
+  /* filter */
 
 
-  const filter_base = function(es, scr) {
+  const _f_base = function(es, scr) {
     return es.filter(e => scr(e));
   };
-  exports.filter_base = filter_base;
+  exports._f_base = _f_base;
 
 
-  const filter_nm = function(es, nm) {
-    return filter_base(es, e => {
+  const _f_nm = function(es, nm) {
+    return _f_base(es, e => {
       if(e instanceof Building) return e.block.name === nm;
       if(e instanceof Unit) return e.type.name === nm;
 
       return false;
     });
   };
-  exports.filter_nm = filter_nm;
+  exports._f_nm = _f_nm;
 
 
-  const filter_team = function(es, team) {
-    return filter_base(es, e => {
+  const _f_team = function(es, team) {
+    return _f_base(es, e => {
       return e.team === team;
     });
   };
-  exports.filter_team = filter_team;
+  exports._f_team = _f_team;
 
 
-  const filter_enemy = function(es, team) {
-    return filter_base(es, e => {
+  const _f_enemy = function(es, team) {
+    return _f_base(es, e => {
       return (e.team !== Team.derelict) && (e.team !== team) && ((e instanceof Building) ? e.block.targetable : e.type.targetable);
     });
   };
-  exports.filter_enemy = filter_enemy;
+  exports._f_enemy = _f_enemy;
 
 
-  const filter_same = function(es, nm, team) {
-    return filter_base(es, e => {
+  const _f_same = function(es, nm, team) {
+    return _f_base(es, e => {
       if(e.team !== team) return false;
 
       if(e instanceof Building) return e.block.name === nm;
@@ -819,7 +839,7 @@
       return false;
     });
   };
-  exports.filter_same = filter_same;
+  exports._f_same = _f_same;
 
 
   /* building */
@@ -869,16 +889,42 @@
    * NOTE:
    *
    * Base for methods that find a building with {boolF}.
+   * {team} is required.
    * ---------------------------------------- */
   const _b_base = function(x, y, team, rad, boolF) {
-    if(team == null) return;
-
+    if(team == null) return null;
     if(rad == null) rad = MATH_base.maxDst;
-    if(rad < 0.0001) return;
+    if(rad < 0.0001) return null;
 
     return Vars.indexer.findTile(team, x, y, rad, boolF);
   };
   exports._b_base = _b_base;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a container for item transfer.
+   * ---------------------------------------- */
+  const _b_cont = function(x, y, team, rad, itm, amt) {
+    if(itm == null) return null;
+    if(amt == null) amt = 0;
+    if(amt < 1) return null;
+
+    return _b_base(x, y, team, rad, b => MDL_cond._isCont(b.block) && b.acceptStack(itm, amt) >= amt);
+  };
+  exports._b_cont = _b_cont;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets an active ore scanner in range.
+   * ---------------------------------------- */
+  const _b_scan = function(x, y, team, rad) {
+    return _b_base(x, y, team, rad, b => MDL_cond._isOreScanner(b.block) && b.efficiency > 0.0);
+  };
+  exports._b_scan = _b_scan;
 
 
   /* unit */
@@ -1041,8 +1087,8 @@
     if(rad < 0.0001) return arr;
     if(size == null) size = 1;
 
-    arr.pushAll(filter_enemy(_units(x, y, rad, null, useTmp), team));
-    arr.pushAll(filter_enemy(_bs(_tsCircle(_tPos(x, y), rad / Vars.tilesize, size, useTmp), useTmp), team));
+    arr.pushAll(_f_enemy(_units(x, y, rad, null, useTmp), team));
+    arr.pushAll(_f_enemy(_bs(_tsCircle(_tPos(x, y), rad / Vars.tilesize, size, useTmp), useTmp), team));
 
     return arr;
   }
@@ -1073,15 +1119,15 @@
     if(chainRayBool == null) chainRayBool = Function.airFalse;
 
     const units = _units_tg(x, y, team, rad * 2.0, size, useTmp);
-    var tmpTg;
-    var tmpX = Number(x);
-    var tmpY = Number(y);
-    var isFirst = true;
+    let tmpTg;
+    let tmpX = x;
+    let tmpY = y;
+    let isFirst = true;
     let i = 0;
     while(chainCap < 0 ? true : i < chainCap) {
       tmpTg = Geometry.findClosest(tmpX, tmpY, units);
       if(tmpTg == null) break;
-      if(MATH_geometry._dst(tmpX, tmpY, tmpTg.x, tmpTg.y) > (isFirst ? rad : rad_chain) + 0.0001) break;
+      if(Mathf.dst(tmpX, tmpY, tmpTg.x, tmpTg.y) > (isFirst ? rad : rad_chain) + 0.0001) break;
       if(chainRayBool(tmpX, tmpY, tmpTg.x, tmpTg.y)) break;
 
       arr.push(tmpTg);
@@ -1119,7 +1165,7 @@
     Groups.player.each(pl => {
       var unit = pl.unit();
       if(unit != null && (team == null || unit.team === team)) {
-        let dst = MATH_geometry._dst(x, y, unit.x, unit.y);
+        let dst = Mathf.dst(x, y, unit.x, unit.y);
         if(dst < tmpRad) {
           tmpRad = dst;
           unit_pl = unit;
@@ -1176,7 +1222,7 @@
     Groups.bullet.intersect(x - rad, y - rad, rad * 2.0, rad * 2.0).select(bul => {
       return bul.team !== team && (ignoreHittable ? true : bul.type.hittable) && bul !== caller;
     }).each(bul => {
-      let dst = MATH_geometry._dst(x, y, bul.x, bul.y);
+      let dst = Mathf.dst(x, y, bul.x, bul.y);
       if(dst < tmpDst) {
         tmpDst = dst;
         bulTg = bul;

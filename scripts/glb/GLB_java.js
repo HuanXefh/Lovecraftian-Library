@@ -25,7 +25,7 @@
   /* <---------- import ----------> */
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   function getArrayClass(javaCls) {

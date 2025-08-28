@@ -96,7 +96,7 @@
         + "\n- Memory use mean: " + Strings.fixed(memUseMeanData.mean(), 3) + " MB"
         + "\n- Max memory used: " + _memUseMax() + " MB"
         + "\n- Memory increase slope: " + Strings.fixed(_memIncSlp(), 8)
-        + "\n- Memory leak significance: " + Number(_memLeakSig()).perc(3)
+        + "\n- Memory leak significance: " + _memLeakSig().perc(3)
     );
     memMonitorCount++;
   };

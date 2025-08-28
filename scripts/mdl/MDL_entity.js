@@ -123,8 +123,8 @@
   const _warmup = function(b) {
     if(b == null) return 0.0;
 
-    var warmup = Math.max(b.warmup, 0.0);
-    if(isNaN(warmup)) warmup = Math.max(b.warmup(), 0.0);
+    var warmup = Mathf.maxZero(b.warmup);
+    if(isNaN(warmup)) warmup = Mathf.maxZero(b.warmup());
 
     return warmup;
   };
@@ -202,6 +202,13 @@
     return;
   };
   exports._stackStaFirst = _stackStaFirst;
+
+
+  const rotateUnit = function(unit, ang) {
+    unit.rotation += ang;
+    if(unit.baseRotation != null) unit.baseRotation += ang;
+  };
+  exports.rotateUnit = rotateUnit;
 
 
   /* <---------- bullet ----------> */

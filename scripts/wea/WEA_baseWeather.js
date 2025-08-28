@@ -99,17 +99,17 @@
 
 
     // @NOSUPER
-    ex_getWe: function(wea, minFreq, maxFreq, minDur, maxDur) {
+    ex_getWeaEn: function(wea, minFreq, maxFreq, minDur, maxDur) {
       return new Weather.WeatherEntry(wea, minFreq, maxFreq, minDur, maxDur);
     },
 
 
     // @NOSUPER
-    ex_getWePermanent: function(wea) {
-      let we = new Weather.WeatherEntry(wea);
-      we.always = true;
+    ex_getWeaEnPermanent: function(wea) {
+      let weaEn = new Weather.WeatherEntry(wea);
+      weaEn.always = true;
 
-      return we;
+      return weaEn;
     },
 
 

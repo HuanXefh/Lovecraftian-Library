@@ -8,10 +8,8 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Vanilla liquid junction.
-   * Cannot transport abstract fluids.
-   *
-   * This does not inherit methods from {BLK_baseFluidBlock}, but I will call it a fluid block.
+   * @SINGLESIZE
+   * Toggable liquid junction.
    * ---------------------------------------- */
 
 

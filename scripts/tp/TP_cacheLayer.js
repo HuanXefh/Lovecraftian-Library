@@ -11,7 +11,7 @@
   const TP_shader = require("lovec/tp/TP_shader");
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   const newIns_shader = function(shader) {

@@ -24,14 +24,13 @@
    * KEY:
    *
    * b.lastTg: null
-   * b.isTall: false
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * PARAM:
    *
-   * DB_block.db["group"]["tall"]    // @PARAM: Whether this is a tall bridge.
+   * !NOTHING
    * ---------------------------------------- */
 
 
@@ -52,9 +51,6 @@
   const MDL_draw = require("lovec/mdl/MDL_draw");
 
 
-  const DB_block = require("lovec/db/DB_block");
-
-
   /* <---------- component ----------> */
 
 
@@ -66,11 +62,6 @@
 
   function comp_setStats(blk) {
     blk.stats.add(Stat.range, blk.range, StatUnit.blocks);
-  };
-
-
-  function comp_created(b) {
-    b.isTall = DB_block.db["group"]["tall"].includes(b.block.name);
   };
 
 
@@ -86,11 +77,8 @@
 
   function comp_acceptItem(b, b_f, itm) {
     b.lastTg = itm;
-    var cond = true;
 
-    if(b.isTall && !MDL_cond._isTallSource(b_f.block)) cond = false;
-
-    return cond;
+    return true;
   };
 
 
@@ -129,7 +117,6 @@
 
     created: function(b) {
       PARENT.created(b);
-      comp_created(b);
     },
 
 

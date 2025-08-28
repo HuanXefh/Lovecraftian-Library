@@ -142,11 +142,14 @@
       exports.drawMissileStat = MDL_util._cfg("unit0stat-missile");
       exports.drawBuildStat = MDL_util._cfg("unit0stat-build");
       exports.drawUnitNearMouse = MDL_util._cfg("unit0stat-mouse");
+      exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
 
 
       exports.displayDamage = MDL_util._cfg("damagedisplay-show");
       exports.damageDisplayThreshold = MDL_util._cfg("damagedisplay-min", true);
-      exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
+
+
+      exports.showWindow = MDL_util._cfg("window-show");
 
 
       secretCode = MDL_util._cfg("misc-secret-code");

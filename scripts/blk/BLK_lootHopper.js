@@ -72,7 +72,6 @@
 
   function comp_created(b) {
     b.tsGetter = () => MDL_pos._tsBuild(b);
-    b.ts = b.tsGetter(b);
   };
 
 

@@ -67,7 +67,7 @@
   const DB_misc = require("lovec/db/DB_misc");
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   function getGlowAlpha(x1, y1, x2, y2) {

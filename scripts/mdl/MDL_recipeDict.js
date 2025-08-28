@@ -8,6 +8,9 @@
   /* <---------- import ----------> */
 
 
+  const ANNO = require("lovec/glb/BOX_anno");
+
+
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
 
@@ -44,7 +47,10 @@
       amt * p,
       Object.val(data, Object.air),
     );
-  };
+  }
+  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+    null, null, "number", "number", null,
+  ]]);
   exports.addItmConsTerm = addItmConsTerm;
 
 
@@ -67,7 +73,10 @@
       amt,
       Object.val(data, Object.air),
     );
-  };
+  }
+  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+    null, null, "number", null,
+  ]]);
   exports.addFldConsTerm = addFldConsTerm;
 
 
@@ -92,7 +101,10 @@
       amt * p,
       Object.val(data, Object.air),
     );
-  };
+  }
+  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+    null, null, "number", "number", null,
+  ]]);
   exports.addItmProdTerm = addItmProdTerm;
 
 
@@ -115,7 +127,10 @@
       amt,
       Object.val(data, Object.air),
     );
-  };
+  }
+  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+    null, null, "number", null,
+  ]]);
   exports.addFldProdTerm = addFldProdTerm;
 
 

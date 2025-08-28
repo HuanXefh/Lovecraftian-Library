@@ -38,12 +38,12 @@
   let rules = null;
   let nmMapCur = "";
   let hasInit = false;
-  let hasWe = false;
+  let hasWea = false;
 
 
   function comp_init() {
     rules = Vars.state.rules;
-    hasWe = false;
+    hasWea = false;
 
     hasInit = true;
   };
@@ -64,25 +64,25 @@
 
 
   function comp_updateWeather() {
-    if(hasWe || !Vars.state.isGame() || Vars.state.isEditor() || PARAM.mapCur == null) return;
+    if(hasWea || !Vars.state.isGame() || Vars.state.isEditor() || PARAM.mapCur == null) return;
 
     let nmWeas = DB_env.db["param"]["map"]["we"].read(PARAM.mapCur.plainName(), Array.air);
     if(nmWeas.length > 0) {
       Groups.weather.clear();
-      
-      let weSeq = new Seq();
+
+      let weaEnSeq = new Seq();
       nmWeas.forEach(nmWea => {
-        let we = VARGEN.wes[nmWea];
-        if(we == null) {
+        let weaEn = VARGEN.wes[nmWea];
+        if(weaEn == null) {
           Log.warn("[LOVEC] Invalid weather name: " + nmWea);
         } else {
-          weSeq.add(we);
+          weaEnSeq.add(weaEn);
         };
       });
-      rules.weather = weSeq;
+      rules.weather = weaEnSeq;
     };
 
-    hasWe = true;
+    hasWea = true;
   };
 
 

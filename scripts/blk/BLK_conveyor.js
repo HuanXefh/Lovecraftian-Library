@@ -51,6 +51,7 @@
   const PARENT = require("lovec/blk/BLK_baseItemDistributor");
 
 
+  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
 
@@ -73,7 +74,7 @@
     let b_s2 = b.nearby((b.rotation + 3) % 4);
     if(b_s1 != null && b_s1.block instanceof Conveyor && b_s1.team === b.team && b_s1.nearby(b_s1.rotation) === b) cond1 = false;
     if(b_s2 != null && b_s2.block instanceof Conveyor && b_s2.team === b.team && b_s2.nearby(b_s2.rotation) === b) cond1 = false;
-    if(b_f != null && b_f.team === b.team && (b_f.block.outputsItems() || b_f.block instanceof Conveyor)) cond1 = false;
+    if(b_f != null && b_f.team === b.team && (b_f.block.outputsItems() || b_f.block instanceof Conveyor) && !MDL_cond._isCable(b_f.block)) cond1 = false;
     if(b_t != null && b_t.team === b.team && b_t.items != null) cond2 = false;
 
     b.shouldDrawSide1 = cond1;

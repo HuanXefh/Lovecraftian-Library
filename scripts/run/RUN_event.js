@@ -115,7 +115,7 @@
 
 
   function evComp_draw_unitStat() {
-    if(!PARAM.drawUnitStat) return;
+    if(!PARAM.drawUnitStat || !Vars.ui.hudfrag.shown) return;
 
     Groups.unit.each(unit => {
       var cond = true;
@@ -163,7 +163,7 @@
 
 
   function evComp_draw_buildStat() {
-    if(!PARAM.drawBuildStat) return;
+    if(!PARAM.drawBuildStat || !Vars.ui.hudfrag.shown) return;
 
     let t = MDL_pos._tMouse();
     let b = t == null ? null : t.build;
@@ -215,7 +215,7 @@
     };
 
     // Draw mouse building if not player
-    if(b != null && (!PARAM.drawPlayerStat || b !== b_pl)) {
+    if(b != null && !b.block.privileged && (!PARAM.drawPlayerStat || b !== b_pl)) {
       MDL_draw.drawUnit_healthBar(
         b,
         b.health / b.maxHealth,
@@ -267,10 +267,10 @@
 
 
   function evComp_draw_extraInfo() {
-    if(!PARAM.showExtraInfo) return;
+    if(!PARAM.showExtraInfo || !Vars.ui.hudfrag.shown) return;
 
     let t = MDL_pos._tMouse();
-    
+
     MDL_draw.comp_drawSelect_extraInfo(t);
   };
 

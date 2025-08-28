@@ -26,7 +26,6 @@
    * b.craftSound: se_gn    // @PARAM
    * b.useCep: bool    // @PARAM: Whether this factory is affected by core energy.
    * b.noDump: bool    // @PARAM: Whether this factory never actively dumps items.
-   * b.isTall: false
    * b.rcHeader: ""
    * b.validTup: null
    * b.timeScl: 1.0
@@ -55,7 +54,6 @@
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM: CEPs used by this block.
-   * DB_block.db["group"]["tall"]    // @PARAM: Whether this is a tall building.
    * ---------------------------------------- */
 
 
@@ -89,14 +87,11 @@
   const MDL_table = require("lovec/mdl/MDL_table");
 
 
-  const DB_block = require("lovec/db/DB_block");
-
-
   const TP_stat = require("lovec/tp/TP_stat");
   const TP_table = require("lovec/tp/TP_table");
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   function getProgInc(b, time) {
@@ -187,12 +182,12 @@
         b.ex_updateParams(rcMdl, b.rcHeader, true);
       };
     });
-
-    b.isTall = DB_block.db["group"]["tall"].includes(b.block.name);
   };
 
 
   function comp_updateTile(b) {
+    if(b.useCep) FRAG_faci.comp_updateTile_cepEff(b);
+
     if(PARAM.updateSuppressed) return;
 
     b.ex_updateParams(b.block.ex_getRcMdl(), b.rcHeader, false);
@@ -335,7 +330,6 @@
   function comp_acceptItem(b, b_f, itm) {
     if(b.items == null) return false;
     if(b.items.get(itm) >= b.getMaximumAccepted(itm)) return false;
-    if(b.isTall && !MDL_cond._isTallSource(b_f.block)) return false;
     if(!FRAG_recipe._hasInput(itm, b.ci, b.bi, b.aux, b.opt)) return false;
 
     return true;
@@ -395,7 +389,7 @@
     b.efficiency = b.tmpEffc;
     if(b.useCep) b.efficiency *= FRAG_faci._cepEffcCur(b.team);
 
-    if(b.ex_getTimerEffc()) {
+    if(b.ex_getTimerEffcState()) {
       b.tmpEffc = b.ex_getEffc();
       b.progInc = getProgInc(b, b.block.craftTime);
       b.progIncLiq = getProgInc(b, 1.0);
@@ -621,7 +615,7 @@
 
 
     // @NOSUPER
-    ex_getTimerEffc: function(b) {
+    ex_getTimerEffcState: function(b) {
       return TIMER.timerState_effc;
     },
 

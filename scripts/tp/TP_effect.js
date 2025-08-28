@@ -878,7 +878,7 @@
 
   const _ventSmog = function(size, rad, color_gn, scl) {
     if(size == null) size = 10.0;
-    if(rad == null) rad = 10.0;
+    if(rad == null) rad = 20.0;
     if(color_gn == null) color_gn = "7898ba";
     if(scl == null) scl = 1.0;
 
@@ -911,9 +911,9 @@
 
       /* angle & length */
 
-      baseRotation: 0.0,
+      baseRotation: 15.0,
       offset: 0.0,
-      cone: 180.0,
+      cone: 40.0,
       spin: 0.0,
       randLength: true,
       length: rad,

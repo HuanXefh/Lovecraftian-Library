@@ -188,7 +188,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * How many pollution points the block generates (per tile).
+     * How many pollution points the block generates.
      * ---------------------------------------- */
     "pol": [],
 
@@ -340,6 +340,14 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
+     * Theses fluid pipes will short-circuit if powered somehow.
+     * ---------------------------------------- */
+    "shortCircuitPipe": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * These blocks provide magnetic disturbance.
      * ---------------------------------------- */
     "magnetic": [],
@@ -348,10 +356,10 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These blocks will only accept items from a material hoist or other tall buildings.
-     * Does not work for all types of blocks.
+     * These blocks won't get involved in reaction at all.
+     * No need to put core blocks here.
      * ---------------------------------------- */
-    "tall": [],
+    "noReac": [],
 
 
     /* ----------------------------------------
@@ -555,7 +563,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These blocks by default cannot hold auxilliary fluids.
+     * These blocks by default cannot hold auxiliay fluids.
      * ---------------------------------------- */
     "nonAux": [
 

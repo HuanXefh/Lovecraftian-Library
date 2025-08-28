@@ -74,7 +74,6 @@
 
 
   function comp_created(b) {
-    if(b.tsGetter != null) b.ts = b.tsGetter(b);
     b.amtRun = DB_block.db["param"]["amount"]["base"].read(b.block.name, 0);
     b.intvRun = DB_block.db["param"]["time"]["base"].read(b.block.name, Infinity);
   };
@@ -84,6 +83,11 @@
     b.dump();
 
     if(b.timerCall.get(b.intvRun)) b.ex_lootCall();
+  };
+
+
+  function comp_onProximityUpdate(b) {
+    if(b.tsGetter != null) b.ts = b.tsGetter();
   };
 
 
@@ -139,6 +143,7 @@
 
     onProximityUpdate: function(b) {
       PARENT.onProximityUpdate(b);
+      comp_onProximityUpdate(b);
     },
 
 

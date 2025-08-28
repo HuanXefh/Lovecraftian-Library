@@ -32,6 +32,7 @@
 
 
   const CLS_matrix = require("lovec/cls/math/CLS_matrix");
+  const CLS_tree = require("lovec/cls/struct/CLS_tree");
 
 
   const MATH_base = require("lovec/math/MATH_base");
@@ -54,10 +55,15 @@
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_file = require("lovec/mdl/MDL_file");
   const MDL_json = require("lovec/mdl/MDL_json");
+  const MDL_market = require("lovec/mdl/MDL_market");
   const MDL_pos = require("lovec/mdl/MDL_pos");
+  const MDL_reaction = require("lovec/mdl/MDL_reaction");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_test = require("lovec/mdl/MDL_test");
+  const MDL_text = require("lovec/mdl/MDL_text");
   const MDL_ui = require("lovec/mdl/MDL_ui");
+  const MDL_util = require("lovec/mdl/MDL_util");
 
 
   const TP_dial = require("lovec/tp/TP_dial");
@@ -113,6 +119,7 @@
 
 
       cls_matrix: CLS_matrix,
+      cls_tree: CLS_tree,
 
 
       math_base: MATH_base,
@@ -134,9 +141,14 @@
       mdl_effect: MDL_effect,
       mdl_file: MDL_file,
       mdl_json: MDL_json,
+      mdl_market: MDL_market,
       mdl_pos: MDL_pos,
+      mdl_reaction: MDL_reaction,
       mdl_recipe: MDL_recipe,
+      mdl_recipeDict: MDL_recipeDict,
+      mdl_text: MDL_text,
       mdl_ui: MDL_ui,
+      mdl_util: MDL_util,
 
 
       tp_dial: TP_dial,
@@ -178,8 +190,8 @@
           "[LOVEC] CEP stats for " + team.toString().color(team.color)
             + "\n- CEP provided: " + Strings.fixed(FRAG_faci._cepCapCur(team), 2)
             + "\n- CEP used: " + Strings.fixed(FRAG_faci._cepUseCur(team), 2)
-            + "\n- CEP fraction: " + Number(FRAG_faci._cepFracCur(team)).perc()
-            + "\n- CEP efficiency: " + Number(FRAG_faci._cepEffcCur(team)).perc()
+            + "\n- CEP fraction: " + FRAG_faci._cepFracCur(team).perc()
+            + "\n- CEP efficiency: " + FRAG_faci._cepEffcCur(team).perc()
         );
       },
 

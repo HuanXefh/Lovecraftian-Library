@@ -67,20 +67,13 @@
   const TP_stat = require("lovec/tp/TP_stat");
 
 
-  /* <---------- auxilliary ----------> */
+  const DB_env = require("lovec/db/DB_env");
 
 
-  const params = [
-    "tree", "scl", 1.0,
-    "tree", "mag", 1.0,
-    "tree", "wob", 1.0,
-    "bush", "scl", 0.5,
-    "bush", "mag", 1.5,
-    "bush", "wob", 0.7,
-    "fungi", "scl", 3.0,
-    "fungi", "mag", 0.4,
-    "fungi", "wob", 0.3,
-  ];
+  /* <---------- auxiliay ----------> */
+
+
+  const treeParams = DB_env.db["grpParam"]["tree"];
 
 
   /* <---------- component ----------> */
@@ -90,9 +83,9 @@
     let treeGrp = blk.ex_getTreeGrp();
     blk.drawTup = [
       Mathf.clamp(blk.armor, 76.0, 80.0),
-      params.read([treeGrp, "scl"], 1.0),
-      params.read([treeGrp, "mag"], 1.0),
-      params.read([treeGrp, "wob"], 1.0),
+      treeParams.read([treeGrp, "scl"], 1.0),
+      treeParams.read([treeGrp, "mag"], 1.0),
+      treeParams.read([treeGrp, "wob"], 1.0),
     ];
   };
 
@@ -104,7 +97,7 @@
     };
 
     var rsLvl = FRAG_faci._treeRsLvl(blk);
-    if(rsLvl > 0.0) blk.stats.add(TP_stat.blk0env_rsLvl, Number(rsLvl).perc());
+    if(rsLvl > 0.0) blk.stats.add(TP_stat.blk0env_rsLvl, rsLvl.perc());
   };
 
 

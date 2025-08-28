@@ -24,7 +24,7 @@
    *
    * blk.armor: f    // @PARAM
    * blk.hidable: bool    // @PARAM
-   * blk.drawUnd: bool    // @PARAM
+   * blk.drawTup: null
    * ---------------------------------------- */
 
 

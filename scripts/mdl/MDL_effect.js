@@ -203,6 +203,44 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Creates a triangular effect that moves towards the nearest core.
+   * Mostly used by CEP consumer blocks.
+   * ---------------------------------------- */
+  const showAt_coreSignal = function(x, y, team, pad, rad) {
+    const thisFun = showAt_coreSignal;
+
+    if(team == null) return;
+    let b = Vars.state.teams.closestCore(x, y, team);
+    if(b == null) return;
+
+    if(pad == null) pad = 0.0;
+    if(rad == null) rad = 120.0;
+
+    showAt(x, y, thisFun.funEff, rad, team.color, [b, pad, Math.random() > 0.5]);
+  }
+  .setAnno(ANNO.__NONHEADLESS__)
+  .setProp({
+    "funEff": new Effect(280.0, eff => {
+      var ang = Mathf.angle(eff.data[0].x - eff.x, eff.data[0].y - eff.y);
+      var size = 24.0 - 18.0 * Interp.pow2Out.apply(1.0 - eff.fout());
+
+      Draw.color(eff.color, Interp.pow2In.apply(1.0 - eff.fin()));
+      Draw.rect(
+        "lovec-efr-triangle-hollow",
+        eff.x + eff.rotation * Mathf.cosDeg(ang) * eff.fin() + eff.data[1] * Mathf.cosDeg(ang),
+        eff.y + eff.rotation * Mathf.sinDeg(ang) * eff.fin() + eff.data[1] * Mathf.sinDeg(ang),
+        size,
+        size,
+        ang + 90.0 + 640.0 * eff.fin() * (eff.data[2] ? -1.0 : 1.0));
+      Draw.reset();
+    }),
+  });
+  exports.showAt_coreSignal = showAt_coreSignal;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Creates a ripple effect on liquid floors.
    * Ignore {liqColor} for dynamic color selection.
    * ---------------------------------------- */
@@ -233,6 +271,7 @@
         Draw.color(Tmp.c1.set(eff.color).mul(1.5));
         Lines.stroke(eff.fout() * 1.4);
         Lines.circle(eff.x, eff.y, eff.fin() * eff.rotation);
+        Draw.reset();
       });
       tmp.layer = Layer.debris - 0.0001;
 
@@ -500,54 +539,45 @@
 
     if(team == null) team = Team.derelict;
 
-    var color = null;
+    let color = null;
+    let str = dmg > 9.9999 ? Strings.fixed(dmg, 0) : (dmg > 0.9999 ? Strings.fixed(dmg, 1) : Strings.fixed(dmg, 2));
     switch(mode) {
       case "health" :
         color = team === Team.derelict ? Color.white : team.color;
         break;
       case "shield" :
         color = Pal.techBlue;
+        str = "<" + str + ">";
         break;
       case "heal" :
         color = Pal.heal;
+        str = "+" + str;
+        break;
+      case "heat" :
+        color = Color.orange;
+        str = "^" + str;
         break;
     };
     if(color == null) return;
 
-    showAround(x, y, thisFun.funEff, 14.0, dmg, color, mode);
+    let sizeScl = Math.max(Math.log((dmg + 10.0) / 10.0), 0.7);
+
+    showAround(x, y, thisFun.funEff, 8.0, dmg, color, [str, sizeScl]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "modes": ["health", "shield", "heal"],
+    "modes": ["health", "shield", "heal", "heat"],
     "funEff": new Effect(40.0, eff => {
-      let dmg = eff.rotation;
-      let mode = eff.data;
-      var sizeScl = Math.max(Math.log((dmg + 10.0) / 10.0), 0.7);
-
-      let strDmg = dmg > 9.9999 ? Strings.fixed(dmg, 0) : (dmg > 0.9999 ? Strings.fixed(dmg, 1) : Strings.fixed(dmg, 2));
-      let str_fi = null;
-      switch(mode) {
-        case "health" :
-          str_fi = strDmg;
-          break;
-        case "shield" :
-          str_fi = "<" + strDmg + ">";
-          break;
-        case "heal" :
-          str_fi = "+" + strDmg;
-          break;
-      };
-
       MDL_draw.drawText(
         eff.x,
         eff.y,
-        str_fi,
-        sizeScl - Interp.pow3In.apply(eff.fin()) * sizeScl,
+        eff.data[0],
+        eff.data[1] - Interp.pow3In.apply(eff.fin()) * eff.data[1],
         eff.color,
         Align.center,
         0.0,
         8.0 * eff.fin(),
-        Math.min(dmg / 10000.0, 10.0),
+        Math.min(eff.rotation / 10000.0, 10.0),
       );
     }),
   });
@@ -557,31 +587,26 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Creates a line effect from (x, y) to {posIns}.
+   * Creates a line effect from (x, y) or {e0} to {e}.
    * ---------------------------------------- */
-  const showBetween_line = function(x, y, posIns, color_gn, strokeScl) {
+  const showBetween_line = function(x, y, e0, e, color_gn, strokeScl) {
     const thisFun = showBetween_line;
 
-    if(posIns == null) return;
+    if(e == null) return;
 
     if(color_gn == null) color_gn = Color.white;
     if(strokeScl == null) strokeScl = 1.0;
 
-    showAt(x, y, thisFun.funEff, strokeScl, MDL_draw._color(color_gn), [x, y, posIns]);
+    showAt(x, y, thisFun.funEff, strokeScl, MDL_draw._color(color_gn), [e0, e]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     "funEff": new Effect(40.0, eff => {
-      var x = eff.data[0];
-      var y = eff.data[1];
-      let e = eff.data[2];
-      var strokeScl = eff.rotation;
-      let color = eff.color;
-      var a = Interp.pow2In.apply(eff.fout()) * color.a;
+      let e0 = eff.data[0];
 
-      Lines.stroke(2.0 * strokeScl, color);
-      Draw.alpha(a);
-      Lines.line(x, y, e.x, e.y);
+      Lines.stroke(2.0 * eff.rotation, eff.color);
+      Draw.alpha(Interp.pow2In.apply(eff.fout()) * eff.color.a);
+      Lines.line(e0 == null ? eff.x : e0.x, e0 == null ? eff.y : e0.y, eff.data[1].x, eff.data[1].y);
       Draw.reset();
     }),
   });
@@ -610,16 +635,17 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Creates a chain lightning effect from (x, y) to {posIns}.
+   * Creates a chain lightning effect from (x, y) to {e}.
    * ---------------------------------------- */
-  const showBetween_lightning = function(x, y, posIns, color_gn, hasSound) {
+  const showBetween_lightning = function(x, y, e, color_gn, hasSound) {
     if(posIns == null) return;
 
     if(color_gn == null) color_gn = Pal.accent;
 
-    showAt(x, y, Fx.chainLightning, 0.0, MDL_draw._color(color_gn), posIns);
+    showAt(x, y, Fx.chainLightning, 0.0, MDL_draw._color(color_gn), e);
     if(hasSound) playAt(x, y, Sounds.spark);
-  };
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
   exports.showBetween_lightning = showBetween_lightning;
 
 
@@ -641,5 +667,80 @@
     };
 
     if(hasSound) playAt(x, y, Sounds.spark);
-  };
+  }
+  .setAnno(ANNO.__NONHEADLESS__);
   exports.showAmong_lightning = showAmong_lightning;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Line effect but replaced with laser.
+   * ---------------------------------------- */
+  const showBetween_laser = function(x, y, e0, e, color_gn, strokeScl, hasLight) {
+    const thisFun = showBetween_laser;
+
+    if(e == null) return;
+
+    if(color_gn == null) color_gn = Pal.accent;
+
+    showAt(x, y, thisFun.funEff, Object.val(strokeScl, 1.0), MDL_draw._color(color_gn), [e0, e, hasLight]);
+  }
+  .setAnno(ANNO.__NONHEADLESS__)
+  .setProp({
+    "funEff": new Effect(30.0, eff => {
+      let e0 = eff.data[0];
+
+      MDL_draw.drawLine_laser(
+        e0 == null ? eff.x : e0.x,
+        e0 == null ? eff.y : e0.y,
+        eff.data[1].x,
+        eff.data[1].y,
+        eff.rotation * Interp.pow2Out.apply(1.0 - eff.fin()),
+        eff.color,
+        Color.white,
+        1.0,
+        eff.data[2],
+      );
+    }),
+  });
+  exports.showBetween_laser = showBetween_laser;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Creates a point laser effect, e.g. the one used in laser defense ability.
+   * ---------------------------------------- */
+  const showBetween_pointLaser = function(x, y, e, color_gn, se_gn) {
+    const thisFun = showBetween_pointLaser;
+
+    if(e == null) return;
+
+    if(color_gn == null) color_gn = Pal.remove;
+
+    let color = MDL_draw._color(color_gn);
+    let tup = [e.x, e.y];
+
+    showAt(x, y, thisFun.funEff1, 0.0, color, tup);
+    showAt(x, y, thisFun.funEff2, 0.0, color, tup);
+    showAt(x, y, thisFun.funEff2, 0.0, color);
+    if(se_gn != null) playAt(x, y, se_gn, 1.0, 1.0, 0.05);
+  }
+  .setAnno(ANNO.__NONHEADLESS__)
+  .setProp({
+    "funEff1": new Effect(30.0, 300.0, eff => {
+      Draw.color(eff.color, eff.fout());
+      Lines.stroke(2.0);
+      Lines.line(eff.x, eff.y, eff.data[0], eff.data[1]);
+      Drawf.light(eff.x, eff.y, eff.data[0], eff.data[1], 20.0, eff.color, 0.65 * eff.fout());
+      Draw.reset();
+    }),
+    "funEff2": new Effect(30.0, eff => {
+      Draw.color(eff.color, eff.fout());
+      eff.data == null ?
+        Fill.circle(eff.x, eff.y, 2.0 + eff.fout()) :
+        Fill.circle(eff.data[0], eff.data[1], 2.0 + eff.fout());
+    }),
+  });
+  exports.showBetween_pointLaser = showBetween_pointLaser;

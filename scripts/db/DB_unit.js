@@ -27,27 +27,18 @@ const db = {
 
         "vela", [0],
         "corvus", [0],
-
         "toxopid", [2],
-
         "omura", [0],
-
         "conquer", [0],
-
         "anthicus", [0, 1],
         "collaris", [0, 1],
-
         "obviate", [0],
 
         "new-horizon-longinus", [0],
         "new-horizon-hurricane", [7],
-
         "new-horizon-saviour", [0],
-
         "new-horizon-declining", [0, 1, 2],
-
         "new-horizon-collapser", [7],
-
         "new-horizon-restriction-enzyme", [0],
         "new-horizon-macrophage", [0],
         "new-horizon-laugra", [4],
@@ -58,9 +49,7 @@ const db = {
 
       "off1": [
 
-
         "new-horizon-macrophage", [3],
-
 
       ],
 
@@ -84,6 +73,17 @@ const db = {
      * Faction for unit type. See {DB_block.db["map"]["faction"]}.
      * ---------------------------------------- */
     "faction": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to add abilities to some unit types.
+     * The ability setter function must be registered first!
+     * See {TP_ability} where {nmAbi} and the function is added to {global.lovecUtil.db.abilitySetter}.
+     * Format: {nmUtp, nmAbi, args}.
+     * ---------------------------------------- */
+    "ability": [],
 
 
   },
@@ -120,7 +120,6 @@ const db = {
     "noRemains": [
 
       "new-horizon-nucleoid",
-
       "new-horizon-guardian",
 
     ],
@@ -134,6 +133,25 @@ const db = {
     "noRemainsMod": [
 
       "aquarion",
+
+    ],
+
+
+  },
+
+
+  "grpParam": {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Outline parameters used for units & turrets.
+     * ---------------------------------------- */
+    "outline": [
+
+      "loveclab", [2, "373a4d"],
+      "projreind", [2, "373a4d"],
 
     ],
 

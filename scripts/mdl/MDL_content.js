@@ -213,7 +213,7 @@
     if(blk.variants === 0) return blk.region;
 
     if(off == null) off = 0;
-    return blk.variantRegions[Mathf.randomSeed(t.pos() + off, 0, Math.max(0, blk.variantRegions.length - 1))];
+    return blk.variantRegions[Mathf.randomSeed(t.pos() + off, 0, Mathf.maxZero(blk.variantRegions.length - 1))];
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports._regVari = _regVari;
@@ -250,34 +250,24 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets an array of random overlay regions.
-   * Mostly used as the base for other functions, since {DB_env.db["map"]["randRegTag"]} requires a mapper function not array.
+   * Returns a function that gets an array of random overlay regions.
+   * See {DB_env.db["map"]["randRegTag"]}.
    * ---------------------------------------- */
-  const _randRegs = function(nm) {
-    const arr = [];
-    if(Vars.headless) return arr;
+  const _randRegsGetter = function(nm) {
+    return function() {
+      const arr = [];
+      if(Vars.headless) return arr;
 
-    let i = 0;
-    while(Core.atlas.has(nm + (i + 1))) {
-      arr.push(Core.atlas.find(nm + (i + 1)));
-      i++;
+      let i = 0;
+      while(Core.atlas.has(nm + (i + 1))) {
+        arr.push(Core.atlas.find(nm + (i + 1)));
+        i++;
+      };
+
+      return arr;
     };
-
-    return arr;
   };
-  exports._randRegs = _randRegs;
-
-
-  const _randRegs_rock = function() {
-    return _randRegs("lovec-ov0rand-rock");
-  };
-  exports._randRegs_rock = _randRegs_rock;
-
-
-  const _randRegs_rockSand = function() {
-    return _randRegs("lovec-ov0rand-rock-sand");
-  };
-  exports._randRegs_rockSand = _randRegs_rockSand;
+  exports._randRegsGetter = _randRegsGetter;
 
 
   /* <---------- resource ----------> */

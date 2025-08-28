@@ -205,7 +205,7 @@
 
     return tb.button(bool ? icon1 : icon2, w, () => {
 
-      Call.tileConfig(Vars.player, b, bool.conj());
+      Call.tileConfig(Vars.player, b, !bool);
       b.deselect();
 
     }).center();
@@ -624,6 +624,91 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Sets a selector for choosing a content.
+   * Improved vanilla {ItemSelection} with better text search.
+   * ---------------------------------------- */
+  const setSelector_ct = function(tb, blk, cts, ctGetter, cfgCaller, closeSelect, rowAmt, colAmt) {
+    if(closeSelect == null) closeSelect = false;
+    if(rowAmt == null) rowAmt = 4;
+    if(colAmt == null) colAmt = 4;
+
+    let search = null;
+    let countRow = 0;
+    let btnGrp = new ButtonGroup();
+    btnGrp.setMinCheckCount(0);
+    btnGrp.setMaxCheckCount(1);
+    const cont = new Table().top();
+    cont.defaults().size(40.0);
+
+    const rebuild = () => {
+      btnGrp.clear();
+      cont.clearChildren();
+
+      let text = search == null ? "" : search.getText().replace("=", "");
+      countRow = 0;
+
+      let arr = cts.filter(ct => text === "" || MDL_text._searchValid(ct, text));
+      let iCap = arr.iCap();
+      if(iCap > 0) {
+        for(let i = 0, j = 0; i < iCap; i++) {
+
+          j += (function(i) {
+            let ct = arr[i];
+            if(!MDL_cond._isRsAvailable(ct)) return 0;
+
+            let btn = cont.button(Tex.whiteui, Styles.clearNoneTogglei, Mathf.clamp(ct.selectionSize, 0.0, 40.0), () => {
+              if(closeSelect) Vars.control.input.config.hideConfig();
+            }).tooltip(ct.localizedName, true).group(btnGrp).get();
+            btn.changed(() => cfgCaller(btn.isChecked() ? ct : null));
+            btn.getStyle().imageUp = new TextureRegionDrawable(ct.uiIcon);
+            btn.update(() => btn.setChecked(ctGetter() === ct));
+
+            return 1;
+          })(i);
+
+          if((j - 1) % colAmt == colAmt - 1) {
+            cont.row();
+            j = 0;
+            countRow++;
+          };
+
+        };
+      };
+
+    };
+    rebuild();
+
+    const root = new Table().background(Styles.black6);
+    if(countRow > rowAmt * 1.5) root.table(Styles.none, tb1 => {
+
+      tb1.image(Icon.zoom).padLeft(4.0);
+      search = tb1.field(null, text => {
+        if(text.endsWith("=")) rebuild();
+      }).padBottom(4.0).left().growX().get();
+      search.setMessageText("@info.lovec-info-search.name");
+
+    }).growX().row();
+
+    const pn = new ScrollPane(cont, Styles.smallPane);
+    pn.setScrollingDisabled(true, false);
+    pn.exited(() => {
+      if(pn.hasScroll()) Core.scene.setScrollFocus(null);
+    });
+    if(blk != null) {
+      pn.setScrollYForce(blk.selectScroll);
+      pn.update(() => blk.selectScroll = pn.getScrollY());
+    };
+    pn.setOverscroll(false, false);
+
+    root.add(pn).maxHeight(rowAmt * 40.0).growX();
+    tb.top().add(root).width(colAmt * 40.0 + 28.0);
+  };
+  exports.setSelector_ct = setSelector_ct;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Sets a selector for choosing multiple contents.
    * ---------------------------------------- */
   const setSelector_ctMulti = function(tb, blk, cts, ctsGetter, cfgCaller, closeSelect, rowAmt, colAmt, max) {
@@ -644,15 +729,10 @@
       btnGrp.clear();
       cont.clearChildren();
 
-      let text = search == null ? "" : search.getText();
+      let text = search == null ? "" : search.getText().replace("=", "");
       countRow = 0;
 
-      let arr = cts.filter(ct => (
-        text === ""
-          || ctsGetter().includes(ct)
-          || ct.localizedName.toLowerCase().includes(text.toLowerCase())
-          || ct.name.includes(text.toLowerCase())
-      ));
+      let arr = cts.filter(ct => text === "" || MDL_text._searchValid(ct, text));
       let iCap = arr.iCap();
       if(iCap > 0) {
         for(let i = 0, j = 0; i < iCap; i++) {
@@ -687,10 +767,12 @@
     if(countRow > rowAmt * 1.5) root.table(Styles.none, tb1 => {
 
       tb1.image(Icon.zoom).padLeft(4.0);
-      search = tb1.field(null, text => rebuild()).padBottom(4.0).left().growX().get();
-      search.setMessageText("@players.search");
+      search = tb1.field(null, text => {
+        if(text.endsWith("=")) rebuild();
+      }).padBottom(4.0).left().growX().get();
+      search.setMessageText("@info.lovec-info-search.name");
 
-    }).fillX().row();
+    }).growX().row();
 
     const pn = new ScrollPane(cont, Styles.smallPane);
     pn.setScrollingDisabled(true, false);
@@ -703,8 +785,8 @@
     };
     pn.setOverscroll(false, false);
 
-    root.add(pn).maxHeight(rowAmt * 40.0);
-    tb.top().add(root);
+    root.add(pn).maxHeight(rowAmt * 40.0).growX();
+    tb.top().add(root).width(colAmt * 40.0 + 28.0);
   };
   exports.setSelector_ctMulti = setSelector_ctMulti;
 
@@ -1076,7 +1158,7 @@
 
               if(failP > 0.0) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "chance-to-fail"),
-                Number(failP).perc(1),
+                failP.perc(1),
               )).left().row();
 
               if(tempReq > 0.0) tb3.add(MDL_text._statText(
@@ -1093,7 +1175,7 @@
 
               if(!durabDecMtp.fEqual(1.0)) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "abrasion-multiplier"),
-                Number(durabDecMtp).perc(),
+                durabDecMtp.perc(),
               )).left().row();
 
               if(lockedByCts.length > 0) {

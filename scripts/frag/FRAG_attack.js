@@ -8,6 +8,7 @@
   /* <---------- import ----------> */
 
 
+  const ANNO = require("lovec/glb/BOX_anno");
   const EFF = require("lovec/glb/GLB_eff");
   const VAR = require("lovec/glb/GLB_var");
 
@@ -20,6 +21,7 @@
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_entity = require("lovec/mdl/MDL_entity");
+  const MDL_net = require("lovec/mdl/MDL_net");
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
@@ -78,16 +80,16 @@
   /* <---------- damage ----------> */
 
 
-  const damage = function(e, dmg, pierceArmor) {
+  const damage = function(e, dmg, pierceArmor, mode_ow) {
     if(e == null) return false;
     if(dmg < 0.0001) return false;
 
     var dmg_fi = MDL_entity._dmgTake(e, dmg, pierceArmor);
     if(e instanceof Building) {
-      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health");
+      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, Object.val(mode_ow, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health"));
       MDL_effect.showAt_flash(e);
     } else {
-      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, e.shield > dmg_fi ? "shield" : "health");
+      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, Object.val(mode_ow, e.shield > dmg_fi ? "shield" : "health"));
     };
 
     pierceArmor ? e.damagePierce(dmg, true) : e.damage(dmg, true);
@@ -139,6 +141,28 @@
   exports.apply_explosion = apply_explosion;
 
 
+  const apply_explosion_global = function(x, y, dmg, rad, shake, noSound) {
+    apply_explosion(x, y, dmg, rad, shake, noSound);
+
+    let payload = Array.toPayload([
+      x,
+      y,
+      dmg,
+      rad,
+      shake,
+      noSound,
+    ]);
+
+    MDL_net.sendPacket("both", "lovec-both-attack-explosion", payload, true, true);
+  }
+  .setAnno(ANNO.__INIT__, null, function() {
+    MDL_net.__packetHandler("both", "lovec-both-attack-explosion", payload => {
+      apply_explosion.apply(this, Array.fromPayload(payload));
+    });
+  });
+  exports.apply_explosion_global = apply_explosion_global;
+
+
   const apply_impact = function(x, y, dmg, staDur, rad, minRad, shake, caller) {
     if(dmg == null) dmg = 0.0;
     if(dmg < 0.0001) return;
@@ -165,10 +189,7 @@
     });
 
     MDL_effect.showAt_shake(x, y, shake);
-
-    // TODO
-  }
-  .setTodo("Iterates through buildings, handle the reaction of impact wave with unstable group items.");
+  };
   exports.apply_impact = apply_impact;
 
 

@@ -52,7 +52,7 @@
   const MDL_content = require("lovec/mdl/MDL_content");
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   function isValidTarget(blk) {

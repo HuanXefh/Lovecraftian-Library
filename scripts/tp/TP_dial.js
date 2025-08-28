@@ -181,7 +181,7 @@
               MDL_table.__rcCt(pn, tmp, amt, p, null, null, thisDial).padRight(72.0);
               pn.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "efficiency-multiplier"),
-                Number(mtp).perc(0),
+                mtp.perc(0),
               )).center().padRight(6.0);
               pn.row();
             };
@@ -261,7 +261,7 @@
                   let craftRate = (!isFinite(craftTime) && rs instanceof Item) ? null : (rs instanceof Item ? (rcDictArr[i + 1] / craftTime * 60.0) : (rcDictArr[i + 1] * 60.0));
                   tb2.add(MDL_text._statText(
                     MDL_bundle._term("lovec", "rate"),
-                    craftRate == null ? "-" : ((craftRate < 0.01 ? "<0.01" : Number(craftRate).roundFixed(2)) + "/s"),
+                    craftRate == null ? "-" : ((craftRate < 0.01 ? "<0.01" : craftRate.roundFixed(2)) + "/s"),
                   )).left().tooltip(typeof craftRate !== "number" ? "-" : (craftRate.roundFixed(7) + "/s"), true).row();
 
                   tb2.table(Styles.none, tb3 => {

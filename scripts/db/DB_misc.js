@@ -1,4 +1,5 @@
 // NOTE: Be careful with any module here to avoid looped reference!
+const PINYIN = require("lovec/lib/pinyin");
 const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_cond = require("lovec/mdl/MDL_cond");
 
@@ -39,7 +40,7 @@ const db = {
         var str = ""
         + MDL_bundle._term("lovec", "liquid") + ": " + Strings.stripColors(liq.localizedName)
         + "\n"
-        + MDL_bundle._term("lovec", "liquid-multiplier") + ": " + Number(t.floor().liquidMultiplier).perc()
+        + MDL_bundle._term("lovec", "liquid-multiplier") + ": " + t.floor().liquidMultiplier.perc()
         + "\n";
 
         return str;
@@ -47,7 +48,7 @@ const db = {
 
       // Conveyor info
       (t, b) => {
-        if(b == null || (!(b.block instanceof Conveyor) && !(b.block instanceof Duct) && !(b.block instanceof StackConveyor))) return;
+        if(b == null || b.items == null || (!(b.block instanceof Conveyor) && !(b.block instanceof Duct) && !(b.block instanceof StackConveyor))) return;
         let itm = b.items.first();
         if(itm == null) return;
 
@@ -107,6 +108,7 @@ const db = {
    * ---------------------------------------- */
   "keyBind": [
 
+    "lovec-setting-toggle-win", KeyCode.semicolon, "lovec",
     "lovec-setting-toggle-unit-stat", KeyCode.unset, "lovec",
     "lovec-setting-toggle-damage-display", KeyCode.unset, "lovec",
 
@@ -156,9 +158,28 @@ const db = {
     "unit0stat-mouse", useScl => Core.settings.getBool("lovec-unit0stat-mouse", true),
     "unit0remains-lifetime", useScl => Core.settings.getInt("lovec-unit0remains-lifetime", 12) * (useScl ? 300.0 : 1.0),
 
+    "window-show", useScl => Core.settings.getBool("lovec-window-show", true),
+
     "misc-secret-code", useScl => Core.settings.getString("lovec-misc-secret-code", ""),
 
   ],
+
+
+  "search": {
+
+
+    "tag": [
+
+      "no:", (ct, str) => !ct.name.toLowerCase().includes(str) && !Strings.stripColors(ct.localizedName).toLowerCase().includes(str) && (!Core.settings.getString("locale") === "zh_CN" || !PINYIN.get(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str)),
+
+      "mod:", (ct, str) => ct.minfo.mod !== null && ct.minfo.mod.name === str,
+
+      "hardness:", (ct, str) => ct instanceof Item && ct.hardness == str,
+
+    ],
+
+
+  },
 
 
   "recipe": {
@@ -299,6 +320,9 @@ const db = {
       "useless-field", "ohno", null,
 
       "scanner-draw", true, null,
+      "dynamic-pollution", 0.0, null,
+      "bits", [], "string",
+      "bit-hash", 48.0, null,
 
     ],
 
@@ -306,11 +330,14 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Properties here are safe to be set by client sides.
+     * Properties here are safe (or required) to be set by client sides.
      * ---------------------------------------- */
     "safe": [
 
       "scanner-draw",
+
+      "bits",
+      "bit-hash",
 
     ],
 
@@ -334,52 +361,6 @@ const db = {
 
 
     },
-
-
-  },
-
-
-  "reaction": {
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * List of fluid reactants and the event called.
-     * This is expected to be read without order.
-     * Format: {reactant1, reactant2, [reaction, param]}.
-     * ---------------------------------------- */
-    "fluid": [
-
-      "GROUP: water", "GROUP: hygroscopic", ["heat", 1.0],
-
-    ],
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * For item reaction. The first reactant is item and second is fluid.
-     * ---------------------------------------- */
-    "item": [
-
-      "ITEMGROUP: denaturing", "GROUP: air", ["denaturing", 1.0],
-
-      "ITEMGROUP: alkali metal", "GROUP: water", ["explosion", 4.0],
-
-      "ITEMGROUP: basic", "GROUP: acidic", ["heat", 1.5],
-      "ITEMGROUP: acidic", "GROUP: basic", ["heat", 1.5],
-
-    ],
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Target item in a denaturing reaction.
-     * If {null} no item will be formed.
-     * ---------------------------------------- */
-    "denaturingTarget": [],
 
 
   },

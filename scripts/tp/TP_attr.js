@@ -18,6 +18,7 @@
 
 
   exports.attr0env_growth = Attribute.add("lovec-attr0env-growth");
+  // NOTE: Heat attribute will damage unit, 1 attr = 100 HU.
   exports.attr0env_heat = Attribute.add("lovec-attr0env-heat");
   exports.attr0env_rain = Attribute.add("lovec-attr0env-rain");
   exports.attr0env_tide = Attribute.add("lovec-attr0env-tide");

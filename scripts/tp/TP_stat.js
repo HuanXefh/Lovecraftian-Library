@@ -109,6 +109,8 @@
   /* block (misc) */
 
 
+  exports.blk0misc_maxDur = newIns_stat("blk0misc-maxdur");
+  exports.blk0misc_reloadTime = newIns_stat("blk0misc-reloadtime");
   exports.blk0misc_cepProv = newIns_stat("blk0misc-cepprov");
   exports.blk0misc_cepUse = newIns_stat("blk0misc-cepuse");
   exports.blk0misc_repairAmt = newIns_stat("blk0misc-repairamt");

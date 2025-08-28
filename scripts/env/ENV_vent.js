@@ -93,7 +93,7 @@
     var ventSize = Math.round(blk.armor);
     if(ventSize > 1 && ventSize < 6) {
       blk.armor = ventSize;
-      blk.pons2 = MDL_pos.sizeOffsetPons2[ventSize - 1];
+      blk.pons2 = MDL_pos.sizeOffsetPons2[ventSize];
       blk.offDraw = (ventSize % 2 === 0) ? 4.0 : 0.0;
     };
 

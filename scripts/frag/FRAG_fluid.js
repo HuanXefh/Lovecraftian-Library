@@ -16,14 +16,17 @@
 
 
   const FRAG_attack = require("lovec/frag/FRAG_attack");
+  const FRAG_puddle = require("lovec/frag/FRAG_puddle");
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_flow = require("lovec/mdl/MDL_flow");
   const MDL_pos = require("lovec/mdl/MDL_pos");
+  const MDL_reaction = require("lovec/mdl/MDL_reaction");
   const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
@@ -116,49 +119,6 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * @FIELD: b.liqEnd, b.presTmp
-   * Moves liquid from {b} to {b_t} occasionally.
-   * Mostly used for conduits.
-   * Do not use this unless you understand everything here.
-   * ---------------------------------------- */
-  const moveLiquid = function(b, b_t, liq) {
-    let amtTrans = 0.0;
-    if(PARAM.updateSuppressed || b_t == null || liq == null) return amtTrans;
-
-    // Called occasionally to update params in {b}
-    if(TIMER.timerState_liq) {
-      b.liqEnd = b_t.getLiquidDestination(b, liq);
-    };
-
-    if(b.liqEnd == null || b.liqEnd.liquids == null) return amtTrans;
-
-    amtTrans = transLiquid(
-      b,
-      b.liqEnd,
-      liq,
-      b.block.liquidCapacity * Math.max(b.liquids.get(liq) / b.block.liquidCapacity - b.liqEnd.liquids.get(liq) / b.liqEnd.block.liquidCapacity, 0.0),
-    );
-
-    if(
-      !b.liqEnd.block.consumesLiquid(liq)
-      && b.liqEnd.liquids.current() !== b.liquids.current()
-      && b.liqEnd.liquids.currentAmount() / b.liqEnd.block.liquidCapacity > 0.1
-      && b.liquids.currentAmount() / b.block.liquidCapacity > 0.1
-    ) {
-
-      // TODO: Call reaction
-
-    };
-
-    return amtTrans;
-  }
-  .setTodo("{MDL_reaction} and reaction handler.");
-  exports.moveLiquid = moveLiquid;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Lets a block that contains pressure/vacuum dump it, which affects {presBase}.
    * Not regular {dumpLiquid}.
    * ---------------------------------------- */
@@ -187,31 +147,6 @@
   exports.dumpPres = dumpPres;
 
 
-  /* <---------- puddle ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Lets a puddle spread and trigger something.
-   * Use {boolF} to filter out tiles to spread to.
-   * Use {scr} to set what will happen if tile (that can be spread to) is beneath the puddle.
-   * ---------------------------------------- */
-  const spreadPuddle = function(puddle, amtDepos, boolF, scr) {
-    if(puddle == null) return;
-
-    if(amtDepos == null) amtDepos = 0.5;
-
-    MDL_pos._tsRect(puddle.tile, 1).forEach(ot => {
-      if(boolF != null && boolF(ot)) {
-        Puddles.deposit(ot, puddle.liquid, Time.delta * amtDepos);
-        if(ot === puddle.tile && scr != null) scr(ot);
-      };
-    });
-  };
-  exports.spreadPuddle = spreadPuddle;
-
-
   /* <---------- component ----------> */
 
 
@@ -233,7 +168,7 @@
    * ---------------------------------------- */
   const comp_update_fuming = function(liq, puddle) {
     if(liq.gas) return;
-    if(!Mathf.chanceDelta(MDL_effect._p_frac(0.03, puddle.amount * 0.04))) return;
+    if(!Mathf.chance(MDL_effect._p_frac(0.03, puddle.amount * 0.04))) return;
     if(!DB_fluid.db["group"]["fuming"].includes(liq.name)) return;
 
     MDL_effect.showAt(puddle.x, puddle.y, EFF.heatSmog);
@@ -248,11 +183,11 @@
    * Check {DB_block.db["group"]["shortCircuit"]}.
    * ---------------------------------------- */
   const comp_update_shortCircuit = function(liq, puddle) {
-    if(PARAM.updateSuppressed || !Mathf.chanceDelta(0.1)) return;
+    if(PARAM.updateSuppressed || !Mathf.chance(0.1)) return;
     if(liq.gas || !MDL_cond._isConductiveLiq(liq)) return;
 
     let t = puddle.tile;
-    spreadPuddle(puddle, 0.5, ot => {
+    FRAG_puddle.spreadPuddle(puddle, 0.5, ot => {
       let ob = ot.build;
       return ob != null && ob.power != null && ob.power.status > 0.0 && MDL_cond._canShortCircuit(ob.block);
     }, ot => {
@@ -305,9 +240,26 @@
    * How puddles call {MDL_reaction}.
    * ---------------------------------------- */
   const comp_update_puddleReaction = function(liq, puddle) {
-    // TODO
-  }
-  .setTodo("How reaction happens in a puddle.");
+    if(!Mathf.chance(0.05)) return;
+
+    let t = puddle.tile;
+    let ot, ob, opuddle;
+    for(let i = 0; i < 8; i++) {
+      ot = t.nearby(Geometry.d8[i]);
+      if(ot == null) continue;
+
+      ob = ot.build;
+      if(ob != null && !MDL_cond._isNoReacBlk(ob.block)) {
+        if(ob.items != null) ob.items.each(itm => MDL_reaction.handleReaction(itm, liq, 20.0, ob));
+        if(ob.liquids != null) MDL_reaction.handleReaction(ob.liquids.current(), liq, 20.0, ob);
+      };
+
+      opuddle = Puddles.get(ot);
+      if(opuddle != null) {
+        MDL_reaction.handleReaction(opuddle.liquid, liq, 20.0, ot);
+      };
+    };
+  };
   exports.comp_update_puddleReaction = comp_update_puddleReaction;
 
 
@@ -338,7 +290,7 @@
    * ---------------------------------------- */
   const comp_updateTile_capAux = function(b) {
     if(b == null) return;
-    if(b.liquids == null || !Mathf.chanceDelta(0.02)) return;
+    if(b.liquids == null || !Mathf.chance(0.02)) return;
 
     var limit = VAR.ct_auxCap;
     b.liquids.each(liq => {
@@ -355,7 +307,7 @@
    * ---------------------------------------- */
   const comp_updateTile_flammable = function(b) {
     if(!Vars.state.rules.reactorExplosions) return;
-    if(!Mathf.chanceDelta(0.004) || b.liquids == null) return;
+    if(!Mathf.chance(0.004) || b.liquids == null) return;
 
     let liqCur = b.liquids.current();
     var cond1 = liqCur.explosiveness > 0.2999 || liqCur.flammability > 0.2999;
@@ -363,7 +315,7 @@
     var cond2 = MDL_pos._tsEdge(b.tile, b.block.size).some(ot => Fires.get(ot.x, ot.y) != null);
     if(!cond2) return;
 
-    FRAG_attack.apply_explosion(b.x, b.y, FRAG_attack._gasExploRad(b.block.size), FRAG_attack._gasExploDmg(b.block.size), 8.0);
+    FRAG_attack.apply_explosion_global(b.x, b.y, FRAG_attack._gasExploRad(b.block.size), FRAG_attack._gasExploDmg(b.block.size), 8.0);
   };
   exports.comp_updateTile_flammable = comp_updateTile_flammable;
 
@@ -402,15 +354,15 @@
 
     // Base pressure gradually drops to zero
     b.presBase -= b.presBase * 0.01666667 * b.edelta();
-    if(Number(b.presBase).fEqual(0.0, 0.005)) b.presBase = 0.0;
+    if(b.presBase.fEqual(0.0, 0.005)) b.presBase = 0.0;
 
-    if(!TIMER.timerState_liq || Number(b.presTmp).fEqual(0.0, 0.005)) return;
+    if(!TIMER.timerState_liq || b.presTmp.fEqual(0.0, 0.005)) return;
 
     if(b.block.rotate) {
       // If rotatable, supply the building in front of this
       let ob = b.nearby(b.rotation);
       if(ob != null && ob.team === b.team) {
-        addLiquid(ob, b, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Number(b.presTmp).roundFixed(1) * VAR.time_liqIntv);
+        addLiquid(ob, b, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, b.presTmp.roundFixed(1) * VAR.time_liqIntv);
       };
     } else {
       // If not, supply all possible consumers around this
@@ -423,7 +375,7 @@
       });
       if(div !== 0) b.proximity.each(ob => {
         ob_fi = ob.getLiquidDestination(b, aux);
-        addLiquid(ob_fi, b, aux, Number(b.presTmp).roundFixed(1) / div * VAR.time_liqIntv);
+        addLiquid(ob_fi, b, aux, b.presTmp.roundFixed(1) / div * VAR.time_liqIntv);
       });
     };
   };
@@ -452,7 +404,7 @@
     const thisFun = comp_updateTile_corrosion;
 
     if(PARAM.updateSuppressed) return;
-    if(!Mathf.chanceDelta(0.02)) return;
+    if(!Mathf.chance(0.02)) return;
 
     let liqCur = b.liquids.current();
     var amt = b.liquids.get(liqCur);
@@ -486,7 +438,7 @@
    * ---------------------------------------- */
   const comp_updateTile_cloggable = function(b) {
     if(PARAM.updateSuppressed) return;
-    if(!Mathf.chanceDelta(0.02) || !b.cloggable) return;
+    if(!Mathf.chance(0.02) || !b.cloggable) return;
 
     let liqCur = b.liquids.current();
     var visc = liqCur.viscosity;
@@ -512,7 +464,7 @@
    * ---------------------------------------- */
   const comp_updateTile_fHeat = function(b) {
     if(PARAM.updateSuppressed) return;
-    if(!Mathf.chanceDelta(0.02)) return;
+    if(!Mathf.chance(0.02)) return;
 
     var heatRes = b.heatRes;
     if(!isFinite(heatRes)) return;

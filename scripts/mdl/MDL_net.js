@@ -52,17 +52,50 @@
     if(mode == null) mode = "server";
     if(!mode.equalsAny(thisFun.modes)) return;
 
-    if(mode === "server") {
+    if(mode === "server" || (mode === "both" && !Vars.net.client())) {
       isReliable ?
         Call.serverPacketReliable(header, payload) :
         Call.serverPacketUnreliable(header, payload);
-    } else {
+    } else if(mode === "client" || mode === "both" && Vars.net.client()) {
       isReliable ?
         (useConnection ? Call.clientPacketReliable(Vars.player.con, header, payload) : Call.clientPacketReliable(header, payload)) :
         (useConnection ? Call.clientPacketUnreliable(Vars.player.con, header, payload) : Call.clientPacketUnreliable(header, payload));
     };
   }
   .setProp({
-    "modes": ["client", "server"],
+    "modes": ["client", "server", "both"],
   });
   exports.sendPacket = sendPacket;
+
+
+  /* <---------- http ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Opens an HTTP GET request, result is called as string (empty if errored).
+   * ---------------------------------------- */
+  const _h_str = function(url, caller) {
+    Http.get(url, res => {
+      caller(res.getResultAsString());
+    }, err => {
+      caller("");
+    });
+  };
+  exports._h_str = _h_str;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Opens an HTTP GET request, result is called as json object.
+   * ---------------------------------------- */
+  const _h_obj = function(url, caller) {
+    Http.get(url, res => {
+      caller(JSON.parse(res.getResultAsString()));
+    }, err => {
+      caller({});
+    });
+  };
+  exports._h_obj = _h_obj;

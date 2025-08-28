@@ -9,6 +9,7 @@
    * NOTE:
    *
    * Just vanilla pump with typical fluid block mechanics.
+   * Pumps can output pressure/vacuum.
    * ---------------------------------------- */
 
 
@@ -84,9 +85,10 @@
 
 
   function comp_init(blk) {
+    blk.hasConsumers = true;
     blk.fluidType = "liquid";                     // Forced to "liquid" which is obvious
 
-    if(!Number(blk.presProd).fEqual(0.0)) MDL_event._c_onLoad(() => {
+    if(!blk.presProd.fEqual(0.0)) MDL_event._c_onLoad(() => {
       Core.app.post(() => {
         MDL_recipeDict.addFldProdTerm(blk, blk.presProd > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Math.abs(blk.presProd), null);
       });
@@ -98,7 +100,7 @@
     blk.stats.remove(TP_stat.blk0liq_presRes);
     blk.stats.remove(TP_stat.blk0liq_vacRes);
 
-    if(!Number(blk.presProd).fEqual(0.0)) {
+    if(!blk.presProd.fEqual(0.0)) {
       blk.stats.add(blk.presProd > 0.0 ? TP_stat.blk0liq_presOutput : TP_stat.blk0liq_vacOutput, Math.abs(blk.presProd * 60.0), StatUnit.liquidSecond);
       blk.stats.add(TP_stat.blk0liq_splitAmt, DB_block.db["param"]["amount"]["base"].read(blk.name, 1));
     };
@@ -113,8 +115,10 @@
 
 
   function comp_updateTile(b) {
+    if(b.useCep) FRAG_faci.comp_updateTile_cepEff(b);
+
     let presProd = b.block.ex_getPresProd();
-    if(Number(presProd).fEqual(0.0)) return;
+    if(presProd.fEqual(0.0)) return;
 
     FRAG_fluid.comp_updateTile_capAux(b);
 
@@ -133,6 +137,8 @@
 
     MDL_draw.drawRegion_rs(b.x, b.y, b.liquidDrop, b.block.size);
 
+    if(Math.abs(b.block.ex_getPresProd()) < 0.0001) return;
+
     thisFun.funInd = 0;
     b.proximity.each(ob => {
       if(thisFun.funBoolF(ob)) {
@@ -150,7 +156,7 @@
 
   function comp_shouldConsume(b) {
     if(b.liquidDrop == null || !b.enabled) return false;
-    if(Number(b.presProd).fEqual(0.0) && b.liquids.get(b.liquidDrop) > b.block.liquidCapacity - 0.01) return false;
+    if(b.block.ex_getPresProd().fEqual(0.0) && b.liquids.get(b.liquidDrop) > b.block.liquidCapacity - 0.01) return false;
 
     return true;
   };
@@ -158,6 +164,12 @@
 
   function comp_updateEfficiencyMultiplier(b) {
     if(b.useCep) b.efficiency *= FRAG_faci._cepEffcCur(b.team);
+  };
+
+
+  function comp_drawStatus(b) {
+    let color = b.status().color;
+    if(b.block.enableDrawStatus) MDL_draw.drawRegion_status(b.x, b.y, b.block.size, color);
   };
 
 
@@ -257,6 +269,12 @@
 
     updateEfficiencyMultiplier: function(b) {
       comp_updateEfficiencyMultiplier(b);
+    },
+
+
+    // @NOSUPER
+    drawStatus: function(b) {
+      comp_drawStatus(b);
     },
 
 

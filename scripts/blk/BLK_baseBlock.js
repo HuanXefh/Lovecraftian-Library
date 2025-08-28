@@ -142,13 +142,13 @@
      * ---------------------------------------- */
     /*b.block.requirements.forEach(itmStack => {
       let amt = itmStack.amount;
-      if(amt >= 20) MDL_call.spawnLoot(b.x, b.y, itmStack.item, Number(amt).randFreq(0.3), b.block.size * Vars.tilesize * 0.7);
+      if(amt >= 20) MDL_call.spawnLoot(b.x, b.y, itmStack.item, amt.randFreq(0.3), b.block.size * Vars.tilesize * 0.7);
     });*/
 
     if(b.items != null) {
       b.items.each(itm => {
         let amt = !(b.block instanceof CoreBlock) ? b.items.get(itm) : (b.items.get(itm) / Math.max(b.team.cores().size, 1));
-        if(amt >= 20) MDL_call.spawnLoot(b.x, b.y, itm, Number(amt).randFreq(0.3), b.block.size * Vars.tilesize * 0.7);
+        if(amt >= 20) MDL_call.spawnLoot(b.x, b.y, itm, amt.randFreq(0.3), b.block.size * Vars.tilesize * 0.7);
       });
     };
   };

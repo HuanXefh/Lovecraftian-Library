@@ -71,7 +71,7 @@
 
 
   function comp_setStats(blk) {
-    if(!Number(blk.presThr).fEqual(0.0)) blk.stats.add(blk.presThr > 0.0 ? TP_stat.blk0liq_presReq : TP_stat.blk0liq_vacReq, blk.presThr);
+    if(!blk.presThr.fEqual(0.0)) blk.stats.add(blk.presThr > 0.0 ? TP_stat.blk0liq_presReq : TP_stat.blk0liq_vacReq, blk.presThr);
   };
 
 

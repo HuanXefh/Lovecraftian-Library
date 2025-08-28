@@ -13,6 +13,7 @@
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_net = require("lovec/mdl/MDL_net");
 
 
   const DB_misc = require("lovec/db/DB_misc");
@@ -56,6 +57,11 @@
   /* <---------- mod ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a loaded mod by name.
+   * ---------------------------------------- */
   const _loadedMod = function(nmMod) {
     if(nmMod === "vanilla") return null;
 
@@ -67,10 +73,24 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Localize the mod stats.
+   * Gets the latest version (tag) of a repository on GitHub.
+   * If errored, the version will be {undefined}.
+   * ---------------------------------------- */
+  const _latestVer = function(owner, repo, caller) {
+    MDL_net._h_obj("https://api.github.com/repos/" + owner + "/" + repo + "/releases/latest", obj => {
+      caller(obj.tag_name);
+    });
+  };
+  exports._latestVer = _latestVer;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Localizes the mod stats.
    * Put {info.modname-info-mod} in your bundle.
    * ---------------------------------------- */
-  const setMod_localization = function(nmMod) {
+  const localizeModMeta = function(nmMod) {
     let mod = _loadedMod(nmMod);
     if(mod == null) return;
 
@@ -78,7 +98,42 @@
     mod.meta.description = MDL_bundle._info(nmMod, "mod", true);
   }
   .setAnno(ANNO.__NONHEADLESS__);
-  exports.setMod_localization = setMod_localization;
+  exports.localizeModMeta = localizeModMeta;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Locks contents from some mod, for testing purpose.
+   * If {cts} is given, this only locks mod contents in the array (NOT SEQ).
+   * ---------------------------------------- */
+  const lockModContents = function(nmMod, cts, isUnlocking) {
+    const thisFun = lockModContents;
+
+    if(cts != null) {
+      cts.forEach(ct => {
+        if(thisFun.funBoolF(ct, nmMod)) isUnlocking ? ct.unlock() : ct.clearUnlock();
+      });
+    } else {
+      thisFun.funArr.forEach(seq => seq.each(
+        ct => thisFun.funBoolF(ct, nmMod),
+        ct => isUnlocking ? ct.unlock() : ct.clearUnlock(),
+      ));
+    };
+  }
+  .setAnno(ANNO.__DEBUG__)
+  .setProp({
+    "funArr": [
+      Vars.content.items(),
+      Vars.content.liquids(),
+      Vars.content.blocks(),
+      Vars.content.units(),
+      Vars.content.statusEffects(),
+      Vars.content.sectors(),
+    ],
+    "funBoolF": (ct, nmMod) => ct.minfo.mod != null && ct.minfo.mod.name === nmMod,
+  });
+  exports.lockModContents = lockModContents;
 
 
 /*

@@ -5,6 +5,7 @@
  * Used to add properties to a class.
  *
  * Interface instances are named like {INTF_xxx}.
+ * More like a mixin though, I'm not gonna rename it.
  * ---------------------------------------- */
 
 
@@ -22,7 +23,7 @@ const CLS_interface = function() {
 CLS_interface.prototype.init = function(obj) {
 
   this.interfaceObj = obj;
-  this.childs = [];
+  this.children = [];
 
 };
 

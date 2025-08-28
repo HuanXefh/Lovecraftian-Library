@@ -28,7 +28,6 @@
    * b.craftSound: se_gn    // @PARAM
    * b.useCep: bool    // @PARAM
    * b.noDump: bool    // @PARAM
-   * b.isTall: false
    * b.rcHeader: ""
    * b.validTup: null
    * b.timeScl: 1.0
@@ -57,7 +56,6 @@
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
-   * DB_block.db["group"]["tall"]    // @PARAM
    * DB_block.db["param"]["amount"]["base"]    // @PARAM: See {BLK_liquidPump}.
    * ---------------------------------------- */
 
@@ -283,8 +281,8 @@
 
 
     // @NOSUPER
-    ex_getTimerEffc: function(b) {
-      return PARENT.ex_getTimerEffc(b);
+    ex_getTimerEffcState: function(b) {
+      return PARENT.ex_getTimerEffcState(b);
     },
 
 

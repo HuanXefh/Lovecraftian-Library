@@ -10,6 +10,8 @@
  * Format: (arg1, arg2, arg3, ...) => {...}.
  *
  * {loadScr} is called just after the function is defined.
+ *
+ * {funArgCaller} is similiar to {funCaller}, but {this} refers to {arguments} of the original method.
  * ---------------------------------------- */
 
 
@@ -24,7 +26,9 @@ const CLS_annotation = function() {
 }.initClass();
 
 
-CLS_annotation.prototype.init = function(funCaller, loadScr) {
+CLS_annotation.prototype.init = function(nm, funCaller, loadScr, funArgCaller) {
+
+  this.name = nm;
 
   this.onCall = function(fun, annoArgs) {
     return funCaller == null ? false : funCaller.apply(fun, annoArgs);
@@ -32,6 +36,10 @@ CLS_annotation.prototype.init = function(funCaller, loadScr) {
 
   this.onLoad = function(fun, annoLoadArgs) {
     if(loadScr != null) loadScr.apply(fun, annoLoadArgs);
+  };
+
+  this.onArgCall = function(funArgs, annoArgArgs) {
+    return funArgCaller == null ? false : funArgCaller.apply(funArgs, annoArgArgs);
   };
 
 };

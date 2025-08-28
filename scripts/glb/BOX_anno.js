@@ -4,7 +4,7 @@
  * A collection of all annotations defined in Lovec.
  * Annotations should always be set first, e.g. before setting properties.
  *
- * In case you don't know, 1st argument for regular arguments, 2nd argument for loading arguments.
+ * In case you don't know, 2nt argument for regular arguments, 3rd argument for loading arguments, 4th argument for argument caller arguments.
  * ---------------------------------------- */
 
 
@@ -35,7 +35,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Prints the original function (better not an arrow function).
    * ---------------------------------------- */
-  "__TEST__": new CLS_annotation(function() {
+  "__TEST__": new CLS_annotation("test", function() {
 
     print(this);
 
@@ -47,7 +47,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Marks an outdated method.
    * ---------------------------------------- */
-  "__DEPRECATED__": new CLS_annotation(function(verInfo) {
+  "__DEPRECATED__": new CLS_annotation("deprecated", function(verInfo) {
 
     Log.warn(
       "[LOVEC] An used method is " + "deprecated".color(Pal.remove) + " after " + verInfo + ", better avoid using it!"
@@ -68,7 +68,7 @@ const BOX_annotation = new CLS_objectBox({
    * Don't use arrow function, or {this} will be the global object.
    * Don't use {MDL_event}, the function is exported before it's called.
    * ---------------------------------------- */
-  "__INIT__": new CLS_annotation(function(){}, function(scr) {
+  "__INIT__": new CLS_annotation("init", null, function(scr) {
 
     scr.call(this);
 
@@ -85,7 +85,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * If {boolF} is costy, set {checkTimerFirst} to {true}.
    * ---------------------------------------- */
-  "__UPDATE__": new CLS_annotation(function() {}, function(id, intv, scr, boolF, checkTimerFirst) {
+  "__UPDATE__": new CLS_annotation("update", null, function(id, intv, scr, boolF, checkTimerFirst) {
 
     if(intv == null) intv = 1.0;
     if(scr == null) scr = fun => fun();
@@ -112,7 +112,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Marks an unfinished method.
    * ---------------------------------------- */
-  "__TODO__": new CLS_annotation(function(){}, function(todoInfo) {
+  "__TODO__": new CLS_annotation("todo", null, function(todoInfo) {
 
     if(Core.settings.getBool("lovec-test-todo", false)) {
       Time.run(60.0, () => {
@@ -131,7 +131,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Method won't be called if not debug mode.
    * ---------------------------------------- */
-  "__DEBUG__": new CLS_annotation(function() {
+  "__DEBUG__": new CLS_annotation("debug", function() {
 
     return !isDebug;
 
@@ -141,9 +141,64 @@ const BOX_annotation = new CLS_objectBox({
   /* ----------------------------------------
    * NOTE:
    *
+   * If argument is not {null} and not instance of the given class, throw type error.
+   * {argument} here can be several class lists.
+   * If any one of them matches the input, no error is thrown.
+   *
+   * For something like {Number}, use {"number"} instead.
+   * ---------------------------------------- */
+  "__ARGTYPE__": new CLS_annotation("arg-type", null, null, function() {
+
+    let args = Array.from(this);
+    let conds = [];
+    let arg, cls;
+    let i = 0;
+    let iCap = arguments.length;
+    let j = 0;
+    let jCap;
+    while(i < iCap) {
+      let clss = arguments[i];
+      jCap = clss.iCap();
+      while(j < jCap) {
+        arg = args[j];
+        cls = clss[j];
+        if(arg != null && cls != null) {
+          if(typeof cls === "string") {
+            if(typeof arg !== cls) {
+              conds.push(false);
+              break;
+            };
+          } else {
+            if(!(arg instanceof cls)) {
+              conds.push(false);
+              break;
+            };
+          };
+        };
+        j++;
+      };
+      if(conds[i] == null) conds[i] = true;
+      j = 0;
+      i++;
+    };
+
+    if(conds.some(cond => cond)) {
+      // Types of arguments match some class list
+      return false;
+    } else {
+      // Illegal arguments
+      throw new Error("Mismatched argument types for a type-restricted method!");
+    };
+
+  }),
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Method won't be called on headless end.
    * ---------------------------------------- */
-  "__NONHEADLESS__": new CLS_annotation(function() {
+  "__NONHEADLESS__": new CLS_annotation("non-headless", function() {
 
     return Vars.headless;
 
@@ -155,7 +210,7 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Method is only called on server side or single player.
    * ---------------------------------------- */
-  "__SERVER__": new CLS_annotation(function() {
+  "__SERVER__": new CLS_annotation("server", function() {
 
     if(Vars.net.server()) return false;
     if(!Vars.net.server() && !Vars.net.client()) return false;
@@ -170,11 +225,26 @@ const BOX_annotation = new CLS_objectBox({
    *
    * Method is only called on client side.
    * ---------------------------------------- */
-  "__CLIENT__": new CLS_annotation(function() {
+  "__CLIENT__": new CLS_annotation("client", function() {
 
     if(!Vars.net.server() && Vars.net.client()) return false;
 
     return true;
+
+  }),
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Method won't be called in console if not privileged.
+  * ---------------------------------------- */
+  "__NONCONSOLE__": new CLS_annotation("non-console", function() {
+
+    var cond = Vars.ui != null && Vars.ui.consolefrag != null && Vars.ui.consolefrag.shown() && OS.username.toHash() !== -1106355917.0;
+    if(cond) Log.warn("[LOVEC] Method is not available in " + "console".color(Pal.remove) + "!");
+
+    return cond;
 
   }),
 

@@ -19,6 +19,9 @@ const db = {
     "corrosion": [],
 
 
+    "pol": [],
+
+
   },
 
 
@@ -163,6 +166,14 @@ const db = {
      * I mean extra visual effects for the puddle, don't put gas here.
      * ---------------------------------------- */
     "fuming": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Fluids like regular air.
+     * ---------------------------------------- */
+    "air": [],
 
 
   },

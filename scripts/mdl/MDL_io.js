@@ -17,6 +17,28 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Writes an arc color.
+   * ---------------------------------------- */
+  const _wr_color = function(wr, color) {
+    wr.i(color.rgba8888());
+  };
+  exports._wr_color = _wr_color;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an arc color.
+   * ---------------------------------------- */
+  const _rd_color = function(rd) {
+    return new Color(rd.i());
+  };
+  exports._rd_color = _rd_color;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Writes an arc 2D point.
    * ---------------------------------------- */
   const _wr_pon2 = function(wr, pon2) {

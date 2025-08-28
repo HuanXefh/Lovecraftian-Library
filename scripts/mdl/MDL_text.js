@@ -8,6 +8,12 @@
   /* <---------- import ----------> */
 
 
+  const PINYIN = require("lovec/lib/pinyin");
+
+
+  const DB_misc = require("lovec/db/DB_misc");
+
+
   /* <---------- text ----------> */
 
 
@@ -70,30 +76,30 @@
 
 
   const _dmgText = function(dmg, dmgPerc) {
-    var str1 = dmg == null || dmg < 0.0001 ? null : String(Number(dmg).roundFixed(2)).color(Pal.remove);
-    var str2 = dmgPerc == null || dmgPerc < 0.0001 ? null : Number(dmgPerc).perc().color(Pal.remove);
+    var str1 = dmg == null || dmg < 0.0001 ? null : String(dmg.roundFixed(2)).color(Pal.remove);
+    var str2 = dmgPerc == null || dmgPerc < 0.0001 ? null : dmgPerc.perc().color(Pal.remove);
 
     if(str1 == null && str2 == null) {
       return "!ERR";
     } else {
       if(str1 == null) return str2;
       if(str2 == null) return str1;
-      return str1 + " + " + str2;
+      return str1 + " + ".color(Pal.remove) + str2;
     };
   };
   exports._dmgText = _dmgText;
 
 
   const _healText = function(healAmt, healPerc) {
-    var str1 = healAmt == null || healAmt < 0.0001 ? null : String(Number(healAmt).roundFixed(2)).color(Pal.heal);
-    var str2 = healPerc == null || healPerc < 0.0001 ? null : Number(healPerc).perc().color(Pal.heal);
+    var str1 = healAmt == null || healAmt < 0.0001 ? null : String(healAmt.roundFixed(2)).color(Pal.heal);
+    var str2 = healPerc == null || healPerc < 0.0001 ? null : healPerc.perc().color(Pal.heal);
 
     if(str1 == null && str2 == null) {
       return "!ERR";
     } else {
       if(str1 == null) return str2;
       if(str2 == null) return str1;
-      return str1 + " + " + str2;
+      return str1 + " + ".color(Pal.heal) + str2;
     };
   };
   exports._healText = _healText;
@@ -114,3 +120,99 @@
     return str_fi === "" ? "!NOTAG" : str_fi;
   };
   exports._tagText = _tagText;
+
+
+  /* <---------- search ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a list of keywords for search.
+   * ---------------------------------------- */
+  const _keywords = function(str) {
+    const thisFun = _keywords;
+
+    const arr = [];
+    var cond = false;
+    var tmpStr = "";
+
+    let i = 0;
+    let iCap = str.iCap();
+    while(i < iCap) {
+      let l = str[i];
+      cond = thisFun.funArr.includes(l);
+      if(!cond) {
+        tmpStr += l;
+      } else {
+        arr.push(tmpStr);
+        var tmpStr = "";
+      };
+      i++;
+    };
+    arr.push(tmpStr);
+
+    return arr;
+  }
+  .setProp({
+    "funArr": [
+      ",", ";",
+      "，", "。", "、",
+    ],
+  });
+  exports._keywords = _keywords;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a list of content filter functions from the keywords.
+   * Tags can be defined in {DB_misc.db["search"]["tag"]}.
+   * ---------------------------------------- */
+  const _searchBoolFs = function(keywords) {
+    const arr = [];
+    const li = DB_misc.db["search"]["tag"];
+
+    let isTag = false;
+    let tmpTag;
+    let iCap = li.iCap();
+    keywords.forEachFast(str => {
+      let str_fi = str.trim().toLowerCase();
+      let tmpStr = "";
+      let i = 0;
+      while(i < iCap) {
+        tmpTag = li[i];
+        if(str_fi.startsWith(tmpTag)) {
+          // This keyword is treated as a tag
+          isTag = true;
+          tmpStr = str_fi.replace(tmpTag, "").trim();
+          if(tmpStr !== "") arr.push(ct => li[i + 1](ct, tmpStr));
+          break;
+        };
+        i += 2;
+      };
+      if(!isTag) {
+        // Not tag, use regular search
+        arr.push(ct => (
+          ct.name.toLowerCase().includes(str_fi)
+            || Strings.stripColors(ct.localizedName).toLowerCase().includes(str_fi))
+            || (Core.settings.getString("locale") === "zh_CN" && PINYIN.get(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str_fi))
+          );
+      };
+      isTag = false;
+    });
+
+    return arr;
+  };
+  exports._searchBoolFs = _searchBoolFs;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this content matches the search formula.
+   * ---------------------------------------- */
+  const _searchValid = function(ct, str) {
+    return _searchBoolFs(_keywords(str)).every(boolF => boolF(ct));
+  };
+  exports._searchValid = _searchValid;

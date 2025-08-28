@@ -72,8 +72,8 @@
     },
 
 
-    update: function(sta, unit, time) {
-      PARENT.update(sta, unit, time);
+    update: function(sta, unit, staEn) {
+      PARENT.update(sta, unit, staEn);
     },
 
 

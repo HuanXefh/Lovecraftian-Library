@@ -69,6 +69,7 @@
   }
   .setProp({
     "funArr": [
+      "lovec-setting-toggle-win", "window-show",
       "lovec-setting-toggle-unit-stat", "unit0stat-show",
       "lovec-setting-toggle-damage-display", "damagedisplay-show",
     ],

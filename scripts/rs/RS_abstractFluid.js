@@ -9,10 +9,10 @@
    * NOTE:
    *
    * Fake fluids that cannot be transfered and stored by regular pipes, like heat.
-   * These fluids are abbreviated as "AUX" (auxilliary fluid).
+   * These fluids are abbreviated as "AUX" (auxiliay fluid).
    * You have to put {gas: true} in the json file by the way.
    *
-   * The basic auxilliary fluid are named "aux0aux-xxx" instead of "aux-xxx", since "aux" is not allowed for folder name on Windows.
+   * The basic auxiliay fluid are named "aux0aux-xxx" instead of "aux-xxx", since "aux" is not allowed for folder name on Windows.
    * Holy fuk.
    * ---------------------------------------- */
 

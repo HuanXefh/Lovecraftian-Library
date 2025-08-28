@@ -108,11 +108,14 @@
       MDL_pos._it_bs(b.x, b.y, rad, b.team, ob => MDL_cond._canHeal(ob), ob => {
         FRAG_attack.heal(ob, ob.maxHealth * (b.block.healPercent + b.phaseHeat * b.block.phaseBoost) / 100.0 * b.efficiency, true);
       });
-      MDL_pos._it_units(b.x, b.y, rad, b.team, ounit => MDL_cond._canHeal(ounit), ounit => {
-        if(FRAG_attack.heal(ounit, (ounit.maxHealth * (b.unitHealPerc + b.phaseHeat * b.block.phaseBoost / 100.0) + b.unitHealAmt) * b.efficiency)) {
-          MDL_effect.showBetween_line(b.x, b.y, ounit, Pal.heal);
-        };
-      });
+
+      if(b.unitHealAmt > 0.0 || b.unitHealPerc > 0.0) {
+        MDL_pos._it_units(b.x, b.y, rad, b.team, ounit => MDL_cond._canHeal(ounit), ounit => {
+          if(FRAG_attack.heal(ounit, (ounit.maxHealth * (b.unitHealPerc + b.phaseHeat * b.block.phaseBoost / 100.0) + b.unitHealAmt) * b.efficiency)) {
+            MDL_effect.showBetween_line(b.x, b.y, null, ounit, Pal.heal);
+          };
+        });
+      };
     };
   };
 

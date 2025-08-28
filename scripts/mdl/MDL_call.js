@@ -43,7 +43,7 @@
    * Set {ang} to apply a specific rotation.
    * Use {scr} to furthur modify those spawned units.
    * ---------------------------------------- */
-  const spawnUnit = function(x, y, utp_gn, team, rad, ang, repeat, scr) {
+  const spawnUnit = function(x, y, utp_gn, team, rad, ang, repeat, applyDefSta, scr) {
     let utp = MDL_content._ct(utp_gn, "utp");
     if(utp == null) return;
 
@@ -59,6 +59,10 @@
       ang_i = ang === "rand" ? Mathf.random(360.0) : ang;
 
       let unit = scr == null ? utp.spawn(team, x_i, y_i, ang_i) : utp.spawn(team, x_i, y_i, ang_i, scr);
+      if(applyDefSta) {
+        unit.apply(StatusEffects.unmoving, 30.0);
+        unit.apply(StatusEffects.invincible, 60.0);
+      };
       Units.notifyUnitSpawn(unit);
     };
   }
@@ -71,7 +75,7 @@
    *
    * A variant of {spawnUnit} used on client side.
    * ---------------------------------------- */
-  const spawnUnit_client = function(x, y, utp, team, rad, ang, repeat) {
+  const spawnUnit_client = function(x, y, utp, team, rad, ang, repeat, applyDefSta) {
     let utp = MDL_content._ct(utp_gn, "utp");
     if(utp == null) return;
 
@@ -83,6 +87,7 @@
       rad,
       ang,
       repeat,
+      applyDefSta
     ]);
 
     MDL_net.sendPacket("client", "lovec-client-unit-spawn", payload, true, true);
@@ -92,7 +97,8 @@
       spawnUnit.apply(this, Array.fromPayload(payload));
     });
   })
-  .setAnno(ANNO.__CLIENT__);
+  .setAnno(ANNO.__CLIENT__)
+  .setAnno(ANNO.__NONCONSOLE__);
   exports.spawnUnit_client = spawnUnit_client;
 
 
@@ -124,7 +130,7 @@
     if(pow == null) pow = 0.0;
     if(Math.abs(pow) < 0.0001) return;
 
-    var pow_fi = rad == null ? pow : (pow * (1.0 - Mathf.clamp(MATH_geometry._dst(x, y, unit.x, unit.y) / rad)) * 4.0);
+    var pow_fi = rad == null ? pow : (pow * (1.0 - Mathf.clamp(Mathf.dst(x, y, unit.x, unit.y) / rad)) * 4.0);
     if(unit.flying) pow_fi *= 2.5;
 
     let vec2 = Tmp.v1.set(unit).sub(x, y).nor().scl(pow_fi * 80.0);
@@ -154,10 +160,10 @@
     if(rad == null) rad = VAR.rad_unitLootRad;
     if(repeat == null) repeat = 1;
 
-    spawnUnit(x, y, thisFun.funUtp, Team.derelict, rad, null, repeat, unit => {
+    spawnUnit(x, y, thisFun.funUtp, Team.derelict, rad, null, repeat, false, unit => {
       unit.addItem(itm, amt);
       MDL_effect.showAt_global(unit.x, unit.y, EFF.circlePulseDynamic, 5.0, Pal.accent);
-      MDL_effect.showBetween_line(x, y, unit, Pal.accent);
+      MDL_effect.showBetween_line(x, y, null, unit, Pal.accent);
     });
   }
   .setAnno(ANNO.__SERVER__)
@@ -310,7 +316,8 @@
       spawnLoot.apply(this, Array.fromPayload(payload));
     });
   })
-  .setAnno(ANNO.__CLIENT__);
+  .setAnno(ANNO.__CLIENT__)
+  .setAnno(ANNO.__NONCONSOLE__);
   exports.spawnLoot_client = spawnLoot_client;
 
 

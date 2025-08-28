@@ -131,11 +131,7 @@
    * NOTE:
    *
    * Converts javascript array to java array, which you will definitely need.
-   * {Object[]} by default, you can use a java class object to set the type.
-   *
-   * {java.lang.Class} is a class object.
-   * {Block} is NOT a class object.
-   * {Block.__javaObject__} is a class object, remember this.
+   * {Object[]} by default, you can use a java class to set the type.
    * ---------------------------------------- */
   ptp.toJavaArr = function(javaClsObj) {
     let iCap = this.iCap();

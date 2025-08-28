@@ -10,7 +10,7 @@
    *
    * Parent for all factories.
    * A factory is a block that processes something to produce something else.
-   * An auxilliary factory is a block that only produces auxilliary fluids.
+   * An auxiliay factory is a block that only produces auxiliay fluids.
    * ---------------------------------------- */
 
 

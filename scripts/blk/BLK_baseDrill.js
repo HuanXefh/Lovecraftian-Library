@@ -86,6 +86,11 @@
   };
 
 
+  function comp_updateTile(b) {
+    if(b.useCep) FRAG_faci.comp_updateTile_cepEff(b);
+  };
+
+
   function comp_drawSelect(b) {
     if(b.useCep) FRAG_faci.comp_drawSelect_cep(b);
   };
@@ -141,6 +146,7 @@
 
     updateTile: function(b) {
       PARENT.updateTile(b);
+      comp_updateTile(b);
     },
 
 

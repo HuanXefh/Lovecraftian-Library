@@ -61,7 +61,7 @@
   function comp_setStats(blk) {
     blk.stats.add(TP_stat.blk0itm_unloadable, blk.unloadable);
 
-    if(MDL_cond._isExposedBlock(blk)) blk.stats.add(TP_stat.blk0itm_exposed, true);
+    if(MDL_cond.isExposedBlk(blk)) blk.stats.add(TP_stat.blk0itm_exposed, true);
   };
 
 

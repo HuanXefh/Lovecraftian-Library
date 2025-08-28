@@ -8,6 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * @SINGLESIZE
    * Vanilla liquid junction.
    * Cannot transport abstract fluids.
    *

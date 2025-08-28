@@ -12,6 +12,7 @@
   const RUN_methodExt = require("lovec/run/RUN_methodExt");
   const CLS_annotation = require("lovec/cls/struct/CLS_annotation");
   const RUN_methodPostExt = require("lovec/run/RUN_methodPostExt");
+  const RUN_globalInternal = require("lovec/run/RUN_globalInternal");
   const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
@@ -23,6 +24,7 @@
   const RUN_event = require("lovec/run/RUN_event");
   const RUN_input = require("lovec/run/RUN_input");
   const RUN_memMonitor = require("lovec/run/RUN_memMonitor");
+  const RUN_render = require("lovec/run/RUN_render");
   const RUN_rule = require("lovec/run/RUN_rule");
 
 
@@ -34,13 +36,15 @@
   const MDL_util = require("lovec/mdl/MDL_util");
 
 
-  const DB_env = require("lovec/db/DB_env");
-  const DB_status = require("lovec/db/DB_status");
-
-
+  const TP_ability = require("lovec/tp/TP_ability");
   const TP_dial = require("lovec/tp/TP_dial");
   const TP_stat = require("lovec/tp/TP_stat");
   const TP_table = require("lovec/tp/TP_table");
+
+
+  const DB_env = require("lovec/db/DB_env");
+  const DB_status = require("lovec/db/DB_status");
+  const DB_unit = require("lovec/db/DB_unit");
 
 
   // NOTE: Keep this at bottom!
@@ -57,7 +61,7 @@
 */
 
 
-  MDL_util.setMod_localization("lovec");
+  MDL_util.localizeModMeta("lovec");
 
 
   MDL_event._c_onLoad(() => {
@@ -155,8 +159,20 @@
     });
 
 
+    // Set up abilities assigned in {DB_unit.db["map"]["ability"]}
+    DB_unit.db["map"]["ability"].forEachRow(3, (nmUtp, nmAbi, args) => {
+      let utp = MDL_content._ct(nmUtp, "utp");
+      if(utp == null) return;
+      let abiSetter = global.lovecUtil.db.abilitySetter.read(nmAbi);
+      if(abiSetter == null) return;
+
+      utp.abilities.add(abiSetter.apply(null, args));
+    });
+
+
     // Set settings
-    // NOTE: I don't think there's need to create a module for this. Just check {MDL_util._cfg}.
+    Core.settings.put("lovec-window-show", true);
+    // I don't think there's need to create a module for this, Just check {MDL_util._cfg}
     Vars.ui.settings.addCategory(MDL_bundle._term("lovec", "settings"), tb => {
 
       if(PARAM.debug) {

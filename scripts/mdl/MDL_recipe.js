@@ -474,7 +474,7 @@
       let strCt = ct == null ? "-" : ct.localizedName;
 
       let failP = _failP(rcMdl, rcHeader);
-      let strFail = failP < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "chance-to-fail"), Number(failP).perc(1));
+      let strFail = failP < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "chance-to-fail"), failP.perc(1));
 
       let tempReq = _tempReq(rcMdl, rcHeader);
       let strTempReq = tempReq < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-required"), Strings.fixed(tempReq, 2), TP_stat.rs_heatUnits.localized());
@@ -483,7 +483,7 @@
       let strTempAllowed = !isFinite(tempAllowed) ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-allowed"), Strings.fixed(tempAllowed, 2), TP_stat.rs_heatUnits.localized());
 
       let durabDecMtp = _durabDecMtp(rcMdl, rcHeader);
-      let strDurabDecMtp = durabDecMtp.fEqual(1.0) ? null : MDL_text._statText(MDL_bundle._term("lovec", "abrasion-multiplier"), Number(durabDecMtp).perc());
+      let strDurabDecMtp = durabDecMtp.fEqual(1.0) ? null : MDL_text._statText(MDL_bundle._term("lovec", "abrasion-multiplier"), durabDecMtp.perc());
 
       let strIsGen = _isGen(rcMdl, rcHeader) ? MDL_bundle._term("lovec", "generated-recipe") : null;
 
@@ -655,7 +655,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts the auxilliary list from a recipe object.
+   * Converts the auxiliay list from a recipe object.
    * It's just another CI.
    * ---------------------------------------- */
   const _aux = function(rcMdl, rcHeader, blkInit) {
@@ -1028,7 +1028,7 @@
         itm.name,
         "rock-crushing",
         obj => {
-          obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Math.max(hardness - minHardness, 0) / 10.0);
+          obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
           if(objF != null) objF(obj);
         },
         new CLS_recipeBuilder()
@@ -1083,7 +1083,7 @@
         nmItm,
         "aggregate-crushing",
         obj => {
-          obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Math.max(hardness - minHardness, 0) / 10.0);
+          obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
           if(objF != null) objF(obj);
         },
         new CLS_recipeBuilder()
@@ -1122,7 +1122,7 @@
         itm.name,
         "pulverization",
         obj => {
-          obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Math.max(hardness - minHardness, 0) / 10.0);
+          obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
           if(objF != null) objF(obj);
         },
         new CLS_recipeBuilder()

@@ -65,6 +65,8 @@
 
 
   function comp_init(blk) {
+    if(blk.selectionColumns === 4) blk.selectionColumns = 10;
+
     blk.config(JAVA.BOOLEAN, (b, bool) => {
       b.ex_accIsInv(bool);
       EFF.squareFadePack[b.block.size].at(b);
@@ -129,7 +131,7 @@
 
 
   function comp_buildConfiguration(b, tb) {
-    if(!b.noSelect) ItemSelection.buildTable(b.block, tb, Vars.content.items(), () => b.sortItem, val => b.configure(val), true, b.block.selectionRows, b.block.selectionColumns);
+    if(!b.noSelect) MDL_table.setSelector_ct(tb, b.block, Vars.content.items().toArray(), () => b.sortItem, val => b.configure(val), false, b.block.selectionRows, b.block.selectionColumns);
 
     tb.row();
     MDL_table.__btnCfg_toggle(tb, b, VARGEN.icons.swap, VARGEN.icons.swap, b.isInv).row();

@@ -33,16 +33,16 @@
     const thisCls = this;
 
     if(intf == null || !(intf instanceof CLS_interface)) throw new Error("Found invalid of undefined interface!");
-    if(intf.childs.includes(this)) throw new Error("Don't implement an interface twice!");
+    if(intf.children.includes(this)) throw new Error("Don't implement an interface twice!");
 
     Object._it(intf.interfaceObj, (key, prop) => {
       if(thisCls[key] !== undefined) {
-        throw new Error("Can't implement interface on a class due to name conflict.");
+        throw new Error("Can't implement interface on a class due to name conflict: " + key);
       } else {
         thisCls[key] = prop;
       };
     });
-    intf.childs.push(this);
+    intf.children.push(this);
 
     return this;
   };

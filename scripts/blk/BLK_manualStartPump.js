@@ -68,6 +68,7 @@
 
 
   const MDL_effect = require("lovec/mdl/MDL_effect");
+  const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
   /* <---------- component ----------> */
@@ -100,7 +101,7 @@
 
   function comp_setBars(blk) {
     blk.addBar("lovec-warmup", b => new Bar(
-      prov(() => Core.bundle.format("bar.lovec-bar-warmup-amt", Number(b.ex_getPumpWarmupFrac()).perc())),
+      prov(() => Core.bundle.format("bar.lovec-bar-warmup-amt", b.ex_getPumpWarmupFrac().perc())),
       prov(() => Pal.accent),
       () => b.ex_getPumpWarmupFrac(),
     ));
@@ -113,7 +114,10 @@
 
 
   function comp_configTapped(b) {
-    b.configure("start");
+    Vars.state.paused ?
+      MDL_ui.show_fadeInfo("lovec", "paused-manual-click") :
+      b.configure("start");
+
     return false;
   };
 
@@ -218,7 +222,13 @@
 
     // @NOSUPER
     configTapped: function(b) {
-      comp_configTapped(b);
+      return comp_configTapped(b);
+    },
+
+
+    // @NOSUPER
+    drawStatus: function(b) {
+      PARENT.drawStatus(b);
     },
 
 

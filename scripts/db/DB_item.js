@@ -93,9 +93,25 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Items that will denature if explosed to air.
+     * Items considered acidic.
      * ---------------------------------------- */
-    "denaturing": [],
+    "acidic": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Items considered basic.
+     * ---------------------------------------- */
+    "basic": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Items like sodium, which react with water and explode.
+     * ---------------------------------------- */
+    "sodium": [],
 
 
   },

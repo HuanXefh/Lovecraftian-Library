@@ -62,6 +62,7 @@
   const DB_fluid = require("lovec/db/DB_fluid");
 
 
+  const TP_effect = require("lovec/tp/TP_effect");
   const TP_stat = require("lovec/tp/TP_stat");
 
 
@@ -73,14 +74,18 @@
     liq.coolant = false;
     liq.capPuddles = true;
 
+    if(liq.vaporEffect === Fx.vapor) {
+      liq.vaporEffect = TP_effect._ventSmog(10.0, 30.0, liq, 1.5);
+    };
+
     if(liq.gas) {
       liq.gasColor = Color.valueOf("bfbfbf")
     } else {
       liq.boilPoint = MDL_flow._boilPon(liq) / 50.0;
     };
 
-    if(Number(liq.temperature).fEqual(0.5)) liq.temperature = MDL_flow._tempWrap(liq);
-    if(Number(liq.viscosity).fEqual(0.5)) liq.viscosity = MDL_flow._viscWrap(liq);
+    if(liq.temperature.fEqual(0.5)) liq.temperature = MDL_flow._tempWrap(liq);
+    if(liq.viscosity.fEqual(0.5)) liq.viscosity = MDL_flow._viscWrap(liq);
   };
 
 
@@ -93,16 +98,16 @@
 
     if(liq.explosiveness > 0.0) liq.stats.addPercent(Stat.explosiveness, liq.explosiveness);
     if(liq.flammability > 0.0) liq.stats.addPercent(Stat.flammability, liq.flammability);
-    if(!Number(liq.temperature).fEqual(0.5)) liq.stats.add(Stat.temperature, Number(liq.temperature).perc());
-    if(!Number(liq.heatCapacity).fEqual(0.5)) liq.stats.addPercent(Stat.heatCapacity, liq.heatCapacity);
-    if(!liq.gas && !Number(liq.viscosity).fEqual(0.5)) liq.stats.add(Stat.viscosity, Number(liq.viscosity).perc());
+    if(!liq.temperature.fEqual(0.5)) liq.stats.add(Stat.temperature, liq.temperature.perc());
+    if(!liq.heatCapacity.fEqual(0.5)) liq.stats.addPercent(Stat.heatCapacity, liq.heatCapacity);
+    if(!liq.gas && !liq.viscosity.fEqual(0.5)) liq.stats.add(Stat.viscosity, liq.viscosity.perc());
 
     if(liq.effect !== StatusEffects.none) liq.stats.add(TP_stat.rs_fluidStatus, StatValues.content([liq.effect].toSeq()));
 
     if(!liq.gas && MDL_cond._isConductiveLiq(liq)) liq.stats.add(TP_stat.rs_conductiveLiq, true);
 
     var dens = MDL_flow._dens(liq);
-    liq.stats.add(TP_stat.rs_dens, liq.gas ? Number(dens).sci(-3) : Strings.fixed(dens, 2));
+    liq.stats.add(TP_stat.rs_dens, liq.gas ? dens.sci(-3) : Strings.fixed(dens, 2));
 
     var fHeat = MDL_flow._fHeat(liq);
     if(!fHeat.fEqual(26.0)) liq.stats.add(TP_stat.rs_fHeat, fHeat, TP_stat.rs_heatUnits);
@@ -112,7 +117,7 @@
     var fTagsB = MDL_flow._fTagsB(liq);
     if(fTagsB !== "!NOTAG") liq.stats.add(TP_stat.rs_fTags, fTagsB);
     var corPow = MDL_flow._corPow(liq);
-    if(corPow > 0.0) liq.stats.add(TP_stat.rs_corPow, Number(corPow).perc());
+    if(corPow > 0.0) liq.stats.add(TP_stat.rs_corPow, corPow.perc());
 
     let oreblks = MDL_content._oreBlks(liq);
     if(oreblks.length > 0) {

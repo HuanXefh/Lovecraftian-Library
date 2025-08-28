@@ -88,6 +88,16 @@
   };
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether {obj} has {key}.
+   * ---------------------------------------- */
+  Object.hasKey = function(obj, key) {
+    return obj[key] !== undefined;
+  };
+
+
   /* <---------- function ----------> */
 
 
@@ -145,6 +155,26 @@
 
 
   /* <---------- array ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Iterates through each pair in {arr1} and {arr2}.
+   * ---------------------------------------- */
+  Array.forEachPair = function(arr1, arr2, scr) {
+    let i = 0;
+    let iCap = arr1.iCap();
+    let j = 0;
+    let jCap = arr2.iCap();
+    while(i < iCap) {
+      while(j < jCap) {
+        scr(arr1[i], arr2[j]);
+        j++;
+      };
+      i++;
+    };
+  };
 
 
   var ptp = Array.prototype;

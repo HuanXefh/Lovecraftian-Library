@@ -8,6 +8,9 @@
   /* <---------- import ----------> */
 
 
+  const PARAM = require("lovec/glb/GLB_param");
+
+
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_table = require("lovec/mdl/MDL_table");
   const MDL_ui = require("lovec/mdl/MDL_ui");
@@ -49,6 +52,7 @@
       winDial.translation.y += mouseMoveY;
     });
     winDial.setPosition(MDL_ui._centerX(), MDL_ui._centerY(), Align.center);
+    winDial.visibility = () => Vars.ui.hudfrag.shown && PARAM.showWindow;
 
     if(dx != null && dy != null) Time.run(1.0, () => {
       winDial.translation.x = dx;

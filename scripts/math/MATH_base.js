@@ -79,7 +79,7 @@
     if(param_f == null) param_f = 0.0;
     if(param_t == null) param_t = 1.0;
     if(param == null) param = 0.0;
-    if(Number(param_f).fEqual(param_t)) return 0.0;
+    if(param_f.fEqual(param_t)) return 0.0;
 
     return (param - param_f) / (param_t - param_f);
   };

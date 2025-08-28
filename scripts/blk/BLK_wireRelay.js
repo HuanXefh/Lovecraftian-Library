@@ -54,7 +54,7 @@
   const MDL_draw = require("lovec/mdl/MDL_draw");
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   function getGlowAlpha(x1, y1, x2, y2) {
@@ -84,7 +84,7 @@
     var dmg = b.touchDmg * b.power.status;
     if(dmg < 0.0001) return;
 
-    let b_t = b.links[(4).randInt(1)];
+    let b_t = b.links[(3).randInt(0)];
     if(b_t == null) return;
 
     FRAG_faci.comp_updateTile_wireTouch(b, b_t, dmg, b.arcColor);

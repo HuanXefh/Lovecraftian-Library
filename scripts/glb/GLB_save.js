@@ -186,7 +186,8 @@
       sync();
     });
   })
-  .setAnno(ANNO.__CLIENT__);
+  .setAnno(ANNO.__CLIENT__)
+  .setAnno(ANNO.__NONCONSOLE__);
   exports.requestSync = requestSync;
 
 
@@ -206,7 +207,8 @@
       setSafe.apply(this, Array.fromPayload(payload));
     });
   })
-  .setAnno(ANNO.__CLIENT__);
+  .setAnno(ANNO.__CLIENT__)
+  .setAnno(ANNO.__NONCONSOLE__);
   exports.requestSet = requestSet;
 
 

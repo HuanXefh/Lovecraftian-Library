@@ -52,7 +52,7 @@
 
 
   function comp_init(blk) {
-    if(Number(blk.speedMultiplier).fEqual(1.0)) blk.speedMultiplier = 0.75;
+    if(blk.speedMultiplier.fEqual(1.0)) blk.speedMultiplier = 0.75;
   };
 
 

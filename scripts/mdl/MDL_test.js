@@ -76,7 +76,7 @@
           + "\n- Liquids: ";
         b.liquids.each(liq => {
           let amt = b.liquids.get(liq);
-          str += "\n  > " + liq.localizedName + ": " + Strings.fixed(amt, 4) + " (" + Number(amt / cap).perc() + ")";
+          str += "\n  > " + liq.localizedName + ": " + Strings.fixed(amt, 4) + " (" + (amt / cap).perc() + ")";
         });
       };
 

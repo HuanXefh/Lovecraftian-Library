@@ -26,7 +26,6 @@
    * b.craftSound: se_gn    // @PARAM
    * b.useCep: bool    // @PARAM
    * b.noDump: bool    // @PARAM
-   * b.isTall: false
    * b.rcHeader: ""
    * b.validTup: null
    * b.timeScl: 1.0
@@ -58,7 +57,6 @@
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
-   * DB_block.db["group"]["tall"]    // @PARAM
    * DB_block.db["param"]["time"]["base"]    // @PARAM: Time for durability to deplete.
    * ---------------------------------------- */
 
@@ -95,7 +93,7 @@
 
   function comp_setStats(blk) {
     let durabTime = DB_block.db["param"]["time"]["base"].read(blk.name, Infinity);
-    if(isFinite(durabTime) && durabTime > 0.0) blk.stats.add(TP_stat.blk0fac_durabTime, Number(durabTime / 3600.0 * 0.75).roundFixed(2), StatUnit.minutes);
+    if(isFinite(durabTime) && durabTime > 0.0) blk.stats.add(TP_stat.blk0fac_durabTime, (durabTime / 3600.0 * 0.75).roundFixed(2), StatUnit.minutes);
   };
 
 
@@ -355,8 +353,8 @@
 
 
     // @NOSUPER
-    ex_getTimerEffc: function(b) {
-      return PARENT.ex_getTimerEffc(b);
+    ex_getTimerEffcState: function(b) {
+      return PARENT.ex_getTimerEffcState(b);
     },
 
 

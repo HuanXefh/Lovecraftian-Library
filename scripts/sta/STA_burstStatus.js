@@ -73,10 +73,10 @@
   };
 
 
-  function comp_update(sta, unit, time) {
+  function comp_update(sta, unit, staEn) {
     if(sta.burstTime < 0.0001) return;
 
-    if(time > sta.burstTime) {
+    if(staEn.time > sta.burstTime) {
       let dmg = sta.burstDamage + unit.maxHealth * sta.burstDamagePerc;
 
       unit.unapply(sta);
@@ -120,9 +120,9 @@
     },
 
 
-    update: function(sta, unit, time) {
-      PARENT.update(sta, unit, time);
-      comp_update(sta, unit, time);
+    update: function(sta, unit, staEn) {
+      PARENT.update(sta, unit, staEn);
+      comp_update(sta, unit, staEn);
     },
 
 

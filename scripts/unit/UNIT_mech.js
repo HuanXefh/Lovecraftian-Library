@@ -87,10 +87,10 @@
     },
 
 
-    /* <---------- status (specific) ----------> */
+    /* <---------- unit type (specific) ----------> */
 
 
-    /* <---------- status (extra) ----------> */
+    /* <---------- unit type (extra) ----------> */
 
 
     // @NOSUPER

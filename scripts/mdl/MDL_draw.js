@@ -134,7 +134,7 @@
   const comp_draw_baseBuilding = function(b) {
     b.block.variant === 0 || b.block.variantRegions == null ?
       Draw.rect(b.block.region, b.x, b.y, b.drawrot()) :
-      Draw.rect(b.block.variantRegions[Mathf.randomSeed(b.tile.pos(), 0, Math.max(0, b.block.variantRegions.length - 1))], b.x, b.y, b.drawrot());
+      Draw.rect(b.block.variantRegions[Mathf.randomSeed(b.tile.pos(), 0, Mathf.maxZero(b.block.variantRegions.length - 1))], b.x, b.y, b.drawrot());
 
     b.drawTeamTop();
   };
@@ -322,8 +322,7 @@
     Draw.alpha(a);
     Draw.rect(reg, x, y, w, h, ang);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_normal = drawRegion_normal;
 
 
@@ -339,9 +338,49 @@
     Draw.alpha(a);
     Draw.rect(rot > 1 ? reg1 : reg2, x, y, rot * 90.0);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_side = drawRegion_side;
+  
+
+  const drawRegion_shader = function(x, y, reg, shader, ang, regScl, color_gn, a, z) {
+    if(reg == null) return;
+
+    if(ang == null) ang = 0.0;
+    if(regScl == null) regScl = 1.0;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    var w = reg.width * 2.0 * regScl / Vars.tilesize;
+    var h = reg.height * 2.0 * regScl / Vars.tilesize;
+
+    if(z != null) Draw.z(z);
+    Draw.color(_color(color_gn), a);
+    Draw.shader(shader);
+    Draw.rect(reg, x, y, w, h, ang);
+    Draw.shader();
+    Draw.reset();
+  };
+  exports.drawRegion_shader = drawRegion_shader;
+
+
+  const drawRegion_flip = function(x, y, reg, flipAng, ang, regScl, color_gn, a, z) {
+    if(reg == null) return;
+
+    if(flipAng == null) flipAng = 0.0;
+    if(ang == null) ang = 0.0;
+    if(regScl == null) regScl = 1.0;
+    if(color_gn == null) color_gn = Color.white;
+    if(a == null) a = 1.0;
+
+    var w = reg.width * 2.0 * regScl / Vars.tilesize * Mathf.cos(Mathf.wrapAngleAroundZero(flipAng * Mathf.degressToRadians));
+    var h = reg.height * 2.0 * regScl / Vars.tilesize;
+
+    if(z != null) Draw.z(z);
+    Draw.color(_color(color_gn), a);
+    Draw.rect(reg, x, y, w, h, ang);
+    Draw.reset();
+  };
+  exports.drawRegion_flip = drawRegion_flip;
 
 
   /* ----------------------------------------
@@ -366,8 +405,7 @@
       var regInd = Math.floor(Mathf.randomSeed(t.pos() + 114514 + off2, 0, iCap));
       drawRegion_normal(t.worldx(), t.worldy(), regs[regInd], 0.0, 1.0, Color.white, 1.0, VAR.lay_randOv);
     };
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_randomOverlay = drawRegion_randomOverlay;
 
 
@@ -391,15 +429,13 @@
     Draw.alpha(a * 0.8);
     Draw.rect(icon.getRegion(), x, y, 6.0 * regScl, 6.0 * regScl);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_icon = drawRegion_icon;
 
 
   const drawRegion_redCross = function(x, y) {
     drawRegion_icon(x, y, Icon.cancel, 0.0, 1.0, Color.scarlet, 1.0);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_redCross = drawRegion_redCross;
 
 
@@ -421,8 +457,7 @@
     Draw.color(_color(color_gn));
     Fill.square(x_fi, y_fi, mtp * 1.5, 45.0);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_status = drawRegion_status;
 
 
@@ -430,8 +465,7 @@
     if(b == null) return;
 
     drawRegion_status(b, b.block.size, olor_gn_ow != null ? color_gn_ow : b.status().color);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_statusBuild = drawRegion_statusBuild;
 
 
@@ -446,8 +480,7 @@
     var a_fi = a * Math.abs(Math.sin(Time.time * 0.065 / fadeScl));
 
     drawRegion_normal(x, y, reg, ang, regScl, color_gn, a_fi, z);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_fade = drawRegion_fade;
 
 
@@ -463,8 +496,7 @@
     var a_fi = 1.0 - Math.pow(Mathf.clamp(Object.val(frac, 0.0)) - 1.0, 2);
 
     drawRegion_fade(x, y, reg, ang, regScl, 0.2, color_gn, a_fi, z);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_fadeAlert = drawRegion_fadeAlert;
 
 
@@ -476,21 +508,21 @@
    *
    * Spin sprite I think.
    * {tProg} is supposed to be a building's {totalProgress}, use {rate} to change the speed of rotation.
-   * Only change {sides} according to your sprite's symmetry.
+   * Only change {sideAmt} according to your sprite's symmetry.
    * ---------------------------------------- */
-  const drawRegion_rotator = function(x, y, tProg, reg, ang, regScl, rate, sides, color_gn, a, z) {
+  const drawRegion_rotator = function(x, y, tProg, reg, ang, regScl, rate, sideAmt, color_gn, a, z) {
     if(tProg == null || reg == null) return;
 
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
     if(rate == null) rate = 6.0;
-    if(sides == null) side = 4;
+    if(sideAmt == null) side = 4;
     if(color_gn == null) color_gn = Color.white;
     if(a == null) a = 1.0;
 
     var w = reg.width * 2.0 * regScl / Vars.tilesize;
     var h = reg.width * 2.0 * regScl / Vars.tilesize;
-    var ang_fd = 360.0 / sides;
+    var ang_fd = 360.0 / sideAmt;
     var ang_fi = Mathf.mod(tProg * rate + ang, ang_fd);
 
     if(z != null) Draw.z(z);
@@ -500,8 +532,7 @@
     Draw.alpha(ang_fi / ang_fd);
     Draw.rect(reg, x, y, w, h, ang_fi - ang_fd);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_rotator = drawRegion_rotator;
 
 
@@ -541,8 +572,7 @@
     Draw.color(1.0, 1.0, 1.0, a * warmup);
     Fill.circle(x, y, radIn_fi);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_flame = drawRegion_flame;
 
 
@@ -566,8 +596,7 @@
       size * Vars.tilesize / 2.0,
     );
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_scan = drawRegion_scan;
 
 
@@ -606,8 +635,7 @@
       Drawf.flame(x_fi, y_fi, 12, ang, len_i * lenScl, w_i, 0.2);
     };
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_torch = drawRegion_torch;
 
 
@@ -631,8 +659,7 @@
     Draw.rect(reg, x, y);
     Draw.blend();
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_glow = drawRegion_glow;
 
 
@@ -640,8 +667,7 @@
     if(reg == null) reg = VARGEN.blockHeatRegs[Object.val(size, 1)];
 
     drawRegion_glow(x, y, reg, null, Mathf.clamp(Object.val(heatFrac, 1.0)), null, null);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_heat = drawRegion_heat;
 
 
@@ -659,8 +685,7 @@
     if(a == null) a = 0.65;
 
     Drawf.light(x, y, (rad + Mathf.absin(sinScl, sinMag)) * warmup * size, _color(color_gn), a);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_light = drawRegion_light;
 
 
@@ -690,8 +715,7 @@
     Draw.alpha(0.75 * a);
     Draw.rect(reg, x, y, ang, w, h);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_plan = drawRegion_plan;
 
 
@@ -703,8 +727,7 @@
     var reg = MDL_content._regBlk(blk);
 
     drawRegion_plan(t.worldx() + blk.offset, t.worldy() + blk.offset, reg, color_gn);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_planBlk = drawRegion_planBlk;
 
 
@@ -726,9 +749,147 @@
     Draw.mixcol();
     Draw.rect(rs.uiIcon, x_fi, y_fi, 6.0, 6.0);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRegion_rs = drawRegion_rs;
+
+
+  /* <---------- p3d ----------> */
+
+
+  /* ----------------------------------------
+   * DEDICATION:
+   *
+   * Inspired by Meepscellaneous Concepts by MEEPofFaith.
+   * ---------------------------------------- */
+
+
+  const _coord_p3d = function(coord, z3d, isY) {
+    return coord + (coord - (isY ? (Core.camera.position.y - 48.0) : Core.camera.position.x)) * Object.val(z3d, 0.0) * 0.06;
+  };
+  exports._coord_p3d = _coord_p3d;
+
+
+  const drawP3d_wall = function(x1, y1, x2, y2, z3d, colorIn_gn, colorOut_gn) {
+    if(colorIn_gn == null) colorIn_gn = Color.white;
+    if(colorOut_gn == null) colorOut_gn = colorIn_gn;
+
+    let fBits1 = _color(colorIn_gn).toFloatBits();
+    let fBits2 = _color(colorOut_gn).toFloatBits();
+
+    Fill.quad(
+      x1, y1, fBits1,
+      x2, y2, fBits1,
+      _coord_p3d(x2, z3d, false), _coord_p3d(y2, z3d, true), fBits2,
+      _coord_p3d(x1, z3d, false), _coord_p3d(y1, z3d, true), fBits2,
+    );
+  };
+  exports.drawP3d_wall = drawP3d_wall;
+
+
+  const drawP3d_room = function(x, y, z3d, w, h, colorIn_gn, colorOut_gn) {
+    const thisFun = drawP3d_room;
+
+    if(w == null) w = 0.0;
+    if(w < 0.0001) return;
+    if(h == null) h = 0.0;
+    if(h < 0.0001) return;
+
+    if(colorIn_gn == null) colorIn_gn = Color.white;
+    if(colorOut_gn == null) colorOut_gn = colorIn_gn;
+    let colorIn = _color(colorIn_gn);
+    let colorOut = _color(colorOut_gn);
+
+    let z = Draw.z();
+    Draw.z(z - 0.1 + thisFun.funScr(0, x, y - h * 0.5));
+    drawP3d_wall(x - w * 0.5, y - h * 0.5, x + w * 0.5, y - h * 0.5, z3d, Tmp.c2.set(colorIn).mul(0.75), Tmp.c3.set(colorOut).mul(0.75));
+    Draw.z(z - 0.1 + thisFun.funScr(2, x, y + h * 0.5));
+    drawP3d_wall(x - w * 0.5, y + h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn).mul(1.2), Tmp.c3.set(colorOut).mul(1.2));
+    Draw.z(z - 0.1 + thisFun.funScr(3, x - w * 0.5, y));
+    drawP3d_wall(x - w * 0.5, y - h * 0.5, x - w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut));
+    Draw.z(z - 0.1 + thisFun.funScr(1, x + w * 0.5, y));
+    drawP3d_wall(x + w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut));
+    Draw.z(z);
+  }
+  .setProp({
+    "funScr": (ind, x, y) => {
+      let condX = x - Core.camera.position.x >= 0.0;
+      let condY = y - Core.camera.position.y + 48.0 >= 0.0;
+      if(condX && condY) {
+        switch(ind) {
+          case 0 : return 0.0003;
+          case 1 : return 0.0001;
+          case 2 : return 0.0002;
+          case 3 : return 0.0004;
+        };
+      } else if(!condX && condY) {
+        switch(ind) {
+          case 0 : return 0.0003;
+          case 1 : return 0.0004;
+          case 2 : return 0.0002;
+          case 3 : return 0.0001;
+        };
+      } else if(!condX && !condY) {
+        switch(ind) {
+          case 0 : return 0.0002;
+          case 1 : return 0.0004;
+          case 2 : return 0.0003;
+          case 3 : return 0.0001;
+        };
+      } else {
+        switch(ind) {
+          case 0 : return 0.0002;
+          case 1 : return 0.0001;
+          case 2 : return 0.0003;
+          case 3 : return 0.0004;
+        };
+      };
+    },
+  });
+  exports.drawP3d_room = drawP3d_room;
+
+
+  const drawP3d_region = function(x, y, z3d, reg, regScl, regFixScl, color_gn, z) {
+    if(reg == null) return;
+
+    // 0.5 is enough for regular tall buildings
+    if(z3d == null) z3d = 0.5;
+    if(regScl == null) regScl = 1.0;
+    // Have to test this value in game if {z3d} is larger than one, not linear
+    if(regFixScl == null) regFixScl = 1.08;
+    if(color_gn == null) color_gn = Color.valueOf("565666");
+
+    var w = reg.width * 2.0 * regScl / Vars.tilesize;
+    var h = reg.height * 2.0 * regScl / Vars.tilesize;
+
+    Draw.z(Object.val(z, Layer.power - 1.85));
+    drawP3d_room(x, y, z3d, w, h, color_gn);
+    Draw.rect(reg, _coord_p3d(x, z3d, false), _coord_p3d(y, z3d, true), w * regFixScl, h * regFixScl);
+    Draw.reset();
+  };
+  exports.drawP3d_region = drawP3d_region;
+
+
+  const drawP3d_cylinder = function(x, y, z3d, rad, colorIn_gn, colorOut_gn) {
+    var sideAmt = Lines.circleVertices(rad) * 2;
+    var angSide = 360.0 / sideAmt;
+
+    let z = Draw.z();
+    let ang_i;
+    for(let i = 0; i < sideAmt; i++) {
+      ang_i = angSide * i;
+      drawP3d_wall(
+        x + rad * Mathf.cosDeg(ang_i),
+        y + rad * Mathf.sinDeg(ang_i),
+        x + rad * Mathf.cosDeg(ang_i + angSide),
+        y + rad * Mathf.sinDeg(ang_i + angSide),
+        z3d,
+        colorIn_gn,
+        colorOut_gn,
+      );
+    };
+    Draw.z(z);
+  };
+  exports.drawP3d_cylinder = drawP3d_cylinder;
 
 
   /* <---------- line ----------> */
@@ -755,8 +916,7 @@
     Draw.alpha(a);
     isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawLine_normal = drawLine_normal;
 
 
@@ -779,17 +939,16 @@
     Draw.alpha(a);
     isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawLine_flicker = drawLine_flicker;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * It's laser but not vanilla mining beam. Mostly used to indicate power connection.
+   * It's laser but not vanilla mining beam.
    * ---------------------------------------- */
-  const drawLine_laser = function(x1, y1, x2, y2, strokeScl, color1_gn, color2_gn, hasLight, z) {
+  const drawLine_laser = function(x1, y1, x2, y2, strokeScl, color1_gn, color2_gn, a, hasLight, z) {
     if(strokeScl == null) strokeScl = 1.0;
     if(color1_gn == null) color1_gn = Pal.accent;
     if(color2_gn == null) color2_gn = Color.white;
@@ -798,19 +957,30 @@
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Lines.stroke(3.0 * scl, _color(color1_gn));
-    Draw.alpha(Vars.renderer.laserOpacity);
+    Draw.alpha(a == null ? Vars.renderer.laserOpacity : a);
     Lines.line(x1, y1, x2, y2);
     Fill.circle(x1, y1, 2.4 * scl);
     Fill.circle(x2, y2, 2.4 * scl);
     Lines.stroke(1.0 * scl, _color(color2_gn));
-    Draw.alpha(Vars.renderer.laserOpacity);
+    Draw.alpha(a == null ? Vars.renderer.laserOpacity : a);
     Fill.circle(x1, y1, 1.2 * scl);
     Fill.circle(x2, y2, 1.2 * scl);
     Lines.line(x1, y1, x2, y2);
+    Draw.color();
     if(hasLight) Drawf.light(x1, y1, x2, y2);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawLine_laser = drawLine_laser;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Vanilla laser, no color change.
+   * ---------------------------------------- */
+  const drawLine_laserV = function(x1, y1, x2, y2, strokeScl) {
+    Drawf.laser(VARGEN.laserReg, VARGEN.laserEndReg, x1, y1, x2, y2, Object.val(strokeScl, 1.0));
+  };
+  exports.drawLine_laserV = drawLine_laserV;
 
 
   /* ----------------------------------------
@@ -848,8 +1018,7 @@
     Lines.line(VARGEN.wireGlowReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
     Draw.blend();
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawLine_wire = drawLine_wire;
 
 
@@ -901,29 +1070,25 @@
       Lines.line(x - hw, y + hw, x - hw, y - hw);
     };
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRect_normal = drawRect_normal;
 
 
   const drawRect_normalPlace = function(blk, tx, ty, r, color_gn, isDashed) {
     drawRect_normal(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, r, blk.size, color_gn, 1.0, isDashed);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRect_normalPlace = drawRect_normalPlace;
 
 
   const drawRect_normalSelect = function(b, r, color_gn, isDashed) {
     drawRect_normal(b.x, b.y, r, b.block.size, color_gn, 1.0, isDashed);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRect_normalSelect = drawRect_normalSelect;
 
 
   const drawRect_build = function(b, color_gn, isDashed) {
     drawRect_normal(b.x, b.y, 0, b.block.size, color_gn, 1.0, isDashed);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawRect_build = drawRect_build;
 
 
@@ -952,22 +1117,19 @@
     Draw.alpha(a);
     isDashed ? Lines.dashCircle(x, y, rad) : Lines.circle(x, y, rad);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawCircle_normal = drawCircle_normal;
 
 
   const drawCircle_normalPlace = function(blk, tx, ty, rad, color_gn, isDashed) {
     drawCircle_normal(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, rad, color_gn, 1.0, isDashed);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawCircle_normalPlace = drawCircle_normalPlace;
 
 
   const drawCircle_normalSelect = function(b, rad, color_gn, isDashed) {
     drawCircle_normal(b.x, b.y, rad, color_gn, 1.0, isDashed);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawCircle_normalSelect = drawCircle_normalSelect;
 
 
@@ -989,8 +1151,7 @@
     Draw.alpha(a * 0.7);
     Fill.rect(x, y, size * Vars.tilesize, size * Vars.tilesize);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawArea_normal = drawArea_normal;
 
 
@@ -1005,8 +1166,7 @@
     var off = size % 2 === 0 ? 4.0 : 0.0;
     var size_fi = (0.75 + Math.sin(Time.time * 0.065) * 0.15) * size;
     drawArea_normal(t.worldx() + off, t.worldy() + off, size_fi, color_gn, a, z);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawArea_tShrink = drawArea_tShrink;
 
 
@@ -1029,8 +1189,7 @@
     Draw.alpha(a * 0.5);
     Fill.rect(b.x, b.y, w, w);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawArea_build = drawArea_build;
 
 
@@ -1057,8 +1216,7 @@
     Draw.alpha(a_fi);
     Fill.circle(x, y, rad);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawDisk_warning = drawDisk_warning;
 
 
@@ -1100,8 +1258,7 @@
       Lines.line(x - rad_i, y + rad_i, x - rad_i, y - rad_i);
     };
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawPulse_rect = drawPulse_rect;
 
 
@@ -1144,8 +1301,7 @@
       Lines.circle(x, y, rad_i);
     };
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawPulse_circle = drawPulse_circle;
 
 
@@ -1158,8 +1314,7 @@
     drawRect_build(b);
     drawRect_build(ob);
     drawLine_normal(b.x, b.y, ob.x, ob.y);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawConnector_rect = drawConnector_rect;
 
 
@@ -1169,8 +1324,7 @@
     drawArea_build(b);
     drawArea_build(ob);
     drawLine_flicker(b.x, b.y, ob.x, ob.y);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawConnector_area = drawConnector_area;
 
 
@@ -1213,8 +1367,7 @@
         Drawf.arrow(b.x, b.y, ob.x, ob.y, b.block.size * Vars.tilesize + param, param + 4.0, Pal.accent);
       });
     };
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawConnector_circleArrow = drawConnector_circleArrow;
 
 
@@ -1249,8 +1402,7 @@
     Draw.alpha(a * 0.7);
     Lines.line(x - w * 0.5, y + offY, Mathf.lerp(x - w * 0.5, x + w * 0.5, Mathf.clamp(frac)), y + offY);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawProgress_bar = drawProgress_bar;
 
 
@@ -1274,9 +1426,9 @@
 
     var color = _color(color_gn);
 
-    var sides = Lines.circleVertices(rad) * (noBot ? 2 : 1);
-    var ang_side = 360.0 / sides * (rev ? -1.0 : 1.0);
-    var iCap = Math.round(sides * Mathf.clamp(frac));
+    var sideAmt = Lines.circleVertices(rad) * (noBot ? 2 : 1);
+    var angSide = 360.0 / sideAmt * (rev ? -1.0 : 1.0);
+    var iCap = Math.round(sideAmt * Mathf.clamp(frac));
     var stroke = Object.val(stroke_ow, 5.0);
     var radIn = rad - stroke * 0.5 * (noBot ? 1.0 : 0.6);
     var radOut = rad + stroke * 0.5 * (noBot ? 1.0 : 0.6);
@@ -1292,22 +1444,23 @@
     };
     Draw.color(color);
     Draw.alpha(noBot ? 1.0 : 0.7);
+
+    let ang_i;
     for(let i = 0; i < iCap; i++) {
-      let ang_i = ang_side * i + ang;
+      ang_i = angSide * i + ang;
       Fill.quad(
         x + radIn * Mathf.cosDeg(ang_i),
         y + radIn * Mathf.sinDeg(ang_i),
-        x + radIn * Mathf.cosDeg(ang_i + ang_side),
-        y + radIn * Mathf.sinDeg(ang_i + ang_side),
-        x + radOut * Mathf.cosDeg(ang_i + ang_side),
-        y + radOut * Mathf.sinDeg(ang_i + ang_side),
+        x + radIn * Mathf.cosDeg(ang_i + angSide),
+        y + radIn * Mathf.sinDeg(ang_i + angSide),
+        x + radOut * Mathf.cosDeg(ang_i + angSide),
+        y + radOut * Mathf.sinDeg(ang_i + angSide),
         x + radOut * Mathf.cosDeg(ang_i),
         y + radOut * Mathf.sinDeg(ang_i),
       );
     };
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawProgress_circle = drawProgress_circle;
 
 
@@ -1340,8 +1493,7 @@
     Draw.alpha(a * 0.3);
     Fill.rect(x + offX, y_fi, w, h);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawProgress_vArea = drawProgress_vArea;
 
 
@@ -1358,8 +1510,7 @@
       let offX_i = segW * (i - 0.5 * (iCap - 1.0));
       drawProgress_vArea(x, y, frac_i, size, color_gn, a, offX_i, 0.0, wScl, 1.0, z);
     };
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawProgress_vAreaMul = drawProgress_vAreaMul;
 
 
@@ -1396,8 +1547,7 @@
     font.setUseIntegerPositions(useInt);
 
     Draw.z(z);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawText = drawText;
 
 
@@ -1408,8 +1558,7 @@
     if(offTy == null) offTy = 0;
 
     blk.drawPlaceText(str, tx + blk.offset / Vars.tilesize, ty + blk.offset / Vars.tilesize + offTy, valid);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawText_place = drawText_place;
 
 
@@ -1420,8 +1569,7 @@
     if(offTy == null) offTy = 0;
 
     b.block.drawPlaceText(str, b.x / Vars.tilesize, b.y / Vars.tilesize + offTy, valid);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawText_select = drawText_select;
 
 
@@ -1548,8 +1696,7 @@
     };
 
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawUnit_healthBar = drawUnit_healthBar;
 
 
@@ -1587,8 +1734,7 @@
     Draw.alpha(a * 0.5);
     Lines.line(x - w * 0.5, y - offY, Mathf.lerp(x - w * 0.5, x + w * 0.5, frac), y - offY);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawUnit_reload = drawUnit_reload;
 
 
@@ -1603,8 +1749,7 @@
     var regScl = MDL_entity._hitSize(e) * 0.1;
 
     drawRegion_fade(e.x, e.y, reg, 0.0, regScl, 0.5, color_gn, 0.5, Layer.effect + VAR.lay_offDrawOver);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawStatus_fade = drawStatus_fade;
 
 
@@ -1630,8 +1775,7 @@
     Lines.line(x1, y1, x2, y2);
     Lines.line(x3, y3, x4, y4);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawDebug_cross = drawDebug_cross;
 
 
@@ -1653,8 +1797,7 @@
     Lines.line(x2, y2, x3, y3);
     Lines.line(x3, y3, x1, y1);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawDebug_tri = drawDebug_tri;
 
 
@@ -1675,8 +1818,7 @@
     Draw.color(Pal.accent);
     Lines.line(x1, y1, x2, y2);
     Draw.reset();
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawDebug_hitSize = drawDebug_hitSize;
 
 
@@ -1692,8 +1834,7 @@
     Lines.line(unit.x, unit.y, e_tg.x, e_tg.y);
     Draw.reset();
     drawDebug_cross(e_tg.x, e_tg.y, 0.0, Color.scarlet);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawDebug_target = drawDebug_target;
 
 
@@ -1707,6 +1848,5 @@
     Lines.line(bul.x, bul.y, bul.aimX, bul.aimY);
     Draw.reset();
     drawDebug_tri(bul.aimX, bul.aimY, 0.0, Pal.heal);
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports.drawDebug_aim = drawDebug_aim;

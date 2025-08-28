@@ -192,3 +192,27 @@
   Array.fromPayload = function(payload) {
     return Object.objToArr(JSON.parse(payload));
   };
+
+
+  /* <---------- math ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a unique integer, used for id.
+   * If the provided range is too small, however, duplicates may occur.
+   * ---------------------------------------- */
+  Math.intUnique = function(base, cap, arrGetter) {
+    let base_fi = Math.round(base);
+    let cap_fi = Math.round(cap);
+
+    let num = null;
+    let i = 0;
+    while(num == null || (arrGetter().includes(num) && i < 1000)) {
+      num = cap_fi.randInt(base_fi);
+      i++;
+    };
+
+    return num;
+  };

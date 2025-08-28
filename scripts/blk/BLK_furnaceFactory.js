@@ -28,7 +28,6 @@
    * b.craftSound: se_gn    // @PARAM
    * b.useCep: bool    // @PARAM
    * b.noDump: bool    // @PARAM
-   * b.isTall: false
    * b.heatIncRate: num    // @PARAM: Rate at which the furnace temperature changes.
    * b.rcHeader: ""
    * b.timeScl: 1.0
@@ -65,7 +64,6 @@
    * DB_block.db["param"]["multiplier"]["fuelCons"]    // @PARAM: Multiplier on fuel consumption speed.
    * DB_block.db["param"]["multiplier"]["fuelLvl"]    // @PARAM: Multiplier on fuel level used.
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
-   * DB_block.db["group"]["tall"]    // @PARAM
    * ---------------------------------------- */
 
 
@@ -175,10 +173,10 @@
       }).left().padLeft(28.0).row();
     }}));
 
-    var fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk, 1.0);
-    if(!fuelConsMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelConsMtp, Number(fuelConsMtp).perc());
-    var fuelLvlMtp = DB_block.db["param"]["multiplier"]["fuelLvl"].read(blk, 1.0);
-    if(!fuelLvlMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelLvlMtp, Number(fuelLvlMtp).perc());
+    var fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk.name, 1.0);
+    if(!fuelConsMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelConsMtp, fuelConsMtp.perc());
+    var fuelLvlMtp = DB_block.db["param"]["multiplier"]["fuelLvl"].read(blk.name, 1.0);
+    if(!fuelLvlMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelLvlMtp, fuelLvlMtp.perc());
   };
 
 
@@ -220,7 +218,7 @@
 
       };
     };
-    b.fuelPonCur = Math.max(b.fuelPonCur - b.edelta() / 60.0 * b.fuelConsMtp, 0.0);
+    b.fuelPonCur = Mathf.maxZero(b.fuelPonCur - b.edelta() / 60.0 * b.fuelConsMtp);
   };
 
 
@@ -231,7 +229,7 @@
 
   function comp_setBars(blk) {
     blk.addBar("lovec-furnace-temp", b => new Bar(
-      prov(() => Core.bundle.format("bar.heatpercent", Strings.fixed(b.ex_getHeat(), 2) + " " + TP_stat.rs_heatUnits.localized(), Number(b.efficiency).roundFixed(2) * 100.0)),
+      prov(() => Core.bundle.format("bar.heatpercent", Strings.fixed(b.ex_getHeat(), 2) + " " + TP_stat.rs_heatUnits.localized(), b.efficiency.roundFixed(2) * 100.0)),
       prov(() => Pal.lightOrange),
       () => b.ex_getHeatFrac(),
     ));
@@ -241,7 +239,6 @@
   function comp_acceptItem(b, b_f, itm) {
     if(b.items == null) return false;
     if(b.items.get(itm) >= b.getMaximumAccepted(itm)) return false;
-    if(b.isTall && !MDL_cond._isTallSource(b_f.block)) return false;
     if(!VARGEN.fuelItms.includes(itm) || b.block.ex_getBlockedFuels().includes(itm.name)) return false;
 
     return true;
@@ -259,7 +256,7 @@
       b.tempAllowed = MDL_recipe._tempAllowed(rcMdl, rcHeader);
     };
 
-    if(b.ex_getTimerEffc()) {
+    if(b.ex_getTimerEffcState()) {
       b.fuelTup = FRAG_faci._fuelTup(b);
     };
   };
@@ -497,8 +494,8 @@
 
 
     // @NOSUPER
-    ex_getTimerEffc: function(b) {
-      return PARENT.ex_getTimerEffc(b);
+    ex_getTimerEffcState: function(b) {
+      return PARENT.ex_getTimerEffcState(b);
     },
 
 

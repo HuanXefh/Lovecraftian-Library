@@ -53,7 +53,7 @@
   /* <---------- component ----------> */
 
 
-  function comp_update(sta, unit, time) {
+  function comp_update(sta, unit, staEn) {
     if(TIMER.timerState_unit && !sta.ex_canApply(unit)) unit.unapply(sta);
   };
 
@@ -81,9 +81,9 @@
     },
 
 
-    update: function(sta, unit, time) {
-      PARENT.update(sta, unit, time);
-      comp_update(sta, unit, time);
+    update: function(sta, unit, staEn) {
+      PARENT.update(sta, unit, staEn);
+      comp_update(sta, unit, staEn);
     },
 
 

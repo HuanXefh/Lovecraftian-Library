@@ -53,6 +53,11 @@
   exports._posVisible = _posVisible;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether there's any loot unit at (x, y).
+   * ---------------------------------------- */
   const _posHasLoot = function(x, y) {
     return Groups.unit.intersect(x - 3.0, y - 3.0, 12.0, 12.0).select(unit => _isLoot(unit)).size > 0;
   };
@@ -62,6 +67,11 @@
   /* <---------- resource ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource is now available (unlocked and not hidden).
+   * ---------------------------------------- */
   const _isRsAvailable = function(rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
     if(rs == null) return false;
@@ -71,36 +81,79 @@
   exports._isRsAvailable = _isRsAvailable;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource is an intermediate.
+   * ---------------------------------------- */
   const _isIntmd = function(rs_gn) {
     return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-intmd");
   };
   exports._isIntmd = _isIntmd;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource is a waste.
+   * ---------------------------------------- */
   const _isWas = function(rs_gn) {
     return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-was");
   };
   exports._isWas = _isWas;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource is a virtual item.
+   * ---------------------------------------- */
   const _isVirt = function(rs_gn) {
     return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-virt");
   };
   exports._isVirt = _isVirt;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource is an abstract fluid.
+   * ---------------------------------------- */
   const _isAux = function(rs_gn) {
     return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-aux");
   };
   exports._isAux = _isAux;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource is an abstract fluid that is not capped in buildings.
+   * ---------------------------------------- */
   const _isNoCapAux = function(rs_gn) {
     return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-nocap0aux");
   };
   exports._isNoCapAux = _isNoCapAux;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource contains water.
+   * ---------------------------------------- */
+  const _isAqueousLiq = function(rs_gn) {
+    let rs = MDL_content._ct(rs_gn, "rs");
+
+    return rs == null ? false : DB_fluid.db["group"]["aqueous"].includes(rs.name);
+  };
+  exports._isAqueousLiq = _isAqueousLiq;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this resource is conductive and can cause short circuit.
+   * ---------------------------------------- */
   const _isConductiveLiq = function(rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
 
@@ -112,118 +165,211 @@
   /* <---------- block ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is used for map.
+   * ---------------------------------------- */
   const _isMapBlock = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-map");
   };
   exports._isMapBlock = _isMapBlock;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a generic miner.
+   * ---------------------------------------- */
   const _isMiner = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-min");
   };
   exports._isMiner = _isMiner;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a drill.
+   * ---------------------------------------- */
   const _isDrill = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-drl");
   };
   exports._isDrill = _isDrill;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is an attribute miner.
+   * ---------------------------------------- */
   const _isHarvester = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-harv");
   };
   exports._isHarvester = _isHarvester;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is an ore scanner for depth ore detection.
+   * ---------------------------------------- */
   const _isOreScanner = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-scan");
   };
   exports._isOreScanner = _isOreScanner;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a crop that can be harvested.
+   * ---------------------------------------- */
   const _isCrop = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-crop");
   };
   exports._isCrop = _isCrop;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block transports items.
+   * ---------------------------------------- */
   const _isItemDistributor = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-dis");
   };
   exports._isItemDistributor = _isItemDistributor;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a conveyor.
+   * ---------------------------------------- */
   const _isConv = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-conv");
   };
   exports._isConv = _isConv;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a bridge (for item or fluid).
+   * ---------------------------------------- */
   const _isBrd = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-brd");
   };
   exports._isBrd = _isBrd;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a gate (for item or fluid).
+   * ---------------------------------------- */
   const _isGate = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-gate");
   };
   exports._isGate = _isGate;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is god.
+   * ---------------------------------------- */
   const _isRouter = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-router");
   };
   exports._isRouter = _isRouter;
 
 
-  const _isTall = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : DB_block.db["group"]["tall"].includes(blk.name);
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is tall.
+   * ---------------------------------------- */
+  const _isTallBlk = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-tall");
   };
-  exports._isTall = _isTall;
+  exports._isTallBlk = _isTallBlk;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a hoist for tall buildings.
+   * ---------------------------------------- */
   const _isHoist = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-hoist");
   };
   exports._isHoist = _isHoist;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block can transfer items to tall buildings.
+   * ---------------------------------------- */
   const _isTallSource = function(blk_gn) {
-    return _isTall(blk_gn) || _isHoist(blk_gn);
+    return _isTallBlk(blk_gn) || _isHoist(blk_gn);
   };
   exports._isTallSource = _isTallSource;
 
 
-  const _isExposedBlock = function(blk_gn) {
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is exposed to air (can trigger some reactions).
+   * ---------------------------------------- */
+  const isExposedBlk = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
     return blk == null ? false : DB_block.db["group"]["exposed"].includes(blk.name);
   };
-  exports._isExposedBlock = _isExposedBlock;
+  exports.isExposedBlk = isExposedBlk;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is an item container.
+   * ---------------------------------------- */
   const _isCont = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cont");
   };
   exports._isCont = _isCont;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block can store virtual items.
+   * ---------------------------------------- */
   const _isVirtBlk = function(blk_gn) {
     return _isCoreBlock(blk_gn) || _isVCont(blk_gn);
   };
   exports._isVirtBlk = _isVirtBlk;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a virutal item container.
+   * ---------------------------------------- */
   const _isVCont = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-vcont") || _isCoreBlock(blk_gn);
   };
   exports._isVCont = _isVCont;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a core.
+   * ---------------------------------------- */
   const _isCoreBlock = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk")
 
@@ -232,24 +378,59 @@
   exports._isCoreBlock = _isCoreBlock;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block rejects all reactions.
+   * ---------------------------------------- */
+  const _isNoReacBlk = function(blk_gn) {
+    let blk = MDL_content._ct(blk_gn, "blk")
+    if(blk == null) return false;
+    if(blk instanceof CoreBlock) return true;
+
+    return DB_block.db["group"]["noReac"].includes(blk.name);
+  };
+  exports._isNoReacBlk = _isNoReacBlk;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a pump block (can produce pressure/vacuum).
+   * ---------------------------------------- */
   const _isPump = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pump");
   };
   exports._isPump = _isPump;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a fluid conduit.
+   * ---------------------------------------- */
   const _isFCond = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fcond");
   };
   exports._isFCond = _isFCond;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a fluid container.
+   * ---------------------------------------- */
   const _isFCont = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fcont");
   };
   exports._isFCont = _isFCont;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a liquid conduit.
+   * ---------------------------------------- */
   const _isLCond = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
@@ -258,6 +439,11 @@
   exports._isLCond = _isLCond;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a liquid container.
+   * ---------------------------------------- */
   const _isLCont = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
@@ -266,6 +452,11 @@
   exports._isLCont = _isLCont;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a gas conduit.
+   * ---------------------------------------- */
   const _isGCond = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
@@ -274,6 +465,11 @@
   exports._isGCond = _isGCond;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a gas container.
+   * ---------------------------------------- */
   const _isGCont = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
@@ -282,12 +478,22 @@
   exports._isGCont = _isGCont;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a fluid junction.
+   * ---------------------------------------- */
   const _isFJunc = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fjunc");
   };
   exports._isFJunc = _isFJunc;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this conduit will receive damage if the fluid in it is viscous.
+   * ---------------------------------------- */
   const _isCloggable = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
@@ -296,24 +502,66 @@
   exports._isCloggable = _isCloggable;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block can store abstract fluid.
+   * ---------------------------------------- */
   const _isAuxBlk = function(blk_gn) {
-    return _isPump(blk_gn) || _isHCond(blk_gn);
+    return _isPump(blk_gn) || _isHCond(blk_gn) || _isTCont(blk_gn);
   };
   exports._isAuxBlk = _isAuxBlk;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a heat conduit.
+   * ---------------------------------------- */
   const _isHCond = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-hcond");
   };
   exports._isHCond = _isHCond;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a torque container.
+   * ---------------------------------------- */
+  const _isTCont = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-tcont");
+  };
+  exports._isTCont = _isTCont;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a cogwheel.
+   * ---------------------------------------- */
   const _isCog = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cog");
   };
   exports._isCog = _isCog;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a transmission rod.
+   * ---------------------------------------- */
+  const _isTransRod = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-trans0rod");
+  };
+  exports._isTransRod = _isTransRod;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block can short-circuit if soaked in water.
+   * ---------------------------------------- */
   const _canShortCircuit = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
@@ -322,36 +570,77 @@
   exports._canShortCircuit = _canShortCircuit;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is related to power generation or transmission.
+   * ---------------------------------------- */
   const _isPowBlock = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pow");
   };
   exports._isPowBlock = _isPowBlock;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a generator.
+   * ---------------------------------------- */
   const _isPowGen = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pow0gen");
   };
   exports._isPowGen = _isPowGen;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a power transmitter.
+   * ---------------------------------------- */
   const _isPowTrans = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pow0trans");
   };
   exports._isPowTrans = _isPowTrans;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a cable.
+   * ---------------------------------------- */
+  const _isCable = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cable");
+  };
+  exports._isCable = _isCable;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a power relay.
+   * ---------------------------------------- */
   const _isPowRelay = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-relay");
   };
   exports._isPowRelay = _isPowRelay;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a power node.
+   * ---------------------------------------- */
   const _isPowNode = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-node");
   };
   exports._isPowNode = _isPowNode;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block induces magnetic disturbance.
+   * ---------------------------------------- */
   const _isMagnetic = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
 
@@ -360,36 +649,66 @@
   exports._isMagnetic = _isMagnetic;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a factory.
+   * ---------------------------------------- */
   const _isFactory = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fac");
   };
   exports._isFactory = _isFactory;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a furnace.
+   * ---------------------------------------- */
   const _isFurnace = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-furn");
   };
   exports._isFurnace = _isFurnace;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a wall.
+   * ---------------------------------------- */
   const _isWall = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-wall");
   };
   exports._isWall = _isWall;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a generic projector.
+   * ---------------------------------------- */
   const _isProjector = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-proj");
   };
   exports._isProjector = _isProjector;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a repairer.
+   * ---------------------------------------- */
   const _isRepairer = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-mend");
   };
   exports._isRepairer = _isRepairer;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is related to logic.
+   * ---------------------------------------- */
   const _isLogicBlock = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-log");
   };
@@ -399,36 +718,66 @@
   /* <---------- env ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is an environmental block.
+   * ---------------------------------------- */
   const _isEnvBlock = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-env");
   };
   exports._isEnvBlock = _isEnvBlock;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a vent.
+   * ---------------------------------------- */
   const _isVentBlock = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-vent");
   };
   exports._isVentBlock = _isVentBlock;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a large tree (or mushroom).
+   * ---------------------------------------- */
   const _isTreeBlock = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-tree");
   };
   exports._isTreeBlock = _isTreeBlock;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is an underground ore.
+   * ---------------------------------------- */
   const _isDepthOre = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-dpore");
   };
   exports._isDepthOre = _isDepthOre;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is an underground fluid deposit.
+   * ---------------------------------------- */
   const _isDepthLiquid = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-dpliq");
   };
   exports._isDepthLiquid = _isDepthLiquid;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is affected by ore scanners.
+   * ---------------------------------------- */
   const _isScannerTarget = function(blk_gn) {
     if(_isDepthOre(blk_gn) || _isDepthLiquid(blk_gn)) return true;
 
@@ -556,6 +905,11 @@
   exports._canHeal = _canHeal;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this building is running.
+   * ---------------------------------------- */
   const _isBuildingActive = function(b) {
     if(b == null) return false;
     if(b.team === Team.derelict || b.edelta() < 0.0001) return false;
@@ -565,6 +919,11 @@
   exports._isBuildingActive = _isBuildingActive;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this unit is a loot unit.
+   * ---------------------------------------- */
   const _isLoot = function(unit) {
     if(unit == null) return false;
 
@@ -573,6 +932,11 @@
   exports._isLoot = _isLoot;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this loot cannot be taken up now.
+   * ---------------------------------------- */
   const _isLootProtected = function(loot) {
     return loot.fin() * 2.0 < VAR.time_lootProtection / loot.type.lifetime;
   };
@@ -582,7 +946,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit can be controlled by AI.
+   * Whether this unit can be controlled by AI now.
    * ---------------------------------------- */
   const _isAiReady = function(unit) {
     if(unit == null) return false;
@@ -596,7 +960,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit can be covered by trees.
+   * Whether this unit can be covered by trees.
    * ---------------------------------------- */
   const _isCoverable = function(unit, includeSize) {
     if(unit == null) return false;
@@ -611,7 +975,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit is covered by trees.
+   * Whether this unit is covered by trees.
    * ---------------------------------------- */
   const _isCovered = function(unit) {
     if(unit == null) return false;
@@ -627,7 +991,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit can be damaged by heat.
+   * Whether this unit can be damaged by heat.
    * ---------------------------------------- */
   const _isHeatDamageable = function(unit) {
     if(unit == null) return false;
@@ -642,7 +1006,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit can be affected by liquid floor.
+   * Whether this unit can be affected by liquid floor.
    * ---------------------------------------- */
   const _isOnFloor = function(unit) {
     if(unit == null) return false;
@@ -657,7 +1021,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit suffers from wall penalty.
+   * Whether this unit suffers from wall penalty.
    * ---------------------------------------- */
   const _isLowGround = function(unit) {
     if(unit == null) return false;
@@ -702,7 +1066,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit is moving (not done by collision).
+   * Whether this unit is moving (not through collision).
    * ---------------------------------------- */
   const _isMoving = function(unit) {
     if(unit == null) return false;
@@ -715,7 +1079,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit is boosting up/down.
+   * Whether this unit is boosting up/down.
    * ---------------------------------------- */
   const _isBoosting = function(unit) {
     if(unit == null) return false;
@@ -729,7 +1093,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit has injured status.
+   * Whether this unit has injured status.
    * ---------------------------------------- */
   const _isInjured = function(unit) {
     const thisFun = _isInjured;
@@ -752,7 +1116,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit has damaged status.
+   * Whether this unit has damaged status.
    * ---------------------------------------- */
   const _isDamaged = function(unit) {
     const thisFun = _isDamaged;
@@ -771,6 +1135,11 @@
   exports._isDamaged = _isDamaged;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this unit has any of given status effects.
+   * ---------------------------------------- */
   const _hasEffectAny = function(unit, stas_gn) {
     if(unit == null) return false;
     if(stas_gn.some(sta_gn => {
@@ -786,7 +1155,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit is HOT.
+   * Whether this unit is HOT.
    * Used for remains.
    * ---------------------------------------- */
   const _isHot = function(unit) {
@@ -805,7 +1174,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit has been soaked in aqueous liquids recently.
+   * Whether this unit has been soaked in aqueous liquids recently.
    * This may influence something like short circuit.
    * ---------------------------------------- */
   const _isWet = function(unit) {
@@ -820,7 +1189,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit has at least one weapon active.
+   * Whether this unit has at least one weapon active.
    * ---------------------------------------- */
   const _isAttacking = function(unit) {
     if(unit == null) return false;
@@ -834,7 +1203,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the unit is performing any actions.
+   * Whether this unit is performing any actions.
    * ---------------------------------------- */
   const _isActing = function(unit) {
     if(unit == null) return false;
@@ -848,6 +1217,11 @@
   /* <---------- status effect ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this status is related to high temperature.
+   * ---------------------------------------- */
   const _isHotSta = function(sta_gn) {
     let sta = MDL_content._ct(sta_gn, "sta");
 
@@ -856,6 +1230,11 @@
   exports._isHotSta = _isHotSta;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this status is related to water.
+   * ---------------------------------------- */
   const _isWetSta = function(sta_gn) {
     let sta = MDL_content._ct(sta_gn, "sta");
 
@@ -864,24 +1243,44 @@
   exports._isWetSta = _isWetSta;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this status is a fading (or flickering) status.
+   * ---------------------------------------- */
   const _isFadeSta = function(sta_gn) {
     return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-fade");
   };
   exports._isFadeSta = _isFadeSta;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this status is applied based on blocks around the unit.
+   * ---------------------------------------- */
   const _isBlkSta = function(sta_gn) {
     return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-blk");
   };
   exports._isBlkSta = _isBlkSta;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this status is triggered upon unit death.
+   * ---------------------------------------- */
   const _isDeathSta = function(sta_gn) {
     return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-death");
   };
   exports._isDeathSta = _isDeathSta;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this status is a stackable status.
+   * ---------------------------------------- */
   const _isStackSta = function(sta_gn) {
     let sta = MDL_content._ct(sta_gn, "sta");
     if(sta == null) return false;

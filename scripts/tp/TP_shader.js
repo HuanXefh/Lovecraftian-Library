@@ -8,7 +8,7 @@
   /* <---------- import ----------> */
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- auxiliay ----------> */
 
 
   const newIns_surf = function(nmFrag) {

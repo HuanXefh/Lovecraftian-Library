@@ -73,7 +73,7 @@
   };
 
 
-  function comp_update(sta, unit, time) {
+  function comp_update(sta, unit, staEn) {
     if(sta.burstTime < 0.0001) return;
 
     if(TIMER.timerState_stackSta) {
@@ -81,11 +81,13 @@
       if(t != null) {
         let flr = t.floor();
         let puddle = Puddles.get(t);
-        if(((flr.status === sta && flr.statusDuration > 0.0) || (puddle != null && puddle.liquid.effect === sta)) && MDL_cond._isOnFloor(unit)) unit.apply(sta, time + VAR.time_stackStaExtDef * (flr.shallow ? 1.0 : 2.5));
+        if(((flr.status === sta && flr.statusDuration > 0.0) || (puddle != null && puddle.liquid.effect === sta)) && MDL_cond._isOnFloor(unit)) {
+          unit.apply(sta, staEn.time + VAR.time_stackStaExtDef * (flr.shallow ? 1.0 : 2.5));
+        };
       };
     };
 
-    if(time > sta.burstTime) {
+    if(staEn.time > sta.burstTime) {
       let dmg = sta.burstDamage + unit.maxHealth * sta.burstDamagePerc;
 
       unit.unapply(sta);
@@ -120,9 +122,9 @@
     },
 
 
-    update: function(sta, unit, time) {
-      PARENT.update(sta, unit, time);
-      comp_update(sta, unit, time);
+    update: function(sta, unit, staEn) {
+      PARENT.update(sta, unit, staEn);
+      comp_update(sta, unit, staEn);
     },
 
 

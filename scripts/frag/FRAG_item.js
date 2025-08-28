@@ -15,6 +15,7 @@
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_net = require("lovec/mdl/MDL_net");
+  const MDL_reaction = require("lovec/mdl/MDL_reaction");
 
 
   /* <---------- item module ----------> */
@@ -64,7 +65,7 @@
 
     let amtCur = b.items.get(itm);
     let amtCur_t = b_t.items.get(itm);
-    let amtTrans = Math.max(Math.min(Number(amt).randFreq(p), amtCur, b_t.block.itemCapacity - amtCur_t), 0);
+    let amtTrans = Mathf.maxZero(Math.min(amt.randFreq(p), amtCur, b_t.block.itemCapacity - amtCur_t));
     if(amtTrans < 1) return false;
     Call.setItem(b, itm, amtCur - amtTrans);
     Call.setItem(b_t, itm, amtCur_t + amtTrans);
@@ -87,7 +88,7 @@
     if(amt < 1) return false;
     if(p == null) p = 1.0;
 
-    let amtTrans = Number(amt).randFreq(p);
+    let amtTrans = amt.randFreq(p);
     if(amtTrans < 1) return false;
     b.items.remove(itm, amtTrans);
     Call.setItem(b, itm, b.items.get(itm));
@@ -246,7 +247,7 @@
     if(amt < 1) return false;
     if(max == null) max = Infinity;
 
-    var amtTrans = Math.max(Math.min(amt, b.block.itemCapacity - b.items.get(itm), max), 0);
+    var amtTrans = Mathf.maxZero(Math.min(amt, b.block.itemCapacity - b.items.get(itm), max));
     if(amtTrans < 1) return false;
 
     addItem(b, b, itm, amtTrans, 1.0, true);
@@ -388,7 +389,7 @@
     if(amt < 1) return false;
     if(p == null) p = 1.0;
 
-    let amtTrans = Number(amt).randFreq(p);
+    let amtTrans = amt.randFreq(p);
     if(amtTrans < 1) return false;
 
     unit.addItem(itm, amtTrans);
@@ -426,7 +427,7 @@
     if(amt < 1) return false;
     if(p == null) p = 1.0;
 
-    let amtTrans = Math.min(Number(amt).randFreq(p), unit.stack.amount);
+    let amtTrans = Math.min(amt.randFreq(p), unit.stack.amount);
     if(amtTrans < 1) return false;
 
     unit.stack.amount -= amtTrans;
@@ -470,7 +471,7 @@
 
     if(max == null) max = Infinity;
 
-    let amtTrans = Math.max(Math.min(unit.stack.amount, b.block.itemCapacity - b.items.get(unit.item()), max), 0);
+    let amtTrans = Mathf.maxZero(Math.min(unit.stack.amount, b.block.itemCapacity - b.items.get(unit.item()), max));
     if(amtTrans < 1) return false;
 
     Call.transferItemTo(unit, unit.item(), amtTrans, unit.x, unit.y, b);
@@ -495,7 +496,7 @@
     if(amt < 1) return false;
     if(max == null) max = Infinity;
 
-    var amtTrans = Math.max(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max), 0);
+    var amtTrans = Mathf.maxZero(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max));
     if(amtTrans < 1) return false;
 
     addUnitItem(unit, itm, amtTrans);
@@ -520,7 +521,7 @@
     if(amt < 1) return false;
     if(max == null) max = Infinity;
 
-    var amtTrans = Math.max(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max), 0);
+    var amtTrans = Mathf.maxZero(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max));
     if(amtTrans < 1) return false;
 
     let payload = Array.toPayload([
@@ -539,7 +540,8 @@
       takeUnitLoot(Groups.unit.getById(arr[0]), Groups.unit.getById(arr[1]), arr[2]);
     });
   })
-  .setAnno(ANNO.__CLIENT__);
+  .setAnno(ANNO.__CLIENT__)
+  .setAnno(ANNO.__NONCONSOLE__);
   exports.takeUnitLoot_client = takeUnitLoot_client;
 
 
@@ -573,16 +575,19 @@
 
 
   const comp_updateTile_exposed = function(b) {
-    // TODO
+    if(!Mathf.chance(0.05)) return;
+    if(b.items == null || b.block.itemCapacity === 0 || !MDL_cond.isExposedBlk(b.block) || MDL_cond._isNoReacBlk(b.block)) return;
+
+    b.items.each(itm => {
+      MDL_reaction.handleReaction(itm, "GROUP: air", 20.0, b);
+    });
   }
-  .setTodo("Explosed item reaction.");
   exports.comp_updateTile_exposed = comp_updateTile_exposed;
 
 
   const comp_onDestroyed_exposed = function(b) {
-    // TODO
+    // NOTE: I still have no idea what this can do.
   }
-  .setTodo("How exposed reaction happens when building is dead.");
   exports.comp_onDestroyed_exposed = comp_onDestroyed_exposed;
 
 

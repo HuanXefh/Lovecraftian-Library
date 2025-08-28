@@ -14,6 +14,7 @@ const db = {
       "loveclab-sta-haste",
       "loveclab-sta0liq-sea-water-corrosion",
       "loveclab-sta0liq-brine-corrosion",
+      "loveclab-sta0liq-waste-corrosion",
       "loveclab-sta0death-recycle-mark",
 
     ],
@@ -29,6 +30,7 @@ const db = {
       "wet",
 
       "loveclab-sta0liq-sea-water-corrosion",
+      "loveclab-sta0liq-waste-corrosion",
 
     ],
 
@@ -58,6 +60,7 @@ const db = {
       "loveclab-sta-hidden-well",
       "loveclab-sta0liq-sea-water-corrosion",
       "loveclab-sta0liq-brine-corrosion",
+      "loveclab-sta0liq-waste-corrosion",
       "loveclab-sta0death-recycle-mark",
 
     ],
@@ -89,6 +92,7 @@ const db = {
 
       "loveclab-sta0liq-sea-water-corrosion",
       "loveclab-sta0liq-brine-corrosion",
+      "loveclab-sta0liq-waste-corrosion",
 
     ],
 

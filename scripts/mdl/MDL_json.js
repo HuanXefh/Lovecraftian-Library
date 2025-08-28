@@ -76,7 +76,9 @@
     if(noConvert) return tmpJsonVal;
 
     let tmpVal;
-    if(tmpJsonVal == null) {tmpVal = tmpJsonVal} else {
+    if(tmpJsonVal == null) {
+      tmpVal = tmpJsonVal
+    } else {
       switch(tmpJsonVal.type().toString()) {
 
         case "doubleValue" :
@@ -96,10 +98,11 @@
           break;
 
         case "array" :
+          // NOTE: I have to convert it to js array, or the game somehow converts it to object after 3 times of saving, WTF.
           if(arrMode === "number") {
-            tmpVal = tmpJsonVal.asDoubleArray();
+            tmpVal = tmpJsonVal.asDoubleArray().slice();
           } else if(arrMode === "string") {
-            tmpVal = tmpJsonVal.asStringArray();
+            tmpVal = tmpJsonVal.asStringArray().slice();
           } else {
             tmpVal = tmpJsonVal;
           };

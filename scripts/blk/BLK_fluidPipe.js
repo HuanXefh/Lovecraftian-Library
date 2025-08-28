@@ -36,6 +36,7 @@
    * b.fHeatTg: 0.0
    * b.heatRes: Infinity
    * b.heatReg: null
+   * b.isLeaked: false
    * ---------------------------------------- */
 
 
@@ -57,20 +58,41 @@
 
 
   const PARENT = require("lovec/blk/BLK_baseFluidBlock");
+  const PARAM = require("lovec/glb/GLB_param");
   const TIMER = require("lovec/glb/GLB_timer");
 
 
+  const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_flow = require("lovec/mdl/MDL_flow");
+  const MDL_reaction = require("lovec/mdl/MDL_reaction");
 
 
+  const TP_cons = require("lovec/tp/TP_cons");
   const TP_stat = require("lovec/tp/TP_stat");
 
 
+  const DB_block = require("lovec/db/DB_block");
+
+
   /* <---------- component ----------> */
+
+
+  function comp_init(blk) {
+    if(DB_block.db["group"]["shortCircuitPipe"].includes(blk.name)) {
+      blk.conductivePower = false;
+      blk.connectedPower = false;
+      blk.enableDrawStatus = false;
+
+      let consPow = TP_cons._consPow_shortCircuit(0.0, 1.0);
+      blk.consumers = [consPow];
+      blk.consPower = consPow;
+    };
+  };
 
 
   function comp_setStats(blk) {
@@ -81,11 +103,55 @@
 
   function comp_updateTile(b) {
     if(TIMER.timerState_heat) b.ex_updatePres();
+
+    if(TIMER.timerState_sec && b.isLeaked && b.liquids.currentAmount() > 0.001) FRAG_faci.addDynaPol(FRAG_faci._liqPol(b.liquids.current()) / 60.0);
+
+    if(Mathf.chance(0.008) && b.block.consPower != null) b.block.consPower.trigger(b);
+  };
+
+
+  function comp_onProximityUpdate(b) {
+    if(!b.block.leaks) b.isLeaked = false;
+    let ot = b.tile.nearby(b.rotation);
+    if(ot == null) {
+      b.isLeaked = true;
+    } else {
+      b.isLeaked = !ot.solid();
+    };
   };
 
 
   function comp_moveLiquid(b, b_t, liq) {
-    return FRAG_fluid.moveLiquid(b, b_t, liq);
+    let amtTrans = 0.0;
+    if(PARAM.updateSuppressed || b_t == null || liq == null) return amtTrans;
+
+    // Called occasionally to update params in {b}
+    if(TIMER.timerState_liq) {
+      b.liqEnd = b_t.getLiquidDestination(b, liq);
+    };
+
+    if(b.liqEnd == null || b.liqEnd.liquids == null) return amtTrans;
+
+    amtTrans = FRAG_fluid.transLiquid(
+      b,
+      b.liqEnd,
+      liq,
+      b.block.liquidCapacity * Math.max(b.liquids.get(liq) / b.block.liquidCapacity - b.liqEnd.liquids.get(liq) / b.liqEnd.block.liquidCapacity, 0.0),
+    );
+
+    let oliq = b.liqEnd.liquids.current();
+    if(
+      !b.liqEnd.block.consumesLiquid(liq)
+      && oliq !== liq
+      && b.liqEnd.liquids.get(oliq) / b.liqEnd.block.liquidCapacity > 0.1
+      && b.liquids.get(liq) / b.block.liquidCapacity > 0.1
+    ) {
+
+      if(Mathf.chanceDelta(0.1)) MDL_reaction.handleReaction(liq, oliq, 10.0, b_t);
+
+    };
+
+    return amtTrans;
   };
 
 
@@ -119,6 +185,7 @@
 
     init: function(blk) {
       PARENT.init(blk);
+      comp_init(blk);
     },
 
 
@@ -154,6 +221,7 @@
 
     onProximityUpdate: function(b) {
       PARENT.onProximityUpdate(b);
+      comp_onProximityUpdate(b);
     },
 
 
@@ -168,6 +236,12 @@
 
 
     /* <---------- block (specific) ----------> */
+
+
+    // @NOSUPER
+    icons: function(blk) {
+      return [MDL_content._reg(blk, "-icon")];
+    },
 
 
     setBars: function(blk) {

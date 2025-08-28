@@ -102,14 +102,14 @@
 
 
     // @NOSUPER
-    ex_getWe: function(wea, minFreq, maxFreq, minDur, maxDur) {
-      return PARENT.ex_getWe(wea, minFreq, maxFreq, minDur, maxDur);
+    ex_getWeaEn: function(wea, minFreq, maxFreq, minDur, maxDur) {
+      return PARENT.ex_getWeaEn(wea, minFreq, maxFreq, minDur, maxDur);
     },
 
 
     // @NOSUPER
-    ex_getWePermanent: function(wea) {
-      return PARENT.ex_getWePermanent(wea);
+    ex_getWeaEnPermanent: function(wea) {
+      return PARENT.ex_getWeaEnPermanent(wea);
     },
 
 

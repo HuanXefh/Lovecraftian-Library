@@ -216,6 +216,8 @@
     if(susTimeS == null) susTimeS = 0.5;
 
     const tb = new Table();
+    tb.touchable = Touchable.disabled;
+
     tb.table(Tex.whiteui, tb1 => {
       tb1.setColor(color);
     })
@@ -257,6 +259,8 @@
     if(inTimeS == null) inTimeS = 1.0;
 
     const tb = new Table();
+    tb.touchable = Touchable.disabled;
+
     tb.table(new TextureRegionDrawable(Core.atlas.find(nmBg)), tb1 => {})
     .width(VAR.len_bgW * _uiScl())
     .height(VAR.len_bgH * _uiScl())
@@ -317,6 +321,8 @@
     if(customActTimeS == null) customActTimeS = 0.0;
 
     const tb = new Table();
+    tb.touchable = Touchable.disabled;
+
     tb.table(new TextureRegionDrawable(Core.atlas.find(nmMod + "-chara-" + chara, Core.atlas.find("lovec-chara-error"))), tb1 => {
 
       if(isDark0color instanceof Color) {
