@@ -17,10 +17,12 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * "Mindustry/saves/mods".
+   * "Mindustry/saves/mods", or "io.anuke.mindustry/files/mods".
+   *
+   * Don't use {root} here, or {arc.util.ArcRuntimeException} is thrown.
    * ---------------------------------------- */
   const mod = (function() {
-    return MDL_util._loadedMod("lovec").root.parent();
+    return MDL_util._loadedMod("lovec").file.parent();
   })();
   exports.mod = mod;
 
@@ -28,7 +30,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * "Mindustry/saves".
+   * "Mindustry/saves", or "io.anuke.mindustry/files" on Android.
    * ---------------------------------------- */
   const save = mod.parent();
   exports.save = save;
@@ -37,7 +39,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * "Mindustry/saves/maps".
+   * "Mindustry/saves/maps", or "io.anuke.mindustry/files/maps" on Android.
    * ---------------------------------------- */
   const map = mod.sibling("maps");
   exports.map = map;
@@ -46,7 +48,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * "Mindustry/saves/saves".
+   * "Mindustry/saves/saves", or "io.anuke.mindustry/files/saves" on Android.
    * ---------------------------------------- */
   const gameSave = mod.sibling("saves");
   exports.gameSave = gameSave;
@@ -55,7 +57,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * "Mindustry/saves/schematics".
+   * "Mindustry/saves/schematics", or "io.anuke.mindustry/files/schematics" on Android.
    * ---------------------------------------- */
   const schematic = mod.sibling("schematics");
   exports.schematic = schematic;
@@ -64,7 +66,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * "Mindustry/saves/mods/data/lovec".
+   * "Mindustry/saves/mods/data/lovec", or "io.anuke.mindustry/files/mods/data/lovec" on Android.
    * ---------------------------------------- */
   const lovecData = mod.child("data").child("lovec");
   exports.lovecData = lovecData;
@@ -74,11 +76,12 @@
    * NOTE:
    *
    * Returns the root directory of a mod.
+   * {mod.file} and {mod.root} can be different if the mod file is a zip file, handle it carefully!
    * ---------------------------------------- */
-  const _root = function(nmMod) {
+  const _root = function(nmMod, returnZipRoot) {
     let mod = MDL_util._loadedMod(nmMod);
 
-    return mod == null ? null : mod.root;
+    return mod == null ? null : (returnZipRoot ? mod.file : mod.root);
   };
   exports._root = _root;
 

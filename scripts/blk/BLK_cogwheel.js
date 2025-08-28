@@ -102,6 +102,7 @@
 
     Time.run(5.0, () => {
       if(isNaN(b.rpmCur)) b.rpmCur = 0.0;
+      if(isNaN(b.torCur)) b.torCur = 0.0;
     });
   };
 
