@@ -72,6 +72,7 @@
   const JAVA = require("lovec/glb/GLB_java");
   const PARAM = require("lovec/glb/GLB_param");
   const TIMER = require("lovec/glb/GLB_timer");
+  const VAR = require("lovec/glb/GLB_var");
 
 
   const FRAG_faci = require("lovec/frag/FRAG_faci");
@@ -89,6 +90,9 @@
 
   const TP_stat = require("lovec/tp/TP_stat");
   const TP_table = require("lovec/tp/TP_table");
+
+
+  const MOD_tmi = require("lovec/mod/MOD_tmi");
 
 
   /* <---------- auxiliay ----------> */
@@ -118,6 +122,7 @@
           val = Math.max(val, tmpVal);
           scl = Math.min(scl, tmpVal);
           hasLiquidOutput = true;
+          i += 2;
         };
       };
 
@@ -151,6 +156,8 @@
 
       Core.app.post(() => MDL_recipe.initRc(blk.rcMdl, blk));
     });
+
+    MOD_tmi._r_recipe(blk, blk.rcMdl);
   };
 
 
@@ -204,7 +211,7 @@
       b.progress += b.progInc;
       if(b.warmup > 0.9) {
         b.hasRun = true;
-        b.isStopped = b.efficiency < 0.5;
+        b.isStopped = b.efficiency < 0.4;
       };
       if(b.progress > 1.0) b.craft();
 
@@ -320,7 +327,7 @@
       tb.add(new Bar(
         liq.localizedName,
         Object.val(liq.barColor, liq.color),
-        () => b.liquids.get(liq) / b.block.liquidCapacity,
+        () => MDL_cond._isAux(liq) && !MDL_cond._isNoCapAux(liq) ? Mathf.clamp(b.liquids.get(liq) / VAR.ct_auxCap) : (b.liquids.get(liq) / b.block.liquidCapacity),
       )).growX();
       tb.row();
     });

@@ -42,7 +42,7 @@
   /* underwater */
 
 
-  exports.attr0ventUnd_hydrogenSulfide = Attribute.add("lovec-attr0vent0und-hydrogen-sulfide");
+  exports.attr0vent0und_hydrogenSulfide = Attribute.add("lovec-attr0vent0und-hydrogen-sulfide");
 
 
   /* <---------- block ----------> */
@@ -76,3 +76,9 @@
   exports.attr0rock_plutonic = Attribute.add("lovec-attr0rock-plutonic");
   exports.attr0rock_biologicalSedimentary = Attribute.add("lovec-attr0rock-biological-sedimentary");
   exports.attr0rock_clasticSedimentary = Attribute.add("lovec-attr0rock-clastic-sedimentary");
+
+
+  /* tree */
+
+
+  exports.attr0tree_latex = Attribute.add("lovec-attr0tree-latex");

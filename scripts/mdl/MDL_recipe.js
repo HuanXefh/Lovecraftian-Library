@@ -8,12 +8,6 @@
   /* <---------- import ----------> */
 
 
-  const VARGEN = require("lovec/glb/GLB_varGen");
-
-
-  const CLS_recipeBuilder = require("lovec/cls/util/builder/CLS_recipeBuilder");
-
-
   const FRAG_recipe = require("lovec/frag/FRAG_recipe");
 
 
@@ -24,9 +18,6 @@
 
 
   const TP_stat = require("lovec/tp/TP_stat");
-
-
-  const DB_item = require("lovec/db/DB_item");
 
 
   /* <---------- base ----------> */
@@ -284,7 +275,7 @@
     if(notContent) return new TextureRegionDrawable(Core.atlas.find(iconNm));
 
     let ct = MDL_content._ct(iconNm, null, true);
-    return ct == null ? Icon.cross : new TextureRegionDrawable(ct.uiIcon);
+    return ct == null ? Icon.cancel : new TextureRegionDrawable(ct.uiIcon);
   };
   exports._icon = _icon;
 
@@ -509,7 +500,7 @@
       if(lockedByCts.length > 0) {
         strLockedBy = MDL_text._statText(MDL_bundle._term("lovec", "locked"), "");
         lockedByCts.forEach(ct => {
-          strLockedBy += ("\n- " + ct.localizedName).color(Pal.remove);
+          strLockedBy += ("\n- " + Strings.stripColors(ct.localizedName)).color(Pal.remove);
         });
       };
 
@@ -956,180 +947,3 @@
     return _rcVal(rcMdl, rcHeader, "durabDecMtp", 1.0);
   };
   exports._durabDecMtp = _durabDecMtp;
-
-
-  /* <---------- generator ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Generates a recipe header.
-   * ---------------------------------------- */
-  const genRcHeader = function(nmCt, categ) {
-    return categ.toUpperCase() + ": <" + nmCt + ">";
-  };
-  exports.genRcHeader = genRcHeader;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Used in recipe generator, adds recipe to the recipe object.
-   * Use {CLS_recipeBuilder} to modify the I/O fields.
-   * ----------------------------------------
-   * IMPORTANT:
-   *
-   * Recipe generators should be called on CLIENT LOAD.
-   * ---------------------------------------- */
-  const addRc = function(rc, nmCt, categ, objF, rcBuilderObj) {
-    let rcObj = {
-      "icon": nmCt,
-      "category": categ,
-      "isGenerated": true,
-    };
-
-    if(rcBuilderObj != null) {
-      for(let key in rcBuilderObj) {
-        rcObj[key] = rcBuilderObj[key];
-      };
-    };
-
-    if(objF != null) objF(rcObj);
-
-    rc["recipe"].push(genRcHeader(nmCt, categ), rcObj);
-  };
-  exports.addRc = addRc;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Recipe generator: rock crusher.
-   * Converts ore items into chunks.
-   * ---------------------------------------- */
-  const _gen_rockCrusher = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
-    if(boolF == null) boolF = Function.airTrue;
-    if(amtI == null) amtI = 1;
-    if(pI == null) pI = 1.0;
-    if(amtO == null) amtO = 1;
-    if(pO == null) pO = 1.0;
-    if(minHardness == null) minHardness = 0;
-    if(maxHardness == null) maxHardness = Infinity;
-    if(abrasionFactor == null) abrasionFactor = 1.0;
-
-    VARGEN.intmds["rs-chunks"].forEach(itm => {
-      let itmParent = itm.ex_getParent();
-      let hardness = itmParent.hardness;
-      if(hardness < minHardness || hardness > maxHardness || !boolF(itm, itmParent)) return;
-
-      addRc(
-        rc,
-        itm.name,
-        "rock-crushing",
-        obj => {
-          obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
-          if(objF != null) objF(obj);
-        },
-        new CLS_recipeBuilder()
-        .__bi([itmParent.name, amtI, pI])
-        .__bo([itm.name, amtO, pO])
-        .build(),
-      );
-    });
-  };
-  exports._gen_rockCrusher = _gen_rockCrusher;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Recipe generator: rock crusher.
-   * Converts some rocks into aggregate.
-   * See {DB_item.db["group"]["aggregate"]}.
-   * ---------------------------------------- */
-  const _gen_rockCrusher_aggregate = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
-    if(boolF == null) boolF = Function.airTrue;
-    if(amtI == null) amtI = 1;
-    if(pI == null) pI = 1.0;
-    if(amtO == null) amtO = 1;
-    if(pO == null) pO = 1.0;
-    if(minHardness == null) minHardness = 0;
-    if(maxHardness == null) maxHardness = Infinity;
-    if(abrasionFactor == null) abrasionFactor = 1.0;
-
-    // Coarse aggregate to fine aggregate on top of everything
-    addRc(
-      rc,
-      "loveclab-item0buil-coarse-aggregate",
-      "aggregate-crushing",
-      obj => {
-        if(objF != null) objF(obj);
-      },
-      new CLS_recipeBuilder()
-      .__bi(["loveclab-item0buil-coarse-aggregate", amtI, pI])
-      .__bo(["loveclab-item0buil-fine-aggregate", amtO, pO])
-      .build(),
-    );
-
-    DB_item.db["group"]["aggregate"].forEachRow(2, (nmItm, mtp) => {
-      let itm = MDL_content._ct(nmItm, "rs");
-      if(itm == null) return;
-      let hardness = itm.hardness;
-      if(hardness < minHardness || hardness > maxHardness || !boolF(itm)) return;
-
-      addRc(
-        rc,
-        nmItm,
-        "aggregate-crushing",
-        obj => {
-          obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
-          if(objF != null) objF(obj);
-        },
-        new CLS_recipeBuilder()
-        .__bi([nmItm, Math.round(amtI * Math.max(mtp, 1.0)), pI * Math.min(mtp, 1.0)])
-        .__bo(["loveclab-item0buil-coarse-aggregate", amtO, pO])
-        .build(),
-      );
-    });
-  };
-  exports._gen_rockCrusher_aggregate = _gen_rockCrusher_aggregate;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Recipe generator: pulverizer.
-   * Converts ore items into dust.
-   * ---------------------------------------- */
-  const _gen_pulverizer = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
-    if(boolF == null) boolF = Function.airTrue;
-    if(amtI == null) amtI = 1;
-    if(pI == null) pI = 1.0;
-    if(amtO == null) amtO = 1;
-    if(pO == null) pO = 1.0;
-    if(minHardness == null) minHardness = 0;
-    if(maxHardness == null) maxHardness = Infinity;
-    if(abrasionFactor == null) abrasionFactor = 1.0;
-
-    VARGEN.intmds["rs-dust"].forEach(itm => {
-      let itmParent = itm.ex_getParent();
-      let hardness = itmParent.hardness;
-      if(hardness < minHardness || hardness > maxHardness || !boolF(itm, itmParent)) return;
-
-      addRc(
-        rc,
-        itm.name,
-        "pulverization",
-        obj => {
-          obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
-          if(objF != null) objF(obj);
-        },
-        new CLS_recipeBuilder()
-        .__bi([itmParent.name, amtI, pI])
-        .__bo([itm.name, amtO, pO])
-        .build(),
-      );
-    });
-  };
-  exports._gen_pulverizer = _gen_pulverizer;

@@ -126,7 +126,7 @@
 
 
   function comp_draw(b) {
-    FRAG_fluid.comp_draw_fHeat(b, b.heatReg);
+    FRAG_fluid.comp_draw_fHeat(b, b.heatReg, b.drawrot());
   };
 
 

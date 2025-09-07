@@ -47,46 +47,32 @@
 
     let ct = null;
     if(mode != null) {
-      switch(mode) {
-        case "rs" :
-          ct = Vars.content.item(ct_gn);
-          if(ct == null) ct = Vars.content.liquid(ct_gn);
-          break;
-        case "blk" :
-          ct = Vars.content.block(ct_gn);
-          break;
-        case "utp" :
-          ct = Vars.content.unit(ct_gn);
-          break;
-        case "sta" :
-          ct = Vars.content.statusEffect(ct_gn);
-          break;
-        case "wea" :
-          ct = Vars.content.weather(ct_gn);
-          break;
-        case "sec" :
-          ct = Vars.content.sector(ct_gn);
-          break;
-        case "pla" :
-          ct = Vars.content.planet(ct_gn);
-          break;
-      };
+      // Try finding content in specific categories
+      _ct.funMap.get(mode, Array.air).forEachFast(ctTpStr => {
+        if(ct != null) return;
+        ct = Vars.content.getByName(ContentType[ctTpStr], ct_gn);
+      });
     } else {
+      // Try finding content in all categories, can be costy
       if(!suppressWarning) MDL_test._w_costySearch(ct_gn);
-      ct = Vars.content.item(ct_gn);
-      if(ct == null) ct = Vars.content.liquid(ct_gn);
-      if(ct == null) ct = Vars.content.weather(ct_gn);
-      if(ct == null) ct = Vars.content.sector(ct_gn);
-      if(ct == null) ct = Vars.content.planet(ct_gn);
-      if(ct == null) ct = Vars.content.statusEffect(ct_gn);
-      if(ct == null) ct = Vars.content.unit(ct_gn);
-      if(ct == null) ct = Vars.content.block(ct_gn);
+      ct = Vars.content.byName(ct_gn);
     };
 
     if(ct == null && !suppressWarning) MDL_test._w_ctNotFound(ct_gn);
 
     return ct;
-  };
+  }
+  .setProp({
+    "funMap": ObjectMap.of(
+      "rs", ["item", "liquid"],
+      "blk", ["block"],
+      "utp", ["unit"],
+      "sta", ["status"],
+      "wea", ["weather"],
+      "sec", ["sector"],
+      "pla", ["planet"],
+    ),
+  });
   exports._ct = _ct;
 
 
@@ -139,135 +125,44 @@
   exports._mod = _mod;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the content name without mod name prefix.
+   * ---------------------------------------- */
+  const _nmCtNoPrefix = function(ct) {
+    return ct.name.replace(_mod(ct) + "-", "");
+  };
+  exports._nmCtNoPrefix = _nmCtNoPrefix;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether the content has some tag.
+   * ---------------------------------------- */
   const _hasTag = function(ct, tag) {
     if(ct == null) return false;
 
-    var bool = Function.tryFun(ct.ex_getTags, Array.air, ct).includes(tag);
-
-    return bool;
+    return Function.tryFun(ct.ex_getTags, Array.air, ct).includes(tag);
   };
   exports._hasTag = _hasTag;
 
 
-  /* <---------- region ----------> */
-
-
-  const _reg = function(ct_gn, suffix, suffixFallback) {
-    let ct = _ct(ct_gn);
-    if(ct == null) return null;
-    if(suffix == null) suffix = "";
-    if(suffixFallback == null) suffixFallback = "";
-
-    return Core.atlas.find(ct.name + suffix, Core.atlas.find(ct.name + suffixFallback));
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports._reg = _reg;
-
-
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets the default complete region for a block.
-   * -icon sprite should always be created.
+   * @ARGS: ct, tag1, tag2, tag3, ...
+   * Whether the content has any of given tags.
    * ---------------------------------------- */
-  const _regBlk = function(blk_gn, shouldReturnName) {
-    let blk = _ct(blk_gn);
-    if(blk == null) return null;
+  const _hasAnyTag = function() {
+    if(arguments[0] == null) return false;
 
-    if(!shouldReturnName) {
+    let arr = Array.from(arguments).splice(0, 1);
 
-      return Core.atlas.find(blk.name + "-icon", Core.atlas.find(blk.name));
-
-    } else {
-
-      let nm = blk.name + "-icon";
-      return Core.atlas.has(nm) ? nm : blk.name;
-
-    };
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports._regBlk = _regBlk;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the block heat region for the inputted size.
-   * ---------------------------------------- */
-  const _regHeat = function(size) {
-    return Core.atlas.find("lovec-ast-block-heat" + Math.round(size));
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports._regHeat = _regHeat;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets a random region from variant regions, based on tile position.
-   * ---------------------------------------- */
-  const _regVari = function(blk_gn, t, off) {
-    let blk = _ct(blk_gn, "blk");
-    if(blk == null) return null;
-
-    if(blk.variants === 0) return blk.region;
-
-    if(off == null) off = 0;
-    return blk.variantRegions[Mathf.randomSeed(t.pos() + off, 0, Mathf.maxZero(blk.variantRegions.length - 1))];
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports._regVari = _regVari;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets a the base region of a turret.
-   * ---------------------------------------- */
-  const _regTurBase = function(blk_gn) {
-    let blk = _ct(blk_gn, "blk");
-    if(blk == null) return null;
-    if(blk.baseRegion != null) return blk.baseRegion;
-
-    if(blk instanceof Turret) {
-      if(blk.drawer instanceof DrawTurret) {
-        return blk.drawer.base;
-      } else if(blk.drawer instanceof DrawMulti) {
-        let drawTurret = blk.drawer.drawers.find(drawer => drawer instanceof DrawTurret);
-        if(drawTurret != null) return drawTurret.base;
-      };
-    };
-
-    return null;
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports._regTurBase = _regTurBase;
-
-
-  /* random overlay */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Returns a function that gets an array of random overlay regions.
-   * See {DB_env.db["map"]["randRegTag"]}.
-   * ---------------------------------------- */
-  const _randRegsGetter = function(nm) {
-    return function() {
-      const arr = [];
-      if(Vars.headless) return arr;
-
-      let i = 0;
-      while(Core.atlas.has(nm + (i + 1))) {
-        arr.push(Core.atlas.find(nm + (i + 1)));
-        i++;
-      };
-
-      return arr;
-    };
+    return arr.some(tag => Function.tryFun(arguments[0].ex_getTags, Array.air, arguments[0]).includes(tag));
   };
-  exports._randRegsGetter = _randRegsGetter;
+  exports._hasAnyTag = _hasAnyTag;
 
 
   /* <---------- resource ----------> */
@@ -369,19 +264,17 @@
    * NOTE:
    *
    * Returns the intermediate of {rs_gn} with a specific tag.
+   * {rs_gn} can be an intermediate, will use its parent instead.
    * ---------------------------------------- */
   const _intmd = function(rs_gn, intmdTag) {
     let rs = _ct(rs_gn, "rs");
     if(rs == null) return null;
+    if(rs.ex_getParent != null) rs = rs.ex_getParent();
+
     let arr = VARGEN.intmds[intmdTag];
     if(arr == null) return null;
 
-    let intmd = null;
-    arr.forEach(ors => {
-      if(ors.ex_getParent() === rs) intmd = ors;
-    });
-
-    return intmd;
+    return arr.find(ors => irs.ex_getParent() === rs);
   };
   exports._intmd = _intmd;
 
@@ -416,6 +309,11 @@
   exports._craftTime = _craftTime;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns power consumption of {blk_gn}.
+   * ---------------------------------------- */
   const _powConsAmt = function(blk_gn) {
     let blk = _ct(blk_gn, "blk");
     if(blk == null || !blk.hasPower) return 0.0;

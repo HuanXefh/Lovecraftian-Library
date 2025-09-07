@@ -78,22 +78,24 @@
 
     if(TIMER.timerState_stackSta) {
       let t = unit.tileOn();
-      if(t != null) {
+      if(t != null && MDL_cond._isOnFloor(unit)) {
         let flr = t.floor();
         let puddle = Puddles.get(t);
-        if(((flr.status === sta && flr.statusDuration > 0.0) || (puddle != null && puddle.liquid.effect === sta)) && MDL_cond._isOnFloor(unit)) {
-          unit.apply(sta, staEn.time + VAR.time_stackStaExtDef * (flr.shallow ? 1.0 : 2.5));
+
+        if(puddle != null && puddle.liquid.effect === sta) {
+          unit.apply(sta, staEn.time + VAR.time_stackStaExtDef);
+        } else if(flr.status === sta && flr.statusDuration > 0.0) {
+          unit.apply(sta, staEn.time + VAR.time_stackStaExtDef) * (flr.shallow ? 1.0 : 2.0);
         };
       };
     };
 
     if(staEn.time > sta.burstTime) {
       let dmg = sta.burstDamage + unit.maxHealth * sta.burstDamagePerc;
-
-      unit.unapply(sta);
       FRAG_attack.damage(unit, dmg, true);
       sta.burstScr(unit);
       sta.burstEff.at(unit.x, unit.y, unit.type.hitSize * 1.1, sta.burstEffColor);
+      unit.unapply(sta);
     };
   };
 

@@ -31,11 +31,13 @@
 
   exports.blk_minR = newIns_stat("blk-minr");
   exports.blk_canExplode = newIns_stat("blk-canexplode");
-  exports.blk_exploRad = newIns_stat("blk-explorad");
+  exports.blk_exploR = newIns_stat("blk-explor");
   exports.blk_exploDmg = newIns_stat("blk-explodmg");
   exports.blk_exploLiq = newIns_stat("blk-exploliq");
+  exports.blk_impactR = newIns_stat("blk-impactr");
   exports.blk_shortCircuit = newIns_stat("blk-shortcircuit");
   exports.blk_attrReq = newIns_stat("blk-attrreq");
+  exports.blk_attrOutput = newIns_stat("blk-attroutput");
   exports.blk_terReq = newIns_stat("blk-terreq");
   exports.blk_terBan = newIns_stat("blk-terban");
   exports.blk_pol = newIns_stat("blk-pol");
@@ -57,12 +59,14 @@
   exports.blk0min_baseDrillSpd = newIns_stat("blk0min-basedrillspd", StatCat.crafting);
   exports.blk0min_boostedDrillSpd = newIns_stat("blk0min-boosteddrillspd", StatCat.crafting);
   exports.blk0min_drillTier = newIns_stat("blk0min-drilltier", StatCat.crafting);
+  exports.blk0min_depthMtp = newIns_stat("blk0min-depthmtp", StatCat.crafting);
   exports.blk0min_blockedItms = newIns_stat("blk0min-blockeditms", StatCat.crafting);
 
 
   /* block (factory) */
 
 
+  exports.blk0fac_prodSpd = newIns_stat("blk0fac-prodspd", StatCat.crafting);
   exports.blk0fac_fuel = newIns_stat("blk0fac-fuel", StatCat.crafting);
   exports.blk0fac_fuelConsMtp = newIns_stat("blk0fac-fuelconsmtp", StatCat.crafting);
   exports.blk0fac_fuelLvlMtp = newIns_stat("blk0fac-fuellvlmtp", StatCat.crafting);

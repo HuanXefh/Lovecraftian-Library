@@ -14,68 +14,18 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_pos = require("lovec/mdl/MDL_pos");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   const DB_misc = require("lovec/db/DB_misc");
 
 
   /* <---------- base ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Generalized color thing.
-   * ---------------------------------------- */
-  const _color = function(color_gn) {
-    if(color_gn == null) return;
-    if(color_gn instanceof Color) return color_gn;
-    if(typeof color_gn == "boolean") return color_gn ? Pal.accent : Pal.remove;
-    if(typeof color_gn == "string") return Color.valueOf(color_gn);
-    if((color_gn instanceof Item) || (color_gn instanceof Liquid) || (color_gn instanceof Team)) return color_gn.color;
-
-    return Color.white;
-  };
-  exports._color = _color;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Checks if two colors are the same in RGBA.
-   * ---------------------------------------- */
-  const _isSameColor = function(color1_gn, color2_gn) {
-    if(color1_gn == null || color2_gn == null) return;
-
-    let rawColor1 = _color(color1_gn).rgba();
-    let rawColor2 = _color(color2_gn).rgba();
-
-    return rawColor1 === rawColor2;
-  };
-  exports._isSameColor = _isSameColor;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the default color from the icon of a content.
-   * For 32x32 sprite, this returns color at (15, 15).
-   * ---------------------------------------- */
-  const _iconColor = function(ct_gn, useTmp) {
-    let color = useTmp ? Tmp.c1 : new Color(0, 0, 0, 1);
-    if(Vars.headless || ct_gn == null) return color;
-
-    let ct = MDL_content._ct(ct_gn, null, true);
-    if(ct == null) return color;
-    let pix = Core.atlas.getPixmap(ct.fullIcon);
-
-    return color.set(pix.get(Math.round(pix.width * 0.5) - 1, Math.round(pix.height * 0.5) - 1));
-  };
-  exports._iconColor = _iconColor;
 
 
   /* ----------------------------------------
@@ -118,11 +68,11 @@
    * {drawPlace} that every block should have.
    * Used if {this.super$drawPlace} is not called.
    * ---------------------------------------- */
-  const comp_drawPlace_baseBuilding = function(blk, tx, ty, rot, valid) {
+  const comp_drawPlace_baseBlock = function(blk, tx, ty, rot, valid) {
     blk.drawPotentialLinks(tx, ty);
     blk.drawOverlay(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, rot);
   };
-  exports.comp_drawPlace_baseBuilding = comp_drawPlace_baseBuilding;
+  exports.comp_drawPlace_baseBlock = comp_drawPlace_baseBlock;
 
 
   /* ----------------------------------------
@@ -207,22 +157,22 @@
         } else break;
       };
 
-    } else {
+    } else if(b.block instanceof ItemBridge) {
 
-      let ot = b.tile.nearby(b.config());
+      let ot = Vars.world.tile(b.link);
       let tmpB = b;
       let tmpOb = null;
       var isFirst = true;
       thisFun.funArr.clear().push(tmpB);
       while(ot != null) {
         tmpOb = ot.build;
-        if(tmpOb != null && !thisFun.funArr.includes(tmpOb)) {
+        if(tmpOb != null && tmpOb.block === b.block && !thisFun.funArr.includes(tmpOb)) {
           if(!isFirst) drawConnector_circleArrow(tmpOb, tmpB);
           thisFun.funArr.push(tmpOb);
           tmpB = ot.build;
           // Idk why but on rare occasions this throws NullPointerException
-          if(tmpB == null || tmpB.config() == null) break;
-          ot = tmpB.tile.nearby(tmpB.config());
+          if(tmpB == null || tmpB.block !== b.block) break;
+          ot = Vars.world.tile(tmpB.link);
           isFirst = false;
         } else break;
       };
@@ -233,66 +183,6 @@
     "funArr": [],
   });
   exports.comp_drawSelect_bridgeLine = comp_drawSelect_bridgeLine;
-
-
-  /* <---------- pixmap ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Draws pixels from {pix2} on top of {pix1}.
-   * ---------------------------------------- */
-  const _pix_stack = function(pix1, pix2) {
-    var w = pix1.width;
-    var h = pix1.height;
-    let pix = new Pixmap(w, h);
-
-    for(let x = 0; x < w; x++) {
-      for(let y = 0; y < h; y++) {
-        let rawColor;
-        let rawColor1 = pix1.getRaw(x, y);
-        let rawColor2;
-        if(pix2 == null) {rawColor = Tmp.c1.set(rawColor1).rgba()} else {
-          rawColor2 = pix2.getRaw(x, y);
-          rawColor = (pix2.getA(x, y) < 36) ? Tmp.c1.set(rawColor1).rgba() : Tmp.c1.set(rawColor2).rgba();
-        };
-
-        pix.setRaw(x, y, rawColor);
-      };
-    };
-
-    return pix;
-  };
-  exports._pix_stack = _pix_stack;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Converts pixels from the icon region of {blk} to an icon tag pixmap.
-   * ---------------------------------------- */
-  const _pix_blockTag = function(blk, w) {
-    if(w == null) w = 32;
-    let hw = w / 2;
-    let pixBlk = Core.atlas.getPixmap(MDL_content._regBlk(blk, true));
-    let wBlk = pixBlk.width;
-    let hBlk = pixBlk.height;
-    let pix = new Pixmap(w, w);
-
-    for(let x = hw; x < w; x++) {
-      for(let y = 0; y < hw; y++) {
-        let fracX = (x - hw) / hw;
-        let fracY = y / hw;
-        let rawColor = pixBlk.getRaw(Math.round(wBlk * fracX), Math.round(hBlk * fracY));
-
-        pix.setRaw(x, y, rawColor);
-      };
-    };
-
-    return pix;
-  };
-  exports._pix_blockTag = _pix_blockTag;
 
 
   /* <---------- region ----------> */
@@ -306,7 +196,6 @@
 
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
-    if(color_gn == null) color_gn = Color.white;
     if(a == null) a = 1.0;
 
     var w = reg.width * 2.0 * regScl / Vars.tilesize;
@@ -314,10 +203,10 @@
 
     if(z != null) Draw.z(z);
     if(shouldMixcol) {
-      Draw.mixcol(_color(color_gn), Object.val(mixcolA, 1.0));
+      Draw.mixcol(MDL_color._color(color_gn), Object.val(mixcolA, 1.0));
       Draw.color(Color.white);
     } else {
-      Draw.color(_color(color_gn));
+      Draw.color(MDL_color._color(color_gn));
     };
     Draw.alpha(a);
     Draw.rect(reg, x, y, w, h, ang);
@@ -334,13 +223,13 @@
     if(a == null) a = 1.0;
 
     if(z != null) Draw.z(z);
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a);
     Draw.rect(rot > 1 ? reg1 : reg2, x, y, rot * 90.0);
     Draw.reset();
   };
   exports.drawRegion_side = drawRegion_side;
-  
+
 
   const drawRegion_shader = function(x, y, reg, shader, ang, regScl, color_gn, a, z) {
     if(reg == null) return;
@@ -354,7 +243,7 @@
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
 
     if(z != null) Draw.z(z);
-    Draw.color(_color(color_gn), a);
+    Draw.color(MDL_color._color(color_gn), a);
     Draw.shader(shader);
     Draw.rect(reg, x, y, w, h, ang);
     Draw.shader();
@@ -376,7 +265,7 @@
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
 
     if(z != null) Draw.z(z);
-    Draw.color(_color(color_gn), a);
+    Draw.color(MDL_color._color(color_gn), a);
     Draw.rect(reg, x, y, w, h, ang);
     Draw.reset();
   };
@@ -425,7 +314,7 @@
     if(color_gn == null) color_gn = Color.white;
     if(a == null) a = 1.0;
 
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.8);
     Draw.rect(icon.getRegion(), x, y, 6.0 * regScl, 6.0 * regScl);
     Draw.reset();
@@ -454,7 +343,7 @@
     Draw.z(z);
     Draw.color(Pal.gray);
     Fill.square(x_fi, y_fi, mtp * 2.5, 45.0);
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Fill.square(x_fi, y_fi, mtp * 1.5, 45.0);
     Draw.reset();
   };
@@ -526,7 +415,7 @@
     var ang_fi = Mathf.mod(tProg * rate + ang, ang_fd);
 
     if(z != null) Draw.z(z);
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a);
     Draw.rect(reg, x, y, w, h, ang_fi);
     Draw.alpha(ang_fi / ang_fd);
@@ -567,7 +456,7 @@
     Draw.alpha(a * warmup);
     Draw.rect(reg, x, y);
     Draw.alpha(a_fi);
-    Draw.tint(_color(color_gn));
+    Draw.tint(MDL_color._color(color_gn));
     Fill.circle(x, y, rad_fi);
     Draw.color(1.0, 1.0, 1.0, a * warmup);
     Fill.circle(x, y, radIn_fi);
@@ -587,7 +476,7 @@
     if(a == null) a = 1.0;
 
     if(z != null) Draw.z(z);
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(warmup * a);
     Lines.lineAngleCenter(
       x + Mathf.sin(tProg, 6.0, size * Vars.tilesize / 3.0),
@@ -612,8 +501,8 @@
     if(color2_gn == null) color2_gn = Color.white;
     if(a == null) a = 1.0;
 
-    var color1 = _color(color1_gn);
-    var color2 = _color(color2_gn);
+    var color1 = MDL_color._color(color1_gn, Tmp.c2);
+    var color2 = MDL_color._color(color2_gn, Tmp.c3);
     var offRad = size * Vars.tilesize * 0.5;
     var x_fi = x + Mathf.cosDeg(ang) * offRad;
     var y_fi = y + Mathf.sinDeg(ang) * offRad;
@@ -642,9 +531,10 @@
   /* glow */
 
 
-  const drawRegion_glow = function(x, y, reg, color_gn, a, pulse, pulseScl) {
+  const drawRegion_glow = function(x, y, reg, ang, color_gn, a, pulse, pulseScl) {
     if(reg == null) return;
 
+    if(ang == null) ang = 0.0;
     if(color_gn == null) color_gn = "ff3838";
     if(a == null) a = 1.0;
     if(pulse == null) pulse = 0.3;
@@ -654,19 +544,19 @@
 
     Draw.z(Layer.blockAdditive);
     Draw.blend(Blending.additive);
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a_fi);
-    Draw.rect(reg, x, y);
+    Draw.rect(reg, x, y, ang);
     Draw.blend();
     Draw.reset();
   };
   exports.drawRegion_glow = drawRegion_glow;
 
 
-  const drawRegion_heat = function(x, y, heatFrac, reg, size) {
+  const drawRegion_heat = function(x, y, heatFrac, reg, ang, size) {
     if(reg == null) reg = VARGEN.blockHeatRegs[Object.val(size, 1)];
 
-    drawRegion_glow(x, y, reg, null, Mathf.clamp(Object.val(heatFrac, 1.0)), null, null);
+    drawRegion_glow(x, y, reg, ang, null, Mathf.clamp(Object.val(heatFrac, 1.0)), null, null);
   };
   exports.drawRegion_heat = drawRegion_heat;
 
@@ -684,7 +574,7 @@
     if(color_gn == null) color_gn = "ffc999";
     if(a == null) a = 0.65;
 
-    Drawf.light(x, y, (rad + Mathf.absin(sinScl, sinMag)) * warmup * size, _color(color_gn), a);
+    Drawf.light(x, y, (rad + Mathf.absin(sinScl, sinMag)) * warmup * size, MDL_color._color(color_gn), a);
   };
   exports.drawRegion_light = drawRegion_light;
 
@@ -711,7 +601,7 @@
     var h = reg.height * 2.0 * regScl_fi / Vars.tilesize;
 
     Draw.z(Layer.power - 0.01);
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(0.75 * a);
     Draw.rect(reg, x, y, ang, w, h);
     Draw.reset();
@@ -722,9 +612,9 @@
   const drawRegion_planBlk = function(blk_gn, t, color_gn) {
     if(t == null) return;
 
-    var blk = MDL_content._ct(blk_gn, "blk");
+    let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
-    var reg = MDL_content._regBlk(blk);
+    let reg = MDL_texture._regBlk(blk);
 
     drawRegion_plan(t.worldx() + blk.offset, t.worldy() + blk.offset, reg, color_gn);
   };
@@ -773,8 +663,8 @@
     if(colorIn_gn == null) colorIn_gn = Color.white;
     if(colorOut_gn == null) colorOut_gn = colorIn_gn;
 
-    let fBits1 = _color(colorIn_gn).toFloatBits();
-    let fBits2 = _color(colorOut_gn).toFloatBits();
+    let fBits1 = MDL_color._color(colorIn_gn).toFloatBits();
+    let fBits2 = MDL_color._color(colorOut_gn).toFloatBits();
 
     Fill.quad(
       x1, y1, fBits1,
@@ -796,8 +686,8 @@
 
     if(colorIn_gn == null) colorIn_gn = Color.white;
     if(colorOut_gn == null) colorOut_gn = colorIn_gn;
-    let colorIn = _color(colorIn_gn);
-    let colorOut = _color(colorOut_gn);
+    let colorIn = MDL_color._color(colorIn_gn, Tmp.c1);
+    let colorOut = MDL_color._color(colorOut_gn, Tmp.c2);
 
     let z = Draw.z();
     Draw.z(z - 0.1 + thisFun.funScr(0, x, y - h * 0.5));
@@ -856,7 +746,7 @@
     if(regScl == null) regScl = 1.0;
     // Have to test this value in game if {z3d} is larger than one, not linear
     if(regFixScl == null) regFixScl = 1.08;
-    if(color_gn == null) color_gn = Color.valueOf("565666");
+    if(color_gn == null) color_gn = "565666";
 
     var w = reg.width * 2.0 * regScl / Vars.tilesize;
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
@@ -912,7 +802,7 @@
       Draw.alpha(a);
       isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
     };
-    Lines.stroke(1.0, _color(color_gn));
+    Lines.stroke(1.0, MDL_color._color(color_gn));
     Draw.alpha(a);
     isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
     Draw.reset();
@@ -935,7 +825,7 @@
     var a = 0.35 + Math.sin(Time.time / scl_fi) * 0.25;
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Lines.stroke(stroke, _color(color_gn));
+    Lines.stroke(stroke, MDL_color._color(color_gn));
     Draw.alpha(a);
     isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
     Draw.reset();
@@ -956,12 +846,12 @@
     var scl = (1.0 + Math.sin(Time.time * 0.065) * 0.2) * strokeScl;
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Lines.stroke(3.0 * scl, _color(color1_gn));
+    Lines.stroke(3.0 * scl, MDL_color._color(color1_gn));
     Draw.alpha(a == null ? Vars.renderer.laserOpacity : a);
     Lines.line(x1, y1, x2, y2);
     Fill.circle(x1, y1, 2.4 * scl);
     Fill.circle(x2, y2, 2.4 * scl);
-    Lines.stroke(1.0 * scl, _color(color2_gn));
+    Lines.stroke(1.0 * scl, MDL_color._color(color2_gn));
     Draw.alpha(a == null ? Vars.renderer.laserOpacity : a);
     Fill.circle(x1, y1, 1.2 * scl);
     Fill.circle(x2, y2, 1.2 * scl);
@@ -975,10 +865,10 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Vanilla laser, no color change.
+   * Vanilla laser, no color change so it's always yellow.
    * ---------------------------------------- */
   const drawLine_laserV = function(x1, y1, x2, y2, strokeScl) {
-    Drawf.laser(VARGEN.laserReg, VARGEN.laserEndReg, x1, y1, x2, y2, Object.val(strokeScl, 1.0));
+    Drawf.laser(VARGEN.laserRegs.lineReg, VARGEN.laserRegs.endReg, x1, y1, x2, y2, Object.val(strokeScl, 1.0));
   };
   exports.drawLine_laserV = drawLine_laserV;
 
@@ -993,8 +883,8 @@
     if(strokeScl == null) strokeScl = 1.0;
     if(glowA == null) glowA = 1.0;
 
-    let wireReg = VARGEN.wireRegMap.get(mat);
-    let wireEndReg = VARGEN.wireEndRegMap.get(mat);
+    let wireReg = VARGEN.wireRegs.regMap.get(mat);
+    let wireEndReg = VARGEN.wireRegs.endRegMap.get(mat);
     if(wireReg == null || wireEndReg == null) return;
 
     var ang = Mathf.angle(x2 - x1, y2 - y1);
@@ -1010,12 +900,12 @@
     Draw.z(Layer.block + 0.1);
     Lines.stroke(20.0 * strokeScl);
     Draw.alpha(0.3);
-    Lines.line(VARGEN.wireShaReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
+    Lines.line(VARGEN.wireRegs.shaReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
     Draw.z((z != null ? z : Layer.power) + 0.01);
     Lines.stroke(8.0 * strokeScl);
     Draw.alpha(glowA * (0.4 + Mathf.absin(15.0, 0.6)) * 0.25);
     Draw.blend(Blending.additive);
-    Lines.line(VARGEN.wireGlowReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
+    Lines.line(VARGEN.wireRegs.glowReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
     Draw.blend();
     Draw.reset();
   };
@@ -1056,7 +946,7 @@
         Lines.line(x - hw, y + hw, x - hw, y - hw);
       };
     };
-    Lines.stroke(1.0, _color(color_gn));
+    Lines.stroke(1.0, MDL_color._color(color_gn));
     Draw.alpha(a);
     if(isDashed) {
       Lines.dashLine(x - hw, y - hw, x + hw, y - hw, amtSeg);
@@ -1113,7 +1003,7 @@
       Draw.alpha(a);
       isDashed ? Lines.dashCircle(x, y, rad) : Lines.circle(x, y, rad);
     };
-    Lines.stroke(1.0, _color(color_gn));
+    Lines.stroke(1.0, MDL_color._color(color_gn));
     Draw.alpha(a);
     isDashed ? Lines.dashCircle(x, y, rad) : Lines.circle(x, y, rad);
     Draw.reset();
@@ -1147,7 +1037,7 @@
     if(a == null) a = 1.0;
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.7);
     Fill.rect(x, y, size * Vars.tilesize, size * Vars.tilesize);
     Draw.reset();
@@ -1185,7 +1075,7 @@
     var w = b.block.size * Vars.tilesize - pad * 2.0;
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.5);
     Fill.rect(b.x, b.y, w, w);
     Draw.reset();
@@ -1212,7 +1102,7 @@
     var a_fi = a * (0.15 + Math.sin(Time.time / scl / 15.0) * 0.15);
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a_fi);
     Fill.circle(x, y, rad);
     Draw.reset();
@@ -1240,15 +1130,15 @@
 
     var frac1 = 1.0 - (Time.time / scl / 150.0) % 1.0;
     var frac2 = (frac1 + 0.5) % 1.0;
-    var rads = [
+    let rads = [
       Math.min(1.0 + Math.pow(1.0 - frac1, 0.5) * rad, rad),
       Math.min(1.0 + Math.pow(1.0 - frac2, 0.5) * rad, rad),
     ];
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.7);
-    var rad_i;
+    let rad_i;
     for(let i = 0; i < 2; i++) {
       rad_i = rads[i];
       Lines.stroke(Mathf.lerp(stroke_f, stroke_t, rad_i / rad));
@@ -1276,15 +1166,15 @@
     if(a == null) a = 1.0;
 
     var scl_fi = scl * 150.0;
-    var a_fi = a * 0.5;
-    var stroke_f = rad * 0.25;
+    var a_fi = a * 0.3;
+    var stroke_f = rad * 0.1;
     var stroke_t = 0.2;
 
     var frac1 = 1.0 - (Time.time / scl_fi) % 1.0;
     var frac2 = (frac1 + 0.25) % 1.0;
     var frac3 = (frac2 + 0.25) % 1.0;
     var frac4 = (frac3 + 0.25) % 1.0;
-    var rads = [
+    let rads = [
       Math.min(1.0 + (1.0 - frac1) * rad, rad),
       Math.min(1.0 + (1.0 - frac2) * rad, rad),
       Math.min(1.0 + (1.0 - frac3) * rad, rad),
@@ -1292,9 +1182,9 @@
     ];
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a_fi);
-    var rad_i;
+    let rad_i;
     for(let i = 0; i < 4; i++) {
       rad_i = rads[i];
       Lines.stroke(Mathf.lerp(stroke_f, stroke_t, rad_i / rad));
@@ -1396,7 +1286,7 @@
     Lines.stroke(5.0, Pal.gray);
     Draw.alpha(a * 0.7);
     Lines.line(x - w * 0.5, y + offY, x + w * 0.5, y + offY);
-    Lines.stroke(3.0, _color(color_gn));
+    Lines.stroke(3.0, MDL_color._color(color_gn));
     Draw.alpha(a * 0.2);
     Lines.line(x - w * 0.5, y + offY, x + w * 0.5, y + offY);
     Draw.alpha(a * 0.7);
@@ -1424,7 +1314,7 @@
     if(a == null) a = 1.0;
     if(a < 0.0001) return;
 
-    var color = _color(color_gn);
+    let color = MDL_color._color(color_gn);
 
     var sideAmt = Lines.circleVertices(rad) * (noBot ? 2 : 1);
     var angSide = 360.0 / sideAmt * (rev ? -1.0 : 1.0);
@@ -1489,7 +1379,7 @@
     var y_fi = y + offY + Mathf.lerp(w * -0.5, 0.0, frac_fi);
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
-    Draw.color(_color(color_gn));
+    Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.3);
     Fill.rect(x + offX, y_fi, w, h);
     Draw.reset();
@@ -1537,7 +1427,7 @@
     font.setUseIntegerPositions(false);
     font.getData().setScale(0.25 / Scl.scl(1.0) * sizeScl);
     layout.setText(font, str);
-    font.setColor(_color(color_gn));
+    font.setColor(MDL_color._color(color_gn));
     font.draw(str, x + offX, y + offY, 0, align, false);
 
     Draw.reset();
@@ -1579,13 +1469,13 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * The method used to draw unit health bar and more.
+   * Used to draw unit health bar and more.
    * Will draw nothing if the unit is hidden by trees.
-   * Also works with buildings.
+   * Also used for buildings.
    * ---------------------------------------- */
-  const drawUnit_healthBar = function(unit, healthFrac, size, color_gn, a, offW, offTy, segScl, armor, shield, speedMtp, dpsMtp, z) {
-    if(unit == null || healthFrac == null) return;
-    if(unit.dead || (unit instanceof Unit && MDL_cond._isCovered(unit))) return;
+  const drawUnit_healthBar = function(e, healthFrac, size, color_gn, a, offW, offTy, segScl, armor, shield, speedMtp, dpsMtp, z) {
+    if(e == null || healthFrac == null) return;
+    if(e.dead || (e instanceof Unit && MDL_cond._isCovered(e))) return;
 
     if(size == null) size = 1;
     if(color_gn == null) color_gn = Pal.accent;
@@ -1596,18 +1486,24 @@
     if(segScl == null) segScl = 1.0;
 
     var frac = Mathf.clamp(healthFrac);
-    var color_fi = Tmp.c1.set(_color(color_gn)).lerp(Color.white, MDL_entity._flashFrac(unit));
-    var x = unit.x;
-    var y = unit.y;
+    let color_fi = Tmp.c1.set(MDL_color._color(color_gn)).lerp(Color.white, MDL_entity._flashFrac(e));
+    var x = e.x;
+    var y = e.y;
     var a_fi = a * 0.7;
     var w = (size + 1) * Vars.tilesize + offW;
     var offY = (offTy + size * 0.5 + 1.5) * Vars.tilesize;
-    var amtSeg = Math.ceil(w / 4.0 / segScl);
+    let amtSeg = Math.ceil(w / 4.0 / segScl);
 
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw + 1.0));
-    Lines.stroke(10.0, Pal.gray);
-    Draw.alpha(a_fi);
-    Lines.line(x - w * 0.5 + 2.5, y + offY + 2.5, x + w * 0.5 - 2.5, y + offY + 2.5);
+    if(PARAM.drawMinimalisticStat) {
+      Lines.stroke(5.0, Pal.gray);
+      Draw.alpha(a_fi);
+      Lines.line(x - w * 0.5, y + offY, x + w * 0.5, y + offY);
+    } else {
+      Lines.stroke(10.0, Pal.gray);
+      Draw.alpha(a_fi);
+      Lines.line(x - w * 0.5 + 2.5, y + offY + 2.5, x + w * 0.5 - 2.5, y + offY + 2.5);
+    };
     Lines.stroke(3.0, color_fi);
     Draw.alpha(a_fi * 0.3);
     Lines.line(x - w * 0.5, y + offY, x + w * 0.5, y + offY);
@@ -1628,66 +1524,68 @@
       Lines.line(x_i, y1_i, x_i, y2_i);
     };
 
-    drawText(
-      unit.x,
-      unit.y,
-      Strings.autoFixed(unit.maxHealth, 0),
-      0.8,
-      color_fi,
-      Align.center,
-      0.0,
-      offY + 6.0,
-    );
-
     if(armor != null) drawText(
-      unit.x,
-      unit.y,
+      e.x,
+      e.y,
       Strings.autoFixed(armor, 0),
       1.2,
       Color.gray,
       Align.right,
       -w * 0.5 - 4.0,
-      offY + 4.0,
+      offY + (PARAM.drawMinimalisticStat ? 2.0 : 4.0),
     );
 
     if(shield != null && shield > 0.0) drawText(
-      unit.x,
-      unit.y,
+      e.x,
+      e.y,
       Strings.autoFixed(shield, 0),
       1.2,
       Pal.techBlue,
       Align.left,
       w * 0.5 + 4.0,
-      offY + 4.0,
+      offY + (PARAM.drawMinimalisticStat ? 2.0 : 4.0),
     );
 
-    if(speedMtp != null && size > 2.9999) drawText(
-      unit.x,
-      unit.y,
-      "S: " + Strings.fixed(speedMtp, 2),
-      0.6,
-      Color.gray,
-      Align.left,
-      -w * 0.5 - 2.5,
-      offY + 5.0,
-    );
+    if(!PARAM.drawMinimalisticStat) {
+      drawText(
+        e.x,
+        e.y,
+        Strings.autoFixed(e.maxHealth, 0),
+        0.8,
+        color_fi,
+        Align.center,
+        0.0,
+        offY + 6.0,
+      );
 
-    if(dpsMtp != null && size > 2.9999) drawText(
-      unit.x,
-      unit.y,
-      "D: " + Strings.fixed(dpsMtp, 2),
-      0.6,
-      Color.gray,
-      Align.right,
-      w * 0.5 + 2.5,
-      offY + 5.0,
-    );
+      if(speedMtp != null && size > 2.9999) drawText(
+        e.x,
+        e.y,
+        "S: " + Strings.fixed(speedMtp, 2),
+        0.6,
+        Color.gray,
+        Align.left,
+        -w * 0.5 - 2.5,
+        offY + 5.0,
+      );
 
-    if(unit instanceof Unit) {
-      let stackSta = MDL_entity._stackStaFirst(unit);
+      if(dpsMtp != null && size > 2.9999) drawText(
+        e.x,
+        e.y,
+        "D: " + Strings.fixed(dpsMtp, 2),
+        0.6,
+        Color.gray,
+        Align.right,
+        w * 0.5 + 2.5,
+        offY + 5.0,
+      );
+    };
+
+    if(e instanceof Unit) {
+      let stackSta = MDL_entity._stackStaFirst(e);
       if(stackSta != null) {
-        let y_sta = y - unit.type.hitSize * 0.5 - 8.0;
-        let stackStaFrac = Mathf.clamp(1.0 - (unit == null ? 0.0 : unit.getDuration(stackSta)) / stackSta.ex_getBurstTime());
+        let y_sta = y - e.type.hitSize * 0.5 - 8.0;
+        let stackStaFrac = Mathf.clamp(1.0 - (e == null ? 0.0 : e.getDuration(stackSta)) / stackSta.ex_getBurstTime());
 
         drawProgress_circle(x, y_sta, stackStaFrac, 2.75, 90.0, Color.white, 1.0, false, true, 2.25);
         Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw + 1.01));
@@ -1700,9 +1598,9 @@
   exports.drawUnit_healthBar = drawUnit_healthBar;
 
 
-  const drawUnit_reload = function(unit, mtIds, color_gn, a, offW, offTy, frac_ow, z) {
-    if(unit == null) return;
-    if(unit.dead || (unit instanceof Unit && MDL_cond._isCovered(unit))) return;
+  const drawUnit_reload = function(e, mtIds, color_gn, a, offW, offTy, frac_ow, z) {
+    if(e == null) return;
+    if(e.dead || (e instanceof Unit && MDL_cond._isCovered(e))) return;
 
     if(color_gn == null) color_gn = Pal.techBlue;
     if(a == null) a = 1.0;
@@ -1714,13 +1612,13 @@
     if(frac_ow != null) {frac = frac_ow} else {
       if(mtIds == null) return;
 
-      frac = MDL_entity._reloadFrac(unit, mtIds);
+      frac = MDL_entity._reloadFrac(e, mtIds);
     };
     if(frac > 0.9999 || frac < 0.0001) return;
 
-    var x = unit.x;
-    var y = unit.y;
-    var hitSize = MDL_entity._hitSize(unit);
+    var x = e.x;
+    var y = e.y;
+    var hitSize = MDL_entity._hitSize(e);
     var w = (hitSize + 8.0 + offW) * 1.7;
     var offY = hitSize * 0.5 + 4.0 + (offTy + 1.25) * Vars.tilesize;
 
@@ -1728,7 +1626,7 @@
     Lines.stroke(5.0, Pal.gray);
     Draw.alpha(a * 0.5);
     Lines.line(x - w * 0.5, y - offY, x + w * 0.5, y - offY);
-    Lines.stroke(3.0, _color(color_gn));
+    Lines.stroke(3.0, MDL_color._color(color_gn));
     Draw.alpha(a * 0.25);
     Lines.line(x - w * 0.5, y - offY, x + w * 0.5, y - offY);
     Draw.alpha(a * 0.5);

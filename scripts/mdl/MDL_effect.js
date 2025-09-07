@@ -17,9 +17,11 @@
   const MATH_base = require("lovec/math/MATH_base");
 
 
+  const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_draw = require("lovec/mdl/MDL_draw");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
   const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
@@ -186,12 +188,12 @@
    *
    * Creates an effect that shows click.
    * ---------------------------------------- */
-  const showAt_click = function(x, y, team) {
+  const showAt_click = function(x, y, color_gn) {
     const thisFun = showAt_click;
 
-    if(team == null) team = Team.sharded;
+    if(color_gn == null) color_gn = Pal.accent;
 
-    showAt(x, y, thisFun.funEff, 0.0, team.color);
+    showAt(x, y, thisFun.funEff, 0.0, MDL_color._color(color_gn));
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
@@ -378,7 +380,7 @@
     let utp = (utp0unit instanceof Unit) ? utp0unit.type : utp0unit;
     if(MDL_cond._hasNoRemains(utp)) return;
 
-    var t = Vars.world.tileWorld(x, y);
+    let t = Vars.world.tileWorld(x, y);
     if(t == null || !t.floor().canShadow) return;
 
     let tint = null;
@@ -392,9 +394,11 @@
         let liq = t.floor().liquidDrop;
         if(liq != null) {
           tint = liq.color;
-          a = 0.5;
-          z = 22.0;
+        } else {
+          tint = t.floor().mapColor;
         };
+        a = 0.5;
+        z = 22.0;
       };
     };
 
@@ -405,9 +409,9 @@
       x: x, y: y, rotation: Mathf.random(360.0), team: team,
       color: Color.valueOf("606060"), tint: tint, a: a, z: z,
       region: Core.atlas.find(utp.name + "-icon", utp.region),
-      cellRegion: Core.atlas.find(utp.name + "-cell-icon", utp.cellRegion),
+      cellRegion: Core.atlas.find(utp.name + "-cell-icon", utp.cellRegion), softShadowRegion: utp.softShadowRegion,
       shouldFloat: shouldFloat,
-      isHot: forceHot ? true : MDL_cond._isHot(unit), shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
+      isHot: forceHot ? true : MDL_cond._isHot(unit, t), shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
 
 
       draw() {
@@ -415,6 +419,9 @@
         var y = this.y + (!this.shouldFloat ? 0.0 : Math.cos((Time.time + this.offTime) * 0.05 + 32.0) * 0.15 * Vars.tilesize);
         if(this.shouldFloat && Mathf.chanceDelta(0.01)) showAt_ripple(x, y, utp.hitSize * 1.2);
 
+        Draw.z(this.z - 1.0);
+        Draw.color(Color.black, 0.5);
+        Draw.rect(this.softShadowRegion, x, y, this.region.width * 0.4, this.region.width * 0.4, this.rotation);
         Draw.z(this.z);
         if(this.tint != null) {Draw.tint(this.color, this.tint, 0.5)} else {
           if(!this.isHot) {Draw.color(this.color)} else {
@@ -457,18 +464,16 @@
 
     if(Vars.state.isPaused() || e == null) return;
 
-    if(color_gn == null) color_gn = Color.white;
-
     if(e instanceof Building) {
 
       let reg = e.block instanceof BaseTurret ?
-        Object.val(MDL_content._regTurBase(e.block), e.block.region) :
+        Object.val(MDL_texture._regTurBase(e.block), e.block.region) :
         Core.atlas.find(e.block.name + "-icon", e.block.region);
-      if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.funEff, 0.0, MDL_draw._color(color_gn), [reg, e]);
+      if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.funEff, 0.0, MDL_color._color(color_gn), [reg, e]);
 
     } else {
 
-      if(MDL_draw._isSameColor(color, Pal.heal)) {
+      if(MDL_color._isSameColor(color, Pal.heal)) {
         unit.healTime = 1.0;
       } else {
         unit.hitTime = 1.0;
@@ -479,12 +484,9 @@
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     "funEff": new Effect(20.0, eff => {
-      let reg = eff.data[0]
       let e = eff.data[1];
-      let color = eff.color;
-      var a = eff.fout() * color.a;
 
-      MDL_draw.drawRegion_normal(e.x, e.y, reg, e.drawrot(), 1.0, color, a, Layer.effect + VAR.lay_offDrawOver, true);
+      MDL_draw.drawRegion_normal(e.x, e.y, eff.data[0], e.drawrot(), 1.0, eff.color, eff.color.a * eff.fout(), Layer.effect + VAR.lay_offDrawOver, true);
     }),
   });
   exports.showAt_flash = showAt_flash;
@@ -500,10 +502,9 @@
 
     if(Vars.state.isPaused() || reg0icon == null) return;
 
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    showAt(x, y, thisFun.funEff, scl, MDL_draw._color(color_gn), reg0icon);
+    showAt(x, y, thisFun.funEff, scl, MDL_color._color(color_gn), reg0icon);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
@@ -594,10 +595,9 @@
 
     if(e == null) return;
 
-    if(color_gn == null) color_gn = Color.white;
     if(strokeScl == null) strokeScl = 1.0;
 
-    showAt(x, y, thisFun.funEff, strokeScl, MDL_draw._color(color_gn), [e0, e]);
+    showAt(x, y, thisFun.funEff, strokeScl, MDL_color._color(color_gn), [e0, e]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
@@ -625,7 +625,7 @@
     if(repeat == null) repeat = 3;
 
     for(let i = 0; i < repeat; i++) {
-      (isGlobal ? showAt_global : showAt)(x, y, Fx.itemTransfer, 0.0, MDL_draw._color(color_gn), posIns);
+      (isGlobal ? showAt_global : showAt)(x, y, Fx.itemTransfer, 0.0, MDL_color._color(color_gn), posIns);
     };
   }
   .setAnno(ANNO.__NONHEADLESS__);
@@ -642,7 +642,7 @@
 
     if(color_gn == null) color_gn = Pal.accent;
 
-    showAt(x, y, Fx.chainLightning, 0.0, MDL_draw._color(color_gn), e);
+    showAt(x, y, Fx.chainLightning, 0.0, MDL_color._color(color_gn), e);
     if(hasSound) playAt(x, y, Sounds.spark);
   }
   .setAnno(ANNO.__NONHEADLESS__);
@@ -684,7 +684,7 @@
 
     if(color_gn == null) color_gn = Pal.accent;
 
-    showAt(x, y, thisFun.funEff, Object.val(strokeScl, 1.0), MDL_draw._color(color_gn), [e0, e, hasLight]);
+    showAt(x, y, thisFun.funEff, Object.val(strokeScl, 1.0), MDL_color._color(color_gn), [e0, e, hasLight]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
@@ -719,7 +719,7 @@
 
     if(color_gn == null) color_gn = Pal.remove;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn);
     let tup = [e.x, e.y];
 
     showAt(x, y, thisFun.funEff1, 0.0, color, tup);

@@ -76,7 +76,7 @@
   function comp_setStats(blk) {
     if(blk.explosionDamage > 0) {
       blk.stats.add(TP_stat.blk_canExplode, true);
-      blk.stats.add(TP_stat.blk_exploRad, blk.explosionRadius, StatUnit.blocks);
+      blk.stats.add(TP_stat.blk_exploR, blk.explosionRadius, StatUnit.blocks);
       blk.stats.add(TP_stat.blk_exploDmg, blk.explosionDamage);
       if(blk.explosionPuddleLiquid != null) blk.stats.add(TP_stat.blk_exploLiq, StatValues.content([blk.explosionPuddleLiquid].toSeq()));
     };

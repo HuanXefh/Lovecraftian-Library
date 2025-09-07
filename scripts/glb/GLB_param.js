@@ -31,8 +31,32 @@
   let secretCode = "";
 
 
+  function _plaCur() {
+    let nm = "";
+    if(!Vars.state.isMenu() && Vars.state.planet != null) {
+      nm = Vars.state.planet.name;
+    };
+
+    return nm;
+  };
+
+
+  function _mapCur() {
+    let nm = "";
+    if(!Vars.state.isMenu()) {
+      if(Vars.state.sector != null) {
+        nm = Vars.state.sector.preset.name;
+      } else if(Vars.state.map != null) {
+        nm = Vars.state.map.plainName();
+      };
+    };
+
+    return nm;
+  };
+
+
   // Not in {MDL_flow} to avoid coupling of modules
-  const _glbHeat = function() {
+  function _glbHeat() {
     let pla = Vars.state.planet;
     if(pla == null) return 0.0;
 
@@ -107,8 +131,8 @@
       /* <---------- param ----------> */
 
 
-      exports.plaCur = Vars.state.rules.planet;
-      exports.mapCur = Vars.state.map;
+      exports.plaCur = _plaCur();
+      exports.mapCur = _mapCur();
 
 
       exports.glbHeat = _glbHeat();
@@ -129,10 +153,11 @@
       exports.showExtraInfo = MDL_util._cfg("draw0aux-extra-info");
       exports.drawBridgeTransportLine = MDL_util._cfg("draw0aux-bridge");
       exports.drawRouterHeresy = MDL_util._cfg("draw0aux-router");
+      exports.drawScannerResult = MDL_util._cfg("draw0aux-scanner");
       exports.drawFluidHeat = MDL_util._cfg("draw0aux-fluid-heat");
 
 
-      exports.showIconTag = MDL_util._cfg("icontag-show");
+      exports.flickerIconTag = MDL_util._cfg("icontag-flicker");
       exports.iconTagIntv = MDL_util._cfg("icontag-interval", true);
 
 
@@ -142,6 +167,7 @@
       exports.drawMissileStat = MDL_util._cfg("unit0stat-missile");
       exports.drawBuildStat = MDL_util._cfg("unit0stat-build");
       exports.drawUnitNearMouse = MDL_util._cfg("unit0stat-mouse");
+      exports.drawMinimalisticStat = MDL_util._cfg("unit0stat-minimalistic");
       exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
 
 

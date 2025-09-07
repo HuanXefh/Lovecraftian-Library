@@ -11,6 +11,7 @@
   const PARAM = require("lovec/glb/GLB_param");
 
 
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
 
 
@@ -23,12 +24,12 @@
    * Attributes are used mostly as names.
    * ---------------------------------------- */
   const _attr = function(attr_gn) {
-    var val = null;
+    let nmAttr = null;
 
-    if(attr_gn instanceof Attribute) val = attr_gn.toString();
-    if(typeof attr_gn === "string") val = attr_gn;
+    if(attr_gn instanceof Attribute) nmAttr = attr_gn.toString();
+    if(typeof attr_gn === "string") nmAttr = attr_gn;
 
-    return val;
+    return nmAttr;
   };
   exports._attr = _attr;
 
@@ -58,17 +59,15 @@
    * Format: {blk, attrVal, attr}.
    * ---------------------------------------- */
   const _blkAttrMap = function(attrs_gn_p) {
-    var attrs_gn = (attrs_gn_p instanceof Array) ? attrs_gn_p : [attrs_gn_p];
-    var map = [];
+    let attrs_gn = (attrs_gn_p instanceof Array) ? attrs_gn_p : [attrs_gn_p];
+    let map = [];
 
-    var attr;
-    var attrVal;
-    attrs_gn.forEach(attr_gn => {
-      attr = _attr(attr_gn);
+    attrs_gn.forEachFast(attr_gn => {
+      let nmAttr = _attr(attr_gn);
       Vars.content.blocks().each(blk => {
-        attrVal = blk.attributes.get(Attribute.get(attr));
+        let attrVal = blk.attributes.get(Attribute.get(nmAttr));
         if(Math.abs(attrVal) > 0.0) {
-          map.push(blk, attrVal, attr);
+          map.push(blk, attrVal, nmAttr);
         };
       });
     });
@@ -81,20 +80,13 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a list of attributes that is present in a resource-attribute map.
-   * {rsAttrMap} is usually defined in DB files, which is used for dynamic attribute crafters.
+   * Gets a list of attributes that is present in an attribute-resource map.
+   * {attrRsMap} is usually defined in DB files, which is used for dynamic attribute crafters.
    * ---------------------------------------- */
-  const _attrs_rsAttrMap = function(rsAttrMap) {
-    var attrs = [];
-    var iCap = rsAttrMap.iCap();
-    if(icap === 0) return attrs;
-    for(let i = 0; i < cap; i += 2) {
-      attrs.push(rsAttrMap[i]);
-    };
-
-    return attrs;
+  const _attrs_attrRsMap = function(attrRsMap) {
+    return attrRsMap.readCol(2, 0);
   };
-  exports._attrs_rsAttrMap = _attrs_rsAttrMap;
+  exports._attrs_attrRsMap = _attrs_attrRsMap;
 
 
   /* <---------- sum ----------> */
@@ -115,36 +107,35 @@
    * NOTE:
    *
    * Calculate {attrSum} from a list of tiles.
-   * Find your way to get the list by checking {MDL_pos} out.
    * ---------------------------------------- */
   const _sum_ts = function(ts, attr_gn, mode) {
     const thisFun = _sum_ts;
 
-    var attrSum = 0.0;
+    let attrSum = 0.0;
 
     if(mode == null) mode = "flr";
     if(!mode.equalsAny(thisFun.modes)) return attrSum;
 
-    var attr = _attr(attr_gn);
+    let nmAttr = _attr(attr_gn);
     switch(mode) {
 
       case "flr" :
-        ts.forEach(ot => attrSum += ot.floor().attributes.get(Attribute.get(attr)));
+        ts.forEachFast(ot => attrSum += ot.floor().attributes.get(Attribute.get(nmAttr)));
         break;
 
       case "blk" :
-        ts.forEach(ot => attrSum += ot.block().attributes.get(Attribute.get(attr)));
+        ts.forEachFast(ot => attrSum += ot.block().attributes.get(Attribute.get(nmAttr)));
         break;
 
       case "ov" :
-        ts.forEach(ot => attrSum += ot.overlay().attributes.get(Attribute.get(attr)));
+        ts.forEachFast(ot => attrSum += ot.overlay().attributes.get(Attribute.get(nmAttr)));
         break;
 
       case "all" :
-        ts.forEach(ot => {
-          attrSum += ot.floor().attributes.get(Attribute.get(attr));
-          attrSum += ot.block().attributes.get(Attribute.get(attr));
-          attrSum += ot.overlay().attributes.get(Attribute.get(attr));
+        ts.forEachFast(ot => {
+          attrSum += ot.floor().attributes.get(Attribute.get(nmAttr));
+          attrSum += ot.block().attributes.get(Attribute.get(nmAttr));
+          attrSum += ot.overlay().attributes.get(Attribute.get(nmAttr));
         });
         break;
 
@@ -190,27 +181,26 @@
    * Gets the currently highest attribute value and returns a 3-tuple, from a list of tiles.
    * Format: {attr, attrSum, rs}.
    * ---------------------------------------- */
-  const _dynaAttrTup = function(rsAttrMap, ts, mode) {
-    var attr = null;
-    var attrSum = 0.0;
-    var rs = null;
+  const _dynaAttrTup = function(attrRsMap, ts, mode) {
+    let nmAttr = null;
+    let attrSum = 0.0;
+    let rs = null;
 
-    var iCap = rsAttrMap.iCap();
-    var tmpAttr;
-    var tmpAttrSum;
+    let iCap = attrRsMap.iCap();
+    let tmpNmAttr, tmpAttrSum;
     if(iCap > 0) {
-      for(let i = 0; i < iCap; i++) {
-        tmpAttr = rsAttrMap[i];
-        tmpAttrSum = _sum_ts(ts, tmpAttr, mode);
+      for(let i = 0; i < iCap; i += 2) {
+        tmpNmAttr = attrRsMap[i];
+        tmpAttrSum = _sum_ts(ts, tmpNmAttr, mode);
         if(tmpAttrSum > attrSum) {
-          attr = tmpAttr;
+          nmAttr = tmpNmAttr;
           attrSum = tmpAttrSum;
-          rs = rsAttrMap[i + 1];
+          rs = MDL_content._ct(attrRsMap[i + 1], "rs");
         };
       };
     };
 
-    return (rs == null) ? null : [attr, attrSum, rs];
+    return (rs == null) ? null : [nmAttr, attrSum, rs];
   };
   exports._dynaAttrTup = _dynaAttrTup;
 
@@ -228,14 +218,14 @@
    * NOTE:
    *
    * Calculate current value of wind attribute.
-   * To set wind force for your planet, go to {DB_env.db["param"]["pla"]["wind"]}.
-   * For a specific map, go to {DB_env.db["param"]["map"]["wind"]}, which has higher priority than planet.
+   * To set wind force for your planet, see {DB_env.db["param"]["pla"]["wind"]}.
+   * For a specific map, see {DB_env.db["param"]["map"]["wind"]}, which has higher priority than planet.
    * ---------------------------------------- */
   const _sumWind = function(t, mtp) {
     if(mtp == null) mtp = 1.0;
 
-    var attrSum = (1.0 - Math.pow(Math.sin(Time.time / 6400.0 / mtp), 2) * 0.7);
-    attrSum *= DB_env.db["param"]["map"]["wind"].read(PARAM.mapCur.name(), DB_env.db["param"]["pla"]["wind"].read(PARAM.plaCur.name, 1.0));
+    let attrSum = (1.0 - Math.pow(Math.sin(Time.time / 6400.0 / mtp), 2) * 0.7);
+    attrSum *= DB_env.db["param"]["map"]["wind"].read(PARAM.mapCur, DB_env.db["param"]["pla"]["wind"].read(PARAM.plaCur, 1.0));
     if(t != null && attrSum > 0.0) attrSum += Mathf.randomSeed(t.pos(), -2, 2) * 0.1;
     if(attrSum < 0.0) attrSum = 0.0;
 

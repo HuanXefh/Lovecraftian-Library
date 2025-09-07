@@ -170,7 +170,22 @@
     });
 
 
-    // Set settings
+    // Set up planet rules
+    DB_env.db["map"]["rule"]["campaignRule"].forEachRow(2, (nmPla, ruleSetter) => {
+      let pla = MDL_content._ct(nmPla, "pla");
+      if(pla == null) return;
+      let campaignRules = new CampaignRules();
+      ruleSetter(campaignRules);
+      pla.campaignRules = campaignRules;
+    });
+    DB_env.db["map"]["rule"]["planetRule"].forEachRow(2, (nmPla, ruleSetter) => {
+      let pla = MDL_content._ct(nmPla, "pla");
+      if(pla == null) return;
+      pla.ruleSetter = cons(ruleSetter);
+    });
+
+
+    // Set up settings
     Core.settings.put("lovec-window-show", true);
     // I don't think there's need to create a module for this, Just check {MDL_util._cfg}
     Vars.ui.settings.addCategory(MDL_bundle._term("lovec", "settings"), tb => {
@@ -196,7 +211,7 @@
       tb.checkPref("lovec-draw0aux-router", true);
       tb.checkPref("lovec-draw0aux-fluid-heat", true);
 
-      tb.checkPref("lovec-icontag-show", true);
+      tb.checkPref("lovec-icontag-flicker", true);
       tb.sliderPref("lovec-icontag-interval", 4, 1, 12, val => Strings.fixed(val * 0.33333333, 2) + "s");
 
       tb.checkPref("lovec-damagedisplay-show", true);
@@ -207,6 +222,7 @@
       tb.checkPref("lovec-unit0stat-missile", false);
       tb.checkPref("lovec-unit0stat-build", true);
       tb.checkPref("lovec-unit0stat-mouse", true);
+      tb.checkPref("lovec-unit0stat-minimalistic", false);
       tb.sliderPref("lovec-unit0remains-lifetime", 12, 0, 60, val => Strings.fixed(val * 5.0, 0) + "s");
 
       tb.areaTextPref("lovec-misc-secret-code", "");

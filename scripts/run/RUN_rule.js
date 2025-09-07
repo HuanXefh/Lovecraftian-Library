@@ -50,9 +50,7 @@
 
 
   function comp_updateBase() {
-    let nmMap = PARAM.mapCur == null || Vars.state.isMenu() ?
-      "" :
-      PARAM.mapCur.plainName();
+    let nmMap = PARAM.mapCur;
 
     if(nmMap !== nmMapCur) {
       hasInit = false;
@@ -64,15 +62,15 @@
 
 
   function comp_updateWeather() {
-    if(hasWea || !Vars.state.isGame() || Vars.state.isEditor() || PARAM.mapCur == null) return;
+    if(hasWea || !Vars.state.isGame() || Vars.state.isEditor()) return;
 
-    let nmWeas = DB_env.db["param"]["map"]["we"].read(PARAM.mapCur.plainName(), Array.air);
+    let nmWeas = DB_env.db["param"]["map"]["weaEn"].read(PARAM.mapCur, Array.air);
     if(nmWeas.length > 0) {
       Groups.weather.clear();
 
       let weaEnSeq = new Seq();
       nmWeas.forEach(nmWea => {
-        let weaEn = VARGEN.wes[nmWea];
+        let weaEn = VARGEN.weaEns[nmWea];
         if(weaEn == null) {
           Log.warn("[LOVEC] Invalid weather name: " + nmWea);
         } else {

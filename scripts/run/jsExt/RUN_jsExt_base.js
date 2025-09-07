@@ -207,6 +207,22 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * {forEach} with a condition check.
+   * ---------------------------------------- */
+  ptp.forEachCond = function(boolF, scr) {
+    if(boolF == null) boolF = Function.airTrue;
+
+    let iCap = this.iCap();
+    if(iCap === 0) return;
+    for(let i = 0; i < iCap; i++) {
+      if(boolF(this[i])) scr(this[i]);
+    };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Iterates through a formatted array.
    * ---------------------------------------- */
   ptp.forEachRow = function(ord, scr) {

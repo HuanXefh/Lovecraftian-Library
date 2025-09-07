@@ -29,7 +29,6 @@
    * blk.liq: liq_gn    // @PARAM, @NULL: Used to set up effects and names, {liq_gn} should be the expected output.
    * blk.pons2: null
    * blk.offDraw: 0.0
-   * blk.drawnMap: new ObjectMap()
    * blk.randRegs: tags    // @PARAM
    * blk.randRegDenom: num    // @PARAM
    * blk.randRegOffs: [int, int]    // @PARAM
@@ -60,9 +59,9 @@
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
-  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_text = require("lovec/mdl/MDL_text");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   const TP_effect = require("lovec/tp/TP_effect");
@@ -96,25 +95,6 @@
       blk.pons2 = MDL_pos.sizeOffsetPons2[ventSize];
       blk.offDraw = (ventSize % 2 === 0) ? 4.0 : 0.0;
     };
-
-    // Bypass {drawBase} or the sprite is cut
-    MDL_event._c_onDraw(() => {
-      if(Vars.state.isMenu()) return;
-
-      blk.drawnMap.each((t, bool) => {
-        if(!bool) return;
-        if(!MDL_cond._posVisible(t.worldx(), t.worldy(), 64.0)) return;
-
-        let z = Draw.z();
-        Draw.z(VAR.lay_vent);
-        Draw.rect(MDL_content._regVari(blk, t), t.worldx() + blk.offDraw, t.worldy() + blk.offDraw);
-        Draw.z(z);
-      });
-    });
-
-    MDL_event._c_onWorldLoadStart(() => {
-      blk.drawnMap.clear();
-    });
   };
 
 
@@ -125,9 +105,17 @@
 
 
   function comp_drawBase(blk, t) {
-    blk.parent.drawBase(t);
+    if(!blk.isCenterVent(t)) return;
 
-    blk.drawnMap.put(t, blk.checkAdjacent(t));
+    let ot;
+    blk.pons2.forEachFast(pon2 => {
+      ot = t.nearby(pon2);
+      if(ot != null) blk.parent.drawBase(ot);
+    });
+
+    Draw.z(VAR.lay_vent);
+    Draw.rect(MDL_texture._regVari(blk, t), t.worldx() + blk.offDraw, t.worldy() + blk.offDraw);
+    Draw.reset();
   };
 
 
@@ -137,7 +125,7 @@
 
 
   function comp_renderUpdate(blk, renderState) {
-    var t = renderState.tile;
+    let t = renderState.tile;
     if(blk.isCenterVent(t) && t.block() === Blocks.air && ((renderState.data += Time.delta) > blk.effectSpacing - 0.0001)) {
       blk.effect.at(t.worldx() + blk.offDraw, t.worldy() + blk.offDraw);
       renderState.data = 0.0;
@@ -149,7 +137,7 @@
     if(blk.pons2 == null) return false;
 
     var cond = true;
-    var ot;
+    let ot;
     for(let pon2 of blk.pons2) {
       ot = Vars.world.tile(t.x + pon2.x, t.y + pon2.y);
       if(ot == null || ot.floor() !== blk) {

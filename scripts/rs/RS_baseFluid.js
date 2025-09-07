@@ -128,7 +128,7 @@
       }}));
     };
 
-    if(VARGEN.fuelLiqs.includes(liq)) {
+    if(VARGEN.fuelLiqs.includes(liq) || VARGEN.fuelGases.includes(liq)) {
       liq.stats.add(TP_stat.rs0fuel_level, FRAG_faci._fuelLvl(liq));
     };
   };

@@ -17,7 +17,7 @@
   /* ----------------------------------------
    * BASE:
    *
-   * !NOTHING
+   * GenericCrafter
    * ---------------------------------------- */
 
 
@@ -64,6 +64,13 @@
   /* <---------- component ----------> */
 
 
+  function comp_init(blk) {
+    if(blk.liquidOutputDirections != null) {
+      blk.drawArrow = blk.liquidOutputDirections.length === 1 && blk.liquidOutputDirections[0] === -1;
+    };
+  };
+
+
   function comp_setStats(blk) {
     if(DB_block.db["map"]["facFami"].includes(blk.name)) blk.stats.add(TP_stat.spec_facFami, extend(StatValue, {display(tb) {
       tb.row();
@@ -99,6 +106,7 @@
 
     init: function(blk) {
       PARENT.init(blk);
+      comp_init(blk);
     },
 
 

@@ -62,7 +62,7 @@
     blk.overlayAlpha = 0.5;
     blk.useColor = false;
 
-    var itm = blk.itemDrop;
+    let itm = blk.itemDrop;
     if(itm != null) MDL_content.rename(
       blk,
       itm.localizedName + MDL_text._space() + "(" + MDL_bundle._term("lovec", "wall-ore") + ")",

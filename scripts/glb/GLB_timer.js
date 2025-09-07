@@ -21,7 +21,7 @@
   const timer_mem = new Interval(3);
 
 
-  const timer_gn = new Interval(2);
+  const timer_gn = new Interval(3);
   const timer_effc = new Interval(4);
   const timer_param = new Interval(3);
 
@@ -51,7 +51,8 @@
 
 
     exports.timerState_sec = timer_gn.get(0, 60.0);
-    exports.timerState_min = timer_gn.get(0, 3600.0);
+    exports.timerState_secFive = timer_gn.get(1, 300.0);
+    exports.timerState_min = timer_gn.get(2, 3600.0);
     exports.timerState_effc = timer_effc.get(0, MDL_util._cfg("interval-efficiency", true));
     exports.timerState_rsCur = timer_effc.get(1, 180.0);
     exports.timerState_liq = timer_effc.get(2, VAR.time_liqIntv);

@@ -4,40 +4,20 @@ const db = {
   "param": {
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Fuel parameters for a fuel.
+     * Format (item): {nm, [fuelPon, fuelLvl]}.
+     * Format (fluid): {nm, [consRate, fuelLvl]}.
+     * ---------------------------------------- */
     "fuel": {
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Fuel points a fuel item can add.
-       * ---------------------------------------- */
-      "point": [],
+      "item": [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Fuel power level, used for recipe generation.
-       * For reference it's approximately 1% of flame temperature in real life.
-       * ---------------------------------------- */
-      "level": [],
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * The consumption rate for fluid fuels.
-       * ---------------------------------------- */
-      "fCons": [],
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Fuel power level for fluids.
-       * ---------------------------------------- */
-      "fLevel": [],
+      "fluid": [],
 
 
     },
@@ -60,6 +40,72 @@ const db = {
      * Can be applied to ore items only.
      * ---------------------------------------- */
     "sintTemp": [],
+
+
+  },
+
+
+  "map": {
+
+
+    "attr": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an attribute to some resource obtained by a bush harvester.
+       * ---------------------------------------- */
+      "bush": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an attribute to some resource obtained by a depth liquid pump.
+       * ---------------------------------------- */
+      "dpliq": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an attribute to some resource obtained by a quarry.
+       * ---------------------------------------- */
+      "rock": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an attribute to some resource obtained by a tree tap.
+       * ---------------------------------------- */
+      "tree": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an attribute to some resource obtained by a vent collector.
+       * ---------------------------------------- */
+      "vent": [],
+
+
+    },
+
+
+    "recipe": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an item to its roasting recipe target and the temperature required.
+       * ---------------------------------------- */
+      "roasting": [],
+
+
+    },
 
 
   },
@@ -130,12 +176,16 @@ const db = {
     "rs-p1",
     "rs-p2",
 
-    "rs-blend",
     "rs-chunks",
-    "rs-clean",
-    "rs-conc",
-    "rs-crude0gas",
     "rs-dust",
+    "rs-blend",
+    "rs-clinker",
+    "rs-crd",
+
+    "rs-conc",
+
+    "rs-clean",
+    "rs-crdg"
 
   ],
 

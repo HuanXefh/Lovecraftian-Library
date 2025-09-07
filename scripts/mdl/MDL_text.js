@@ -113,13 +113,44 @@
    * Example:
    * _tagText(["chloric", "fluoric", "oxidative"]);    // Returns {"chloric; fluoric; oxidative; "}
    * ---------------------------------------- */
-  const _tagText = function(strs) {
+  const _tagText = function(strs, ignoreEmpty) {
     var str_fi = "";
-    strs.forEach(str => str_fi += str + "; ");
+    strs.forEachFast(str => str_fi += str + "; ");
 
-    return str_fi === "" ? "!NOTAG" : str_fi;
+    return (str_fi === "" && !ignoreEmpty) ? "!NOTAG" : str_fi;
   };
   exports._tagText = _tagText;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Converts a tag text back to an array of tags.
+   * ---------------------------------------- */
+  const tagTextToArr = function(text) {
+    const arr = [];
+    if(text === "" || text === "!NOTAG") return arr;
+
+    let tmpStr = "";
+    let i = 0;
+    let iCap = text.iCap();
+    while(i < iCap) {
+      let l = text[i];
+      if(l === ";") {
+        let tmpStr1 = tmpStr;
+        arr.push(tmpStr1);
+        tmpStr = "";
+        i += 2;
+        continue;
+      } else {
+        tmpStr += l;
+      };
+      i++;
+    };
+
+    return arr;
+  };
+  exports.tagTextToArr = tagTextToArr;
 
 
   /* <---------- search ----------> */

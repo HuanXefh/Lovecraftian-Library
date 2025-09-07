@@ -674,7 +674,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this block is a wall.
+   * Whether this block is a wall for defense.
    * ---------------------------------------- */
   const _isWall = function(blk_gn) {
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-wall");
@@ -713,6 +713,17 @@
     return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-log");
   };
   exports._isLogicBlock = _isLogicBlock;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a switch.
+   * ---------------------------------------- */
+  const _isSwitch = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-switch");
+  };
+  exports._isSwitch = _isSwitch;
 
 
   /* <---------- env ----------> */
@@ -1155,18 +1166,21 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit is HOT.
+   * Whether this unit ot a tile is HOT.
    * Used for remains.
    * ---------------------------------------- */
-  const _isHot = function(unit) {
-    if(unit == null) return false;
-    if(_hasEffectAny(unit, DB_status.db["group"]["hot"])) return true;
-    //if(FRAG_heat._meltTime(unit) > 0.0) return true;
+  const _isHot = function(unit, t) {
+    if(unit == null) {
+      if(t == null) return false;
 
-    let t = unit.tileOn();
-    if(t != null && _isHotSta(t.floor().status)) return true;
+      return _isHotSta(t.floor().status);
+    } else {
+      if(_hasEffectAny(unit, DB_status.db["group"]["hot"])) return true;
+      let t = unit.tileOn();
+      if(t != null && _isHotSta(t.floor().status)) return true;
 
-    return false;
+      return false;
+    };
   };
   exports._isHot = _isHot;
 

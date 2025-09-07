@@ -22,7 +22,6 @@
   /* ----------------------------------------
    * KEY:
    *
-   * b.tsGetter: null
    * b.ts: []
    * b.timerCall: new Interval(1)
    * b.amtRun: 0
@@ -87,7 +86,7 @@
 
 
   function comp_onProximityUpdate(b) {
-    if(b.tsGetter != null) b.ts = b.tsGetter();
+    b.ts = b.block.ex_getTs(b.tileX(), b.tileY(), b.rotation);
   };
 
 
@@ -183,6 +182,13 @@
     }.setProp({
       "funArr": [],
     }),
+
+
+    // @LATER
+    // @NOSUPER
+    ex_getTs: function(blk, tx, ty, rot) {
+      return Array.air;
+    },
 
 
     /* <---------- build (extended) ----------> */

@@ -24,6 +24,62 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Generic {offload}.
+   * ---------------------------------------- */
+  const offload = function(b, b_f, itm, amt, checkAccept) {
+    if(b == null || itm == null) return false;
+    if(amt == null) amt = 1;
+    if(amt < 1) return false;
+
+    var bool = false;
+    for(let i = 0; i < amt; i++) {
+      if(checkAccept && !b.acceptItem(b_f, itm)) break;
+
+      b.offload(itm);
+      bool = true;
+    };
+
+    return bool;
+  };
+  exports.offload = offload;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {offload} called on server side only for sync.
+   * ---------------------------------------- */
+  const offload_server = function(b, b_f, itm, amt, checkAccept) {
+    if(b == null || itm == null) return false;
+    if(amt == null) amt = 1;
+    if(amt < 1) return false;
+
+    let payload = Array.toPayload([
+      b.pos(),
+      b_f == null ? -1 : b_f.pos(),
+      itm.name,
+      amt,
+      checkAccept,
+    ]);
+
+    MDL_net.sendPacket("server", "lovec-server-item-offload", payload);
+
+    return offload(b, b_f, itm, amt, checkAccept);
+  }
+  .setAnno(ANNO.__INIT__, null, function() {
+    MDL_net.__packetHandler("client", "lovec-server-item-offload", payload => {
+      let args = Array.fromPayload(payload);
+
+      offload(Vars.world.build(args[0]), Vars.world.build(args[1]), Vars.content.item(args[2]), args[3], args[4]);
+    });
+  })
+  .setAnno(ANNO.__SERVER__);
+  exports.offload_server = offload_server;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Adds item to {b} from {b_f}.
    * ---------------------------------------- */
   const addItem = function(b, b_f, itm, amt, p, isForced) {
@@ -34,18 +90,11 @@
     if(amt < 1) return false;
     if(p == null) p = 1.0;
 
-    var bool = false;
-    for(let i = 0; i < amt; i++) {
-      if(!isForced && !b.acceptItem(b_f, itm)) break;
+    let amtTrans = amt.randFreq(p);
 
-      if(Mathf.chance(p)) {
-        b.offload(itm);
-        bool = true;
-      };
-    };
-    Call.setItem(b, itm, b.items.get(itm));
-
-    return bool;
+    return Vars.net.client() ?
+      amtTrans > 0 :
+      offload_server(b, b_f, itm, amtTrans, !isForced);
   };
   exports.addItem = addItem;
 
@@ -85,7 +134,7 @@
     if(b.items == null) return false;
 
     if(amt == null) amt = 1;
-    if(amt < 1) return false;
+    if(amt < 1 || b.items.get(itm) < amt) return false;
     if(p == null) p = 1.0;
 
     let amtTrans = amt.randFreq(p);
@@ -111,16 +160,11 @@
     if(amt < 1) return false;
     if(p == null) p = 1.0;
 
-    var bool = false;
-    for(let i = 0; i < amt; i++) {
-      if(Mathf.chance(p)) {
-        b.offload(itm);
-        bool = true;
-      };
-    };
-    Call.setItem(b, itm, b.items.get(itm));
+    let amtTrans = amt.randFreq(p);
 
-    return bool;
+    return Vars.net.client() ?
+      amtTrans > 0 :
+      offload_server(b, b, itm, amtTrans, false);
   };
   exports.produceItem = produceItem;
 

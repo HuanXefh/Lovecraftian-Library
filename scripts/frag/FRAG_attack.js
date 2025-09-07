@@ -17,8 +17,8 @@
 
 
   const MDL_call = require("lovec/mdl/MDL_call");
+  const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_net = require("lovec/mdl/MDL_net");
@@ -48,7 +48,7 @@
     if(size == null) size = 1;
     if(intv == null) intv = 0.0;
 
-    return Math.log(size + 1) * Math.log(Math.min(intv / 60.0, 10.0) + 1) * 1500.0;
+    return Math.log(size + 1) * Math.log(Math.min(intv / 60.0, 10.0) + 1) * 400.0;
   };
   exports._impactDmg = _impactDmg;
 
@@ -184,8 +184,6 @@
       damage(unit, dmg_fi, true);
       if(sta != null && Mathf.chance(Math.max(frac, 0.2))) unit.apply(sta, staDur);
       MDL_call.knockback(x, y, unit, dmg / 100.0, rad);
-
-      MDL_effect.showAt_impactWave(x, y, rad);
     });
 
     MDL_effect.showAt_shake(x, y, shake);
@@ -193,7 +191,7 @@
   exports.apply_impact = apply_impact;
 
 
-  const apply_lightning = function(x, y, team, dmg, amt, r, offR, color_gn, noSound) {
+  const apply_lightning = function(x, y, team, dmg, amt, r, offR, noSound) {
     if(team == null) team = Team.derelict;
     if(dmg == null) dmg = VAR.blk_lightningDmg;
     if(amt == null) amt = 1;
@@ -202,13 +200,12 @@
     if(offR == null) offR = 2;
     if(color_gn == null) color_gn = Pal.accent;
 
-    let color = MDL_draw._color(color_gn);
     let i = 0;
     while(i < amt) {
       let r_fi = Math.round(r + Mathf.random() * offR);
       Lightning.create(
         team,
-        color,
+        MDL_color._color(color_gn),
         dmg,
         x,
         y,

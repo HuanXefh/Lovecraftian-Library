@@ -85,7 +85,7 @@
   function comp_setStats(blk) {
     if(blk.ex_getFluidType() !== "liquid") {
       blk.stats.add(TP_stat.blk_canExplode, true);
-      blk.stats.add(TP_stat.blk_exploRad, FRAG_attack._presExploRad(blk.size) / Vars.tilesize, StatUnit.blocks);
+      blk.stats.add(TP_stat.blk_exploR, FRAG_attack._presExploRad(blk.size) / Vars.tilesize, StatUnit.blocks);
       blk.stats.add(TP_stat.blk_exploDmg, FRAG_attack._presExploDmg(blk.size));
     };
   };

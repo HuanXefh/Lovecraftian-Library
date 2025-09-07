@@ -83,6 +83,8 @@
     var maxReload = 0.0;
     if(e instanceof Building) {
 
+      if(e.ex_getReloadFrac != null) return e.ex_getReloadFrac();
+
       if(e.reloadCounter != null) reload = e.reloadCounter;
       if(e.block.reload != null) maxReload = e.block.reload;
 
@@ -93,7 +95,7 @@
       if(DB_block.db["class"]["reload"]["rev"].hasIns(e.block)) return 1.0 - frac;
       return frac;
 
-    } else {
+    } else if(e instanceof Unit) {
 
       if(mtIds == null || e == null) return 0.0;
 
@@ -106,7 +108,7 @@
 
       return maxReload < 0.0001 ? 1.0 : Mathf.clamp(1.0 - reload / maxReload);
 
-    };
+    } else return 0.0;
   };
   exports._reloadFrac = _reloadFrac;
 
@@ -122,11 +124,9 @@
 
   const _warmup = function(b) {
     if(b == null) return 0.0;
+    if(b.ex_getWarmupFrac != null) return b.ex_getWarmupFrac();
 
-    var warmup = Mathf.maxZero(b.warmup);
-    if(isNaN(warmup)) warmup = Mathf.maxZero(b.warmup());
-
-    return warmup;
+    return Mathf.maxZero(typeof b.warmup === "function" ? b.warmup() : b.warmup);
   };
   exports._warmup = _warmup;
 

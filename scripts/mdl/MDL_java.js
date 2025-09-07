@@ -17,6 +17,17 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Returns a java class from given string.
+   * ---------------------------------------- */
+  const _cls_nm = function(nm) {
+    return java.lang.Class.forName(nm, false, clsLoader);
+  };
+  exports._cls_nm = _cls_nm;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Returns the java class object.
    *
    * {Block} is not a class object, {Block.__javaObject__} is.

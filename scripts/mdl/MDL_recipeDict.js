@@ -279,7 +279,6 @@
      * IMPORTANT:
      *
      * Use {Core.app.post} for methods that modify recipe dictionary, after client load.
-     * Or some parameters are still not correctly loaded.
      * ---------------------------------------- */
     Core.app.post(() => Vars.content.blocks().each(blk => {
 

@@ -54,9 +54,10 @@
     if(rate == null) rate = 0.0;
     if(Math.abs(rate) < 0.0001) return amtTrans;
 
+    let delta = b_f == null ? Time.delta : b_f.edelta();
     amtTrans = rate > 0.0 ?
-      Math.min(rate * b.edelta(), b.block.liquidCapacity - b.liquids.get(liq)) :
-      -Math.min(-rate * b.edelta(), b.liquids.get(liq));
+      Math.min(rate * delta, b.block.liquidCapacity - b.liquids.get(liq)) :
+      -Math.min(-rate * delta, b.liquids.get(liq));
     b.handleLiquid(b_f, liq, amtTrans);
 
     return returnFrac ? Math.abs(amtTrans / rate) : Math.abs(amtTrans);
@@ -92,7 +93,7 @@
    * NOTE:
    *
    * Lets {b} transfer liquid to {b_t}.
-   * Uses edelta of {b} by default, set {isActiveTrans} to {true} to use {b_t}'s edelta instead.
+   * Uses {edelta} of {b} by default, set {isActiveTrans} to {true} to use {b_t}'s edelta instead.
    * ---------------------------------------- */
   const transLiquid = function(b, b_t, liq, rate, isActiveTrans) {
     let amtTrans = 0.0;
@@ -315,7 +316,7 @@
     var cond2 = MDL_pos._tsEdge(b.tile, b.block.size).some(ot => Fires.get(ot.x, ot.y) != null);
     if(!cond2) return;
 
-    FRAG_attack.apply_explosion_global(b.x, b.y, FRAG_attack._gasExploRad(b.block.size), FRAG_attack._gasExploDmg(b.block.size), 8.0);
+    FRAG_attack.apply_explosion_global(b.x, b.y, FRAG_attack._presExploRad(b.block.size), FRAG_attack._presExploDmg(b.block.size), 8.0);
   };
   exports.comp_updateTile_flammable = comp_updateTile_flammable;
 
@@ -360,9 +361,9 @@
 
     if(b.block.rotate) {
       // If rotatable, supply the building in front of this
-      let ob = b.nearby(b.rotation);
+      let ob = b.front();
       if(ob != null && ob.team === b.team) {
-        addLiquid(ob, b, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, b.presTmp.roundFixed(1) * VAR.time_liqIntv);
+        addLiquid(ob, b, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Math.abs(b.presTmp.roundFixed(1)) / 60.0 * VAR.time_liqIntv);
       };
     } else {
       // If not, supply all possible consumers around this
@@ -484,7 +485,7 @@
    *
    * @FIELD: b.heatRes
    * ---------------------------------------- */
-  const comp_draw_fHeat = function(b, reg) {
+  const comp_draw_fHeat = function(b, reg, ang) {
     if(!PARAM.drawFluidHeat) return;
     if(!VARGEN.hotFlds.includes(b.liquids.current())) return;
 
@@ -492,7 +493,7 @@
     var heatRes = b.heatRes;
     if(!isFinite(heatRes)) return;
 
-    MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(Mathf.clamp(fHeat * 0.75 / heatRes), 3), reg, b.block.size);
+    MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(Mathf.clamp(fHeat * 0.75 / heatRes), 3), reg, ang, b.block.size);
   };
   exports.comp_draw_fHeat = comp_draw_fHeat;
 

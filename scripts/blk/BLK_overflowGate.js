@@ -50,9 +50,9 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_table = require("lovec/mdl/MDL_table");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   /* <---------- component ----------> */
@@ -71,7 +71,7 @@
 
 
   function comp_created(b) {
-    b.invReg = MDL_content._reg(b.block, "-inv");
+    b.invReg = MDL_texture._reg(b.block, "-inv");
   };
 
 
@@ -108,7 +108,7 @@
 
 
   function comp_buildConfiguration(b, tb) {
-    MDL_table.__btnCfg_toggle(tb, b, VARGEN.icons.swap, VARGEN.icons.swap, b.isInv).row();
+    MDL_table.__btnCfg_toggle(tb, b, VARGEN.icons.swap, VARGEN.icons.swap, b.isInv);
   };
 
 

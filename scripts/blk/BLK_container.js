@@ -137,7 +137,7 @@
     MDL_table.__btnCfg_base(tb, b, b => {
       Call.tileConfig(Vars.player, b, "clear");
       b.deselect();
-    }, VARGEN.icons.cross).tooltip(MDL_bundle._info("lovec", "tt-clear-selection"), true).row();
+    }, VARGEN.icons.cross).tooltip(MDL_bundle._info("lovec", "tt-clear-selection"), true);
   };
 
 

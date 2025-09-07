@@ -107,12 +107,16 @@
     let rHeat = MDL_flow._rHeat(unit.tileOn());
     let rHeatRes = MDL_flow._rHeatRes(utp);
     let dmg = Time.delta * Mathf.maxZero(rHeat - rHeatRes) * 0.65;
-
     if(dmg < 0.0001) return;
+    let dmg_fi = Math.min(dmg, VAR.dmg_heatMaxDmg);
+    let staStackAmt = Math.round((dmg - dmg_fi) / VAR.dmg_overheatedConversionDmg);
 
-    FRAG_attack.damage(unit, dmg, true, "heat");
-    if(dmg > 80.0) unit.apply(StatusEffects.melting, VAR.time_unitStaDef);
-    if(dmg > 220.0) unit.apply(Vars.content.statusEffect("loveclab-sta0bur-overheated"));
+    FRAG_attack.damage(unit, dmg_fi, true, "heat");
+    let i = 0;
+    while(i < staStackAmt) {
+      unit.apply(Vars.content.statusEffect("loveclab-sta0bur-overheated"));
+      i++;
+    };
     if(Mathf.chance(0.5)) EFF.heatSmog.at(unit);
   }
   .setTodo("Unit heat update.");

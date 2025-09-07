@@ -48,13 +48,14 @@
    * b.hasRun: false
    * b.dumpTup: null
    * b.heatReg: null
+   * b.heatRes: Infinity
    * b.tempReq: 0.0
    * b.tempAllowed: Infinity
    * b.tempCur: -1.0
    * b.fuelPonCur: 0.0
    * b.fuelConsMtp: 1.0
    * b.fuelLvlMtp: 1.0
-   * b.fuelTup: null
+   * b.fuelTup: [null, 0.0, 0.0]
    * ---------------------------------------- */
 
 
@@ -63,6 +64,7 @@
    *
    * DB_block.db["param"]["multiplier"]["fuelCons"]    // @PARAM: Multiplier on fuel consumption speed.
    * DB_block.db["param"]["multiplier"]["fuelLvl"]    // @PARAM: Multiplier on fuel level used.
+   * DB_block.db["param"]["heatRes"]    // @PARAM: Temperature above which the furnace get damaged.
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
    * ---------------------------------------- */
 
@@ -80,9 +82,11 @@
   const PARENT = require("lovec/blk/BLK_recipeFactory");
   const PARAM = require("lovec/glb/GLB_param");
   const TIMER = require("lovec/glb/GLB_timer");
+  const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const FRAG_attack = require("lovec/frag/FRAG_attack");
   const FRAG_item = require("lovec/frag/FRAG_item");
   const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
@@ -92,9 +96,11 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_flow = require("lovec/mdl/MDL_flow");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   const DB_block = require("lovec/db/DB_block");
@@ -119,10 +125,10 @@
             arr = VARGEN.fuelLiqs.slice();
             break;
           case "gas" :
-            arr = VARGEN.fuelGas.slice();
+            arr = VARGEN.fuelGases.slice();
             break;
           case "any" :
-            arr = VARGEN.fuelItms.concat(VARGEN.fuelLiqs).concat(VARGEN.fuelGas);
+            arr = VARGEN.fuelItms.concat(VARGEN.fuelLiqs).concat(VARGEN.fuelGases);
             break;
           default :
             arr = [];
@@ -143,45 +149,23 @@
     blk.stats.add(TP_stat.blk0fac_fuel, extend(StatValue, {display(tb) {
       tb.row();
       MDL_table.__btnSmallBase(tb, "?", () => {
-        Core.scene.add(TP_table._winDial(MDL_bundle._term("lovec", "fuel") + " (" + blk.localizedName + ")", tb1 => MDL_table.setDisplay_ctLi(tb1, (function() {
-
-          const arr = [];
-          switch(blk.fuelType) {
-
-            case "item" :
-              arr.pushAll(VARGEN.fuelItms);
-              break;
-
-            case "liquid" :
-              arr.pushAll(VARGEN.fuelLiqs);
-              break;
-
-            case "gas" :
-              arr.pushAll(VARGEN.fuelGas);
-              break;
-
-            default :
-              arr.pushAll(VARGEN.fuelItms);
-              arr.pushAll(VARGEN.fuelLiqs);
-              arr.pushAll(VARGEN.fuelGas);
-
-          };
-
-          return arr.filter(rs => !blk.blockedFuels.includes(rs.name));
-
-        })(), null, 7)));
+        Core.scene.add(TP_table._winDial(MDL_bundle._term("lovec", "fuel") + " (" + blk.localizedName + ")", tb1 => MDL_table.setDisplay_ctLi(tb1, FRAG_faci._fuelArr(blk), null, 7)));
       }).left().padLeft(28.0).row();
     }}));
 
-    var fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk.name, 1.0);
+    let fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk.name, 1.0);
     if(!fuelConsMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelConsMtp, fuelConsMtp.perc());
-    var fuelLvlMtp = DB_block.db["param"]["multiplier"]["fuelLvl"].read(blk.name, 1.0);
+    let fuelLvlMtp = DB_block.db["param"]["multiplier"]["fuelLvl"].read(blk.name, 1.0);
     if(!fuelLvlMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelLvlMtp, fuelLvlMtp.perc());
+
+    let heatRes = MDL_flow._heatRes(blk);
+    blk.stats.add(TP_stat.blk0heat_heatRes, heatRes, TP_stat.rs_heatUnits);
   };
 
 
   function comp_created(b) {
-    b.heatReg = MDL_content._reg(b.block, "-heat");
+    b.heatReg = MDL_texture._reg(b.block, "-heat");
+    b.heatRes = MDL_flow._heatRes(b.block);
     if(b.tempCur < 0.0) b.tempCur = PARAM.glbHeat;
     b.fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(b.block.name, 1.0);
     b.fuelLvlMtp = DB_block.db["param"]["multiplier"]["fuelLvl"].read(b.block.name, 1.0);
@@ -189,33 +173,23 @@
 
 
   function comp_updateTile(b) {
-    if(PARAM.updateSuppressed) return;
+    if(PARAM.updateSuppressed || b.fuelTup == null) return;
 
-    let rsTg = null;
-    let fuelPon = -1.0;
-    let fuelLvl = -1.0;
-    if(b.fuelTup != null) {
-      rsTg = b.fuelTup[0];
-      fuelPon = b.fuelTup[1];
-      fuelLvl = b.fuelTup[2];
+    if(TIMER.timerState_sec) {
+      b.tempCur = Mathf.lerpDelta(b.tempCur, Mathf.lerp(PARAM.glbHeat, b.fuelTup[2] * 100.0 * b.fuelLvlMtp, FRAG_faci._tempTgFrac(b, b.fuelTup[0])), b.heatIncRate * 60.0);
+      if(b.tempCur > b.heatRes) FRAG_attack.damage(b, (VAR.blk_corDmgMin + VAR.blk_corDmgFrac * b.maxHealth) * (b.tempCur - b.heatRes) / 25.0, true, "heat");
     };
 
-    b.tempCur = Mathf.lerpDelta(b.tempCur, Mathf.lerp(PARAM.glbHeat, fuelLvl * 100.0 * b.fuelLvlMtp, FRAG_faci._tempTgFrac(b, rsTg)), b.heatIncRate);
-
-    if(rsTg != null) {
-      if(rsTg instanceof Item) {
-
-        if(b.fuelPonCur < 1.0 && fuelPon > 0.0 && FRAG_item.consumeItem(b, rsTg, 1)) {
-          b.fuelPonCur += fuelPon;
+    if(b.fuelTup[0] != null && TIMER.timerState_heat) {
+      if(b.fuelTup[0] instanceof Item) {
+        if(b.fuelPonCur < 1.0 && b.fuelTup[1] > 0.0 && FRAG_item.consumeItem(b, b.fuelTup[0], 1)) {
+          b.fuelPonCur += b.fuelTup[1];
         };
-
       } else {
-
-        let amtCons = fuelPon * b.fuelConsMtp * b.edelta;
-        if(FRAG_fluid.addLiquid(b, null, rsTg, -amtCons) > amtCons) {
+        let amtCons = b.fuelTup[1] * b.fuelConsMtp * b.edelta() * VAR.time_heatIntv;
+        if(FRAG_fluid.addLiquid(b, null, b.fuelTup[0], -amtCons) > amtCons) {
           b.fuelPonCur = 1.0;
         };
-
       };
     };
     b.fuelPonCur = Mathf.maxZero(b.fuelPonCur - b.edelta() / 60.0 * b.fuelConsMtp);
@@ -223,7 +197,8 @@
 
 
   function comp_draw(b) {
-    MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(b.ex_getHeatFrac(), 3), b.heatReg, b.block.size);
+    MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(b.ex_getHeatFrac(), 3) * 0.8, b.heatReg, b.drawrot(), b.block.size);
+    MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(b.ex_getHeatFrac(), 3) * 0.5, VARGEN.blockHeatRegs[b.block.size + 2], b.drawrot(), b.block.size);
   };
 
 
@@ -238,6 +213,7 @@
 
   function comp_acceptItem(b, b_f, itm) {
     if(b.items == null) return false;
+    if(b.block.ex_getFuelType() !== "item" && b.block.ex_getFuelType() !== "any") return false;
     if(b.items.get(itm) >= b.getMaximumAccepted(itm)) return false;
     if(!VARGEN.fuelItms.includes(itm) || b.block.ex_getBlockedFuels().includes(itm.name)) return false;
 
@@ -246,7 +222,12 @@
 
 
   function comp_acceptLiquid(b, b_f, liq) {
-    return (VARGEN.fuelLiqs.includes(liq) || VARGEN.fuelGas.includes(liq)) && !b.block.ex_getBlockedFuels().includes(liq.name);
+    if(b.liquids == null) return false;
+    if(b.block.ex_getFuelType() === "item") return false;
+    if(b.liquids.get(liq) > b.block.liquidCapacity - 0.0001) return false;
+    if((!VARGEN.fuelLiqs.includes(liq) && !VARGEN.fuelGases.includes(liq)) || b.block.ex_getBlockedFuels().includes(liq.name)) return false;
+
+    return true;
   };
 
 
@@ -501,7 +482,7 @@
 
     // @NOSUPER
     ex_getFailP: function(b) {
-      return !isFinite(b.tempAllowed) ? b.failP : Mathf.clamp((b.tempCur - 0.6 * b.tempAllowed) * 0.0015 + b.failP, b.failP, 1.0);
+      return !isFinite(b.tempAllowed) ? b.failP : Mathf.clamp((b.tempCur - b.tempAllowed) * 0.0015 + b.failP, b.failP, 1.0);
     },
 
 

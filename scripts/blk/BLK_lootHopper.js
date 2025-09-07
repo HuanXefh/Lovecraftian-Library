@@ -22,7 +22,6 @@
   /* ----------------------------------------
    * KEY:
    *
-   * b.tsGetter: null
    * b.ts: []
    * b.timerCall: new Interval(1)
    * b.amtRun: 0
@@ -70,11 +69,6 @@
   };
 
 
-  function comp_created(b) {
-    b.tsGetter = () => MDL_pos._tsBuild(b);
-  };
-
-
   function comp_ex_lootCall(b) {
     let loot = MDL_pos._lootTs(b.ts);
     if(loot != null) {
@@ -117,7 +111,6 @@
 
     created: function(b) {
       PARENT.created(b);
-      comp_created(b);
     },
 
 
@@ -173,6 +166,12 @@
     }.setProp({
       "funArr": [],
     }),
+
+
+    // @NOSUPER
+    ex_getTs: function(blk, tx, ty, rot) {
+      return MDL_pos._tsBuild(Vars.world.build(tx, ty));
+    },
 
 
     /* <---------- build (extended) ----------> */

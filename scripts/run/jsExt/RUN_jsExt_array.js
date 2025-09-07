@@ -690,6 +690,34 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Returns a random element that is not found in {refArr}.
+   * Supports formatted array.
+   * ---------------------------------------- */
+  ptp.readRandUnique = function(refArr, mapF, ord, off, def, maxTry) {
+    if(this.length === 0) return null;
+
+    if(mapF == null) mapF = Function.airSelf;
+    if(ord == null) ord = 1;
+    if(off == null) off = 0;
+    if(maxTry == null) maxTry = 50;
+
+    let tmp = "!PENDING";
+    let i = 0;
+    while(tmp === "!PENDING" && i < maxTry) {
+      tmp = this[Math.round((this.rowAmt(ord) - 1).randInt() * ord + off)];
+      if(refArr.includes(mapF(tmp))) {
+        tmp = "!PENDING";
+      } else break;
+      i++;
+    };
+
+    return tmp === "!PENDING" ? null : tmp;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Reads data from a formatted array, and returns the results as an array.
    * Mostly useful when there are multiple matching results.
    * ---------------------------------------- */

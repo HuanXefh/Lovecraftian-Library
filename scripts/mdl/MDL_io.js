@@ -17,6 +17,39 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Writes an array of integers.
+   * ---------------------------------------- */
+  const _wr_ints = function(wr, ints) {
+    let i = 0;
+    let iCap = ints.iCap();
+    wr.i(iCap);
+    while(i < iCap) {
+      wr.i(ints[i]);
+      i++;
+    };
+  };
+  exports._wr_ints = _wr_ints;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an array of integers.
+   * ---------------------------------------- */
+  const _rd_ints = function(rd, ints) {
+    let i = 0;
+    let iCap = rd.i();
+    while(i < iCap) {
+      ints[i] = rd.i();
+      i++;
+    };
+  };
+  exports._rd_ints = _rd_ints;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Writes an arc color.
    * ---------------------------------------- */
   const _wr_color = function(wr, color) {

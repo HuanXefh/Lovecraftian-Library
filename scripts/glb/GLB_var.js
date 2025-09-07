@@ -32,6 +32,7 @@
   exports.lay_randOv = 1.07;
   exports.lay_debugFlr = 2.21;
   exports.lay_unitRemains = 58.11;
+  exports.lay_dporeRevealed = 107.21;
   exports.lay_debugTop = 118.91;
 
 
@@ -44,7 +45,7 @@
 
 
   exports.time_liqIntv = 4.0;
-  exports.time_heatIntv = 30.0;
+  exports.time_heatIntv = 20.0;
   exports.time_paramIntv = 90.0;
   exports.time_paramGlobalIntv = 110.0;
   exports.time_paramLargeIntv = 600.0;
@@ -111,6 +112,8 @@
 
   exports.dmg_presExploDmg = 1800.0;
   exports.dmg_impactMinDmg = 40.0;
+  exports.dmg_heatMaxDmg = 100.0;
+  exports.dmg_overheatedConversionDmg = 150.0;
 
 
   /* <---------- param ----------> */
@@ -121,6 +124,7 @@
   exports.ct_auxCap = 1.0;
 
 
+  exports.blk_updateEffcThr = 0.96;
   exports.blk_terFlrThr = 0.75;
   exports.blk_presDmgFrac = 0.015;
   exports.blk_presDmgMin = 3.0;
@@ -129,5 +133,6 @@
   exports.blk_clogViscThr = 0.75;
   exports.blk_clogDmgFrac = 0.02;
   exports.blk_clogDmgMin = 3.0;
+  exports.blk_auxHeatTempFrac = 0.16666667;
   exports.blk_lightningDmg = 20.0;
   exports.blk_shortCircuitDmgFrac = 0.12;

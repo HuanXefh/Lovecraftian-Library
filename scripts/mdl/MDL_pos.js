@@ -518,6 +518,7 @@
           case 2 :
             px = (size + 1) * -0.5;
             py = i;
+            break;
           case 3 :
             px = i;
             py = (size + 1) * -0.5;
@@ -684,7 +685,7 @@
     } else {
       var ot0;
       for(let i = 0; i < 4; i++) {
-        ot0 = t.nearby(pons2_size2Offset[i]);
+        ot0 = t.nearby(sizeOffsetPons2[2][i]);
         if(ot0 == null) continue;
 
         Geometry.circle(ot0.x, ot0.y, w, h, r, (tx, ty) => {
@@ -922,7 +923,7 @@
    * Gets an active ore scanner in range.
    * ---------------------------------------- */
   const _b_scan = function(x, y, team, rad) {
-    return _b_base(x, y, team, rad, b => MDL_cond._isOreScanner(b.block) && b.efficiency > 0.0);
+    return _b_base(x, y, team, rad, b => MDL_cond._isOreScanner(b.block) && b.efficiency > 0.0 && Mathf.dst(x, y, b.x, b.y) < b.block.ex_getScanR() * Vars.tilesize);
   };
   exports._b_scan = _b_scan;
 

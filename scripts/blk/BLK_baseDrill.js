@@ -72,8 +72,10 @@
     blk.stats.remove(Stat.drillTier);
     blk.stats.remove(Stat.drillSpeed);
 
-    blk.stats.add(TP_stat.blk0min_baseDrillSpd, FRAG_faci._drillSpd(blk, false), StatUnit.itemsSecond);
-    blk.stats.add(TP_stat.blk0min_boostedDrillSpd, FRAG_faci._drillSpd(blk, true), StatUnit.itemsSecond);
+    let drillSpd = FRAG_faci._drillSpd(blk, false);
+    blk.stats.add(TP_stat.blk0min_baseDrillSpd, drillSpd, StatUnit.itemsSecond);
+    let drillSpdBoosted = FRAG_faci._drillSpd(blk, true)
+    if(!drillSpd.fEqual(drillSpdBoosted)) blk.stats.add(TP_stat.blk0min_boostedDrillSpd, drillSpdBoosted, StatUnit.itemsSecond);
 
     blk.stats.add(TP_stat.blk0min_drillTier, blk.tier);
 
@@ -167,6 +169,12 @@
 
 
     /* <---------- block (specific) ----------> */
+
+
+    // @LATER
+    canMine: function(blk, t) {
+      return true;
+    },
 
 
     /* <---------- build (specific) ----------> */

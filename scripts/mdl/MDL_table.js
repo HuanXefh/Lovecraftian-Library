@@ -14,6 +14,7 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const MDL_attr = require("lovec/mdl/MDL_attr");
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
@@ -238,7 +239,7 @@
    *
    * Like what's done in {Stat.tiles}, but displays the attribute in tooltip.
    * ---------------------------------------- */
-  const __blkEffc = function(tb, blk, mtp, nmAttr, w) {
+  const __blkEffc = function(tb, blk, mtp, nmAttr, w, dial) {
     if(blk == null) return;
 
     if(w == null) w = 64.0;
@@ -252,7 +253,10 @@
 
         tb2.left();
 
-        var btn = tb2.button(new TextureRegionDrawable(blk.uiIcon), w, TP_dial._ct(blk))
+        var btn = tb2.button(new TextureRegionDrawable(blk.uiIcon), w, () => {
+          Vars.ui.content.show(blk);
+          if(dial != null) dial.hide();
+        })
         .tooltip(blk.localizedName + ((nmAttr == null) ? "" : ("\n\n[green]" + MDL_attr._attrB(nmAttr) + "[]")))
         .padRight(-18.0)
         .get();
@@ -446,61 +450,65 @@
    *
    * Sets up an outlined table for data display.
    * ---------------------------------------- */
-  const setTable_base = function(tb, matArr, ws, hs, color, stroke, color_title, imgW) {
-    if(ws == null) ws = [];
-    if(hs == null) hs = [];
-    if(imgW == null) imgW = 32.0;
+  const setTable_base = function(tb, matArr, colorLine, colorTitle, colorBase, stroke, imgW) {
+    if(colorLine == null) colorLine = Color.darkGray;
+    if(colorTitle == null) colorTitle = colorLine;
+    if(colorBase == null) colorBase = Pal.darkestGray;
+    if(stroke == null) stroke = 2.0;
+    if(imgW = 32.0);
 
-    var rowAmt = matArr.iCap();
-    var colAmt = matArr[0].iCap();
-    var tmp = null;
+    let rowAmt = matArr.iCap();
+    let colAmt = matArr[0].iCap();
+    if(rowAmt === 0 || colAmt === 0) return;
 
-    tb.table(Styles.none, tb1 => {
+    const cont =  new Table();
+    tb.add(cont);
 
-      __bar(tb1, color, null, stroke);
+    for(let i = 0; i < colAmt; i++) {
+      let tbCol = cont.table(Styles.none, tb1 => {}).grow().get();
+      for(let j = 0; j < rowAmt; j++) {
+        let tbRow = tbCol.table(Tex.whiteui, tb1 => {
+          tb1.left().setColor(colorLine);
+        }).left().grow().get();
+        tbCol.row();
 
-      for(let i = 0; i < rowAmt; i++) {
-        var h = hs[i];
-        if(h == null) h = 40.0;
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.row();
 
-        tb1.table((color_title != null && i === 0) ? Tex.whiteui : Styles.none, tb2 => {
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.table(Tex.whiteui, tbCell => {
 
-          if(color_title != null) tb2.setColor(color_title);
+          tbCell.left().setColor(j === 0 ? colorTitle : colorBase);
+          __margin(tbCell, 0.25);
 
-          __barV(tb2, color, null, stroke);
+          let tmp = matArr[j][i];
 
-          for(let j = 0; j < colAmt; j++) {
-            var w = ws[j];
-            if(w == null) w = 80.0;
-
-            tb2.table(Styles.none, tb3 => {
-
-              if(i === 0) {tb3.center()} else {tb3.left()};
-              __margin(tb3);
-
-              tmp = matArr[i][j];
-              if(tmp != null) {
-
-                if(tmp instanceof TextureRegion) {tb3.image(tmp).width(imgW).height(imgW)}
-                else if(tmp instanceof UnlockableContent) {__ct(tb3, tmp, imgW)}
-                else if(typeof tmp === "function") {tmp(tb3)}
-                else if(typeof tmp === "string") {__wrapLine(tb3, tmp)}
-                else if(typeof tmp === "number") {__wrapLine(tb3, Strings.autoFixed(tmp, 2))}
-                else {tb3.add("!ERR")};
-
-              };
-
-            }).width(w);
-
-            __barV(tb2, color, null, stroke);
+          if(tmp instanceof TextureRegion) {
+            tbCell.image(tmp).width(imgW).height(imgW);
+          } else if(tmp instanceof UnlockableContent) {
+            __ct(tbCell, tmp, imgW);
+          } else if(typeof tmp === "function") {
+            tmp(tbCell);
+          } else if(typeof tmp === "string") {
+            tbCell.add(tmp).padLeft(8.0).padRight(8.0);
+          } else if(typeof tmp === "number") {
+            tbCell.add(Strings.autoFixed(tmp, 2)).padLeft(8.0).padRight(8.0);
+          } else {
+            tb3.add("!ERR");
           };
 
-        }).height(h).row();
+        }).growX().height(j === 0 ? 24.0 : (imgW + 8.0));
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.row();
 
-        __bar(tb1, color, null, stroke);
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
+        tbRow.row();
       };
-
-    }).row();
+    };
   };
   exports.setTable_base = setTable_base;
 
@@ -792,6 +800,41 @@
 
 
   /* <---------- misc stat ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Sets attribute display that supports multiple attributes.
+   * ---------------------------------------- */
+  const setDisplay_attr = function(tb, attrs_gn_p, iconW, colAmt, dial) {
+    if(iconW == null) iconW = 64.0;
+    if(colAmt == null) colAmt = MDL_ui._colAmt(iconW, 0.0, 2);
+
+    let map = MDL_attr._blkAttrMap(attrs_gn_p);
+
+    tb.table(Styles.none, tb1 => {
+
+      tb1.left();
+      __margin(tb1, 0.5);
+
+      let iCap = map.length;
+      if(iCap === 0) return;
+      for(let i = 0, j = 0; i < iCap; i += 3) {
+        (function(i) {
+          let blk = map[i];
+          let attrVal = map[i + 1];
+          let nmAttr = map[i + 2];
+          __blkEffc(tb1, blk, attrVal, nmAttr, iconW, dial);
+        })(i);
+
+        if(j % colAmt === colAmt - 1) tb1.row();
+        j++;
+      };
+
+    }).left().row();
+  };
+  exports.setDisplay_attr = setDisplay_attr;
 
 
   /* ----------------------------------------

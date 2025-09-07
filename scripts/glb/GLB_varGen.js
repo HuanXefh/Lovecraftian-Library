@@ -11,24 +11,26 @@
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   const DB_block = require("lovec/db/DB_block");
   const DB_env = require("lovec/db/DB_env");
   const DB_fluid = require("lovec/db/DB_fluid");
   const DB_item = require("lovec/db/DB_item");
+  const DB_misc = require("lovec/db/DB_misc");
 
 
   /* <---------- key binding ----------> */
 
 
-  const LovecBinding = {};
+  const bindings = {};
 
 
-  const __LovecBinding = function(nm, keyBind) {
-    LovecBinding[nm] = keyBind;
+  const __bindings = function(nm, keyBind) {
+    bindings[nm] = keyBind;
   };
-  exports.__LovecBinding = __LovecBinding;
+  exports.__bindings = __bindings;
 
 
   /* <---------- sprite ----------> */
@@ -37,67 +39,78 @@
   MDL_event._c_onLoad(() => {
 
 
-    exports.icons = {
-      ohno: new TextureRegionDrawable(Core.atlas.find("error")),
+    exports.iconRegs = (function() {
+      const obj = {};
+      DB_misc.db["texture"]["icon"].forEachRow(2, (nm, nmReg) => {
+        obj[nm] = Core.atlas.find(nmReg);
+      });
+      return obj;
+    })();
 
-      check: new TextureRegionDrawable(Core.atlas.find("lovec-icon-check")),
-      cross: new TextureRegionDrawable(Core.atlas.find("lovec-icon-cross")),
-      harvest: new TextureRegionDrawable(Core.atlas.find("lovec-icon-harvest")),
-      play: new TextureRegionDrawable(Core.atlas.find("lovec-icon-play")),
-      swap: new TextureRegionDrawable(Core.atlas.find("lovec-icon-swap")),
-    };
+
+    exports.icons = (function() {
+      const obj = {};
+      Object._it(module.exports.iconRegs, (nm, reg) => {
+        obj[nm] = new TextureRegionDrawable(reg);
+      });
+      return obj;
+    })();
 
 
     exports.blockHeatRegs = [
       Core.atlas.find("error"),
-      MDL_content._regHeat(1),
-      MDL_content._regHeat(2),
-      MDL_content._regHeat(3),
-      MDL_content._regHeat(4),
-      MDL_content._regHeat(5),
-      MDL_content._regHeat(6),
-      MDL_content._regHeat(7),
-      MDL_content._regHeat(8),
-      MDL_content._regHeat(9),
-      MDL_content._regHeat(10),
+      MDL_texture._regHeat(1),
+      MDL_texture._regHeat(2),
+      MDL_texture._regHeat(3),
+      MDL_texture._regHeat(4),
+      MDL_texture._regHeat(5),
+      MDL_texture._regHeat(6),
+      MDL_texture._regHeat(7),
+      MDL_texture._regHeat(8),
+      MDL_texture._regHeat(9),
+      MDL_texture._regHeat(10),
     ];
 
 
-    exports.laserReg = Core.atlas.find("laser");
-    exports.laserEndReg = Core.atlas.find("laser-end");
+    exports.laserRegs = (function() {
+      const obj = {};
+      obj.lineReg = Core.atlas.find("laser");
+      obj.endReg = Core.atlas.find("laser-end");
+      return obj;
+    })();
 
 
-    let wireRegMap = new ObjectMap();
-    let wireEndRegMap = new ObjectMap();
-    DB_block.db["grpParam"]["wireMatReg"].forEachRow(2, (wireMat, nmReg) => {
-      wireRegMap.put(wireMat, Core.atlas.find(nmReg));
-      wireEndRegMap.put(wireMat, Core.atlas.find(nmReg + "-end"));
-    });
-    exports.wireRegMap = wireRegMap;
-    exports.wireEndRegMap = wireEndRegMap;
-    exports.wireGlowReg = Core.atlas.find("lovec-ast-wire-glow");
-    exports.wireShaReg = Core.atlas.find("lovec-ast-wire-shadow");
+    exports.wireRegs = (function() {
+      const obj = {};
+      obj.regMap = new ObjectMap();
+      obj.endRegMap = new ObjectMap();
+      DB_block.db["grpParam"]["wireMatReg"].forEachRow(2, (wireMat, nmReg) => {
+        obj.regMap.put(wireMat, Core.atlas.find(nmReg));
+        obj.endRegMap.put(wireMat, Core.atlas.find(nmReg + "-end"));
+      });
+      obj.glowReg = Core.atlas.find("lovec-ast-wire-glow");
+      obj.shaReg = Core.atlas.find("lovec-ast-wire-shadow");
+      return obj;
+    })();
 
 
-    let loadTex = (path) => {
-      Core.assets.load(path, Texture);
-      return Core.assets.get(path, Texture);
-    };
-
-
-    let noiseTexs = {
-      caustics: loadTex("sprites/caustics.png"),
-      clouds: loadTex("sprites/clouds.png"),
-      distortAlpha: loadTex("sprites/distortAlpha.png"),
-      fog: loadTex("sprites/fog.png"),
-      noise: loadTex("sprites/noise.png"),
-      noiseAlpha: loadTex("sprites/noiseAlpha.png"),
-    };
-    Object._it(noiseTexs, (key, tex) => {
-      tex.setFilter(Texture.TextureFilter.linear);
-      tex.setWrap(Texture.TextureWrap.repeat);
-    });
-    exports.noiseTexs = noiseTexs;
+    exports.noiseTexs = (function() {
+      const obj = {};
+      let load = path => {
+        Core.assets.load(path, Texture);
+        return Core.assets.get(path, Texture);
+      };
+      DB_misc.db["texture"]["noise"].forEachRow(2, (nm, path) => {
+        try {
+          obj[nm] = load(path);
+          obj[nm].setFilter(Texture.TextureFilter.linear);
+          obj[nm].setWrap(Texture.TextureWrap.repeat);
+        } catch(err) {
+          Log.warn("[LOVEC] Cannot load noise texture for: " + path);
+        };
+      });
+      return obj;
+    })();
 
 
   }, 25777741);
@@ -122,16 +135,29 @@
     exports.lovecPlas = Vars.content.planets().select(pla => pla.accessible && (pla.minfo.mod == null ? "" : pla.minfo.mod.name) === "loveclab").toArray();
 
 
-    let wes = {};
-    Vars.content.weathers().each(wea => {
-      if(wea.ex_getWeaEnPermanent == null) return;
+    exports.weaEns = (function() {
+      const obj = {};
+      Vars.content.weathers().each(wea => {
+        if(wea.ex_getWeaEnPermanent != null) {
+          obj[wea.name] = wea.ex_getWeaEnPermanent();
+        } else {
+          let weaEn = new Weather.WeatherEntry(wea);
+          weaEn.always = true;
+          obj[wea.name] = weaEn;
+        };
+      });
+      return obj;
+    })();
 
-      wes[wea.name] = wea.ex_getWeaEnPermanent();
-    });
-    exports.wes = wes;
 
-
-    exports.sandItms = Vars.content.items().select(itm => DB_item.db["group"]["sand"].includes(itm.name)).toArray();
+    exports.sandItms = (function() {
+      const arr = [];
+      DB_item.db["group"]["sand"].forEachFast(nm => {
+        let itm = MDL_content._ct(nm, "rs");
+        if(itm != null) arr.push(itm);
+      });
+      return arr;
+    })();
 
 
     exports.hotFlds = (function() {
@@ -151,20 +177,39 @@
     })();
 
 
-    exports.fuelItms = Vars.content.items().select(itm => DB_item.db["param"]["fuel"]["level"].includes(itm.name)).toArray();
-    exports.fuelLiqs = Vars.content.liquids().select(liq => !liq.gas && DB_item.db["param"]["fuel"]["fLevel"].includes(liq.name)).toArray();
-    exports.fuelGas = Vars.content.liquids().select(liq => liq.gas && DB_item.db["param"]["fuel"]["fLevel"].includes(liq.name)).toArray();
+    exports.fuelItms = (function() {
+      const arr = [];
+      DB_item.db["param"]["fuel"]["item"].forEachRow(2, (nm, params) => {
+        let itm = MDL_content._ct(nm, "rs");
+        if(itm != null) arr.push(itm);
+      });
+      return arr;
+    })();
+    exports.fuelLiqs = (function() {
+      const arr = [];
+      DB_item.db["param"]["fuel"]["fluid"].forEachRow(2, (nm, params) => {
+        let liq = MDL_content._ct(nm, "rs");
+        if(liq != null && !liq.gas) arr.push(liq);
+      });
+      return arr;
+    })();
+    exports.fuelGases = (function() {
+      const arr = [];
+      DB_item.db["param"]["fuel"]["fluid"].forEachRow(2, (nm, params) => {
+        let liq = MDL_content._ct(nm, "rs");
+        if(liq != null && liq.gas) arr.push(liq);
+      });
+      return arr;
+    })();
 
 
-    let intmds = {};
-    DB_item.db["intmdTag"].forEach(tag => intmds[tag] = []);
-    Vars.content.items().each(itm => {
-      MDL_content._intmdTags(itm).forEach(tag => intmds[tag].push(itm));
-    });
-    Vars.content.liquids().each(liq => {
-      MDL_content._intmdTags(liq).forEach(tag => intmds[tag].push(liq));
-    });
-    exports.intmds = intmds;
+    exports.intmds = (function() {
+      const obj = {};
+      DB_item.db["intmdTag"].forEachFast(tag => obj[tag] = []);
+      Vars.content.items().each(itm => MDL_content._intmdTags(itm).forEachFast(tag => obj[tag].push(itm)));
+      Vars.content.liquids().each(liq => MDL_content._intmdTags(liq).forEachFast(tag => obj[tag].push(liq)));
+      return obj;
+    })();
 
 
     exports.wasItms = Vars.content.items().select(itm => MDL_cond._isWas(itm)).toArray();
@@ -184,22 +229,22 @@
     exports.stackStas = Vars.content.statusEffects().select(sta => MDL_cond._isStackSta(sta)).toArray();
 
 
-    let factions = {};
-    var i = 0;
-    var iCap = DB_block.db["grpParam"]["factionColor"].iCap();
-    while(i < iCap) {
-      let faction = DB_block.db["grpParam"]["factionColor"][i];
-      if(faction !== "none") factions[faction] = MDL_content._factionCts(faction);
-      i += 2;
-    };
-    exports.factions = factions;
+
+    exports.factions = (function() {
+      const obj = {};
+      DB_block.db["grpParam"]["factionColor"].forEachRow(2, (faction, colorStr) => {
+        if(faction === "none") return;
+        obj[faction] = MDL_content._factionCts(faction);
+      });
+      return obj;
+    })();
 
 
-    let facFamis = {};
-    MDL_content._facFamisDefined().forEach(fami => {
-      facFamis[fami] = MDL_content._facFamiBlks(fami);
-    });
-    exports.facFamis = facFamis;
+    exports.facFamis = (function() {
+      const obj = {};
+      MDL_content._facFamisDefined().forEachFast(fami => obj[fami] = MDL_content._facFamiBlks(fami));
+      return obj;
+    })();
 
 
   }, 79532268);
@@ -211,7 +256,7 @@
   MDL_event._c_onLoad(() => {
 
 
-    exports.LovecBinding = LovecBinding;
+    exports.bindings = bindings;
 
 
     exports.auxPres = Vars.content.liquid("loveclab-aux0aux-pressure");

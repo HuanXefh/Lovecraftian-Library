@@ -58,6 +58,7 @@
   const FRAG_attack = require("lovec/frag/FRAG_attack");
 
 
+  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_text = require("lovec/mdl/MDL_text");
 
 
@@ -79,10 +80,13 @@
     if(staEn.time > sta.burstTime) {
       let dmg = sta.burstDamage + unit.maxHealth * sta.burstDamagePerc;
 
-      unit.unapply(sta);
-      FRAG_attack.damage(unit, dmg, true);
+      MDL_cond._isHotSta(sta) ?
+        FRAG_attack.damage(unit, dmg, true, "heat") :
+        FRAG_attack.damage(unit, dmg, true);
       sta.burstScr(unit);
       sta.burstEff.at(unit.x, unit.y, unit.type.hitSize * 1.1, sta.burstEffColor);
+
+      staEn.time = 30.0;
     };
   };
 

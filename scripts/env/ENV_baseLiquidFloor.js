@@ -25,7 +25,8 @@
   /* ----------------------------------------
    * KEY:
    *
-   * !NOTHING
+   * updateEff: eff    // @PARAM: The effect used for the liquid floor.
+   * updateEffP: p    // @PARAM: Chance for effect creation.
    * ---------------------------------------- */
 
 
@@ -92,6 +93,16 @@
   };
 
 
+  function comp_updateRender(blk, t) {
+    return blk.updateEff !== Fx.none && Mathf.randomSeed(t.pos(), 0.0, 1.0) > 0.4;
+  };
+
+
+  function comp_renderUpdate(blk, renderState) {
+    if(Mathf.chance(blk.updateEffP)) blk.updateEff.at(renderState.tile.worldx() + Mathf.range(3.0), renderState.tile.worldy() + Mathf.range(3.0));
+  };
+
+
 /*
   ========================================
   Section: Application
@@ -122,6 +133,18 @@
 
 
     /* <---------- block (specific) ----------> */
+
+
+    // @NOSUPER
+    updateRender: function(blk, t) {
+      return comp_updateRender(blk, t);
+    },
+
+
+    // @NOSUPER
+    renderUpdate: function(blk, renderState) {
+      comp_renderUpdate(blk, renderState);
+    },
 
 
     /* <---------- block (extended) ----------> */

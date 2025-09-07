@@ -25,6 +25,18 @@ const db = {
   },
 
 
+  "map": {
+
+
+    "recipe": {
+
+
+    },
+
+
+  },
+
+
   "group": {
 
 
@@ -263,10 +275,10 @@ const db = {
       "baseGas", 1.6,
       "acidSub", 1.2,
       "baseSub", 1.2,
-      "alc", 0.1,
+      "alc", 0.0,
       "acidAlc", 1.2,
       "baseAlc", 1.2,
-      "oil", 0.1,
+      "oil", 0.0,
       "acidOil", 0.6,
       "baseOil", 0.6,
       "melt", 0.0,
@@ -366,6 +378,7 @@ const db = {
         "baseGas", 2.0,
         "acidSub", 1.5,
         "baseSub", 1.5,
+        "oil", 5.0,
         "acidOil", 7.5,
         "baseOil", 7.5,
 

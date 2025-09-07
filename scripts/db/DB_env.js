@@ -1,47 +1,4 @@
-const MDL_content = require("lovec/mdl/MDL_content");
-
-
-
-
-
-
-
-
-const noiseArgs = {
-
-  "anthymist": {
-
-    "cloud": [
-      "clouds", Color.white, 1750.0, 0.02, 0.5, 1.0, 7.0, -0.2, 0.0,
-      "clouds", Color.white, 1250.0, 0.03, 0.5, 1.0, 12.0, -0.8, 0.0,
-      "clouds", Color.white, 750.0, 0.04, 0.5, 1.0, 15.5, -1.4, 0.0,
-      "distortAlpha", Color.scarlet, 1000.0, 0.03, 0.5, 1.0, 13.5, -0.04, 0.0,
-    ],
-
-  },
-
-};
-
-
-const weas = {
-
-  "anthymist": {
-
-    "rain": [
-      "loveclab-wea0amb-anthymist-normal",
-      "loveclab-wea0deco-heavy-rain",
-      "loveclab-wea0deco-fog-black",
-    ],
-
-  },
-
-};
-
-
-
-
-
-
+const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
 const db = {
@@ -85,15 +42,7 @@ const db = {
        * Format: {nmMap, args}.
        * Format for {args}: {nmTex, color, noiseScl, opac, spd, intens, windX, windY, off}.
        * ---------------------------------------- */
-      "noise": [
-
-        // For noise test only
-        "test-001-blocks", noiseArgs["anthymist"]["cloud"],
-
-        "camp-anthymist-001-sector-beta", noiseArgs["anthymist"]["cloud"],
-        "projreind-camp-anthymist-001-sector-beta", noiseArgs["anthymist"]["cloud"],
-
-      ],
+      "noise": [],
 
 
       /* ----------------------------------------
@@ -104,15 +53,7 @@ const db = {
        * No weathers from vanilla game or other mods for now.
        * Format: {nmMap, nmWeas}.
        * ---------------------------------------- */
-      "we": [
-
-        // For weather test only
-        "test-001-blocks", weas["anthymist"]["rain"],
-
-        "camp-anthymist-001-sector-beta", weas["anthymist"]["rain"],
-        "projreind-camp-anthymist-001-sector-beta", weas["anthymist"]["rain"],
-
-      ],
+      "weaEn": [],
 
 
       /* ----------------------------------------
@@ -142,6 +83,32 @@ const db = {
   "map": {
 
 
+    "rule": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Default values for campaign rules assigned to some planet.
+       * Check {CampaignRules} class.
+       * Format: {nmPla, ruleSetter}.
+       * ---------------------------------------- */
+      "campaignRule": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps a planet to a rule setter function.
+       * Fog should be set in campaign rules too, you should ask Anuke why.
+       * Format: {nmPla, ruleSetter}.
+       * ---------------------------------------- */
+      "planetRule": [],
+
+
+    },
+
+
     /* ----------------------------------------
      * NOTE:
      *
@@ -150,9 +117,9 @@ const db = {
      * ---------------------------------------- */
     "randRegTag": [
 
-      "rock", MDL_content._randRegsGetter("lovec-ov0rand-rock"),
-      "rock-sand", MDL_content._randRegsGetter("lovec-ov0rand-rock-sand"),
-      "rock-sand-dark", MDL_content._randRegsGetter("lovec-ov0rand-rock-sand-dark"),
+      "rock", MDL_texture._randRegsGetter("lovec-ov0rand-rock"),
+      "rock-sand", MDL_texture._randRegsGetter("lovec-ov0rand-rock-sand"),
+      "rock-sand-dark", MDL_texture._randRegsGetter("lovec-ov0rand-rock-sand-dark"),
 
     ],
 

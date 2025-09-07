@@ -150,7 +150,7 @@
   <div>
     <h1 class="title">LovecLib: A Guide Book</h1>
     <br>
-    <p><strong>LovecLib</strong> is a javascript mod that provides some methods for mostly my other mods. However, any other javascript mods can utilize it if the author is familiar enough with JS <del>(and stuck in javascript like me)</del>. This document aims to explain how the lib works and some concepts brought along with it.</p>
+    <p><strong>LovecLib</strong> is a javascript mod that provides some methods for mostly my other mods. However, any other javascript mods can utilize it if the author is familiar enough with JS <del>(and trapped in javascript like me)</del>. This document aims to explain how the lib works and some concepts brought along with it.</p>
     <p>Note that the lib is still subject to change, and the document may not be updated that frequently. Some information can be inaccurate or even outdated.</p>
     <br>
   </div>
@@ -182,7 +182,6 @@
       <li><a href="#game">Game Mechanics</a></li><br>
       <li class="sub"><a href="#game-lsav">Lovec Saves</a></li><br>
       <li class="sub"><a href="#game-cor">Corrosion</a></li><br>
-      <li class="sub"><a href="#game-pres">Pressure</a></li><br>
       <li class="sub"><a href="#game-aux">Abstract Fluids</a></li><br>
       <li class="sub"><a href="#game-loot">Loot Unit</a></li><br>
       <li class="sub"><a href="#game-recipe">Recipe Factories</a></li><br>
@@ -332,7 +331,7 @@
       <p>In the import part, besides importing modules you need, it's important to set the right <strong>TEMPLATE</strong>. If you are creating conveyor blocks, write {const TEMPLATE = require("lovec/blk/BLK_conveyor")} or similiar line to require your own conveyor template. Generic methods for a type of contents should always be defined in a template file, NOT the content file, especially in the object in extend which is completely not reusable. If you're doing it right, you are expected to import few files in a CT file, on most occasions TEMPLATE is the only one required.</p>
       <p>Most CT files in ProjReind have auxiliay part, where {_std} and {_std_b} are defined. The two methods are local and responsible for outputting objects used in extend. Some objects (e.g. in {CT_BLK_recipeFactory}) are really long and if you put them in extend instead of using a function, you'll get f**ked up by the huge gap between each content, and it's torture to edit every single object when something changes.</p>
       <p>I can't export {_std} (<del>sounds kinda wierd</del>). CT files are only meant to be required in the scope of your own mod, if you use require on them in cross-mod situations something may break. For your own CT files, you have to copy {_std} or write your own ones.</p>
-      <p>You may have found that {this.super$xxx} is ommited in some methods randomly. In the template file, methods tagged with <i>@NOSUPER</i> are expected to be used with the super method not called.</p>
+      <p>You may have found that {this.super$xxx} is ommited in some methods randomly. In the template file, methods tagged with <i>@NOSUPER</i> are expected to be used without the super method.</p>
       <br>
     </div>
   </div>
@@ -436,7 +435,7 @@
 
         <tr>
           <td><i>@FIELD</i></td>
-          <td>Mostly in component method. <br> These fields should be defined to use the method.</td>
+          <td>Mostly in component method. <br> These fields should be defined before invoking the method.</td>
           <td>Field names.</td>
         </tr>
 
@@ -454,13 +453,13 @@
 
         <tr>
           <td><i>@LATER</i></td>
-          <td>In class/instance method. <br> Definition of this method should be done in child classes.</td>
+          <td>In class/instance method or template file. <br> Definition of this method should be done in child classes/templates.</td>
           <td></td>
         </tr>
 
         <tr>
           <td><i>@METHOD</i></td>
-          <td>Mostly in component method. <br> These methods should be defined to use the method.</td>
+          <td>Mostly in component method. <br> These methods should be defined before invoking the method.</td>
           <td>Method names.</td>
         </tr>
 
@@ -491,7 +490,7 @@
         <tr>
           <td><i>@PARAM</i></td>
           <td>In template file. <br> The key is expected to be set by the modder.</td>
-          <td>Use of the parameter.</td>
+          <td>Purpose of the parameter.</td>
         </tr>
 
         <tr>
@@ -526,7 +525,7 @@
     <div>
       <a name="func-anno"><h2>Annotation</h2></a>
       <p>It's totally different from the one used in Java. In Lovec, <strong>annotation</strong> is used to modify a function. For example, {__SERVER__} will make a method only runs on server side. Annotations in Lovec are defined in {BOX_anno} which is in <strong>glb</strong>, the annotation class is defined in {CLS_annotation}.</p>
-      <p>Annotation may appear to have arguments. Take {__INIT__} as an example, the sole argument is a function which is called after the definition of the parent function (as the 3rd argument in {setAnno} since it's loading argument):</p>
+      <p>Annotation may appear to have arguments. Take {__INIT__} as an example, the sole argument is a function which is called after the definition of the parent function (as the 3rd argument in {setAnno} since it's a loading argument):</p>
       <div class="code"><pre><code>
         const foo = function() {
           ...
@@ -585,7 +584,7 @@
         };
       </code></pre></div>
       <p>{db} in DB files should contain objects and arrays only, which are the targets of auto-merge. Strings, numbers and functions are not merged, always put them in an array. Since it's only called in Lovec DB files, it only merges fields that DBs in Lovec have (in the code above "arr3" is ommited).</p>
-      <p>Auto-merge only supports a maximum of 3-layer depth, it's impractical to dig deeper on most occassions. In the {db} below "arr2" in "obj2" is too deep to merge.</p>
+      <p>Auto-merge only supports a maximum of 3-layer depth, it's impractical to dig deeper on most occassions. In the {db} below "arr2" in "obj2" is too deep to be merged.</p>
       <div class="code"><pre><code>
         const db = {
           "obj": {
@@ -644,7 +643,7 @@
         MDL_event._c_onLoad(() => print("ohsh"));
         MDL_event._c_onLoad(() => print("ohyes"), 15227481);
       </code></pre></div>
-      <p>If required by 3 mods, after client load you'll find 3 "ohno"s, 3 "ohsh"s and 1 "ohyes" in the console. The numeric id used here prevents repetition, which is applied to all methods defined in {MDL_event}. Although set manually in Lovec, you can utilize {Math.intUnique} to generate the id which is defined in {RUN_jsExt_util}.</p>
+      <p>If required by 3 mods, after client load you'll find 3 "ohno"s, 3 "ohsh"s and 1 "ohyes" in the console. The numeric id used here prevents duplication, which is applied to all methods defined in {MDL_event}. Although set manually in Lovec, you can use {Math.intUnique} to generate the id, which is defined in {RUN_jsExt_util}.</p>
       <br>
     </div>
   </div>
@@ -666,24 +665,26 @@
 
     <div>
       <a name="game-cor"><h2>Corrosion</h2></a>
-      <br>
-    </div>
-
-
-    <div>
-      <a name="game-pres"><h2>Pressure</h2></a>
+      <p>Some fluids in Lovec are corrosive and will deal damage to fluid blocks (those related to fluid transportation, factories are usually not included). In general, the damage is calculated from the corrosion resistance of a block and the corrosion power of its current fluid, which are determined by material group and fluid group, which can also be manually assigned.</p>
+      <p>Corrosion power of a fluid to some block is dynamic, which is determined by fluid group and material group. Firstly there's base corrosion power which is a fixed value, then a penalty is added if the block material is weak to the group that the fluid is in (e.g. steel is weak to brine, any fluid in the brine group will deal extra damage to steel tanks). Fluid groups can be seen in {DB_fluid}, and material groups are in {DB_block}.</p>
+      <p>Sometimes fluid group is not enough to tell how corrosive a fluid is to specific materials, thus the application of fluid tags. Take copper for example, this material is vulnerable to chloric corrosion, if some fluid is tagged as <i>chloric</i>, another penalty will be applied to the final result. Note that corrosion induced by fluid tags will take effect even when the fluid is not seen as corrosive (0% corrosion power).</p>
+      <p>Fluid group does not only affect corrosion. Fluids in brine group will be automatically pushed into aqueous group, which is a sub-group of conductive group.</p>
       <br>
     </div>
 
 
     <div>
       <a name="game-aux"><h2>Abstract Fluids</h2></a>
+      <p>Abstract fluids (or auxiliay fluids) are fluids, more precisely, gases. They do behave like vanilla liquids, but are not accepted in most fluid blocks, and thus not transportable with regular fluid pipes.</p>
+      <p>Most abstract fluids are produced by some factories and required by other factories, which encourages players to place them side by side. Some exceptions including heat, pressure and torque are involved in more complex mechanics, where making them fluids allows skipping the definition of consumption and recipes, which means more block types and less extensibility.</p>
       <br>
     </div>
 
 
     <div>
       <a name="game-loot"><h2>Loot Units</h2></a>
+      <p>A loot unit is essentially a unit carrying items, which is invincible to most attacks. When Lovec is in modded mode, it's possible to drop items in your unit to create a loot, or take items back from a loot unit.</p>
+      <p>Loot units can be moved by conveyors. Some buildings may produce loot instead of dumping items, and some factories may convert items in a loot into the product items. Despite being invincible to bullets, loot can drown to death and get damaged by some status effects (e.g. melting from slag), and your enemy can steal items from a loot you have dropped.</p>
       <br>
     </div>
 
@@ -691,8 +692,8 @@
     <div>
       <a name="game-recipe"><h2>Recipe Factories</h2></a>
       <p>Lovec has javascript-based multi-crafters, see BLK_recipeFactory and its child templates.</p>
-      <p>Recipe factories generally require recipe files which are put in "scripts/aux/rc". A recipe file should be named after its owner building (more precisely, the internal name), without mod name prefix. For the format of a recipe file, you can check the files in Project Reindustrialization.</p>
-      <p>Most parameters are included in the "recipes" array, which is a 2-array comprised of recipe header and recipe object. Recipe header is a string that is unique to a recipe, it replaces the old numeric id used in Reind. Recipe object is the main place where a recipe is defined, here's a table for its fields (you don't need all of them):</p>
+      <p>Recipe factories require recipe files in "scripts/aux/rc". A recipe file should be named after its owner building (more precisely, matching the internal name), without mod name prefix. For the format of a recipe file, you can check the files in Project Reindustrialization.</p>
+      <p>Most parameters are put in the "recipes" array, which is a 2-array comprised of recipe headers and recipe objects. Recipe header is a string that is unique to a recipe, which replaces the old numeric id used in Reind. Recipe object is the main place where a recipe is defined, here's a table for its fields (you don't need all of them):</p>
       <table>
 
         <tr>
@@ -710,7 +711,7 @@
         <tr>
           <td><i>category</i></td>
           <td>Category the recipe is in.</td>
-          <td></td>
+          <td>term.common-term-categ-*value*.name</td>
         </tr>
 
         <tr>
@@ -721,13 +722,13 @@
 
         <tr>
           <td><i>validGetter</i></td>
-          <td>A boolean function that determines whether the recipe is available now. <br> Format: b => {...}</td>
+          <td>A boolean function that determines whether the recipe is available now. <br> Format: b => bool</td>
           <td></td>
         </tr>
 
         <tr>
           <td><i>lockedBy</i></td>
-          <td>Recipe is locked until these contents are unlocked/researched.</td>
+          <td>Recipe is locked until all these contents are unlocked/researched.</td>
           <td>Always an array!</td>
         </tr>
 
@@ -773,19 +774,19 @@
 
         <tr>
           <td><i>ci</i></td>
-          <td>Continuous input.</td>
+          <td>Continuous input. <br> Format: {nmCt, amt}.</td>
           <td>Fluids only.</td>
         </tr>
 
         <tr>
           <td><i>bi</i></td>
-          <td>Batch input.</td>
+          <td>Batch input. <br> Format: {nmCt, amt, p}.</td>
           <td></td>
         </tr>
 
         <tr>
           <td><i>aux</i></td>
-          <td>Auxiliary input.</td>
+          <td>Auxiliary input. <br> Format: {nmCt, amt}.</td>
           <td>Better for auxiliay fluids only.</td>
         </tr>
 
@@ -797,19 +798,19 @@
 
         <tr>
           <td><i>opt</i></td>
-          <td>Optional input.</td>
+          <td>Optional input. <br> Format: {nmCt, amt, p, effcMtp}.</td>
           <td>Items only.</td>
         </tr>
 
         <tr>
           <td><i>co</i></td>
-          <td>Continuous output.</td>
+          <td>Continuous output. <br> Format: {nmCt, amt}.</td>
           <td>Fluids only.</td>
         </tr>
 
         <tr>
           <td><i>bo</i></td>
-          <td>Batch output.</td>
+          <td>Batch output. <br> Format: {nmCt, amt, p}.</td>
           <td></td>
         </tr>
 
@@ -821,7 +822,7 @@
 
         <tr>
           <td><i>fo</i></td>
-          <td>Failed output. Used instead of BO when failed.</td>
+          <td>Failed output. Used instead of BO when failed. <br> Format: {nmCt, amt, p}.</td>
           <td>Items only.</td>
         </tr>
 
@@ -832,7 +833,7 @@
         <tr>
           <td><i>updateScr</i></td>
           <td>Script called when the building updates (even when not active).</td>
-          <td>Not called if building is disabled (e.g. by logic).</td>
+          <td>Building scripts are by default like {b => {...}}.</td>
         </tr>
 
         <tr>
@@ -854,7 +855,7 @@
         </tr>
 
       </table>
-      <p>The other object named "base" is used for properties that is shared among all recipes. For example, "baseCi" is combined with every "ci" to be read later.</p>
+      <p>The other object named "base" is used for properties that is shared among all recipes. For example, every "ci" is combined with "baseCi" before been parsed.</p>
       <table>
 
         <tr>
@@ -945,7 +946,7 @@
 
 
   <div>
-    <p class="end"><i>By Mabo. Last edited: Aug 25, 2025</i></p>
+    <p class="end"><i>By Mabo. Last edited: Sep 7, 2025</i></p>
   </div>
 
 

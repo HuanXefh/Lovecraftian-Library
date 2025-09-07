@@ -52,16 +52,16 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   /* <---------- component ----------> */
 
 
   function comp_created(b) {
-    b.sideReg1 = MDL_content._reg(b.block, "-side1", "-side");
-    b.sideReg2 = MDL_content._reg(b.block, "-side2", "-side");
+    b.sideReg1 = MDL_texture._reg(b.block, "-side1", "-side");
+    b.sideReg2 = MDL_texture._reg(b.block, "-side2", "-side");
   };
 
 
@@ -157,7 +157,7 @@
 
     // @NOSUPER
     icons: function(blk) {
-      return [MDL_content._reg(blk, "-icon")];
+      return [MDL_texture._reg(blk, "-icon")];
     },
 
 

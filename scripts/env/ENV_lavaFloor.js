@@ -46,7 +46,7 @@
   const PARENT = require("lovec/env/ENV_baseLiquidFloor");
 
 
-  const MDL_draw = require("lovec/mdl/MDL_draw");
+  const MDL_color = require("lovec/mdl/MDL_color");
 
 
   const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
@@ -63,7 +63,7 @@
     blk.albedo = 0.2;
     blk.emitLight = true;
     blk.lightRadius = 40.0;
-    if(MDL_draw._isSameColor(blk.lightColor, Color.white)) blk.lightColor = Color.valueOf("faae7560");
+    if(MDL_color._isSameColor(blk.lightColor, Color.white)) blk.lightColor = Color.valueOf("faae7560");
   };
 
 
@@ -97,6 +97,18 @@
 
 
     /* <---------- block (specific) ----------> */
+
+
+    // @NOSUPER
+    updateRender: function(blk, t) {
+      return PARENT.updateRender(blk, t);
+    },
+
+
+    // @NOSUPER
+    renderUpdate: function(blk, renderState) {
+      PARENT.renderUpdate(blk, renderState);
+    },
 
 
     /* <---------- block (extended) ----------> */

@@ -67,9 +67,9 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_flow = require("lovec/mdl/MDL_flow");
   const MDL_reaction = require("lovec/mdl/MDL_reaction");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   const TP_cons = require("lovec/tp/TP_cons");
@@ -240,7 +240,7 @@
 
     // @NOSUPER
     icons: function(blk) {
-      return [MDL_content._reg(blk, "-icon")];
+      return [MDL_texture._reg(blk, "-icon")];
     },
 
 

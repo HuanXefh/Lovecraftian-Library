@@ -34,6 +34,28 @@
   global.lovecUtil = {
 
 
+    fun: {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Bypasses {MDL_content} to resolve module coupling.
+       * This one is less stable and won't warn, do not abuse it!
+       * ---------------------------------------- */
+      _ct(ct_gn, ctTpStr) {
+        if(ct_gn == null) return null;
+        if(ct_gn instanceof UnlockableContent) return ct_gn;
+
+        return ctTpStr == null ?
+          Vars.content.byName(ct_gn) :
+          Vars.content.getByName(ContentType[ctTpStr], ct_gn);
+      },
+
+
+    },
+
+
     db: {
 
 

@@ -67,10 +67,10 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   /* <---------- component ----------> */
@@ -97,7 +97,7 @@
 
 
   function comp_created(b) {
-    b.invReg = MDL_content._reg(b.block, "-inv");
+    b.invReg = MDL_texture._reg(b.block, "-inv");
     b.drawW = b.block.region.width * 2.0 * 1.06 / Vars.tilesize;
 
     Time.run(5.0, () => {
@@ -127,7 +127,7 @@
 
   function comp_unitOn(b, unit) {
     let dst = Mathf.dst(b.x, b.y, unit.x, unit.y);
-    dst > 3.0 ?
+    (dst > 3.0 || unit.hitSize > (b.block.size + 0.5) * Vars.tilesize) ?
       unit.impulse(Tmp.v1.set(unit).sub(b).rotate90(Mathf.sign(!b.isInv)).nor().scl(b.rpmCur * 3.0 * b.block.size / Math.max(dst * 0.7, 1.0))) :
       MDL_entity.rotateUnit(unit, b.rpmCur * 0.2 * Mathf.sign(!b.isInv));
   };

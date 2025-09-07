@@ -49,7 +49,7 @@
   const JAVA = require("lovec/glb/GLB_java");
 
 
-  const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   /* <---------- component ----------> */
@@ -66,7 +66,7 @@
 
 
   function comp_created(b) {
-    b.onReg = MDL_content._reg(b.block, "-on");
+    b.onReg = MDL_texture._reg(b.block, "-on");
   };
 
 

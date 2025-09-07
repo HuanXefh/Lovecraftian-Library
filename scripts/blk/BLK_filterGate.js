@@ -59,6 +59,7 @@
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_io = require("lovec/mdl/MDL_io");
   const MDL_table = require("lovec/mdl/MDL_table");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   /* <---------- component ----------> */
@@ -85,7 +86,7 @@
 
 
   function comp_created(b) {
-    b.invReg = MDL_content._reg(b.block, "-inv");
+    b.invReg = MDL_texture._reg(b.block, "-inv");
   };
 
 
@@ -134,7 +135,7 @@
     if(!b.noSelect) MDL_table.setSelector_ct(tb, b.block, Vars.content.items().toArray(), () => b.sortItem, val => b.configure(val), false, b.block.selectionRows, b.block.selectionColumns);
 
     tb.row();
-    MDL_table.__btnCfg_toggle(tb, b, VARGEN.icons.swap, VARGEN.icons.swap, b.isInv).row();
+    MDL_table.__btnCfg_toggle(tb, b, VARGEN.icons.swap, VARGEN.icons.swap, b.isInv);
   };
 
 
@@ -207,7 +208,7 @@
 
     // @NOSUPER
     icons: function(blk) {
-      return [MDL_content._reg(blk, "-icon")];
+      return [MDL_texture._reg(blk, "-icon")];
     },
 
 

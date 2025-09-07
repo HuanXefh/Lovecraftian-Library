@@ -46,7 +46,7 @@
 
   function setupKeybind() {
     DB_misc.db["keyBind"].forEachRow(3, (nm, keyCode, categ) => {
-      VARGEN.__LovecBinding(nm, KeyBind.add(nm, keyCode, categ));
+      VARGEN.__bindings(nm, KeyBind.add(nm, keyCode, categ));
     });
   };
 
@@ -60,7 +60,7 @@
     let i = 0;
     let iCap = thisFun.funArr.iCap();
     while(i < iCap) {
-      if(Core.input.keyTap(VARGEN.LovecBinding[thisFun.funArr[i]])) {
+      if(Core.input.keyTap(VARGEN.bindings[thisFun.funArr[i]])) {
         Core.settings.put("lovec-" + thisFun.funArr[i + 1], !MDL_util._cfg(thisFun.funArr[i + 1]));
         PARAM.forceLoadParam();
       };
@@ -79,7 +79,7 @@
   function listener_player_loot(unit) {
     if(!PARAM.modded || Vars.state.isPaused() || unit == null) return;
 
-    if(Core.input.keyTap(Binding.respawn) || Core.input.keyTap(VARGEN.LovecBinding["lovec-player-drop-loot"])) {
+    if(Core.input.keyTap(Binding.respawn) || Core.input.keyTap(VARGEN.bindings["lovec-player-drop-loot"])) {
       if(unit.stack.amount > 0) {
         Vars.net.client() ?
           MDL_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
@@ -88,8 +88,8 @@
       };
     };
 
-    if(Core.input.keyTap(VARGEN.LovecBinding["lovec-player-take-loot"])) {
-      let loot = Units.closest(Team.derelict, unit.x, unit.y, VAR.rad_lootPickRad, ounit => MDL_cond._isLoot(ounit));
+    if(Core.input.keyTap(VARGEN.bindings["lovec-player-take-loot"])) {
+      let loot = Units.closest(null, unit.x, unit.y, VAR.rad_lootPickRad, ounit => MDL_cond._isLoot(ounit));
       if(Vars.net.client() ?
           FRAG_item.takeUnitLoot_client(unit, loot) :
           FRAG_item.takeUnitLoot(unit, loot)

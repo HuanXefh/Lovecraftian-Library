@@ -54,6 +54,7 @@
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_file = require("lovec/mdl/MDL_file");
+  const MDL_java = require("lovec/mdl/MDL_java");
   const MDL_json = require("lovec/mdl/MDL_json");
   const MDL_market = require("lovec/mdl/MDL_market");
   const MDL_pos = require("lovec/mdl/MDL_pos");
@@ -78,6 +79,9 @@
   const DB_misc = require("lovec/db/DB_misc");
   const DB_status = require("lovec/db/DB_status");
   const DB_unit = require("lovec/db/DB_unit");
+
+
+  const MOD_tmi = require("lovec/mod/MOD_tmi");
 
 
   /* <---------- tool ----------> */
@@ -140,6 +144,7 @@
       mdl_draw: MDL_draw,
       mdl_effect: MDL_effect,
       mdl_file: MDL_file,
+      mdl_java: MDL_java,
       mdl_json: MDL_json,
       mdl_market: MDL_market,
       mdl_pos: MDL_pos,
@@ -163,6 +168,9 @@
       db_misc: DB_misc,
       db_status: DB_status,
       db_unit: DB_unit,
+
+
+      mod_tmi: MOD_tmi,
 
 
       modded: PARAM.modded,

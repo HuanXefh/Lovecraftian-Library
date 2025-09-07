@@ -160,7 +160,7 @@
     if(rad == null) rad = VAR.rad_unitLootRad;
     if(repeat == null) repeat = 1;
 
-    spawnUnit(x, y, thisFun.funUtp, Team.derelict, rad, null, repeat, false, unit => {
+    spawnUnit(x, y, thisFun.funUtp, Vars.player.team(), rad, null, repeat, false, unit => {
       unit.addItem(itm, amt);
       MDL_effect.showAt_global(unit.x, unit.y, EFF.circlePulseDynamic, 5.0, Pal.accent);
       MDL_effect.showBetween_line(x, y, null, unit, Pal.accent);

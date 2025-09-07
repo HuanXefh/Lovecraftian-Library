@@ -20,6 +20,7 @@
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
+  const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
@@ -178,13 +179,13 @@
    * NOTE:
    *
    * Gets fuel point of {rs_gn}.
-   * If it's a fluid, this returns consumption speed.
+   * If it's a fluid, this returns consumption rate.
    * ---------------------------------------- */
   const _fuelPon = function(rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
     if(rs == null) return 0.0;
 
-    return DB_item.db["param"]["fuel"][rs instanceof Item ? "point" : "fCons"].read(rs.name, 0.0);
+    return DB_item.db["param"]["fuel"][rs instanceof Item ? "item" : "fluid"].read(rs.name, Array.airZero)[0];
   };
   exports._fuelPon = _fuelPon;
 
@@ -198,9 +199,43 @@
     let rs = MDL_content._ct(rs_gn, "rs");
     if(rs == null) return 0.0;
 
-    return DB_item.db["param"]["fuel"][rs instanceof Item ? "level" : "fLevel"].read(rs.name, 0.0);
+    return DB_item.db["param"]["fuel"][rs instanceof Item ? "item" : "fluid"].read(rs.name, Array.airZero)[1];
   };
   exports._fuelLvl = _fuelLvl;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @METHOD: blk.ex_getFuelType, blk.ex_getBlockedFuels
+   * Gets an array of available fuels for {blk}.
+   * ---------------------------------------- */
+  const _fuelArr = function(blk) {
+    const arr = [];
+    switch(blk.ex_getFuelType()) {
+
+      case "item" :
+        arr.pushAll(VARGEN.fuelItms);
+        break;
+
+      case "liquid" :
+        arr.pushAll(VARGEN.fuelLiqs);
+        break;
+
+      case "gas" :
+        arr.pushAll(VARGEN.fuelGases);
+        break;
+
+      default :
+        arr.pushAll(VARGEN.fuelItms);
+        arr.pushAll(VARGEN.fuelLiqs);
+        arr.pushAll(VARGEN.fuelGases);
+
+    };
+
+    return arr.filter(rs => !blk.ex_getBlockedFuels().includes(rs.name));
+  };
+  exports._fuelArr = _fuelArr;
 
 
   /* ----------------------------------------
@@ -215,6 +250,8 @@
     let blockedFuels = b.block.ex_getBlockedFuels();
     let rsTg = null;
     let fuelLvl = 0.0;
+    let rsTgSpare = null;
+    let fuelLvlSpare = 0.0;
 
     if(b.items != null && fuelType.equalsAny(["item", "any"])) {
       VARGEN.fuelItms.forEach(itm => {
@@ -224,6 +261,8 @@
         if(tmpLvl > fuelLvl) {
           rsTg = itm;
           fuelLvl = tmpLvl;
+          rsTgSpare = rsTg;
+          fuelLvlSpare = fuelLvl;
         };
       });
     };
@@ -236,20 +275,29 @@
         if(tmpLvl > fuelLvl) {
           rsTg = liq;
           fuelLvl = tmpLvl;
+          rsTgSpare = rsTg;
+          fuelLvlSpare = fuelLvl;
         };
       });
     };
 
     if(b.liquids != null && fuelType.equalsAny(["gas", "any"])) {
-      VARGEN.fuelGas.forEach(gas => {
+      VARGEN.fuelGases.forEach(gas => {
         if(b.liquids.get(gas) < 0.01 || blockedFuels.includes(gas.name)) return;
 
         let tmpLvl = _fuelLvl(gas);
         if(tmpLvl > fuelLvl) {
           rsTg = gas;
           fuelLvl = tmpLvl;
+          rsTgSpare = rsTg;
+          fuelLvlSpare = fuelLvl;
         };
       });
+    };
+
+    if(rsTg != null && MDL_recipeDict._prodAmt(rsTg, b.block) > 0.0 && rsTgSpare != null) {
+      rsTg = rsTgSpare;
+      fuelLvl = fuelLvlSpare;
     };
 
     return rsTg == null ? null : [rsTg, _fuelPon(rsTg), fuelLvl];
@@ -588,7 +636,7 @@
       if(ct.outlines != null) ct.outlines = false;
     } else {
       ct.outlineRadius = tup[0];
-      ct.outlineColor = MDL_draw._color(tup[1]);
+      ct.outlineColor = MDL_color._color(tup[1], "new");
     };
   };
   exports.comp_init_outline = comp_init_outline

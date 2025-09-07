@@ -91,6 +91,18 @@
     /* <---------- block (specific) ----------> */
 
 
+    // @NOSUPER
+    updateRender: function(blk, t) {
+      return PARENT.updateRender(blk, t);
+    },
+
+
+    // @NOSUPER
+    renderUpdate: function(blk, renderState) {
+      PARENT.renderUpdate(blk, renderState);
+    },
+
+
     /* <---------- block (extended) ----------> */
 
 

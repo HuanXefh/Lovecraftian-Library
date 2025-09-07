@@ -49,23 +49,7 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_content = require("lovec/mdl/MDL_content");
-
-
-  /* <---------- auxiliay ----------> */
-
-
-  function isValidTarget(blk) {
-    return MDL_cond._isMiner(blk) || MDL_cond._isFactory(blk);
-  };
-
-
-  function toggleTarget(b, ob) {
-    if(ob != null && ob.team === b.team && isValidTarget(ob.block)) {
-      ob.enabled = !b.enabled;
-      ob.enabled ? EFF.squareFadePack[ob.block.size].at(ob) : EFF.disableFadePack[ob.block.size].at(ob);
-    };
-  };
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   /* <---------- component ----------> */
@@ -77,10 +61,10 @@
 
 
   function comp_created(b) {
-    b.dirReg = MDL_content._reg(b.block, "-dir");
+    b.dirReg = MDL_texture._reg(b.block, "-dir");
 
     let ob = b.nearby(b.rotation);
-    toggleTarget(b, ob);
+    b.ex_toggle(ob);
   };
 
 
@@ -111,9 +95,22 @@
     b.block.clickSound.at(b);
 
     let ob = b.nearby(b.rotation);
-    toggleTarget(b, ob);
+    b.ex_toggle(ob);
 
     return false;
+  };
+
+
+  function comp_ex_isValidTg(blk, oblk) {
+    return MDL_cond._isMiner(oblk) || MDL_cond._isFactory(oblk);
+  };
+
+
+  function comp_ex_toggle(b, ob) {
+    if(ob != null && ob.team === b.team && b.block.ex_isValidTg(ob.block)) {
+      ob.enabled = !b.enabled;
+      ob.enabled ? EFF.squareFadePack[ob.block.size].at(ob) : EFF.disableFadePack[ob.block.size].at(ob);
+    };
   };
 
 
@@ -187,7 +184,7 @@
 
     // @NOSUPER
     icons: function(blk) {
-      return [MDL_content._reg(blk, "-icon")];
+      return [MDL_texture._reg(blk, "-icon")];
     },
 
 
@@ -212,11 +209,23 @@
     ex_getTags: function(blk) {
       return module.exports.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-log"],
+      "funArr": ["blk-log", "blk-switch"],
     }),
 
 
+    // @NOSUPER
+    ex_isValidTg: function(blk, oblk) {
+      return comp_ex_isValidTg(blk, oblk);
+    },
+
+
     /* <---------- build (extended) ----------> */
+
+
+    // @NOSUPER
+    ex_toggle: function(b, ob) {
+      comp_ex_toggle(b, ob);
+    },
 
 
   };

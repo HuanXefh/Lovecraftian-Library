@@ -59,6 +59,9 @@
 
   function comp_init(itm) {
     if(itm.intmdParent != null) {
+      itm.flammability = itm.intmdParent.flammability * 1.5;
+      itm.explosiveness = itm.intmdParent.explosiveness * 1.5;
+
       MDL_content.rename(
         itm,
         MDL_bundle._term("common", "intmd-dust") + MDL_text._space() + "(" + itm.intmdParent.localizedName + ")",
@@ -117,7 +120,7 @@
 
     // @NOSUPER
     ex_getParent: function(itm) {
-      return itm.intmdParent;
+      return PARENT.ex_getParent(itm);
     },
 
 

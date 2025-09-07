@@ -26,7 +26,7 @@ const db = {
         if(itm == null) return;
 
         var str = ""
-        + MDL_bundle._term("lovec", "ore") + ": " + Strings.stripColors(itm.localizedName) + "\n"
+        + (MDL_cond._isDepthOre(t.overlay()) ? "" : (MDL_bundle._term("lovec", "ore") + ": " + Strings.stripColors(itm.localizedName) + "\n"))
         + MDL_bundle._term("lovec", "ore-hardness") + ": " + itm.hardness + "\n";
 
         return str;
@@ -142,9 +142,10 @@ const db = {
     "draw0aux-extra-info", useScl => Core.settings.getBool("lovec-draw0aux-extra-info", true),
     "draw0aux-bridge", useScl => Core.settings.getBool("lovec-draw0aux-bridge", true),
     "draw0aux-router", useScl => Core.settings.getBool("lovec-draw0aux-router", true),
+    "draw0aux-scanner", useScl => Core.settings.getBool("lovec-draw0aux-scanner", true),
     "draw0aux-fluid-heat", useScl => Core.settings.getBool("lovec-draw0aux-fluid-heat", true),
 
-    "icontag-show", useScl => Core.settings.getBool("lovec-icontag-show", true),
+    "icontag-flicker", useScl => Core.settings.getBool("lovec-icontag-flicker", true),
     "icontag-interval", useScl => Core.settings.getInt("lovec-icontag-interval", 4) * (useScl ? 10.0 : 1.0),
 
     "damagedisplay-show", useScl => Core.settings.getBool("lovec-damagedisplay-show", true),
@@ -156,6 +157,7 @@ const db = {
     "unit0stat-missile", useScl => Core.settings.getBool("lovec-unit0stat-missile", false),
     "unit0stat-build", useScl => Core.settings.getBool("lovec-unit0stat-build", true),
     "unit0stat-mouse", useScl => Core.settings.getBool("lovec-unit0stat-mouse", true),
+    "unit0stat-minimalistic", useScl => Core.settings.getBool("lovec-unit0stat-minimalistic", false),
     "unit0remains-lifetime", useScl => Core.settings.getInt("lovec-unit0remains-lifetime", 12) * (useScl ? 300.0 : 1.0),
 
     "window-show", useScl => Core.settings.getBool("lovec-window-show", true),
@@ -319,7 +321,6 @@ const db = {
 
       "useless-field", "ohno", null,
 
-      "scanner-draw", true, null,
       "dynamic-pollution", 0.0, null,
       "bits", [], "string",
       "bit-hash", 48.0, null,
@@ -334,10 +335,52 @@ const db = {
      * ---------------------------------------- */
     "safe": [
 
-      "scanner-draw",
-
       "bits",
       "bit-hash",
+
+    ],
+
+
+  },
+
+
+  "texture": {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Icons polulated in {VARGEN.icons}.
+     * Format: {nm, nmReg}.
+     * ---------------------------------------- */
+    "icon": [
+
+      "ohno", "error",
+
+      "check", "lovec-icon-check",
+      "cross", "lovec-icon-cross",
+      "harvest", "lovec-icon-harvest",
+      "play", "lovec-icon-play",
+      "questionMark", "lovec-icon-question-mark",
+      "swap", "lovec-icon-swap",
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Icons polulated in {VARGEN.noiseTexs}.
+     * Format: {nm, path}.
+     * ---------------------------------------- */
+    "noise": [
+
+      "caustics", "sprites/caustics.png",
+      "clouds", "sprites/clouds.png",
+      "distortAlpha", "sprites/distortAlpha.png",
+      "fog", "sprites/fog.png",
+      "noise", "sprites/noise.png",
+      "noiseAlpha", "sprites/noiseAlpha.png",
 
     ],
 

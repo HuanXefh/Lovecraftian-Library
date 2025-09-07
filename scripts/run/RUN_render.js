@@ -56,7 +56,7 @@
   MDL_event._c_onWorldLoad(() => {
 
 
-    Time.run(30.0, () => {
+    Time.run(10.0, () => {
       noiseArgs = _noiseArgs();
     });
 

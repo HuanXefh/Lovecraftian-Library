@@ -11,7 +11,7 @@
   const VAR = require("lovec/glb/GLB_var");
 
 
-  const MDL_draw = require("lovec/mdl/MDL_draw");
+  const MDL_color = require("lovec/mdl/MDL_color");
 
 
   /* <---------- static ----------> */
@@ -23,7 +23,7 @@
     if(color_gn == null) color_gn = Pal.accent;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return extend(ParticleEffect, {
 
@@ -75,10 +75,9 @@
   const _trailFade = function(spr, size, color_gn, scl, hasLight) {
     if(spr == null) spr = "circle";
     if(size == null) size = 8.0;
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
     let color_t = color.cpy();
     color_t.a = 0.0;
 
@@ -137,10 +136,9 @@
     if(amt == null) amt = 5;
     if(size == null) size = 4.0;
     if(rad == null) rad = 12.0;
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return extend(ParticleEffect, {
 
@@ -193,10 +191,9 @@
     if(spr == null) spr = "circle";
     if(size == null) size = 4.0;
     if(spin == null) spin = 0.0;
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
     let color_t = color.cpy();
     if(shouldFade) color_t.a = 0.0;
 
@@ -248,9 +245,7 @@
 
 
   const _wetParticle = function(color_gn) {
-    if(color_gn == null) color_gn = Color.white;
-
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return new Effect(80.0, eff => {
       Draw.color(color);
@@ -271,7 +266,7 @@
     if(color_gn == null) color_gn = "ffc999";
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return extend(ParticleEffect, {
 
@@ -324,10 +319,9 @@
     if(amt == null) amt = 3;
     if(size == null) size = 4.0;
     if(rad == null) rad = 18.0;
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn).cpy();
+    let color = MDL_color._color(color_gn, "new");
     color.a = 0.5;
 
     return extend(ParticleEffect, {
@@ -381,10 +375,9 @@
     if(amt == null) amt = 2;
     if(size == null) size = 4.0;
     if(rad == null) rad = 10.0;
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return extend(ParticleEffect, {
 
@@ -440,7 +433,7 @@
     if(color_gn == null) color_gn = "91b692";
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return extend(ParticleEffect, {
 
@@ -493,10 +486,9 @@
     if(amt == null) amt = 5;
     if(size == null) size = 3.0;
     if(rad == null) rad = 12.0;
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return extend(ParticleEffect, {
 
@@ -549,10 +541,9 @@
     if(amt == null) amt = 7;
     if(size == null) size = 4.0;
     if(rad == null) rad = 56.0;
-    if(color_gn == null) color_gn = Color.white;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
 
     return extend(ParticleEffect, {
 
@@ -882,7 +873,7 @@
     if(color_gn == null) color_gn = "7898ba";
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
     let color_f = color.cpy();
     color_f.a = 0.3;
     let color_t = color.cpy();
@@ -948,7 +939,7 @@
 
       eff.lifetime = 40.0 * scl * Math.pow(rad_fi * 0.025, 0.5);
 
-      Draw.color(Color.valueOf("ffffff30"), Color.valueOf("ffffff00"), eff.fin());
+      Draw.color(MDL_color._color("ffffff30", Tmp.c2), MDL_color._color("ffffff00", Tmp.c3), eff.fin());
       Lines.stroke(size_f - Interp.pow2Out.apply(eff.fin()) * (size_f - size_t));
       Lines.circle(eff.x, eff.y, rad_fi * Interp.pow2Out.apply(eff.fin()));
       Draw.reset();
@@ -960,16 +951,16 @@
   exports._impactWave = _impactWave;
 
 
-  const _rectWave = function(size_f, size_t, r, color, scl) {
+  const _rectWave = function(size_f, size_t, r, color_gn, scl) {
     if(size_f == null) size_f = 4.0;
     if(size_t == null) size_t = 0.0;
     if(scl == null) scl = 1.0;
 
     const eff = new Effect(20.0 * scl, eff => {
       var rad_fi = Object.val(r, eff.rotation) * Vars.tilesize * Interp.pow2Out.apply(eff.fin());
-      let color_fi = Object.val(color, eff.color);
+      let color = MDL_color._color(Object.val(color_gn, eff.color));
 
-      Draw.color(color_fi);
+      Draw.color(color);
       Lines.stroke(size_f - eff.fin() * (size_f - size_t));
       Lines.line(eff.x - rad_fi, eff.y - rad_fi, eff.x + rad_fi, eff.y - rad_fi);
       Lines.line(eff.x + rad_fi, eff.y - rad_fi, eff.x + rad_fi, eff.y + rad_fi);
@@ -983,16 +974,16 @@
   exports._rectWave = _rectWave;
 
 
-  const _circleWave = function(size_f, size_t, rad, color, scl) {
+  const _circleWave = function(size_f, size_t, rad, color_gn, scl) {
     if(size_f == null) size_f = 4.0;
     if(size_t == null) size_t = 0.0;
     if(scl == null) scl = 1.0;
 
     const eff = new Effect(20.0 * scl, eff => {
       var rad_fi = Object.val(rad, eff.rotation) * Interp.pow2Out.apply(eff.fin());
-      let color_fi = Object.val(color, eff.color);
+      let color = MDL_color._color(Object.val(color_gn, eff.color));
 
-      Draw.color(color_fi);
+      Draw.color(color);
       Lines.stroke(size_f - eff.fin() * (size_f - size_t));
       Lines.circle(eff.x, eff.y, rad_fi);
       Draw.reset();
@@ -1006,14 +997,14 @@
   /* <---------- area ----------> */
 
 
-  const _squareFade = function(r, color, scl) {
+  const _squareFade = function(r, color_gn, scl) {
     if(r == null) r = 0.5;
     if(scl == null) scl = 1.0;
 
     const eff = new Effect(40.0 * scl, eff => {
-      let color_fi = Object.val(color, eff.color);
+      let color = MDL_color._color(Object.val(color_gn, eff.color));
 
-      Draw.color(color_fi);
+      Draw.color(color);
       Draw.alpha(eff.fout());
       Fill.square(eff.x, eff.y, r * Vars.tilesize);
       Draw.reset();
@@ -1029,7 +1020,7 @@
     if(color_gn == null) color_gn = Pal.accent;
     if(scl == null) scl = 1.0;
 
-    let color = MDL_draw._color(color_gn);
+    let color = MDL_color._color(color_gn, "new");
     let color_t = color.cpy();
     color_t.a = 0.0;
 
@@ -1128,6 +1119,17 @@
   /* <---------- complex ----------> */
 
 
+  const _impactDrillCraft = function(size, rad) {
+    return new MultiEffect(
+      _impactWave(null, null, rad, size / 2.0 * 0.75),
+      _impactWave(null, null, rad, size / 2.0),
+      _releaseSmog(),
+      _drillCrack(6, null, size * 9.0, null, 1.33333333),
+    );
+  };
+  exports._impactDrillCraft = _impactDrillCraft;
+
+
   const _explosion = function(rad, color_gn, colorCenter_gn, noSmog) {
     if(rad == null) rad = 56.0;
     if(color_gn == null) color_gn = "feb380";
@@ -1151,19 +1153,19 @@
   exports._explosion = _explosion;
 
 
-  const _rectPulse = function(r, color) {
+  const _rectPulse = function(r, color_gn) {
     return new MultiEffect(
-      _rectWave(3.5, 0.0, r, color, 1.0),
-      _rectWave(2.5, 0.0, r, color, 2.0),
+      _rectWave(3.5, 0.0, r, color_gn, 1.0),
+      _rectWave(2.5, 0.0, r, color_gn, 2.0),
     );
   };
   exports._rectPulse = _rectPulse;
 
 
-  const _circlePulse = function(rad, color) {
+  const _circlePulse = function(rad, color_gn) {
     return new MultiEffect(
-      _circleWave(3.5, 0.0, rad, color, 1.0),
-      _circleWave(2.5, 0.0, rad, color, 2.0),
+      _circleWave(3.5, 0.0, rad, color_gn, 1.0),
+      _circleWave(2.5, 0.0, rad, color_gn, 2.0),
     );
   };
   exports._circlePulse = _circlePulse;

@@ -348,7 +348,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These blocks provide magnetic disturbance.
+     * These blocks cause magnetic disturbance.
      * ---------------------------------------- */
     "magnetic": [],
 
@@ -373,7 +373,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These blocks have reload bars.
+     * These blocks have reload bars (long time of reloading).
      * ---------------------------------------- */
     "showReload": [
 

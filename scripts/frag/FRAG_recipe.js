@@ -279,14 +279,16 @@
     let noItm = b.items == null;
     let noLiq = b.liquids == null;
 
+    let tmp, amt, p;
+
     // CO
     if(!noLiq) {
       let allFull = true;
       let i = 0;
       let iCap = co.iCap();
       while(i < iCap) {
-        let tmp = co[i];
-        let amt = co[i + 1];
+        tmp = co[i];
+        amt = co[i + 1];
         if(b.liquids.get(tmp) < b.block.liquidCapacity) {
           allFull = false;
         } else if(!b.block.ignoreLiquidFullness && !b.block.dumpExtraLiquid) {
@@ -301,9 +303,9 @@
     var i = 0;
     var iCap = bo.iCap();
     while(i < iCap) {
-      let tmp = bo[i];
-      let amt = bo[i + 1];
-      let p = bo[i + 2];
+      tmp = bo[i];
+      amt = bo[i + 1];
+      p = bo[i + 2];
       if(!noItm && tmp instanceof Item) {
         if(!ignoreItemFullness && b.items.get(tmp) > b.block.itemCapacity - amt * p) cond = false;
       };
@@ -318,8 +320,8 @@
       let i = 0;
       let iCap = fo.iCap();
       while(i < iCap) {
-        let tmp = fo[i];
-        let amt = fo[i + 1];
+        tmp = fo[i];
+        amt = fo[i + 1];
         // No probability for failed output
         if(!ignoreItemFullness && b.items.get(tmp) > b.block.itemCapacity - amt) cond = false;
         i += 3;
@@ -416,14 +418,16 @@
 
     if(b.power != null) effc *= b.power.status;
 
+    let tmp, tmp1, amt;
+
     // CI
     if(!noLiq) {
       let i = 0;
       let iCap = ci.iCap();
       while(i < iCap) {
         if(effc < 0.0001) break;
-        let tmp = ci[i];
-        let amt = ci[i + 1];
+        tmp = ci[i];
+        amt = ci[i + 1];
         mtp = b.efficiencyScale() < 0.0001 ?
           0.0 :
           Math.min(b.liquids.get(tmp) / amt * b.delta() * b.efficiencyScale(), 1.0);
@@ -437,9 +441,9 @@
     var iCap = bi.iCap();
     while(i < iCap) {
       if(effc < 0.0001) break;
-      let tmp = bi[i];
+      tmp = bi[i];
       if(!(tmp instanceof Array)) {
-        let amt = bi[i + 1];
+        amt = bi[i + 1];
         if(!noItm && tmp instanceof Item) {
           if(b.items.get(tmp) < amt) effc = 0.0;
         };
@@ -451,8 +455,8 @@
         let j = 0;
         let jCap = tmp.iCap();
         while(j < jCap) {
-          let tmp1 = tmp[j];
-          let amt = tmp[j + 1];
+          tmp1 = tmp[j];
+          amt = tmp[j + 1];
           if(!noItm && tmp1 instanceof Item) {
             if(b.items.get(tmp1) >= amt) allAbsent = false;
           };
@@ -472,8 +476,8 @@
       let iCap = aux.iCap();
       while(i < iCap) {
         if(effc < 0.0001) break;
-        let tmp = aux[i];
-        let amt = aux[i + 1];
+        tmp = aux[i];
+        amt = aux[i + 1];
         mtp = b.efficiencyScale() < 0.0001 ?
           0.0 :
           Math.min(b.liquids.get(tmp) / amt * b.delta() * b.efficiencyScale(), 1.0);
@@ -507,14 +511,16 @@
     let noItm = b.items == null;
     let noLiq = b.liquids == null;
 
+    let tmp, tmp1, amt, p;
+
     // BI
     var i = 0;
     var iCap = bi.iCap();
     while(i < iCap) {
-      let tmp = bi[i];
+      tmp = bi[i];
       if(!(tmp instanceof Array)) {
-        let amt = bi[i + 1];
-        let p = bi[i + 2];
+        amt = bi[i + 1];
+        p = bi[i + 2];
         if(!noItm && tmp instanceof Item) {
           FRAG_item.consumeItem(b, tmp, amt, p);
         };
@@ -525,15 +531,13 @@
         let j = 0;
         let jCap = tmp.iCap();
         while(j < jCap) {
-          let tmp1 = tmp[j];
-          let amt = tmp[j + 1];
-          let p = tmp[j + 2];
-          if(!noItm && tmp1 instanceof Item) {
-            FRAG_item.consumeItem(b, tmp1, amt, p);
+          tmp1 = tmp[j];
+          amt = tmp[j + 1];
+          p = tmp[j + 2];
+          if(!noItm && tmp1 instanceof Item && FRAG_item.consumeItem(b, tmp1, amt, p)) {
             break;
           };
-          if(!noLiq && tmp1 instanceof Liquid) {
-            FRAG_fluid.addLiquidBatch(b, b, tmp1, -amt);
+          if(!noLiq && tmp1 instanceof Liquid && FRAG_fluid.addLiquidBatch(b, b, tmp1, -amt) > 0.0) {
             break;
           };
           j += 3;
@@ -545,9 +549,9 @@
     // OPT
     let optTup = _optTup(b, opt);
     if(optTup != null) {
-      let tmp = optTup[0];
-      let amt = optTup[1];
-      let p = optTup[2];
+      tmp = optTup[0];
+      amt = optTup[1];
+      p = optTup[2];
       FRAG_item.consumeItem(b, tmp, amt, p);
     };
   };
@@ -562,12 +566,14 @@
   const consume_liq = function(b, progIncLiq, timeScl, ci, aux) {
     if(b.liquids == null) return;
 
+    let tmp, amt;
+
     // CI
     var i = 0;
     var iCap = ci.iCap();
     while(i < iCap) {
-      let tmp = ci[i];
-      let amt = ci[i + 1];
+      tmp = ci[i];
+      amt = ci[i + 1];
       b.liquids.remove(tmp, Math.min(amt * progIncLiq, timeScl, b.liquids.get(tmp)));
       i += 2;
     };
@@ -576,8 +582,8 @@
     var i = 0;
     var iCap = aux.iCap();
     while(i < iCap) {
-      let tmp = aux[i];
-      let amt = aux[i + 1];
+      tmp = aux[i];
+      amt = aux[i + 1];
       b.liquids.remove(tmp, Math.min(amt * progIncLiq, timeScl, b.liquids.get(tmp)));
       i += 2;
     };
@@ -595,14 +601,16 @@
     let noLiq = b.liquids == null;
     let failed = Mathf.chance(failP);
 
+    let tmp, amt, p;
+
     // BO
     if(!failed) {
       let i = 0;
       let iCap = bo.iCap();
       while(i < iCap) {
-        let tmp = bo[i];
-        let amt = bo[i + 1];
-        let p = bo[i + 2];
+        tmp = bo[i];
+        amt = bo[i + 1];
+        p = bo[i + 2];
         if(!noItm && tmp instanceof Item && b.items.get(tmp) < b.block.itemCapacity) {
           FRAG_item.produceItem(b, tmp, amt, p);
         };
@@ -619,9 +627,9 @@
       let iCap = fo.iCap();
       for(let j = 0; j < 3; j++) {EFF.blackSmog.at(b)};
       while(i < iCap) {
-        let tmp = fo[i];
-        let amt = fo[i + 1];
-        let p = fo[i + 2];
+        tmp = fo[i];
+        amt = fo[i + 1];
+        p = fo[i + 2];
         if(b.items.get(tmp) < b.block.itemCapacity) {
           FRAG_item.produceItem(b, tmp, amt, p);
         };
@@ -640,12 +648,14 @@
   const produce_liq = function(b, progIncLiq, timeScl, co) {
     if(b.liquids == null) return;
 
+    let tmp, amt;
+
     // CO
     var i = 0;
     var iCap = co.iCap();
     while(i < iCap) {
-      let tmp = co[i];
-      let amt = co[i + 1];
+      tmp = co[i];
+      amt = co[i + 1];
       b.handleLiquid(b, tmp, Math.min(amt * progIncLiq * timeScl, b.block.liquidCapacity - b.liquids.get(tmp)));
       i += 2;
     };
@@ -661,12 +671,14 @@
   const dump = function(b, co, dumpTup, splitAmt, fluidType) {
     if(dumpTup == null) return;
 
+    let tmp, dir;
+
     if(b.liquids != null) {
       let i = 0;
       let iCap = co.iCap();
       while(i < iCap) {
-        let tmp = co[i];
-        let dir = (b.block.liquidOutputDirections.length > i / 2) ? b.block.liquidOutputDirections[i / 2] : -1;
+        tmp = co[i];
+        dir = (b.block.liquidOutputDirections.length > i / 2) ? b.block.liquidOutputDirections[i / 2] : -1;
         if(tmp === VARGEN.auxPres) {
           FRAG_fluid.dumpPres(b, co[i + 1], false, splitAmt, fluidType);
         } else if(tmp === VARGEN.auxVac) {

@@ -56,9 +56,9 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_text = require("lovec/mdl/MDL_text");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   const TP_stat = require("lovec/tp/TP_stat");
@@ -88,7 +88,7 @@
 
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
-    MDL_draw.comp_drawPlace_baseBuilding(blk, tx, ty, rot, valid);
+    MDL_draw.comp_drawPlace_baseBlock(blk, tx, ty, rot, valid);
 
     let t = Vars.world.tile(tx, ty);
     if(t == null) return;
@@ -100,8 +100,8 @@
 
 
   function comp_created(b) {
-    b.sideReg1 = MDL_content._reg(b.block, "-side1", "-side");
-    b.sideReg2 = MDL_content._reg(b.block, "-side2", "-side");
+    b.sideReg1 = MDL_texture._reg(b.block, "-side1", "-side");
+    b.sideReg2 = MDL_texture._reg(b.block, "-side2", "-side");
   };
 
 
@@ -223,7 +223,7 @@
 
     // @NOSUPER
     icons: function(blk) {
-      return [MDL_content._reg(blk, "-icon")];
+      return [MDL_texture._reg(blk, "-icon")];
     },
 
 
