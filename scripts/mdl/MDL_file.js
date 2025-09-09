@@ -94,9 +94,10 @@
   const _content = function(nmMod) {
     let dirRt = _root(nmMod);
     if(dirRt == null) return null;
-    let dirCt = dirRt.child("content");
 
-    return !dirCt.exists() ? null : dirCt;
+    let dir = dirRt.child("content");
+
+    return !dir.exists() ? null : dir;
   };
   exports._content = _content;
 
@@ -106,16 +107,16 @@
    *
    * Returns the "content/xxx" folder of a mod according to {ctType}.
    * ---------------------------------------- */
-  const _subContent = function(nmMod, ctType) {
-    if(ctType == null) return null;
+  const _subContent = function(nmMod, ctTp) {
+    if(ctTp == null) return null;
 
     let dirCt = _content(nmMod);
     if(dirCt == null) return null;
 
-    var str = ctType.name().toLowerCase(java.util.Locale.ROOT);
-    let dirSubCt = dirCt.child(str + (str.endsWith("s") ? "" : "s"));
+    var str = ctTp.name().toLowerCase(java.util.Locale.ROOT);
+    let dir = dirCt.child(str + (str.endsWith("s") ? "" : "s"));
 
-    return !dirSubCt.exists() ? null : dirSubCt;
+    return !dir.exists() ? null : dir;
   };
   exports._subContent = _subContent;
 
@@ -128,9 +129,10 @@
   const _script = function(nmMod) {
     let dirRt = _root(nmMod);
     if(dirRt == null) return null;
-    let dirScr = dirRt.child("scripts");
 
-    return !dirScr.exists() ? null : dirScr;
+    let dir = dirRt.child("scripts");
+
+    return !dir.exists() ? null : dir;
   };
   exports._script = _script;
 
@@ -143,9 +145,10 @@
   const _sprite = function(nmMod) {
     let dirRt = _root(nmMod);
     if(dirRt == null) return null;
-    let dirSpr = dirRt.child("sprites");
 
-    return !dirSpr.exists() ? null : dirSpr;
+    let dir = dirRt.child("sprites");
+
+    return !dir.exists() ? null : dir;
   };
   exports._sprite = _sprite;
 
@@ -292,7 +295,6 @@
    * ---------------------------------------- */
   const __csv = function(fi, arr, ord, bypassExt) {
     if(fi == null || (!bypassExt && fi.extension() !== "csv") || arr == null) return;
-
     if(ord == null) ord = 2;
 
     var str = "";
@@ -317,13 +319,14 @@
    *
    * Returns the json or hjson file of a content.
    * ---------------------------------------- */
-  const _json_ct = function(nmMod, ctType, ct_gn) {
-    if(nmMod == null || ctType == null || ct_gn == null) return null;
+  const _json_ct = function(ct_gn) {
+    let ct = global.lovecUtil.fun._ct(ct_gn);
+    if(ct == null) return null;
 
-    let dirSubCt = _subContent(nmMod, ctType);
+    let nmMod = global.lovecUtil.fun._mod(ct);
+    let dirSubCt = _subContent(nmMod, ct.getContentType());
     if(dirSubCt == null) return null;
-
-    var nmCt = ct_gn instanceof UnlockableContent ? ct_gn.name.replace(nmMod + "-", "") : ct_gn;
+    let nmCt = ct.name.replace(nmMod + "-", "");
     let fiSeq = dirSubCt.findAll(fi => (fi.name() === nmCt + ".json") || (fi.name() === nmCt + ".hjson"));
 
     return fiSeq.size === 0 ? null : fiSeq.get(0);
@@ -336,13 +339,12 @@
    *
    * Returns the current Lovec data file.
    * ---------------------------------------- */
-  const _lsav = function() {
+  const _lsav = function(isBackup) {
     if(Vars.state.isMenu()) return null;
-
     let saveSlotCur = Vars.control.saves.getCurrent();
     if(saveSlotCur == null) return null;
 
-    return lovecData.child("saves").child(saveSlotCur.file.nameWithoutExtension() + ".lsav");
+    return lovecData.child("saves").child(saveSlotCur.file.nameWithoutExtension() + (!isBackup ? "" : "_bak") + ".lsav");
   };
   exports._lsav = _lsav;
 

@@ -93,6 +93,9 @@
 
 
   function comp_setStats(blk) {
+    blk.stats.remove(Stat.tiles);
+    blk.stats.remove(Stat.affinities);
+
     blk.stats.add(TP_stat.blk_attrReq, extend(StatValue, {display(tb) {
       tb.row();
       MDL_table.setDisplay_attr(tb, MDL_attr._attrs_attrRsMap(blk.attrRsMap));
@@ -119,6 +122,7 @@
 
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
+    MDL_draw.comp_drawPlace_baseBlock(blk, tx, ty, rot, valid);
     MDL_draw.drawText_place(blk, tx, ty, Core.bundle.format(
       "bar.efficiency",
       Math.round(blk.ex_getAttrSum(tx, ty, rot) / MDL_attr._limit(blk.size, 1.0) * 100.0),
@@ -128,6 +132,9 @@
 
   function comp_updateTile(b) {
     b.ex_updateAttrRs();
+
+    if(b.attrRs instanceof Item && b.timer.get(b.block.timerDump, b.block.dumpTime / b.timeScale)) b.dump(b.attrRs);
+    if(b.attrRs instanceof Liquid) b.dumpLiquid(b.attrRs, 2.0);
   };
 
 
@@ -210,7 +217,7 @@
       b.prog %= 1.0;
       b.ex_craftAttrRs();
     };
-    if(b.attrRs instanceof Liquid && b.liquids != null) {
+    if(b.attrRs instanceof Liquid && b.liquids != null && b.liquids.get(b.attrRs) < b.block.liquidCapacity) {
       b.handleLiquid(b, b.attrRs, b.block.ex_getProdAmt() * b.getProgressIncrease(1.0));
     };
   };
@@ -391,6 +398,12 @@
 
 
     /* <---------- build (extended) ----------> */
+
+
+    // @NOSUPER
+    ex_getAttrRs: function(b) {
+      return b.attrRs;
+    },
 
 
     // @NOSUPER

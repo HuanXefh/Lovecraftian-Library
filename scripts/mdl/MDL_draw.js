@@ -38,7 +38,6 @@
     const thisFun = bufferedDraw_place;
 
     if(drawF == null) return;
-
     if(radGetter == null) radGetter = Function.airZero;
     if(colorGetter == null) colorGetter = Function.airWhite;
 
@@ -109,7 +108,6 @@
       thisFun.tmpCd = VAR.time_extraInfoCooldown;
       thisFun.tmpStr = null;
     };
-
     if(thisFun.tmpCd > 0.0) return;
 
     var x = t.build == null ? t.worldx() : t.build.x;
@@ -191,9 +189,13 @@
   /* normal */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawRegion}.
+   * ---------------------------------------- */
   const drawRegion_normal = function(x, y, reg, ang, regScl, color_gn, a, z, shouldMixcol, mixcolA) {
     if(reg == null) return;
-
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
     if(a == null) a = 1.0;
@@ -215,9 +217,13 @@
   exports.drawRegion_normal = drawRegion_normal;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawSideRegion}.
+   * ---------------------------------------- */
   const drawRegion_side = function(x, y, reg1, reg2, rot, color_gn, a, z) {
     if(reg1 == null || reg2 == null) return;
-
     if(rot == null) rot = 0;
     if(color_gn == null) color_gn = Color.white;
     if(a == null) a = 1.0;
@@ -231,9 +237,13 @@
   exports.drawRegion_side = drawRegion_side;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawRegion} with a shader effect.
+   * ---------------------------------------- */
   const drawRegion_shader = function(x, y, reg, shader, ang, regScl, color_gn, a, z) {
     if(reg == null) return;
-
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
     if(color_gn == null) color_gn = Color.white;
@@ -252,9 +262,13 @@
   exports.drawRegion_shader = drawRegion_shader;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A planar region that flips, that's it.
+   * ---------------------------------------- */
   const drawRegion_flip = function(x, y, reg, flipAng, ang, regScl, color_gn, a, z) {
     if(reg == null) return;
-
     if(flipAng == null) flipAng = 0.0;
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
@@ -275,25 +289,30 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Better use this in DrawBase for some floor blocks.
+   * Better use this in {drawBase} for some floor blocks.
    * Randomly chooses one in {regs} to draw over the floor.
    * Higher {denom} means sparser.
    * ---------------------------------------- */
   const drawRegion_randomOverlay = function(t, regs, denom, off1, off2) {
     if(t == null || regs == null) return;
-    if(!(t.block() instanceof AirBlock) || !(t.overlay() instanceof AirBlock)) return;
-
     let iCap = regs.iCap();
     if(iCap === 0) return;
     if(denom == null) denom = 80;
     if(off1 == null) off1 = 0;
     if(off2 == null) off2 = 0;
 
-    var shouldDraw = Math.floor(Mathf.randomSeed(t.pos() + off1, 0, denom)) === 0;
-    if(shouldDraw) {
-      var regInd = Math.floor(Mathf.randomSeed(t.pos() + 114514 + off2, 0, iCap));
-      drawRegion_normal(t.worldx(), t.worldy(), regs[regInd], 0.0, 1.0, Color.white, 1.0, VAR.lay_randOv);
-    };
+    if(Math.floor(Mathf.randomSeed(t.pos() + off1, 0, denom)) !== 0) return;
+
+    drawRegion_normal(
+      t.worldx(),
+      t.worldy(),
+      regs[Math.floor(Mathf.randomSeed(t.pos() + 114514 + off2, 0, iCap))],
+      0.0,
+      1.0,
+      Color.white,
+      1.0,
+      VAR.lay_randOv,
+    );
   };
   exports.drawRegion_randomOverlay = drawRegion_randomOverlay;
 
@@ -308,7 +327,6 @@
    * ---------------------------------------- */
   const drawRegion_icon = function(x, y, icon, ang, regScl, color_gn, a) {
     if(icon == null) return;
-
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
     if(color_gn == null) color_gn = Color.white;
@@ -322,6 +340,11 @@
   exports.drawRegion_icon = drawRegion_icon;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Just a big red cross.
+   * ---------------------------------------- */
   const drawRegion_redCross = function(x, y) {
     drawRegion_icon(x, y, Icon.cancel, 0.0, 1.0, Color.scarlet, 1.0);
   };
@@ -331,6 +354,12 @@
   /* status */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws block status.
+   * Rarely used unless something about consumer is screwed.
+   * ---------------------------------------- */
   const drawRegion_status = function(x, y, size, color_gn, z) {
     if(size == null) size = 1;
     if(color_gn == null) color_gn = Color.green;
@@ -350,25 +379,27 @@
   exports.drawRegion_status = drawRegion_status;
 
 
-  const drawRegion_statusBuild = function(b, color_gn_ow) {
-    if(b == null) return;
-
-    drawRegion_status(b, b.block.size, olor_gn_ow != null ? color_gn_ow : b.status().color);
-  };
-  exports.drawRegion_statusBuild = drawRegion_statusBuild;
-
-
   /* fade */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawFade}.
+   * ---------------------------------------- */
   const drawRegion_fade = function(x, y, reg, ang, regScl, fadeScl, color_gn, a, z) {
     if(reg == null) return;
 
-    if(fadeScl == null) fadeScl = 1.0;
-    if(a == null) a = 1.0;
-    var a_fi = a * Math.abs(Math.sin(Time.time * 0.065 / fadeScl));
-
-    drawRegion_normal(x, y, reg, ang, regScl, color_gn, a_fi, z);
+    drawRegion_normal(
+      x,
+      y,
+      reg,
+      ang,
+      regScl,
+      color_gn,
+      Object.val(a, 1.0) * Math.abs(Math.sin(Time.time * 0.065 / Object.val(fadeScl, 1.0))),
+      z,
+    );
   };
   exports.drawRegion_fade = drawRegion_fade;
 
@@ -382,11 +413,42 @@
   const drawRegion_fadeAlert = function(x, y, frac, reg, ang, regScl, color_gn, a, z) {
     if(reg == null) return;
 
-    var a_fi = 1.0 - Math.pow(Mathf.clamp(Object.val(frac, 0.0)) - 1.0, 2);
-
-    drawRegion_fade(x, y, reg, ang, regScl, 0.2, color_gn, a_fi, z);
+    drawRegion_fade(
+      x,
+      y,
+      reg,
+      ang,
+      regScl,
+      0.2,
+      color_gn,
+      1.0 - Math.pow(Mathf.clamp(Object.val(frac, 0.0)) - 1.0, 2),
+      z,
+    );
   };
   exports.drawRegion_fadeAlert = drawRegion_fadeAlert;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawFade} controlled by a progress instead of {Time.time}.
+   * Can be used to do accelerating flashers.
+   * ---------------------------------------- */
+  const drawRegion_fadeProg = function(x, y, fadeProg, reg, ang, regScl, fadeScl, color_gn, a, z) {
+    if(reg == null) return;
+
+    drawRegion_normal(
+      x,
+      y,
+      reg,
+      ang,
+      regScl,
+      color_gn,
+      Object.val(a, 1.0) * Math.abs(Math.sin(fadeProg * 0.15 / Object.val(fadeScl, 1.0))),
+      z,
+    );
+  };
+  exports.drawRegion_fadeProg = drawRegion_fadeProg;
 
 
   /* rotator */
@@ -397,16 +459,14 @@
    *
    * Spin sprite I think.
    * {tProg} is supposed to be a building's {totalProgress}, use {rate} to change the speed of rotation.
-   * Only change {sideAmt} according to your sprite's symmetry.
+   * {sideAmt} should match your sprite's symmetry.
    * ---------------------------------------- */
   const drawRegion_rotator = function(x, y, tProg, reg, ang, regScl, rate, sideAmt, color_gn, a, z) {
-    if(tProg == null || reg == null) return;
-
+    if(reg == null) return;
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
     if(rate == null) rate = 6.0;
     if(sideAmt == null) side = 4;
-    if(color_gn == null) color_gn = Color.white;
     if(a == null) a = 1.0;
 
     var w = reg.width * 2.0 * regScl / Vars.tilesize;
@@ -431,12 +491,11 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Alternative for DrawFlame, where you don't have a fixed -top region.
+   * Alternative for {drawFlame}, where you don't have a fixed "-top" region.
    * Light is not included.
    * ---------------------------------------- */
   const drawRegion_flame = function(x, y, warmup, reg, rad, radIn, radScl, radMag, radInMag, color_gn, a) {
-    if(warmup == null || reg == null) return;
-
+    if(reg == null) return;
     if(rad == null) rad = 2.5;
     if(radIn == null) radIn = 1.5;
     if(radScl == null) radScl = 5.0;
@@ -468,9 +527,12 @@
   /* shape */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawWeave} but that texture region is gone.
+   * ---------------------------------------- */
   const drawRegion_scan = function(x, y, tProg, warmup, size, color_gn, a, z) {
-    if(tProg == null || warmup == null) return;
-
     if(size == null) size = 1;
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
@@ -489,9 +551,12 @@
   exports.drawRegion_scan = drawRegion_scan;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws sublimate torch, no flare.
+   * ---------------------------------------- */
   const drawRegion_torch = function(x, y, warmup, len, w, size, ang, color1_gn, color2_gn, a, z) {
-    if(warmup == null) return;
-
     if(len == null) len = 0.0;
     if(len < 0.0001) return;
     if(w == null) w = 6.0;
@@ -501,8 +566,8 @@
     if(color2_gn == null) color2_gn = Color.white;
     if(a == null) a = 1.0;
 
-    var color1 = MDL_color._color(color1_gn, Tmp.c2);
-    var color2 = MDL_color._color(color2_gn, Tmp.c3);
+    let color1 = MDL_color._color(color1_gn, Tmp.c2);
+    let color2 = MDL_color._color(color2_gn, Tmp.c3);
     var offRad = size * Vars.tilesize * 0.5;
     var x_fi = x + Mathf.cosDeg(ang) * offRad;
     var y_fi = y + Mathf.sinDeg(ang) * offRad;
@@ -531,9 +596,13 @@
   /* glow */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawGlow}.
+   * ---------------------------------------- */
   const drawRegion_glow = function(x, y, reg, ang, color_gn, a, pulse, pulseScl) {
     if(reg == null) return;
-
     if(ang == null) ang = 0.0;
     if(color_gn == null) color_gn = "ff3838";
     if(a == null) a = 1.0;
@@ -553,10 +622,20 @@
   exports.drawRegion_glow = drawRegion_glow;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {drawHeat}.
+   * ---------------------------------------- */
   const drawRegion_heat = function(x, y, heatFrac, reg, ang, size) {
-    if(reg == null) reg = VARGEN.blockHeatRegs[Object.val(size, 1)];
-
-    drawRegion_glow(x, y, reg, ang, null, Mathf.clamp(Object.val(heatFrac, 1.0)), null, null);
+    drawRegion_glow(
+      x,
+      y,
+      Object.val(reg, VARGEN.blockHeatRegs[Object.val(size, 1)]),
+      ang,
+      null,
+      Mathf.clamp(Object.val(heatFrac, 1.0)),
+    );
   };
   exports.drawRegion_heat = drawRegion_heat;
 
@@ -564,9 +643,12 @@
   /* light */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws cicular light.
+   * ---------------------------------------- */
   const drawRegion_light = function(x, y, warmup, rad, size, sinScl, sinMag, color_gn, a) {
-    if(warmup == null) return;
-
     if(rad == null) rad = 40.0;
     if(size == null) size = 1;
     if(sinScl == null) sinScl = 16.0;
@@ -590,7 +672,6 @@
    * ---------------------------------------- */
   const drawRegion_plan = function(x, y, reg, ang, regScl, color_gn, a) {
     if(reg == null) return;
-
     if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
     if(color_gn == null) color_gn = Color.white;
@@ -611,12 +692,10 @@
 
   const drawRegion_planBlk = function(blk_gn, t, color_gn) {
     if(t == null) return;
-
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
-    let reg = MDL_texture._regBlk(blk);
 
-    drawRegion_plan(t.worldx() + blk.offset, t.worldy() + blk.offset, reg, color_gn);
+    drawRegion_plan(t.worldx() + blk.offset, t.worldy() + blk.offset, MDL_texture._regBlk(blk), color_gn);
   };
   exports.drawRegion_planBlk = drawRegion_planBlk;
 
@@ -624,11 +703,15 @@
   /* content */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a resource icon like that shown for drills.
+   * ---------------------------------------- */
   const drawRegion_rs = function(x, y, rs_gn, size, z) {
     let rs = MDL_content._ct(rs_gn, "rs");
     if(rs == null) return;
-
-    if(size == null) size = 0;
+    if(size == null) size = 1;
 
     var x_fi = x - Vars.tilesize * 0.5 * size;
     var y_fi = y + Vars.tilesize * 0.5 * size;
@@ -641,6 +724,26 @@
     Draw.reset();
   };
   exports.drawRegion_rs = drawRegion_rs;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a resource icon that fits in tiles.
+   * ---------------------------------------- */
+  const drawRegion_rsBlk = function(x, y, rs_gn, size, z) {
+    let rs = MDL_content._ct(rs_gn, "rs");
+    if(rs == null) return;
+    if(size == null) size = 1;
+
+    var off = size % 2 === 0 ? 4.0 : 0.0;
+    var w = size * Vars.tilesize;
+
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.rect(rs.uiIcon, x + off, y + off, w, w);
+    Draw.reset();
+  };
+  exports.drawRegion_rsBlk = drawRegion_rsBlk;
 
 
   /* <---------- p3d ----------> */
@@ -683,9 +786,9 @@
     if(w < 0.0001) return;
     if(h == null) h = 0.0;
     if(h < 0.0001) return;
-
     if(colorIn_gn == null) colorIn_gn = Color.white;
     if(colorOut_gn == null) colorOut_gn = colorIn_gn;
+
     let colorIn = MDL_color._color(colorIn_gn, Tmp.c1);
     let colorOut = MDL_color._color(colorOut_gn, Tmp.c2);
 
@@ -740,7 +843,6 @@
 
   const drawP3d_region = function(x, y, z3d, reg, regScl, regFixScl, color_gn, z) {
     if(reg == null) return;
-
     // 0.5 is enough for regular tall buildings
     if(z3d == null) z3d = 0.5;
     if(regScl == null) regScl = 1.0;
@@ -1067,7 +1169,6 @@
    * ---------------------------------------- */
   const drawArea_build = function(b, pad, color_gn, a, z) {
     if(b == null) return;
-
     if(pad == null) pad = 0.0;
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
@@ -1271,7 +1372,6 @@
    * ---------------------------------------- */
   const drawProgress_bar = function(x, y, frac, size, color_gn, a, offW, offTy, z) {
     if(frac == null) return;
-
     if(size == null) size = 1;
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
@@ -1307,7 +1407,6 @@
    * ---------------------------------------- */
   const drawProgress_circle = function(x, y, frac, rad, ang, color_gn, a, noBot, rev, stroke_ow, z) {
     if(frac == null) return;
-
     if(rad == null) rad = 24.0;
     if(ang == null) ang = 0.0;
     if(color_gn == null) color_gn = Pal.accent;
@@ -1361,7 +1460,6 @@
    * ---------------------------------------- */
   const drawProgress_vArea = function(x, y, frac, size, color_gn, a, offX, offY, wScl, hScl, z) {
     if(frac == null) return;
-
     if(size == null) size = 1;
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
@@ -1389,7 +1487,6 @@
 
   const drawProgress_vAreaMul = function(x, y, fracs, size, color_gn, a, z) {
     if(fracs == null) return;
-
     let iCap = fracs.iCap();
     if(iCap === 0) return;
     var segW = size * Vars.tilesize / iCap;
@@ -1409,7 +1506,6 @@
 
   const drawText = function(x, y, str, sizeScl, color_gn, align, offX, offY, offZ) {
     if(str == null || str === "") return;
-
     if(sizeScl == null) sizeScl = 1.0;
     if(color_gn == null) color_gn = Color.white;
     if(align == null) align = Align.center;
@@ -1443,7 +1539,6 @@
 
   const drawText_place = function(blk, tx, ty, str, valid, offTy) {
     if(blk == null || str == null) return;
-
     if(valid == null) valid = true;
     if(offTy == null) offTy = 0;
 
@@ -1454,7 +1549,6 @@
 
   const drawText_select = function(b, str, valid, offTy) {
     if(b == null || str == null) return;
-
     if(valid == null) valid = true;
     if(offTy == null) offTy = 0;
 
@@ -1476,7 +1570,6 @@
   const drawUnit_healthBar = function(e, healthFrac, size, color_gn, a, offW, offTy, segScl, armor, shield, speedMtp, dpsMtp, z) {
     if(e == null || healthFrac == null) return;
     if(e.dead || (e instanceof Unit && MDL_cond._isCovered(e))) return;
-
     if(size == null) size = 1;
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
@@ -1601,7 +1694,6 @@
   const drawUnit_reload = function(e, mtIds, color_gn, a, offW, offTy, frac_ow, z) {
     if(e == null) return;
     if(e.dead || (e instanceof Unit && MDL_cond._isCovered(e))) return;
-
     if(color_gn == null) color_gn = Pal.techBlue;
     if(a == null) a = 1.0;
     if(a < 0.0001) return;
@@ -1641,7 +1733,6 @@
 
   const drawStatus_fade = function(e, reg, color_gn) {
     if(e == null || reg == null) return;
-
     if(color_gn == null) color_gn = Color.white;
 
     var regScl = MDL_entity._hitSize(e) * 0.1;
@@ -1658,14 +1749,14 @@
     if(ang == null) ang = 0.0;
     if(color == null) color = Color.white;
 
-    const x1 = x - 3.0 * Mathf.cosDeg(ang - 45.0);
-    const y1 = y - 3.0 * Mathf.sinDeg(ang - 45.0);
-    const x2 = x + 3.0 * Mathf.cosDeg(ang - 45.0);
-    const y2 = y + 3.0 * Mathf.sinDeg(ang - 45.0);
-    const x3 = x - 3.0 * Mathf.cosDeg(ang + 45.0);
-    const y3 = y - 3.0 * Mathf.sinDeg(ang + 45.0);
-    const x4 = x + 3.0 * Mathf.cosDeg(ang + 45.0);
-    const y4 = y + 3.0 * Mathf.sinDeg(ang + 45.0);
+    var x1 = x - 3.0 * Mathf.cosDeg(ang - 45.0);
+    var y1 = y - 3.0 * Mathf.sinDeg(ang - 45.0);
+    var x2 = x + 3.0 * Mathf.cosDeg(ang - 45.0);
+    var y2 = y + 3.0 * Mathf.sinDeg(ang - 45.0);
+    var y3 = y - 3.0 * Mathf.sinDeg(ang + 45.0);
+    var x3 = x - 3.0 * Mathf.cosDeg(ang + 45.0);
+    var x4 = x + 3.0 * Mathf.cosDeg(ang + 45.0);
+    var y4 = y + 3.0 * Mathf.sinDeg(ang + 45.0);
 
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(1.0);
@@ -1681,12 +1772,12 @@
     if(ang == null) ang = 0.0;
     if(color == null) color = Color.white;
 
-    const x1 = x + 3.0 * Mathf.cosDeg(ang + 90.0);
-    const y1 = y + 3.0 * Mathf.sinDeg(ang + 90.0);
-    const x2 = x + 3.0 * Mathf.cosDeg(ang + 210.0);
-    const y2 = y + 3.0 * Mathf.sinDeg(ang + 210.0);
-    const x3 = x + 3.0 * Mathf.cosDeg(ang + 330.0);
-    const y3 = y + 3.0 * Mathf.sinDeg(ang + 330.0);
+    var x1 = x + 3.0 * Mathf.cosDeg(ang + 90.0);
+    var y1 = y + 3.0 * Mathf.sinDeg(ang + 90.0);
+    var x2 = x + 3.0 * Mathf.cosDeg(ang + 210.0);
+    var y2 = y + 3.0 * Mathf.sinDeg(ang + 210.0);
+    var x3 = x + 3.0 * Mathf.cosDeg(ang + 330.0);
+    var y3 = y + 3.0 * Mathf.sinDeg(ang + 330.0);
 
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(0.7);
@@ -1702,12 +1793,12 @@
   const drawDebug_hitSize = function(e) {
     if(e == null) return;
 
-    const rad = MDL_entity._hitSize(e) * 0.5;
-    const x1 = e.x + rad * Mathf.cosDeg(e.rotation);
-    const y1 = e.y + rad * Mathf.sinDeg(e.rotation);
-    const offRad = 0.01 + e.vel.len() * 24.0;
-    const x2 = e.x + (rad + offRad) * Mathf.cosDeg(e.rotation);
-    const y2 = e.y + (rad + offRad) * Mathf.sinDeg(e.rotation);
+    var rad = MDL_entity._hitSize(e) * 0.5;
+    var x1 = e.x + rad * Mathf.cosDeg(e.rotation);
+    var y1 = e.y + rad * Mathf.sinDeg(e.rotation);
+    var offRad = 0.01 + e.vel.len() * 24.0;
+    var x2 = e.x + (rad + offRad) * Mathf.cosDeg(e.rotation);
+    var y2 = e.y + (rad + offRad) * Mathf.sinDeg(e.rotation);
 
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(1.0);
@@ -1722,7 +1813,7 @@
 
   const drawDebug_target = function(unit) {
     if(unit == null) return;
-
+    
     var e_tg = MDL_pos._unit_tg(unit.x, unit.y, unit.team, unit.range());
     if(e_tg == null) return;
 

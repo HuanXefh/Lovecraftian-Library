@@ -46,7 +46,6 @@
   const spawnUnit = function(x, y, utp_gn, team, rad, ang, repeat, applyDefSta, scr) {
     let utp = MDL_content._ct(utp_gn, "utp");
     if(utp == null) return;
-
     if(team == null) team = Team.sharded;
     if(rad == null) rad = 0.0;
     if(ang == null) ang = "rand";
@@ -126,7 +125,6 @@
    * ---------------------------------------- */
   const knockback = function(x, y, unit, pow, rad, ang) {
     if(unit == null || MDL_cond._isHighAir(unit)) return;
-
     if(pow == null) pow = 0.0;
     if(Math.abs(pow) < 0.0001) return;
 
@@ -151,10 +149,8 @@
     const thisFun = spawnLoot;
 
     if(!PARAM.modded) return;
-
     let itm = MDL_content._ct(itm_gn, "rs");
     if(itm == null) return;
-
     if(amt == null) amt = 0;
     if(amt < 1) return;
     if(rad == null) rad = VAR.rad_unitLootRad;
@@ -346,7 +342,6 @@
    * ---------------------------------------- */
   const spawnBul = function(x, y, btp, se_gn, team, rad, ang, repeat, dmg_ow, scl, velScl) {
     if(btp == null) return;
-
     if(team == null) team = Team.derelict;
     if(rad == null) rad = 0.0;
     if(ang == null) ang = "rand";
@@ -379,7 +374,6 @@
    * ---------------------------------------- */
   const damageBul = function(bul, dmg) {
     if(bul == null) return;
-
     if(dmg == null) dmg = 0.0;
     if(dmg < 0.0001) return;
 

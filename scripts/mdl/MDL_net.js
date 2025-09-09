@@ -21,10 +21,8 @@
 
     if(header == null) return;
     if(thisFun.headers.includes(header)) throw new Error("A header name conflicts with existing headers: " + header);
-
     if(mode == null) mode = "client";
     if(!mode.equalsAny(thisFun.modes)) return;
-
     if(payloadCaller == null) payloadCaller = Function.air;
 
     if(mode === "client" || mode === "both") Vars.netClient.addPacketHandler(header, payloadCaller);
@@ -48,7 +46,6 @@
     const thisFun = sendPacket;
 
     if(!global.lovec.modded || header == null || payload == null) return;
-
     if(mode == null) mode = "server";
     if(!mode.equalsAny(thisFun.modes)) return;
 

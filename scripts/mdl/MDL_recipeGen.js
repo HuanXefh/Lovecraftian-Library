@@ -79,7 +79,6 @@
 
     if(mode == null) mode = "item";
     if(!mode.equalsAny(thisFun.modes)) return;
-
     if(boolF == null) boolF = Function.airTrue;
     if(amtI0mtpI == null) amtI0mtpI = 1.0;
     if(pI == null) pI = 1.0;

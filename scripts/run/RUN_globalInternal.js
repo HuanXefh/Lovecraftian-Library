@@ -40,6 +40,40 @@
       /* ----------------------------------------
        * NOTE:
        *
+       * Gets current planet as string.
+       * ---------------------------------------- */
+      _plaCur() {
+        let nm = "";
+        if(!Vars.state.isMenu() && Vars.state.planet != null) {
+          nm = Vars.state.planet.name;
+        };
+
+        return nm;
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Gets current map as string.
+       * ---------------------------------------- */
+      _mapCur() {
+        let nm = "";
+        if(!Vars.state.isMenu()) {
+          if(Vars.state.sector != null) {
+            nm = Vars.state.sector.preset.name;
+          } else if(Vars.state.map != null) {
+            nm = Vars.state.map.plainName();
+          };
+        };
+
+        return nm;
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
        * Bypasses {MDL_content} to resolve module coupling.
        * This one is less stable and won't warn, do not abuse it!
        * ---------------------------------------- */
@@ -50,6 +84,21 @@
         return ctTpStr == null ?
           Vars.content.byName(ct_gn) :
           Vars.content.getByName(ContentType[ctTpStr], ct_gn);
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Returns the mod that adds the content.
+       * Bypasses {MDL_content}.
+       * ---------------------------------------- */
+      _mod(ct_gn) {
+        let ct = global.lovecUtil.fun._ct(ct_gn);
+        if(ct == null) return null;
+
+        let mod = ct.minfo.mod;
+        return mod == null ? "vanilla" : mod.name;
       },
 
 

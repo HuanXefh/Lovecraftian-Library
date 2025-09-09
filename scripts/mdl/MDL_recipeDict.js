@@ -36,7 +36,6 @@
     if(blk == null) return;
     let itm = MDL_content._ct(itm_gn, "rs");
     if(itm == null) return;
-
     if(amt == null) amt = 0;
     if(amt < 1) return;
     if(p == null) p = 1.0;
@@ -64,7 +63,6 @@
     if(blk == null) return;
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return;
-
     if(amt == null) amt = 0.0;
     if(amt < 0.0001) return;
 
@@ -90,7 +88,6 @@
     if(blk == null) return;
     let itm = MDL_content._ct(itm_gn, "rs");
     if(itm == null) return;
-
     if(amt == null) amt = 0;
     if(amt < 1) return;
     if(p == null) p = 1.0;
@@ -118,7 +115,6 @@
     if(blk == null) return;
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return;
-
     if(amt == null) amt = 0.0;
     if(amt < 0.0001) return;
 

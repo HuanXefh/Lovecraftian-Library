@@ -97,10 +97,9 @@
    * Writes a list of arc 2D points.
    * ---------------------------------------- */
   const _wr_pon2s = function(wr, pon2s) {
+    let i = 0;
     let iCap = pon2s.iCap();
     wr.i(iCap);
-
-    let i = 0;
     while(i < iCap) {
       _wr_pon2(wr, pon2s[i]);
       i++;
@@ -115,8 +114,8 @@
    * Reads a list of arc 2D points.
    * ---------------------------------------- */
   const _rd_pon2s = function(rd, pon2s) {
-    let iCap = rd.i();
     let i = 0;
+    let iCap = rd.i();
     while(i < iCap) {
       pon2s.push(_rd_pon2(rd));
       i++;
@@ -179,10 +178,9 @@
    * Writes an array of contents.
    * ---------------------------------------- */
   const _wr_cts = function(wr, cts) {
+    let i = 0;
     let iCap = cts.iCap();
     wr.i(iCap);
-
-    let i = 0;
     while(i < iCap) {
       let ct = cts[i];
       wr.str(ct == null ? "null" : ct.name);
@@ -198,8 +196,8 @@
    * Reads an array of contents.
    * ---------------------------------------- */
   const _rd_cts = function(rd, cts) {
-    let iCap = rd.i();
     let i = 0;
+    let iCap = rd.i();
     while(i < iCap) {
       let ct = MDL_content._ct(rd.str(), null, true);
       if(ct != null) cts.pushUnique(ct);

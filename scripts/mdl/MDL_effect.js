@@ -60,7 +60,6 @@
 
   const play_global = function(se_gn, vol, pitch, offPitch) {
     if(se_gn == null) return;
-
     let se = _se(se_gn);
     if(se == null) return;
     if(vol == null) vol = 1.0;
@@ -76,7 +75,6 @@
 
   const playAt = function(x, y, se_gn, vol, pitch, offPitch) {
     if(se_gn == null) return;
-
     let se = _se(se_gn);
     if(se == null) return;
     if(vol == null) vol = 1.0;
@@ -94,7 +92,6 @@
 
   const showAt = function(x, y, eff, rot, color, data) {
     if(Vars.state.isPaused() || eff == null) return;
-
     if(rot == null) rot = Mathf.random(360.0);
     if(color == null) color = Color.white;
 
@@ -108,7 +105,6 @@
 
   const showAt_global = function(x, y, eff, rot, color, data) {
     if(Vars.state.isPaused() || eff == null) return;
-
     if(rot == null) rot = Mathf.random(360.0);
     if(color == null) color = Color.white;
 
@@ -149,7 +145,6 @@
    * ---------------------------------------- */
   const showAt_shake = function(x, y, pow, dur) {
     if(Vars.state.isPaused()) return;
-
     if(pow == null) pow = 4.0;
     if(dur == null) dur = 60.0;
     if(pow < 0.0001 || dur < 0.0001) return;
@@ -167,7 +162,6 @@
    * ---------------------------------------- */
   const showAt_dust = function(x, y, rad, repeat) {
     if(Vars.state.isPaused()) return;
-
     if(rad == null) rad = 8.0;
     if(repeat == null) repeat = 1;
 
@@ -191,6 +185,7 @@
   const showAt_click = function(x, y, color_gn) {
     const thisFun = showAt_click;
 
+    if(Vars.state.isPaused()) return;
     if(color_gn == null) color_gn = Pal.accent;
 
     showAt(x, y, thisFun.funEff, 0.0, MDL_color._color(color_gn));
@@ -205,16 +200,57 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Creates several circle spark effects.
+   * ---------------------------------------- */
+  const showAt_colorDust = function(x, y, rad, color_gn) {
+    const thisFun = showAt_colorDust;
+
+    if(Vars.state.isPaused()) return;
+    if(rad == null) rad = 20.0;
+
+    showAt(x, y, thisFun.funEff, rad, MDL_color._color(color_gn));
+  }
+  .setAnno(ANNO.__NONHEADLESS__)
+  .setProp({
+    "funEff": (function() {
+      const tmp = new Effect(80.0, eff => {
+        let frac1 = Interp.pow10Out.apply(Interp.pow10Out.apply(eff.fin()));
+        let frac2 = 1.0 - Interp.pow2In.apply(eff.fin());
+
+        Draw.color(eff.color);
+        Angles.randLenVectors(eff.id, 18, eff.finpow() * eff.rotation, (x, y) => {
+          Fill.circle(eff.x + x * frac1, eff.y + y * frac1, frac2 * 3.5);
+        });
+        Draw.color(Tmp.c1.set(eff.color).mul(1.2));
+        Angles.randLenVectors(eff.id + 11, 14, eff.finpow() * eff.rotation * 0.9, (x, y) => {
+          Fill.circle(eff.x + x * frac1, eff.y + y * frac1, frac2 * 3.0);
+        });
+        Draw.color(Tmp.c1.set(eff.color).mul(1.35));
+        Angles.randLenVectors(eff.id + 22, 10, eff.finpow() * eff.rotation * 0.85, (x, y) => {
+          Fill.circle(eff.x + x * frac1, eff.y + y * frac1, frac2 * 2.5);
+        });
+      });
+      tmp.layer = VAR.lay_effFlr - 0.1;
+
+      return tmp;
+    })(),
+  });
+  exports.showAt_colorDust = showAt_colorDust;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Creates a triangular effect that moves towards the nearest core.
    * Mostly used by CEP consumer blocks.
    * ---------------------------------------- */
   const showAt_coreSignal = function(x, y, team, pad, rad) {
     const thisFun = showAt_coreSignal;
 
+    if(Vars.state.isPaused() || team == null) return;
     if(team == null) return;
     let b = Vars.state.teams.closestCore(x, y, team);
     if(b == null) return;
-
     if(pad == null) pad = 0.0;
     if(rad == null) rad = 120.0;
 
@@ -250,7 +286,6 @@
     const thisFun = showAt_ripple;
 
     if(Vars.state.isPaused()) return;
-
     if(rad == null) rad = 18.0;
 
     if(liqColor == null) {
@@ -291,6 +326,8 @@
   const showAt_impactWave = function(x, y, rad) {
     const thisFun = showAt_impactWave;
 
+    if(Vars.state.isPaused()) return;
+
     thisFun.funEffPack.forEach(eff => {
       showAt(x, y, eff, rad);
     });
@@ -315,6 +352,8 @@
    * ---------------------------------------- */
   const showAt_rotorWave = function(x, y, rad) {
     const thisFun = showAt_rotorWave;
+
+    if(Vars.state.isPaused()) return;
 
     showAt(x, y, thisFun.funEff, rad);
   }
@@ -346,7 +385,6 @@
     const thisFun = showAt_corrosion;
 
     if(Vars.state.isPaused()) return;
-
     if(size == null) size = 1;
     if(liqColor == null) liqColor = Color.white;
 
@@ -375,11 +413,9 @@
    * ---------------------------------------- */
   const showAt_remains = function(x, y, utp0unit, team, isPermanent, forceHot) {
     if(utp0unit == null || team == null) return;
-
     let unit = (utp0unit instanceof Unit) ? utp0unit : null;
     let utp = (utp0unit instanceof Unit) ? utp0unit.type : utp0unit;
     if(MDL_cond._hasNoRemains(utp)) return;
-
     let t = Vars.world.tileWorld(x, y);
     if(t == null || !t.floor().canShadow) return;
 
@@ -465,20 +501,16 @@
     if(Vars.state.isPaused() || e == null) return;
 
     if(e instanceof Building) {
-
       let reg = e.block instanceof BaseTurret ?
         Object.val(MDL_texture._regTurBase(e.block), e.block.region) :
         Core.atlas.find(e.block.name + "-icon", e.block.region);
       if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.funEff, 0.0, MDL_color._color(color_gn), [reg, e]);
-
     } else {
-
       if(MDL_color._isSameColor(color, Pal.heal)) {
         unit.healTime = 1.0;
       } else {
         unit.hitTime = 1.0;
       };
-
     };
   }
   .setAnno(ANNO.__NONHEADLESS__)
@@ -501,7 +533,6 @@
     const thisFun = showAt_regFade;
 
     if(Vars.state.isPaused() || reg0icon == null) return;
-
     if(scl == null) scl = 1.0;
 
     showAt(x, y, thisFun.funEff, scl, MDL_color._color(color_gn), reg0icon);
@@ -511,14 +542,12 @@
     "funEff": new Effect(40.0, eff => {
       eff.lifetime = 40.0 * eff.rotation;
 
-      let reg0icon = eff.data;
-      let color = eff.color;
       var a = eff.fout() * color.a;
 
-      if(reg0icon instanceof TextureRegion) {
-        MDL_draw.drawRegion_normal(eff.x, eff.y, reg0icon, 0.0, 1.0, color, a, Layer.effect + VAR.lay_offDrawOver);
+      if(eff.data instanceof TextureRegion) {
+        MDL_draw.drawRegion_normal(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a, Layer.effect + VAR.lay_offDrawOver);
       } else {
-        MDL_draw.drawRegion_icon(eff.x, eff.y, reg0icon, 0.0, 1.0, color, a);
+        MDL_draw.drawRegion_icon(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a);
       };
     }),
   });
@@ -537,7 +566,6 @@
     if(!PARAM.displayDamage || dmg == null || dmg < 0.0001 || dmg < PARAM.damageDisplayThreshold) return;
     if(mode == null) mode = "health";
     if(!mode.equalsAny(thisFun.modes)) return;
-
     if(team == null) team = Team.derelict;
 
     let color = null;
@@ -593,8 +621,7 @@
   const showBetween_line = function(x, y, e0, e, color_gn, strokeScl) {
     const thisFun = showBetween_line;
 
-    if(e == null) return;
-
+    if(Vars.state.isPaused() || e == null) return;
     if(strokeScl == null) strokeScl = 1.0;
 
     showAt(x, y, thisFun.funEff, strokeScl, MDL_color._color(color_gn), [e0, e]);
@@ -619,8 +646,7 @@
    * Creates a item transfer effect from (x, y) to {posIns}.
    * ---------------------------------------- */
   const showBetween_itemTransfer = function(x, y, posIns, color_gn, repeat, isGlobal) {
-    if(posIns == null) return;
-
+    if(Vars.state.isPaused() || posIns == null) return;
     if(color_gn == null) color_gn = Pal.accent;
     if(repeat == null) repeat = 3;
 
@@ -638,8 +664,7 @@
    * Creates a chain lightning effect from (x, y) to {e}.
    * ---------------------------------------- */
   const showBetween_lightning = function(x, y, e, color_gn, hasSound) {
-    if(posIns == null) return;
-
+    if(Vars.state.isPaused() || posIns == null) return;
     if(color_gn == null) color_gn = Pal.accent;
 
     showAt(x, y, Fx.chainLightning, 0.0, MDL_color._color(color_gn), e);
@@ -655,7 +680,7 @@
    * A variant of {showBetween_lightning} that is used for a list of entities.
    * ---------------------------------------- */
   const showAmong_lightning = function(x, y, es, color_gn, hasSound) {
-    if(es == null || es.length === 0) return;
+    if(Vars.state.isPaused() || es == null || es.length === 0) return;
 
     let i = 0;
     let iCap = es.iCap();
@@ -680,8 +705,7 @@
   const showBetween_laser = function(x, y, e0, e, color_gn, strokeScl, hasLight) {
     const thisFun = showBetween_laser;
 
-    if(e == null) return;
-
+    if(Vars.state.isPaused() || e == null) return;
     if(color_gn == null) color_gn = Pal.accent;
 
     showAt(x, y, thisFun.funEff, Object.val(strokeScl, 1.0), MDL_color._color(color_gn), [e0, e, hasLight]);
@@ -715,8 +739,7 @@
   const showBetween_pointLaser = function(x, y, e, color_gn, se_gn) {
     const thisFun = showBetween_pointLaser;
 
-    if(e == null) return;
-
+    if(Vars.state.isPaused() || e == null) return;
     if(color_gn == null) color_gn = Pal.remove;
 
     let color = MDL_color._color(color_gn);

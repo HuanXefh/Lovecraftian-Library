@@ -102,6 +102,12 @@
   };
 
 
+  function comp_onDestroyed(b) {
+    Damage.damage(b.x, b.y, b.block.size * Vars.tilesize * 2.5, b.maxHealth * Math.abs(b.presTmp) * 0.2);
+    Fx.explosion.at(b.x, b.y, b.block.size * Vars.tilesize * 2.5);
+  };
+
+
   function comp_updateTile(b) {
     if(PARAM.updateSuppressed) return;
 
@@ -199,6 +205,7 @@
 
     onDestroyed: function(b) {
       PARENT.onDestroyed(b);
+      comp_onDestroyed(b);
     },
 
 

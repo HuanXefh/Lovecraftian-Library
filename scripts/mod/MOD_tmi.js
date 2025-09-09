@@ -90,6 +90,7 @@
    * NOTE:
    *
    * Adds a raw recipe to TMI recipe manager.
+   * Remember to complete it before registration.
    * ---------------------------------------- */
   const regisRc = function(rawRc) {
     TooManyItems.recipesManager.addRecipe(rawRc, true);
@@ -177,8 +178,8 @@
    * ---------------------------------------- */
   const addSubInfo = function(rawRc, str0tableF, shouldPrepend) {
     typeof str0tableF !== "string" ?
-      shouldPrepend ? rawRc.prependSubInfo(str0tableF) : rawRc.appendSubInfo(str0tableF) :
-      shouldPrepend ? rawRc.prependSubInfo(tb => {tb.add(str0tableF).left(); tb.row()}) : rawRc.appendSubInfo(tb => {tb.row(); tb.add(str0tableF).left()});
+      (shouldPrepend ? rawRc.prependSubInfo(str0tableF) : rawRc.appendSubInfo(str0tableF)) :
+      (shouldPrepend ? rawRc.prependSubInfo(tb => {tb.add(str0tableF).left(); tb.row()}) : rawRc.appendSubInfo(tb => {tb.row(); tb.add(str0tableF).left()}));
 
     return rawRc;
   };

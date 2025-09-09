@@ -50,7 +50,7 @@
    * ---------------------------------------- */
   const _eleGrp = function(liq_gn) {
     let liq = MDL_content._ct(liq_gn, "rs");
-    if(liq == null) return;
+    if(liq == null) return null;
 
     let obj = DB_fluid.db["group"]["elementary"];
     for(let key in obj) {
@@ -84,7 +84,7 @@
    * ---------------------------------------- */
   const _matGrp = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
-    if(blk == null) return;
+    if(blk == null) return null;
 
     let obj = DB_block.db["group"]["material"];
     for(let key in obj) {
@@ -478,7 +478,6 @@
       if(b.fHeatCur != null) return b.fHeatCur;
       if(b.ex_getFHeatCur != null) return b.ex_getFHeatCur();
     };
-
     if(b.liquids == null) return def;
 
     let liqCur = b.liquids.current();
@@ -502,13 +501,10 @@
     if(t == null) return 0.0;
 
     var rHeat = t.build == null ? 0.0 : (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + Object.val(PARAM.glbHeat, 26.0));
-
     rHeat += t.floor().attributes.get(Attribute.get("lovec-attr0env-heat")) * 100.0;
-
     for(let i = 0; i < 4; i++) {
       let ot = t.nearby(i);
       if(ot == null || ot.build == null) continue;
-
       rHeat += _heat_b(ot.build);
     };
 

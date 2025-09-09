@@ -15,7 +15,7 @@
 
 
   const newIns_shader = function(shader) {
-    var cacheLay = new CacheLayer.ShaderLayer(shader);
+    let cacheLay = new CacheLayer.ShaderLayer(shader);
     CacheLayer.add(cacheLay);
 
     return cacheLay;

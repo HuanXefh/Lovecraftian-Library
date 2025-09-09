@@ -154,12 +154,10 @@
    * ---------------------------------------- */
   const _rayBool_insulated = function(x1, x2, y1, y2, team) {
     return _rayBool_base(x1, y1, x2, y2, (tx, ty) => {
-
       let ob = Vars.world.build(tx, ty);
 
       if(ob == null) return false;
       if(ob.isInsulated()) return team == null ? true : ob.team !== team;
-
     });
   };
   exports._rayBool_insulated = _rayBool_insulated;
@@ -172,12 +170,10 @@
    * ---------------------------------------- */
   const _rayBool_laser = function(x1, x2, y1, y2, team) {
     return _rayBool_base(x1, y1, x2, y2, (tx, ty) => {
-
       let ob = Vars.world.build(tx, ty);
 
       if(ob == null) return false;
       if(ob.block.absorbLasers) return team == null ? true : ob.team !== team;
-
     });
   };
   exports._rayBool_laser = _rayBool_laser;
@@ -190,11 +186,9 @@
    * ---------------------------------------- */
   const _rayBool_solid = function(x1, y1, x2, y2) {
     return _rayBool_base(x1, y1, x2, y2, (tx, ty) => {
-
       let ot = Vars.world.tile(tx, ty);
 
       return ot != null && ot.solid();
-
     });
   };
   exports._rayBool_solid = _rayBool_solid;
@@ -383,7 +377,7 @@
    * Gets another tile based on rotation.
    * ---------------------------------------- */
   const _tRot = function(t, rot) {
-    if(t == null) return;
+    if(t == null) return null;
 
     return t.nearby(Geometry.d4[rot]);
   };
@@ -398,7 +392,7 @@
    * ---------------------------------------- */
   const _tRand_base = function(ts, boolF, iCap) {
     if(iCap == null) iCap = ts.iCap();
-    if(iCap === 0) return;
+    if(iCap === 0) return null;
 
     let i = 0;
     var t = null;
@@ -434,11 +428,9 @@
    * Gets the closest tile that has an ore for {itm_gn}.
    * ---------------------------------------- */
   const _tOre = function(x, y, itm_gn) {
-    if(itm_gn == null) return;
+    if(itm_gn == null) return null;
 
-    var itm = MDL_content._ct(itm_gn, "rs");
-
-    return Vars.indexer.findClosestOre(x, y, itm);
+    return Vars.indexer.findClosestOre(x, y, MDL_content._ct(itm_gn, "rs"));
   };
   exports._tOre = _tOre;
 
@@ -465,15 +457,13 @@
    * ---------------------------------------- */
   const _tsRot = function(t, rot, size, useTmp) {
     const thisFun = _tsRot;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(t == null) return arr;
 
+    if(t == null) return arr;
     if(rot == null) rot = 0;
     if(size == null) size = 1;
 
-    var iBase;
-    var iCap;
+    let iBase, iCap;
     if(size % 2 === 0) {
       iBase = (size * 0.5 - 1) * -1;
       iCap = size * 0.5 + 1;
@@ -482,9 +472,7 @@
       iCap = (size - 1) * 0.5 + 1;
     };
 
-    var px;
-    var py;
-    var ot;
+    let px, py;
     for(let i = iBase; i < iCap; i++) {
       if(size % 2 === 0) {
         switch(rot) {
@@ -526,7 +514,7 @@
         };
       };
 
-      ot = t.nearby(px, py);
+      let ot = t.nearby(px, py);
       if(ot != null) arr.push(ot);
     };
 
@@ -545,16 +533,15 @@
    * ---------------------------------------- */
   const _tsEdge = function(t, size, isInside, useTmp) {
     const thisFun = _tsEdge;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(t == null) return arr;
 
+    if(t == null) return arr;
     if(size == null) size = 1;
+
     var iCap = size * 4;
-    var pons2 = isInside ? Edges.getInsideEdges(size) : Edges.getEdges(size);
-    var ot;
+    let pons2 = isInside ? Edges.getInsideEdges(size) : Edges.getEdges(size);
     for(let i = 0; i < iCap; i++) {
-      ot = t.nearby(pons2[i]);
+      let ot = t.nearby(pons2[i]);
       if(ot != null) arr.push(ot);
     };
 
@@ -573,15 +560,13 @@
    * ---------------------------------------- */
   const _tsRect = function(t, r, size, useTmp) {
     const thisFun = _tsRect;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(t == null) return arr;
 
+    if(t == null) return arr;
     if(r == null) r = 0;
     if(size == null) size = 1;
 
-    var iBase;
-    var iCap;
+    let iBase, iCap;
     if(size % 2 == 0) {
       iBase = -(size * 0.5 - 1 + r);
       iCap = -iBase + 2;
@@ -590,10 +575,9 @@
       iCap = -iBase + 1;
     };
 
-    var ot;
     for(let i = iBase; i < iCap; i++) {
       for(let j = iBase; j < iCap; j++) {
-        ot = t.nearby(i, j);
+        let ot = t.nearby(i, j);
         if(ot != null) arr.push(ot);
       };
     };
@@ -604,6 +588,17 @@
     "funArr": [],
   });
   exports._tsRect = _tsRect;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets tiles the block will occupy.
+   * ---------------------------------------- */
+  const _tsBlock = function(blk, tx, ty, useTmp) {
+    return _tsRect(Vars.world.tile(tx, ty), 0, blk.size, useTmp);
+  };
+  exports._tsBlock = _tsBlock;
 
 
   /* ----------------------------------------
@@ -625,16 +620,14 @@
    * ---------------------------------------- */
   const _tsRectRot = function(t, r, rot, size, useTmp) {
     const thisFun = _tsRectRot;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(t == null) return arr;
 
+    if(t == null) return arr;
     if(r == null) r = 0;
     if(rot == null) rot = 0;
     if(size == null) size = 1;
 
-    var px = 0;
-    var py = 0;
+    let px = 0, py = 0;
     switch(rot) {
       case 0 :
         px = r + size;
@@ -649,7 +642,7 @@
         py = (size % 2 === 0) ? -(r + size) + 1 : -(r + size);
         break;
     };
-    var ot = t.nearby(px, py);
+    let ot = t.nearby(px, py);
 
     return ot == null ? arr : _tsRect(ot, r, size, useTmp);
   }
@@ -666,20 +659,18 @@
    * ---------------------------------------- */
   const _tsCircle = function(t, r, size, useTmp) {
     const thisFun = _tsCircle;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(t == null) return arr;
 
+    if(t == null) return arr;
     if(r == null) r = 0;
     if(size == null) size = 1;
 
     var w = Vars.world.width();
     var h = Vars.world.height();
 
-    var ot;
     if(size % 2 !== 0) {
       Geometry.circle(t.x, t.y, w, h, r, (tx, ty) => {
-        ot = Vars.world.tile(tx, ty);
+        let ot = Vars.world.tile(tx, ty);
         if(ot != null) arr.push(ot);
       });
     } else {
@@ -687,9 +678,8 @@
       for(let i = 0; i < 4; i++) {
         ot0 = t.nearby(sizeOffsetPons2[2][i]);
         if(ot0 == null) continue;
-
         Geometry.circle(ot0.x, ot0.y, w, h, r, (tx, ty) => {
-          ot = Vars.world.tile(tx, ty);
+          let ot = Vars.world.tile(tx, ty);
           if(ot != null && !arr.includes(ot)) arr.push(ot);
         });
       };
@@ -710,10 +700,9 @@
    * ---------------------------------------- */
   const _tsTri = function(t, rad, ang, useTmp) {
     const thisFun = _tsTri;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(t == null) return arr;
 
+    if(t == null) return arr;
     if(rad == null) rad = 0.0;
     if(ang == null) ang = 0.0;
 
@@ -729,10 +718,9 @@
 
     let iBase = -r;
     let iCap = r + 1;
-    var ot;
     for(let i = iBase; i < iCap; i++) {
       for(let j = iBase; j < iCap; j++) {
-        ot = t.nearby(i, j);
+        let ot = t.nearby(i, j);
         if(ot != null && MATH_geometry._inPolygon(ot.worldx(), ot.worldy(), x1, y1, x2, y2, x3, y3)) arr.push(ot);
       };
     };
@@ -752,20 +740,19 @@
    * ---------------------------------------- */
   const _tsDstManh = function(t, r, useTmp) {
     const thisFun = _tsDstManh;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(t == null) return arr;
 
+    if(t == null) return arr;
     if(r == null) r = 0;
 
-    const iBase = -r;
+    let iBase = -r;
     let iCap = r + 1;
-    var ot;
+    let jBase, jCap;
     for(let i = iBase; i < iCap; i++) {
-      let jBase = -(r - Math.abs(i));
-      let jCap = -jBase + 1;
+      jBase = -(r - Math.abs(i));
+      jCap = -jBase + 1;
       for(let j = jBase; j < jCap; j++) {
-        ot = t.nearby(i, j);
+        let ot = t.nearby(i, j);
         if(ot != null) arr.push(ot);
       };
     };
@@ -853,10 +840,9 @@
    * ---------------------------------------- */
   const _bs = function(ts, useTmp) {
     const thisFun = _bs;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
 
-    ts.forEach(ot => {
+    ts.forEachFast(ot => {
       if(ot.build != null && !arr.includes(ot.build)) arr.push(ot.build);
     });
 
@@ -949,7 +935,6 @@
    * ---------------------------------------- */
   const _units = function(x, y, rad, caller, useTmp) {
     const thisFun = _units;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
 
     if(rad == null) rad = 0.0;
@@ -1004,7 +989,6 @@
    * ---------------------------------------- */
   const _loots = function(x, y, rad, caller, useTmp) {
     const thisFun = _loots;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
 
     if(rad == null) rad = 0.0;
@@ -1040,12 +1024,11 @@
    * ---------------------------------------- */
   const _lootsTs = function(ts, caller, useTmp) {
     const thisFun = _lootsTs;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
 
     if(ts == null) return arr;
 
-    ts.forEach(ot => {
+    ts.forEachFast(ot => {
       _loots(ot.worldx(), ot.worldy(), 6.0, caller, useTmp).forEach(loot => arr.pushUnique(loot));
     });
 
@@ -1064,7 +1047,6 @@
    * ---------------------------------------- */
   const _unit_tg = function(x, y, team, rad) {
     if(team == null) return;
-
     if(rad == null) rad = MATH_base.maxDst;
     if(rad < 0.0001) return;
 
@@ -1080,10 +1062,9 @@
    * ---------------------------------------- */
   const _units_tg = function(x, y, team, rad, size, useTmp) {
     const thisFun = _units_tg;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(team == null) return arr;
 
+    if(team == null) return arr;
     if(rad == null) rad = MATH_base.maxDst;
     if(rad < 0.0001) return arr;
     if(size == null) size = 1;
@@ -1108,10 +1089,9 @@
    * ---------------------------------------- */
   const _units_tgChain = function(x, y, team, rad, rad_chain, size, chainCap, chainRayBool, useTmp) {
     const thisFun = _units_tgChain;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
-    if(team == null) return arr;
 
+    if(team == null) return arr;
     if(rad == null) rad = MATH_base.maxDst;
     if(rad < 0.0001) return arr;
     if(rad_chain == null) rad_chain = 0.0;
@@ -1119,7 +1099,7 @@
     if(chainCap == null) chainCap = -1;
     if(chainRayBool == null) chainRayBool = Function.airFalse;
 
-    const units = _units_tg(x, y, team, rad * 2.0, size, useTmp);
+    let units = _units_tg(x, y, team, rad * 2.0, size, useTmp);
     let tmpTg;
     let tmpX = x;
     let tmpY = y;
@@ -1157,12 +1137,12 @@
    * Don't abuse {Vars.player} in blocks and units!
    * ---------------------------------------- */
   const _unit_pl = function(x, y, team, rad) {
-    var unit_pl = null;
+    let unit_pl = null;
 
     if(rad == null) rad = MATH_base.maxDst;
     if(rad < 0.0001) return unit_pl;
 
-    var tmpRad = rad;
+    let tmpRad = rad;
     Groups.player.each(pl => {
       var unit = pl.unit();
       if(unit != null && (team == null || unit.team === team)) {
@@ -1189,7 +1169,6 @@
    * ---------------------------------------- */
   const _buls = function(x, y, rad, caller, useTmp) {
     const thisFun = _buls;
-
     const arr = useTmp ? thisFun.funArr.clear() : [];
 
     if(rad == null) rad = 0.0;
@@ -1214,12 +1193,11 @@
    * ---------------------------------------- */
   const _bul_tg = function(x, y, team, rad, ignoreHittable, caller) {
     if(team == null) return;
-
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return;
 
-    var tmpDst = MATH_base.maxDst;
-    var bulTg = null;
+    let tmpDst = MATH_base.maxDst;
+    let bulTg = null;
     Groups.bullet.intersect(x - rad, y - rad, rad * 2.0, rad * 2.0).select(bul => {
       return bul.team !== team && (ignoreHittable ? true : bul.type.hittable) && bul !== caller;
     }).each(bul => {

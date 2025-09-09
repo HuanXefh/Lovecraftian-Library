@@ -933,6 +933,19 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether this unit should not receive any damage.
+   * ---------------------------------------- */
+  const _isInvicible = function(unit) {
+    if(unit == null) return false;
+
+    return _isLoot(unit);
+  };
+  exports._isInvicible = _isInvicible;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether this unit is a loot unit.
    * ---------------------------------------- */
   const _isLoot = function(unit) {

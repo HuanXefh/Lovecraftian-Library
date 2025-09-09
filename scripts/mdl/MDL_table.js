@@ -205,10 +205,8 @@
     if(w == null) w = 24.0;
 
     return tb.button(bool ? icon1 : icon2, w, () => {
-
       Call.tileConfig(Vars.player, b, !bool);
       b.deselect();
-
     }).center();
   };
   exports.__btnCfg_toggle = __btnCfg_toggle;
@@ -241,7 +239,6 @@
    * ---------------------------------------- */
   const __blkEffc = function(tb, blk, mtp, nmAttr, w, dial) {
     if(blk == null) return;
-
     if(w == null) w = 64.0;
 
     var str = (Math.abs(mtp) < 0.0001) ? "" : (Strings.autoFixed(mtp * 100.0, 2) + "%");
@@ -253,7 +250,7 @@
 
         tb2.left();
 
-        var btn = tb2.button(new TextureRegionDrawable(blk.uiIcon), w, () => {
+        let btn = tb2.button(new TextureRegionDrawable(blk.uiIcon), w, () => {
           Vars.ui.content.show(blk);
           if(dial != null) dial.hide();
         })
@@ -275,7 +272,7 @@
         });
 
         btn.margin(0.0);
-        var btnStyle = btn.getStyle();
+        let btnStyle = btn.getStyle();
         btnStyle.up = Styles.none;
         btnStyle.down = Styles.none;
         btnStyle.over = Styles.flatOver;
@@ -295,20 +292,19 @@
    * ---------------------------------------- */
   const __ct = function(tb, ct, w, pad, dial) {
     if(ct == null) return;
-
     if(w == null) w = 32.0;
     if(pad == null) pad = 4.0;
 
-    var btnCell = tb.button(new TextureRegionDrawable(ct.uiIcon), w, () => {
+    let btnCell = tb.button(new TextureRegionDrawable(ct.uiIcon), w, () => {
       Vars.ui.content.show(ct);
       if(dial != null) dial.hide();
     })
     .pad(pad)
     .tooltip(ct.localizedName, true);
-    var btn = btnCell.get();
 
+    let btn = btnCell.get();
     btn.margin(0.0);
-    var btnStyle = btn.getStyle();
+    let btnStyle = btn.getStyle();
     btnStyle.up = Styles.none;
     btnStyle.down = Styles.none;
     btnStyle.over = Styles.flatOver;
@@ -341,7 +337,7 @@
    * ---------------------------------------- */
   const __reqMultiRs = function(tb, b, rss) {
     let multiReqImg = new MultiReqImage();
-    rss.forEach(rs => {
+    rss.forEachFast(rs => {
       if(rs.unlockedNow()) multiReqImg.add(new ReqImage(
         rs.uiIcon,
         rs instanceof Item ? () => b.items.has(rs) : () => b.liquids.get(rs) > 0.0,
@@ -360,7 +356,6 @@
    * ---------------------------------------- */
   const __rcCt = function(tb, ct, amt, p, cancelLiq, w, dial) {
     if(ct == null) return;
-
     if(amt == null) amt = -1;
     if(p == null) p = 1.0;
     if(cancelLiq == null) cancelLiq = false;
@@ -376,7 +371,7 @@
 
         tb2.left();
 
-        var btn = tb2.button(new TextureRegionDrawable(ct.uiIcon), w, () => {
+        let btn = tb2.button(new TextureRegionDrawable(ct.uiIcon), w, () => {
           if(dial != null) dial.hide();
           Vars.ui.content.show(ct);
         })
@@ -402,7 +397,7 @@
         });
 
         btn.margin(0.0);
-        var btnStyle = btn.getStyle();
+        let btnStyle = btn.getStyle();
         btnStyle.up = Styles.none;
         btnStyle.down = Styles.none;
         btnStyle.over = Styles.flatOver;
@@ -424,7 +419,6 @@
    * ---------------------------------------- */
   const setDisplay_note = function(tb, str, ord, padLeft, noGrow) {
     if(str == null) return;
-
     if(ord == null) ord = 1;
     if(padLeft == null) padLeft = 0.0;
 

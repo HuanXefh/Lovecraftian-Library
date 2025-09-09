@@ -84,14 +84,13 @@
     if(e == null) return false;
     if(dmg < 0.0001) return false;
 
-    var dmg_fi = MDL_entity._dmgTake(e, dmg, pierceArmor);
+    let dmg_fi = MDL_entity._dmgTake(e, dmg, pierceArmor);
     if(e instanceof Building) {
       MDL_effect.showAt_dmg(e.x, e.y, dmg, null, Object.val(mode_ow, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health"));
       MDL_effect.showAt_flash(e);
     } else {
       MDL_effect.showAt_dmg(e.x, e.y, dmg, null, Object.val(mode_ow, e.shield > dmg_fi ? "shield" : "health"));
     };
-
     pierceArmor ? e.damagePierce(dmg, true) : e.damage(dmg, true);
 
     return true;
@@ -106,13 +105,11 @@
     if(e instanceof Building) {
       MDL_effect.showAt_dmg(e.x, e.y, healAmt, null, "heal");
       MDL_effect.showAt_flash(e, Pal.heal);
-
       e.recentlyHealed();
     } else {
       MDL_effect.showAt_dmg(e.x, e.y, healAmt, null, "heal");
       e.healTime = 1.0;
     };
-
     e.heal(healAmt);
 
     return true;
@@ -125,7 +122,6 @@
 
   const apply_explosion = function(x, y, dmg, rad, shake, noSound) {
     if(!Vars.state.rules.reactorExplosions) return;
-
     if(dmg == null) dmg = 0.0;
     if(dmg < 0.0001) return;
     if(rad == null) rad = 40.0;
@@ -174,7 +170,8 @@
 
     let sta = Vars.content.statusEffect("loveclab-sta-stunned");
 
-    MDL_pos._units(x, y, rad, caller).forEach(unit => {
+    MDL_pos._units(x, y, rad, caller).forEachFast(unit => {
+      if(MDL_cond._isInvicible(unit)) return;
       if(!MDL_cond._isOnFloor(unit) || MDL_pos._rayBool_mobileFlr(x, y, unit.x, unit.y, minRad)) return;
 
       let dst = MATH_geometry._dst(x, y, unit.x, unit.y);

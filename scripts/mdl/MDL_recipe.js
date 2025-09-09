@@ -50,9 +50,7 @@
    * Returns an empty object if errored.
    * ---------------------------------------- */
   const _rcBase = function(rcMdl) {
-    if(rcMdl == null) return Object.air;
-
-    return Object.val(rcMdl.rc["base"], Object.air);
+    return rcMdl == null ? Object.air : Object.val(rcMdl.rc["base"], Object.air);
   };
   exports._rcBase = _rcBase;
 
@@ -63,9 +61,7 @@
    * Fetches a key value in the recipe base.
    * ---------------------------------------- */
   const _rcBaseVal = function(rcMdl, key, def) {
-    const rcBase = _rcBase(rcMdl);
-
-    return Object.val(rcBase[key], def);
+    return Object.val(_rcBase(rcMdl)[key], def);
   };
   exports._rcBaseVal= _rcBaseVal;
 
@@ -77,9 +73,7 @@
    * Returns an empty array if errored.
    * ---------------------------------------- */
   const _rcLi = function(rcMdl) {
-    if(rcMdl == null) return Array.air;
-
-    return Object.val(rcMdl.rc["recipe"], Array.air);
+    return rcMdl == null ? Array.air : Object.val(rcMdl.rc["recipe"], Array.air);
   };
   exports._rcLi = _rcLi;
 
@@ -135,13 +129,16 @@
    * Whether the header exists in {rcMdl}.
    * ---------------------------------------- */
   const _hasHeader = function(rcMdl, rcHeader) {
+    let rcLi = _rcLi(rcMdl);
     var cond = false;
-    const rcLi = _rcLi(rcMdl);
     var i = 0;
     var iCap = rcLi.iCap();
     while(i < iCap) {
       let tmpHeader = rcLi[i];
-      if(tmpHeader === rcHeader) cond = true;
+      if(tmpHeader === rcHeader) {
+        cond = true;
+        break;
+      };
       i += 2;
     };
 
@@ -151,10 +148,7 @@
 
 
   const _firstHeader = function(rcMdl) {
-    const rcLi = _rcLi(rcMdl);
-    let rcHeader = rcLi[0];
-
-    return Object.val(rcHeader, "");
+    return Object.val(_rcLi(rcMdl)[0], "");
   };
   exports._firstHeader = _firstHeader;
 
@@ -165,7 +159,7 @@
    * Fetches a key value in the matching recipe object.
    * ---------------------------------------- */
   const _rcVal = function(rcMdl, rcHeader, key, def) {
-    const rcObj = _rcObj(rcMdl, rcHeader);
+    let rcObj = _rcObj(rcMdl, rcHeader);
     if(rcObj == null) return def;
 
     return Object.val(rcObj[key], def);
@@ -174,36 +168,26 @@
 
 
   const _hasInput = function(rs_gn, rcMdl) {
-    var cond = false;
-    _rcHeaders(rcMdl).forEach(rcHeader => {
+    return _rcHeaders(rcMdl).some(rcHeader => {
       let ci = _ci(rcMdl, rcHeader);
       let bi = _bi(rcMdl, rcHeader);
       let aux = _aux(rcMdl, rcHeader);
       let opt = _opt(rcMdl, rcHeader);
-      if(FRAG_recipe._hasInput(rs_gn, ci, bi, aux, opt)) {
-        cond = true;
-        return;
-      };
-    });
 
-    return cond;
+      return FRAG_recipe._hasInput(rs_gn, ci, bi, aux, opt);
+    });
   };
   exports._hasInput = _hasInput;
 
 
   const _hasOutput = function(rs_gn, rcMdl) {
-    var cond = false;
-    _rcHeaders(rcMdl).forEach(rcHeader => {
+    return _rcHeaders(rcMdl).some(rcHeader => {
       let co = _co(rcMdl, rcHeader);
       let bo = _bo(rcMdl, rcHeader);
       let fo = _fo(rcMdl, rcHeader);
-      if(FRAG_recipe._hasOutput(rs_gn, co, bo, fo)) {
-        cond = true;
-        return;
-      };
-    });
 
-    return cond;
+      return FRAG_recipe._hasOutput(rs_gn, co, bo, fo);
+    });
   };
   exports._hasOutput = _hasOutput;
 
@@ -214,17 +198,12 @@
    * Whether there's any item output in the recipe module.
    * ---------------------------------------- */
   const _hasAnyOutput_itm = function(rcMdl) {
-    var cond = false;
-    _rcHeaders(rcMdl).forEach(rcHeader => {
+    return _rcHeaders(rcMdl).some(rcHeader => {
       let bo = _bo(rcMdl, rcHeader);
       let fo = _fo(rcMdl, rcHeader);
-      if(FRAG_recipe._hasOutput_itm(bo, fo)) {
-        cond = true;
-        return;
-      };
-    });
 
-    return cond;
+      return FRAG_recipe._hasOutput_itm(bo, fo);
+    });
   };
   exports._hasAnyOutput_itm = _hasAnyOutput_itm;
 
@@ -235,17 +214,12 @@
    * Whether there's any fluid output in the recipe module.
    * ---------------------------------------- */
   const _hasAnyOutput_liq = function(rcMdl, includeAux) {
-    var cond = false;
-    _rcHeaders(rcMdl).forEach(rcHeader => {
+    return _rcHeaders(rcMdl).some(rcHeader => {
       let co = _co(rcMdl, rcHeader);
       let bo = _bo(rcMdl, rcHeader);
-      if(FRAG_recipe._hasOutput_liq(includeAux, co, bo)) {
-        cond = true;
-        return;
-      };
-    });
 
-    return cond;
+      return FRAG_recipe._hasOutput_liq(includeAux, co, bo);
+    });
   };
   exports._hasAnyOutput_liq = _hasAnyOutput_liq;
 
@@ -275,6 +249,7 @@
     if(notContent) return new TextureRegionDrawable(Core.atlas.find(iconNm));
 
     let ct = MDL_content._ct(iconNm, null, true);
+
     return ct == null ? Icon.cancel : new TextureRegionDrawable(ct.uiIcon);
   };
   exports._icon = _icon;
@@ -301,7 +276,8 @@
    * ---------------------------------------- */
   const _categs = function(rcMdl) {
     const arr = [];
-    const rcLi = _rcLi(rcMdl);
+
+    let rcLi = _rcLi(rcMdl);
     let i = 0;
     let iCap = rcLi.iCap();
     while(i < iCap) {
@@ -328,10 +304,11 @@
    * ---------------------------------------- */
   const _categHeaderObj = function(rcMdl) {
     const obj = {};
-    const rcHeaders = _rcHeaders(rcMdl);
-    _categs(rcMdl).forEach(categ => {
+
+    let rcHeaders = _rcHeaders(rcMdl);
+    _categs(rcMdl).forEachFast(categ => {
       obj[categ] = [];
-      rcHeaders.forEach(rcHeader => {
+      rcHeaders.forEachFast(rcHeader => {
         if(_categ(rcMdl, rcHeader) === categ) obj[categ].push(rcHeader);
       });
     });
@@ -386,7 +363,7 @@
     if(!toCts) return arr;
 
     const cts = [];
-    arr.forEach(nmCt => {
+    arr.forEachFast(nmCt => {
       let ct = MDL_content._ct(nmCt, null, true);
       if(ct != null) cts.pushUnique(ct);
     });
@@ -402,8 +379,8 @@
    * Gets the final {validGetter} used in multi-crafters.
    * ---------------------------------------- */
   const _validGetter_fi = function(rcMdl, rcHeader) {
-    const validGetter = _validGetter(rcMdl, rcHeader);
-    const cts = _lockedBy(rcMdl, rcHeader, true);
+    let validGetter = _validGetter(rcMdl, rcHeader);
+    let cts = _lockedBy(rcMdl, rcHeader, true);
 
     return b => {
       if(!validGetter(b)) return false;
@@ -522,7 +499,7 @@
    * Called in {init}.
    * ---------------------------------------- */
   const initRc = function(rcMdl, blkInit) {
-    _rcHeaders(rcMdl).forEach(rcHeader => {
+    _rcHeaders(rcMdl).forEachFast(rcHeader => {
       let timeScl = _timeScl(rcMdl, rcHeader);
       _ci(rcMdl, rcHeader, blkInit);
       _bi(rcMdl, rcHeader, blkInit, timeScl);

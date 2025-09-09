@@ -349,7 +349,6 @@
      * NOTE:
      *
      * I have to hard-code this or it's bugged, WTF.
-     * When any array or object outside this code block is called here, only one chara is shown.
      * ---------------------------------------- */
     let transTimeS;
     let tup;

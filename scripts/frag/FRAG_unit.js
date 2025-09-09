@@ -71,13 +71,14 @@
     };
 
     // Range
-    ts.forEach(ot => {
+    let dst, oblk, ob;
+    ts.forEachFast(ot => {
 
 
       // Param
-      let dst = Mathf.dst(ot.worldx(), ot.worldy(), unit.x, unit.y);
-      let oblk = ot.block();
-      let ob = ot.build;
+      dst = Mathf.dst(ot.worldx(), ot.worldy(), unit.x, unit.y);
+      oblk = ot.block();
+      ob = ot.build;
 
 
       // Tree
@@ -90,7 +91,7 @@
 
 
       // Block status
-      VARGEN.blkStas.forEach(sta => {
+      VARGEN.blkStas.forEachFast(sta => {
         if(sta.ex_canApply(unit, ts)) unit.apply(sta, staDur);
       });
 

@@ -135,7 +135,7 @@
     let ob, rate;
     while(i < iCap) {
       ob = b.supplyTgArr[i];
-      rate = Math.min(b.supplyTgArr[i + 1] * ob.edelta(), b.torCur);
+      rate = Math.min(b.supplyTgArr[i + 1] * b.edelta(), b.torCur);
       ob.handleLiquid(b, VARGEN.auxTor, rate);
       i += 2;
     };

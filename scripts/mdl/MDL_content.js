@@ -200,8 +200,8 @@
     if(rs == null) return arr;
 
     let li = Vars.content.blocks();
-    if(rs instanceof Item) li.each(blk => {if(blk.itemDrop === rs) arr.push(blk)});
-    if(rs instanceof Liquid) li.each(blk => {if(blk.liquidDrop === rs) arr.push(blk)});
+    if(rs instanceof Item) li.each(blk => {if(blk.itemDrop === rs || Function.tryFun(blk.ex_getRsDrop, null, blk) === rs) arr.push(blk)});
+    if(rs instanceof Liquid) li.each(blk => {if(blk.liquidDrop === rs || Function.tryFun(blk.ex_getRsDrop, null, blk) === rs) arr.push(blk)});
 
     return arr;
   };

@@ -107,6 +107,7 @@
    * NOTE:
    *
    * Calculate {attrSum} from a list of tiles.
+   * If mode is {"blk"} attributes from buildings will get involved... if you want for some reason.
    * ---------------------------------------- */
   const _sum_ts = function(ts, attr_gn, mode) {
     const thisFun = _sum_ts;
@@ -178,6 +179,29 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Gets the target resource of a block that contains dynamic attributes.
+   * ---------------------------------------- */
+  const _dynaAttrRs = function(attrRsMap, blk) {
+    let tmpNmRs = null;
+    let tmpVal = 0.0;
+
+    let val = 0.0;
+    attrRsMap.forEachRow(2, (nmAttr, nmRs) => {
+      val = blk.attributes.get(Attribute.get(nmAttr));
+      if(val > tmpVal) {
+        tmpNmRs = nmRs;
+        tmpVal = val;
+      };
+    });
+
+    return MDL_content._ct(tmpNmRs, "rs");
+  };
+  exports._dynaAttrRs = _dynaAttrRs;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Gets the currently highest attribute value and returns a 3-tuple, from a list of tiles.
    * Format: {attr, attrSum, rs}.
    * ---------------------------------------- */
@@ -206,6 +230,25 @@
 
 
   /* <---------- special ----------> */
+
+
+  /* rain */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns current liquid of rain weather, can be null if not found.
+   * ---------------------------------------- */
+  const _rainLiq = function() {
+    if(!Vars.state.isGame()) return null;
+
+    let weaState = Groups.weather.find(weaState1 => weaState1.weather instanceof RainWeather);
+    if(weaState == null) return null;
+
+    return weaState.weather.liquid;
+  };
+  exports._rainLiq = _rainLiq;
 
 
   /* wind */

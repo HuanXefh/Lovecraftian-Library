@@ -17,17 +17,19 @@
   /* <---------- text ----------> */
 
 
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets a space character or not, based on current locale.
-   * ---------------------------------------- */
   const arr_noSpaceLocale = [
     "zh_CN",
     "zh_TW",
     "ja",
     "ko",
   ];
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a space character or not, based on current locale.
+   * ---------------------------------------- */
   const _space = function() {
     return arr_noSpaceLocale.includes(Core.settings.getString("locale")) ? "" : " ";
   };

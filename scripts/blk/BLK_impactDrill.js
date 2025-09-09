@@ -180,6 +180,7 @@
       b.block.shake,
     );
     MDL_effect.showAt_dust(b.x, b.y, FRAG_attack._impactDustRad(b.block.size), Math.pow(b.block.size, 2));
+    MDL_effect.showAt_colorDust(b.x, b.y, FRAG_attack._impactDustRad(b.block.size) * 1.5, b.tile);
   };
 
 

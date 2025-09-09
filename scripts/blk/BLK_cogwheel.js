@@ -239,7 +239,7 @@
       let ot = b.tile.nearby(pon2);
       if(ot == null) return null;
       let ob = ot.build;
-      if(ob == null || !MDL_cond._isCog(ob.block)) return null;
+      if(ob == null || !MDL_cond._isCog(ob.block) || (ob.tileX() !== b.tileX() && ob.tileY() !== b.tileY())) return null;
 
       return ob;
     },

@@ -136,9 +136,9 @@
     let iCap = arguments.length;
     if(iCap < 8) return true;
 
-    const x = arguments[0];
-    const y = arguments[1];
-    const coords = [];
+    let x = arguments[0];
+    let y = arguments[1];
+    let coords = [];
     for(let i = 2; i < iCap; i++) {
       coords.push(arguments[i]);
     };

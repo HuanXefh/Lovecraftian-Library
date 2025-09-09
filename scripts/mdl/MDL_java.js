@@ -29,8 +29,6 @@
    * NOTE:
    *
    * Returns the java class object.
-   *
-   * {Block} is not a class object, {Block.__javaObject__} is.
    * ---------------------------------------- */
   const _clsObj = function(clsObj_gn) {
     if(clsObj_gn == null) return null;
@@ -51,6 +49,7 @@
    * [
    *   "mindustry.world.Block", Blocks.router,
    *   java.lang.Float, 0.5,
+   *   Tile, Vars.world.tile(0, 0),
    * ];
    * ---------------------------------------- */
   const _argTup = function(javaArgs) {

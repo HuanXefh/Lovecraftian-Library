@@ -26,33 +26,9 @@
 
   let upSup_i = 0;
   let upSupTime = 300;
-
-
   let secretCode = "";
-
-
-  function _plaCur() {
-    let nm = "";
-    if(!Vars.state.isMenu() && Vars.state.planet != null) {
-      nm = Vars.state.planet.name;
-    };
-
-    return nm;
-  };
-
-
-  function _mapCur() {
-    let nm = "";
-    if(!Vars.state.isMenu()) {
-      if(Vars.state.sector != null) {
-        nm = Vars.state.sector.preset.name;
-      } else if(Vars.state.map != null) {
-        nm = Vars.state.map.plainName();
-      };
-    };
-
-    return nm;
-  };
+  let unit_pl = null;
+  let shouldLoadParam = false;
 
 
   // Not in {MDL_flow} to avoid coupling of modules
@@ -67,7 +43,11 @@
   };
 
 
-  let shouldLoadParam = false;
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Forces all parameters to get immediately updated.
+   * ---------------------------------------- */
   const forceLoadParam = function() {
     shouldLoadParam = true;
   };
@@ -83,32 +63,24 @@
 
   // Time to spawn bugs
   exports.debug = (function() {
-
     if(Core.settings.getString("lovec-misc-secret-code", "").includes("<anuke-mode>")) {
-
       Log.info("[LOVEC] " + "Debug mode".color(Pal.accent) + " is enabled.");
-
       return true;
-
     } else return false;
-
   })();
 
 
   // Whether required by other mods
   exports.modded = (function() {
-
     var cond1 = MDL_util._cfg("load-force-modded");
     var cond2 = DB_misc.db["mod"]["lovecMod"].some(nmMod => MDL_util._loadedMod(nmMod) != null);
     if(cond1 && !cond2) MDL_test._w_forceModded();
 
     return cond1 || cond2;
-
   })();
 
 
   MDL_event._c_onLoad(() => {
-
 
   }, 59556227);
 
@@ -116,7 +88,7 @@
   MDL_event._c_onUpdate(() => {
 
 
-    upSup_i--
+    upSup_i--;
     exports.updateSuppressed = upSup_i > 0;
     exports.updateDeepSuppressed = upSup_i > -upSupTime;
 
@@ -125,16 +97,14 @@
 
 
       // Param
-      let unit_pl = Vars.player.unit();
+      unit_pl = Vars.player.unit();
 
 
       /* <---------- param ----------> */
 
 
-      exports.plaCur = _plaCur();
-      exports.mapCur = _mapCur();
-
-
+      exports.plaCur = global.lovecUtil.fun._plaCur();
+      exports.mapCur = global.lovecUtil.fun._mapCur();
       exports.glbHeat = _glbHeat();
 
 
@@ -179,8 +149,6 @@
 
 
       secretCode = MDL_util._cfg("misc-secret-code");
-
-
       if(secretCode.includes("<crash>")) {
         Core.settings.put("lovec-misc-secret-code", "");
         throw new Error("You definitely know what <crash> means don't you?");

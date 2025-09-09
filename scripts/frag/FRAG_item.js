@@ -34,7 +34,6 @@
     var bool = false;
     for(let i = 0; i < amt; i++) {
       if(checkAccept && !b.acceptItem(b_f, itm)) break;
-
       b.offload(itm);
       bool = true;
     };
@@ -85,7 +84,6 @@
   const addItem = function(b, b_f, itm, amt, p, isForced) {
     if(b == null || itm == null) return false;
     if(b.items == null || (!isForced && !b.acceptItem(b_f, itm))) return false;
-
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
@@ -107,7 +105,6 @@
   const transItem = function(b, b_t, itm, amt, p, isForced) {
     if(b == null || b_t == null || itm == null) return false;
     if(b.items == null || b_t.items == null || (!isForced && !b_t.acceptItem(b, itm))) return false;
-
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
@@ -132,7 +129,6 @@
   const consumeItem = function(b, itm, amt, p) {
     if(b == null || itm == null) return false;
     if(b.items == null) return false;
-
     if(amt == null) amt = 1;
     if(amt < 1 || b.items.get(itm) < amt) return false;
     if(p == null) p = 1.0;
@@ -155,7 +151,6 @@
   const produceItem = function(b, itm, amt, p) {
     if(b == null || itm == null) return false;
     if(b.items == null) return false;
-
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
@@ -238,36 +233,29 @@
 
     if(b == null || batch == null) return false;
     if(b.items == null) return false;
-
     if(mode == null) mode = "all";
     if(!mode.equalsAny(thisFun.modes)) return false;
 
     let iCap = batch.iCap();
     if(iCap === 0) return false;
     if(mode === "any") {
-
       for(let i = 0; i < iCap; i += 3) {
         let itm = MDL_content._ct(batch[i], "rs");
-
         if(itm != null && itm instanceof Item) {
           if(b.acceptItem(b_f, itm)) return true;
         };
       };
 
       return false;
-
     } else {
-
       for(let i = 0; i < iCap; i += 3) {
         let itm = MDL_content._ct(batch[i], "rs");
-
         if(itm != null && itm instanceof Item) {
           if(!b.acceptItem(b_f, itm)) return false;
         };
       };
 
       return true;
-
     };
   }
   .setProp({
@@ -291,7 +279,7 @@
     if(amt < 1) return false;
     if(max == null) max = Infinity;
 
-    var amtTrans = Mathf.maxZero(Math.min(amt, b.block.itemCapacity - b.items.get(itm), max));
+    let amtTrans = Mathf.maxZero(Math.min(amt, b.block.itemCapacity - b.items.get(itm), max));
     if(amtTrans < 1) return false;
 
     addItem(b, b, itm, amtTrans, 1.0, true);
@@ -310,7 +298,6 @@
   const dropLoot = function(b, itm, max) {
     if(b == null || itm == null) return false;
     if(b.items == null) return false;
-
     if(max == null) max = Infinity;
 
     let amtCur = b.items.get(itm);
@@ -333,7 +320,6 @@
   const dropLootAt = function(x, y, b, itm, max, ignoreLoot) {
     if(b == null || itm == null) return false;
     if(b.items == null) return false;
-
     if(max == null) max = Infinity;
 
     let amtCur = b.items.get(itm);
@@ -357,7 +343,6 @@
   const produceLoot = function(b, itm, amt) {
     if(b == null || itm == null) return false;
     if(b.items == null) return false;
-
     if(amt == null) amt = 0;
     if(amt < 1) return false;
 
@@ -377,7 +362,6 @@
   const produceLootAt = function(x, y, b, itm, amt, ignoreLoot) {
     if(b == null || itm == null) return false;
     if(b.items == null) return false;
-
     if(amt == null) amt = 0;
     if(amt < 1) return false;
 
@@ -428,7 +412,6 @@
    * ---------------------------------------- */
   const addUnitItem = function(unit, itm, amt, p) {
     if(unit == null || itm == null) return false;
-
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
@@ -466,7 +449,6 @@
   const transUnitItem = function(unit, unit_t, amt, p) {
     if(unit == null || unit_t == null) return false;
     if(!unit_t.acceptsItem(unit.item())) return false;
-
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
@@ -491,7 +473,6 @@
   const takeBuildItem = function(unit, b, itm, max) {
     if(unit == null || b == null) return false;
     if(b.items == null) return false;
-
     if(itm == null) itm = b.items.first();
     if(itm == null || !unit.acceptsItem(itm)) return false;
     if(max == null) max = Infinity;
@@ -512,7 +493,6 @@
   const dropBuildItem = function(unit, b, max, alwaysClearStack) {
     if(unit == null || b == null) return false;
     if(b.items == null || !b.acceptItem(b, unit.item())) return false;
-
     if(max == null) max = Infinity;
 
     let amtTrans = Mathf.maxZero(Math.min(unit.stack.amount, b.block.itemCapacity - b.items.get(unit.item()), max));
@@ -533,7 +513,6 @@
    * ---------------------------------------- */
   const takeUnitLoot = function(unit, loot, max) {
     if(unit == null || loot == null) return false;
-
     let itm = loot.item();
     if(itm == null || !unit.acceptsItem(itm)) return false;
     let amt = loot.stack.amount;
@@ -558,7 +537,6 @@
    * ---------------------------------------- */
   const takeUnitLoot_client = function(unit, loot, max) {
     if(unit == null || loot == null) return false;
-
     let itm = loot.item();
     if(itm == null || !unit.acceptsItem(itm)) return false;
     let amt = loot.stack.amount;
@@ -596,7 +574,6 @@
    * ---------------------------------------- */
   const dropUnitLoot = function(unit, max) {
     if(unit == null) return false;
-
     let itm = unit.item();
     if(itm == null) return false;
     if(max == null) max = Infinity;

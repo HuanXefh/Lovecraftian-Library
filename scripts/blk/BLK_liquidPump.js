@@ -160,7 +160,8 @@
 
 
   function comp_shouldConsume(b) {
-    if(b.liquidDrop == null || !b.enabled) return false;
+    if(!b.enabled) return false;
+    if(b.block instanceof Pump && b.liquidDrop == null) return false;
     if(b.block.ex_getPresProd().fEqual(0.0) && b.liquids.get(b.liquidDrop) > b.block.liquidCapacity - 0.01) return false;
 
     return true;

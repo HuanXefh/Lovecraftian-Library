@@ -50,7 +50,6 @@
     let amtTrans = 0.0;
     if(b == null || liq == null) return amtTrans;
     if(b.liquids == null || (!forced && rate > 0.0 && !b.acceptLiquid(b_f, liq))) return amtTrans;
-
     if(rate == null) rate = 0.0;
     if(Math.abs(rate) < 0.0001) return amtTrans;
 
@@ -75,7 +74,6 @@
     let amtTrans = 0.0;
     if(b == null || liq == null) return amtTrans;
     if(b.liquids == null || (!forced && amt > 0.0 && !b.acceptLiquid(b_f, liq))) return amtTrans;
-
     if(amt == null) amt = 0.0;
     if(Math.abs(amt) < 0.0001) return amtTrans;
 
@@ -99,7 +97,6 @@
     let amtTrans = 0.0;
     if(b == null || b_t == null || liq == null) return amtTrans;
     if(b.liquids == null || b_t.liquids == null || !b_t.acceptLiquid(b, liq)) return amtTrans;
-
     if(rate == null) rate = 0.0;
     if(Math.abs(rate) < 0.0001) return amtTrans;
 
@@ -126,7 +123,6 @@
   const dumpPres = function(b, rate, isVac, splitAmt, fluidType) {
     let amtTrans = 0.0;
     if(b == null || b.liquids == null) return amtTrans;
-
     if(splitAmt == null) splitAmt = 1;
     if(fluidType == null) fluidType = "both";
 
@@ -188,12 +184,13 @@
     if(liq.gas || !MDL_cond._isConductiveLiq(liq)) return;
 
     let t = puddle.tile;
+    let ob, dmg;
     FRAG_puddle.spreadPuddle(puddle, 0.5, ot => {
-      let ob = ot.build;
+      ob = ot.build;
       return ob != null && ob.power != null && ob.power.status > 0.0 && MDL_cond._canShortCircuit(ob.block);
     }, ot => {
-      let ob = ot.build;
-      let dmg = Time.delta * ob.maxHealth * VAR.blk_shortCircuitDmgFrac / 60.0;
+      ob = ot.build;
+      dmg = Time.delta * ob.maxHealth * VAR.blk_shortCircuitDmgFrac / 60.0;
       ob.damagePierce(dmg);
       if(Mathf.chance(0.05)) MDL_effect.showAt(ob.x, ob.y, EFF.heatSmog);
       if(Mathf.chanceDelta(0.01)) FRAG_attack.apply_lightning(ob.x, ob.y, null, null, null, 6, 4);
@@ -207,7 +204,6 @@
 
     let cond;
     if(thisFun.funTup.length === 0 || t !== thisFun.funTup[0]) {
-
       cond = MDL_cond._canShortCircuit(blk)
         && t != null
         && t.floor().liquidDrop != null
@@ -215,18 +211,13 @@
 
       thisFun.funTup[0] = t;
       thisFun.funTup[1] = cond;
-
     } else {
-
       cond = thisFun.funTup[1];
-
     };
 
     if(cond) {
-
       MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-short-circuit"), false, offTy);
       return false;
-
     } else return true;
   }
   .setProp({
@@ -293,7 +284,7 @@
     if(b == null) return;
     if(b.liquids == null || !Mathf.chance(0.02)) return;
 
-    var limit = VAR.ct_auxCap;
+    let limit = VAR.ct_auxCap;
     b.liquids.each(liq => {
       if(MDL_cond._isAux(liq) && !MDL_cond._isNoCapAux(liq) && b.liquids.get(liq) > limit) b.liquids.set(liq, limit);
     });
@@ -349,7 +340,7 @@
 
     // Damage the building if over limit
     if(!PARAM.updateDeepSuppressed && Mathf.chance(0.02) && (b.presTmp > (b.presRes + 0.5) || b.presTmp < (b.vacRes - 0.5))) {
-      var dmg = b.edelta() * (b.maxHealth * VAR.blk_presDmgFrac + VAR.blk_presDmgMin) * (b.presTmp > 0.0 ? (b.presTmp / b.presRes) : (b.presTmp / b.vacRes));
+      let dmg = b.edelta() * (b.maxHealth * VAR.blk_presDmgFrac + VAR.blk_presDmgMin) * (b.presTmp > 0.0 ? (b.presTmp / b.presRes) : (b.presTmp / b.vacRes));
       b.damagePierce(dmg);
     };
 
@@ -408,19 +399,19 @@
     if(!Mathf.chance(0.02)) return;
 
     let liqCur = b.liquids.current();
-    var amt = b.liquids.get(liqCur);
+    let amt = b.liquids.get(liqCur);
     if(amt < 0.05) return;
-    var corPow = thisFun.funMap.get(liqCur.id);
+    let corPow = thisFun.funMap.get(liqCur.id);
     if(corPow == null) {
       corPow = MDL_flow._corPow(liqCur);
       thisFun.funMap.put(liqCur.id, corPow);
     };
-    var corMtp = MDL_flow._corMtp(b.block, liqCur);
+    let corMtp = MDL_flow._corMtp(b.block, liqCur);
     if(corPow < 0.01 && corMtp > 1.0) corPow = 1.0;
     if(corPow < 0.01) return;
-    var corRes = b.corRes;
+    let corRes = b.corRes;
 
-    var dmg = b.edelta() * (b.maxHealth * VAR.blk_corDmgFrac + VAR.blk_corDmgMin) * corPow * corMtp / corRes;
+    let dmg = b.edelta() * (b.maxHealth * VAR.blk_corDmgFrac + VAR.blk_corDmgMin) * corPow * corMtp / corRes;
     b.damagePierce(dmg);
 
     if(Mathf.chance(0.5)) MDL_effect.showAt_corrosion(b.x, b.y, b.block.size, liqCur.color);
@@ -442,14 +433,14 @@
     if(!Mathf.chance(0.02) || !b.cloggable) return;
 
     let liqCur = b.liquids.current();
-    var visc = liqCur.viscosity;
-    var viscThr = VAR.blk_clogViscThr;
+    let visc = liqCur.viscosity;
+    let viscThr = VAR.blk_clogViscThr;
     if(visc < viscThr) return;
-    var amt = b.liquids.get(liqCur);
+    let amt = b.liquids.get(liqCur);
     if(amt < 0.05) return;
-    var cap = b.block.liquidCapacity;
+    let cap = b.block.liquidCapacity;
 
-    var dmg = b.edelta() * (b.maxHealth * VAR.blk_clogDmgFrac + VAR.blk_clogDmgMin) * Mathf.lerp(0.5, 1.0, amt / cap) * Mathf.lerp(0.5, 1.0, (visc / viscThr) / 0.25);
+    let dmg = b.edelta() * (b.maxHealth * VAR.blk_clogDmgFrac + VAR.blk_clogDmgMin) * Mathf.lerp(0.5, 1.0, amt / cap) * Mathf.lerp(0.5, 1.0, (visc / viscThr) / 0.25);
     b.damagePierce(dmg);
 
     if(Mathf.chance(0.5)) MDL_effect.showAt_corrosion(b.x, b.y, b.block.size, liqCur.color, true);
@@ -467,12 +458,12 @@
     if(PARAM.updateSuppressed) return;
     if(!Mathf.chance(0.02)) return;
 
-    var heatRes = b.heatRes;
+    let heatRes = b.heatRes;
     if(!isFinite(heatRes)) return;
-    var fHeat = MDL_flow._fHeat_b(b);
+    let fHeat = MDL_flow._fHeat_b(b);
     if(fHeat < heatRes + 0.0001) return;
 
-    var dmg = b.edelta() * 2.0 * fHeat / heatRes;
+    let dmg = b.edelta() * 2.0 * fHeat / heatRes;
     b.damagePierce(dmg);
 
     MDL_effect.showAt(b.x, b.y, EFF.heatSmog, 0.0);
@@ -489,8 +480,8 @@
     if(!PARAM.drawFluidHeat) return;
     if(!VARGEN.hotFlds.includes(b.liquids.current())) return;
 
-    var fHeat = MDL_flow._fHeat_b(b);
-    var heatRes = b.heatRes;
+    let fHeat = MDL_flow._fHeat_b(b);
+    let heatRes = b.heatRes;
     if(!isFinite(heatRes)) return;
 
     MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(Mathf.clamp(fHeat * 0.75 / heatRes), 3), reg, ang, b.block.size);

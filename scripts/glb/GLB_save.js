@@ -47,41 +47,66 @@
   let lsav = {};
 
 
-  const loadLsav = function() {
-    Time.run(20.0, () => {
-      if(Vars.state.isEditor()) return;
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Sets up the LSAV with default values.
+   * ---------------------------------------- */
+  function initLsav() {
+    DB_misc.db["lsav"]["header"].forEachRow(3, (header, def, arrMode) => {
+      lsav[header] = def;
+    });
+    exports.lsav = lsav;
+  };
 
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Loads the LSAV object from local file, delayed so world is completely loaded then.
+   * ---------------------------------------- */
+  function loadLsav() {
+    Time.run(30.0, () => {
+      if(Vars.state.isEditor()) return;
       if(Vars.net.client()) {
         requestSync();
         return;
       };
 
       try {
-        lsavJsonVal = MDL_json.parseEx(MDL_file._lsav());
+        lsavJsonVal = MDL_json.parse(MDL_file._lsav());
       } catch(err) {
+        Log.err("[LOVEC] Failed to load LSAV!" + "\n" + err);
         lsavJsonVal = null;
       };
-
       if(lsavJsonVal == null) return;
 
       DB_misc.db["lsav"]["header"].forEachRow(3, (header, def, arrMode) => {
         lsav[header] = Object.val(MDL_json.fetch(lsavJsonVal, header, false, arrMode), def);
       });
+
+      if(lsav["save-map"] !== "!UNDEF" && lsav["save-map"] !== global.lovecUtil.fun._mapCur()) {
+        // If map name not matched, clear the LSAV (creates a backup first)
+        MDL_json.write(MDL_file._lsav(true), lsav);
+        initLsav();
+      };
+
+      set("save-map", global.lovecUtil.fun._mapCur());
     });
   };
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes the LSAV object to local file.
+   * ---------------------------------------- */
   const saveLsav = function() {
     if(Vars.state.isEditor()) return;
 
     MDL_json.write(MDL_file._lsav(), lsav);
   }
   .setAnno(ANNO.__SERVER__);
-
-
-  const setLsav = function(obj) {
-    lsav = obj;
-  };
 
 
   /* ----------------------------------------
@@ -94,6 +119,18 @@
   }
   .setAnno(ANNO.__DEBUG__);
   exports._lsav = _lsav;
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Overwrites the LSAV object with {obj}.
+  * ---------------------------------------- */
+  const __lsav = function(obj) {
+    lsav = obj;
+  }
+  .setAnno(ANNO.__NONCONSOLE__);
+  exports.__lsav = __lsav;
 
 
   /* ----------------------------------------
@@ -111,7 +148,7 @@
       if(val === undefined) {
         Log.warn("[LOVEC] Passing " + "undefined".color(Pal.remove) + " as LSAV value!");
       } else if(lsav[header] === undefined) {
-        Log.warn("[LOVEC] The referenced field is " + "undefined".color(Pal.remove) + "!");
+        Log.warn("[LOVEC] The LSAV field is " + "undefined".color(Pal.remove) + "!");
       } else if(typeof val !== typeof lsav[header]) {
         Log.warn("[LOVEC] LSAV value changed to a different type!");
       } else {
@@ -166,7 +203,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("client", "lovec-server-lsav-sync", payload => {
-      setLsav(JSON.parse(payload));
+      __lsav(JSON.parse(payload));
     });
   })
   .setAnno(ANNO.__SERVER__);
@@ -219,10 +256,7 @@
 */
 
 
-  DB_misc.db["lsav"]["header"].forEachRow(3, (header, def, arrMode) => {
-    lsav[header] = def;
-  });
-  exports.lsav = lsav;
+  initLsav();
 
 
   MDL_event._c_onWorldLoad(() => {

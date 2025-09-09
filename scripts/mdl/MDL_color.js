@@ -40,6 +40,7 @@
     if(typeof color_gn == "boolean") return color === "new" ? (color_gn ? Pal.accent : Pal.remove).cpy() : (color_gn ? Pal.accent : Pal.remove);
     if(typeof color_gn == "string") return color === "new" ? Color.valueOf(color_gn) : Color.valueOf(color, color_gn);
     if(typeof color_gn == "number") return color === "new" ? new Color(Math.round(color_gn)) : color.set(Math.round(color_gn));
+    if(color_gn instanceof Tile) return color === "new" ? new Color(color_gn.floor().mapColor) : color_gn.floor().mapColor;
     if((color_gn instanceof Item) || (color_gn instanceof Liquid) || (color_gn instanceof Team)) return color === "new" ? color_gn.color.cpy() : color_gn.color;
 
     return color === "new" ? Color.white.cpy() : Color.white;

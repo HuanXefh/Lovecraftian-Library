@@ -29,6 +29,7 @@
   const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_text = require("lovec/mdl/MDL_text");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   const TP_attr = require("lovec/tp/TP_attr");
@@ -128,10 +129,9 @@
 
 
   const comp_setStats_cep = function(blk) {
-    var cepProv = _cepProv(blk);
+    let cepProv = _cepProv(blk);
     if(cepProv > 0.0) blk.stats.add(TP_stat.blk0misc_cepProv, cepProv);
-
-    var cepUse = _cepUse(blk);
+    let cepUse = _cepUse(blk);
     if(cepUse > 0.0) blk.stats.add(TP_stat.blk0misc_cepUse, cepUse);
   };
   exports.comp_setStats_cep = comp_setStats_cep;
@@ -147,29 +147,6 @@
     MDL_draw.drawText_select(b, MDL_bundle._info("lovec", "text-cep") + " " + _cepUseCur(b.team) + " / " + _cepCapCur(b.team), _cepFracCur(b.team) < 1.0001, offTy);
   };
   exports.comp_drawSelect_cep = comp_drawSelect_cep;
-
-
-  /* <---------- drill ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the drill speed for {blk}.
-   * ---------------------------------------- */
-  const _drillSpd = function(blk, boosted) {
-    const arr = DB_block.db["class"]["drillSpd"];
-    let getter = null;
-    let i = 0;
-    let iCap = arr.iCap();
-    while(i < iCap) {
-      if(blk instanceof arr[i]) getter = arr[i + 1];
-      i += 2;
-    };
-
-    return getter(blk, Object.val(boosted, false));
-  };
-  exports._drillSpd = _drillSpd;
 
 
   /* <---------- fuel ----------> */
@@ -325,6 +302,51 @@
   exports._tempTgFrac = _tempTgFrac;
 
 
+  /* <---------- mining ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the drill speed for {blk}.
+   * ---------------------------------------- */
+  const _drillSpd = function(blk, boosted) {
+    const arr = DB_block.db["class"]["drillSpd"];
+    let getter = null;
+    let i = 0;
+    let iCap = arr.iCap();
+    while(i < iCap) {
+      if(blk instanceof arr[i]) getter = arr[i + 1];
+      i += 2;
+    };
+
+    return getter == null ? 0.0 : getter(blk, Object.val(boosted, false));
+  };
+  exports._drillSpd = _drillSpd;
+
+
+  // @FIELD: blk.drawnMap
+  const comp_init_depthOre = function(blk) {
+    MDL_event._c_onWorldLoadStart(() => {
+      blk.drawnMap.clear();
+    });
+
+    MDL_event._c_onDraw(() => {
+      if(!Vars.state.isGame() || (!Vars.state.isEditor() && !PARAM.drawScannerResult)) return;
+
+      blk.drawnMap.each((t, cond) => {
+        if(!cond || !MDL_cond._posVisible(t.worldx(), t.worldy(), 8.0)) return;
+
+        Draw.z(VAR.lay_dporeRevealed);
+        Draw.alpha(0.65);
+        Draw.rect(MDL_texture._regVari(blk, t), t.worldx(), t.worldy());
+        Draw.reset();
+      });
+    });
+  };
+  exports.comp_init_depthOre = comp_init_depthOre;
+
+
   /* <---------- pollution ----------> */
 
 
@@ -360,7 +382,6 @@
 
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return 0.0;
-
     let pol = thisFun.funMap.get(liq.name);
     if(pol != null) return pol;
 
@@ -481,7 +502,6 @@
    * ---------------------------------------- */
   const _ter = function(t, size) {
     if(t == null) return null;
-
     if(size == null) size = 1;
 
     let ts = MDL_pos._tsRect(t, 5, size, true);
@@ -489,8 +509,8 @@
     if(count === 0) return null;
 
     let countObj = {};
-    ters.forEach(ter => countObj[ter] = 0);
-    ts.forEach(ot => {
+    ters.forEachFast(ter => countObj[ter] = 0);
+    ts.forEachFast(ot => {
       let ter = Function.tryFun(ot.floor().ex_getMatGrp, null, ot.floor());
       if(ter != null) countObj[ter] += 1;
     });

@@ -595,6 +595,40 @@
   /* <---------- spark ----------> */
 
 
+  const _lineSpark = function(amt, stroke, len, rad, color_gn, scl) {
+    if(amt == null) amt = 7;
+    if(stroke == null) stroke = 1.5;
+    if(len == null) len = 4.0;
+    if(rad == null) rad = 18.0;
+    if(scl == null) scl = 1.0;
+
+    return new Effect(15.0 * scl, eff => {
+      Draw.color(color_gn == null ? eff.color : MDL_color._color(color_gn));
+      Lines.stroke(eff.fout() * stroke);
+      Angles.randLenVectors(eff.id, amt, eff.finpow() * rad, (x, y) => {
+        Lines.lineAngle(eff.x + x, eff.y + y, Mathf.angle(x, y), (eff.fout() + 0.25) * len);
+      });
+    });
+  };
+  exports._lineSpark = _lineSpark;
+
+
+  const _circleSpark = function(amt, size, rad, color_gn, scl) {
+    if(amt == null) amt = 7;
+    if(size == null) size = 4.0;
+    if(rad === null) rad = 30.0;
+    if(scl == null) scl = 1.0;
+
+    return new Effect(30.0 * scl, eff => {
+      Draw.color(color_gn == null ? eff.color : MDL_color._color(color_gn));
+      Angles.randLenVectors(eff.id, amt, eff.finpow() * rad, (x, y) => {
+        Fill.circle(eff.x + x, eff.y + y, (eff.fout() + 0.25) * size);
+      });
+    });
+  };
+  exports._circleSpark = _circleSpark;
+
+
   /* <---------- smog ----------> */
 
 
@@ -1123,7 +1157,7 @@
     return new MultiEffect(
       _impactWave(null, null, rad, size / 2.0 * 0.75),
       _impactWave(null, null, rad, size / 2.0),
-      _releaseSmog(),
+      _releaseSmog(18, 10.0, 40.0, 1.5),
       _drillCrack(6, null, size * 9.0, null, 1.33333333),
     );
   };

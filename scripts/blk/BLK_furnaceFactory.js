@@ -55,7 +55,7 @@
    * b.fuelPonCur: 0.0
    * b.fuelConsMtp: 1.0
    * b.fuelLvlMtp: 1.0
-   * b.fuelTup: [null, 0.0, 0.0]
+   * b.fuelTup: null
    * ---------------------------------------- */
 
 
@@ -237,7 +237,7 @@
       b.tempAllowed = MDL_recipe._tempAllowed(rcMdl, rcHeader);
     };
 
-    if(b.ex_getTimerEffcState()) {
+    if(TIMER.timerState_secFive) {
       b.fuelTup = FRAG_faci._fuelTup(b);
     };
   };

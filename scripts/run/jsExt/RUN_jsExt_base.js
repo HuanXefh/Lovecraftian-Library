@@ -77,7 +77,6 @@
   Object.prop = function(obj, isWritable) {
     let iCap = arguments.length;
     if(iCap <= 2) return obj;
-
     if(isWritable == null) isWritable = false;
 
     for(let i = 2; i < iCap; i += 2) {
@@ -193,7 +192,8 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Faster {forEach}, or not.
+   * Faster {forEach}, or not, I hope so.
+   * Use this instead of {forEach} so you won't accidentally call it on something like a seq, which crash the game on Android.
    * ---------------------------------------- */
   ptp.forEachFast = function(scr) {
     let iCap = this.iCap();

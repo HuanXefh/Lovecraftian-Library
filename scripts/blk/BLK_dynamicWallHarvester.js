@@ -23,7 +23,7 @@
    * KEY:
    *
    * blk.attrRsMap: arr    // @PARAM
-   * blk.attrMode: null
+   * blk.attrMode: "block"
    * blk.craftTime    // @PARAM: Time to craft.
    * blk.prodAmt    // @PARAM: Amount parameter for resource production.
    * blk.isLiqBlk    // @PARAM: Whether this wall crafter outputs liquid instead of item.
@@ -98,9 +98,6 @@
         );
       });
     };
-
-    if(b.attrRs instanceof Item && b.timer.get(b.block.timerDump, b.block.dumpTime / b.timeScale)) b.dump(b.attrRs);
-    if(b.attrRs instanceof Liquid) b.dumpLiquid(b.attrRs, 2.0);
   };
 
 
@@ -279,6 +276,12 @@
 
 
     /* <---------- build (extended) ----------> */
+
+
+    // @NOSUPER
+    ex_getAttrRs: function(b) {
+      return PARENT_A.ex_getAttrRs(b);
+    },
 
 
     // @NOSUPER

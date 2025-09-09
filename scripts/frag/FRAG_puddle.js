@@ -28,10 +28,9 @@
    * ---------------------------------------- */
   const spreadPuddle = function(puddle, amtDepos, boolF, scr) {
     if(puddle == null) return;
-
     if(amtDepos == null) amtDepos = 0.5;
 
-    MDL_pos._tsRect(puddle.tile, 1).forEach(ot => {
+    MDL_pos._tsRect(puddle.tile, 1).forEachFast(ot => {
       if(boolF != null && boolF(ot)) {
         Puddles.deposit(ot, puddle.liquid, Time.delta * amtDepos);
         if(ot === puddle.tile && scr != null) scr(ot);

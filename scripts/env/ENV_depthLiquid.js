@@ -9,7 +9,7 @@
    * NOTE:
    *
    * @NAMEGEN
-   * Underground ore.
+   * Underground liquid deposit.
    * ---------------------------------------- */
 
 
@@ -24,6 +24,7 @@
    * KEY:
    *
    * blk.drawnMap: new ObjectMap()
+   * blk.rsDrop: null
    * ---------------------------------------- */
 
 
@@ -45,49 +46,42 @@
 
 
   const PARENT = require("lovec/env/ENV_baseOverlay");
-  const VAR = require("lovec/glb/GLB_var");
-  const VARGEN = require("lovec/glb/GLB_varGen");
+  const PARENT_A = require("lovec/env/ENV_depthOre");
 
 
   const FRAG_faci = require("lovec/frag/FRAG_faci");
 
 
+  const MDL_attr = require("lovec/mdl/MDL_attr");
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_text = require("lovec/mdl/MDL_text");
+
+
+  const DB_item = require("lovec/db/DB_item");
+
+
+  /* <---------- auxilliary ----------> */
+
+
+  const dynaAttrMap = DB_item.db["map"]["attr"]["dpliq"];
 
 
   /* <---------- component ----------> */
 
 
   function comp_init(blk) {
-    blk.playerUnmineable = true;
-
     blk.needsSurface = false;
     blk.overlayAlpha = 0.5;
     blk.useColor = false;
 
-    let itm = blk.itemDrop;
-    if(itm != null) MDL_content.rename(
+    blk.rsDrop = MDL_attr._dynaAttrRs(dynaAttrMap, blk);
+    if(blk.rsDrop != null) MDL_content.rename(
       blk,
-      itm.localizedName + MDL_text._space() + "(" + MDL_bundle._term("lovec", "depth-ore") + ")",
+      blk.rsDrop.localizedName + MDL_text._space() + "(" + MDL_bundle._term("lovec", "depth-liquid") + ")",
     );
 
     FRAG_faci.comp_init_depthOre(blk);
-  };
-
-
-  function comp_drawBase(blk, t) {
-    if(t instanceof EditorTile && !Vars.state.isGame()) {
-      blk.super$drawBase(t);
-    } else {
-      blk.ex_setRevealed(t, t instanceof EditorTile);
-    };
-  };
-
-
-  function comp_setRevealed(blk, t, bool) {
-    blk.drawnMap.put(t, bool);
   };
 
 
@@ -117,7 +111,7 @@
 
     // @NOSUPER
     drawBase: function(blk, t) {
-      comp_drawBase(blk, t);
+      PARENT_A.drawBase(blk, t);
     },
 
 
@@ -126,13 +120,13 @@
 
     // @NOSUPER
     getDisplayIcon: function(blk, t) {
-      return VARGEN.iconRegs.questionMark;
+      return PARENT_A.getDisplayIcon(blk, t);
     },
 
 
     // @NOSUPER
     getDisplayName: function(blk, t) {
-      return MDL_bundle._term("lovec", "unknown");
+      return PARENT_A.getDisplayName(blk, t);
     },
 
 
@@ -143,13 +137,19 @@
     ex_getTags: function(blk) {
       return module.exports.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-env", "blk-dpore"],
+      "funArr": ["blk-env", "blk-dpliq"],
     }),
 
 
     // @NOSUPER
     ex_setRevealed: function(blk, t, bool) {
-      comp_setRevealed(blk, t, bool);
+      PARENT_A.ex_setRevealed(blk, t, bool);
+    },
+
+
+    // @NOSUPER
+    ex_getRsDrop: function(blk) {
+      return blk.rsDrop;
     },
 
 

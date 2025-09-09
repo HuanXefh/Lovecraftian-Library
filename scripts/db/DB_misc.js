@@ -320,6 +320,7 @@ const db = {
     "header": [
 
       "useless-field", "ohno", null,
+      "save-map", "!UNDEF", null,
 
       "dynamic-pollution", 0.0, null,
       "bits", [], "string",
