@@ -46,7 +46,7 @@
    * NOTE:
    *
    * Gets the elementary group of a fluid.
-   * An elementary group is a collection of fluids similiar in properties.
+   * An elementary group is a collection of fluids similar in properties.
    * ---------------------------------------- */
   const _eleGrp = function(liq_gn) {
     let liq = MDL_content._ct(liq_gn, "rs");

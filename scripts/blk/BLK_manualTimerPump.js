@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Esscentially a manual pump, but controlled by a timer that is reset when pump is clicked.
+   * Esscentially a manual pump, but controlled by a timer that is set when pump is clicked.
    * ---------------------------------------- */
 
 
@@ -16,30 +16,6 @@
    * BASE:
    *
    * Pump
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
-   * KEY:
-   *
-   * blk.fluidType: "liquid"
-   * blk.presProd: f    // @PARAM
-   * b.liqEnd: null
-   * b.pres: 0.0
-   * b.presBase: 0.0
-   * b.presTmp: 0.0
-   * b.presRes: 0.0
-   * b.vacRes: 0.0
-   * b.corRes: 1.0
-   * b.cloggable: false
-   * b.fHeatCur: 0.0
-   * b.fHeatTg: 0.0
-   * b.heatRes: Infinity
-   * b.heatReg: null
-   * b.useCep: bool    // @PARAM
-   * b.splitAmt: 1
-   * b.dur: 0.0
-   * b.maxDur: 3600.0
    * ---------------------------------------- */
 
 
@@ -87,7 +63,7 @@
     blk.config(JAVA.STRING, (b, str) => {
 
       if(str === "start") {
-        b.ex_accDur(Math.min(b.ex_accDur("read") + 300.0, b.ex_getMaxDur()));
+        b.ex_accDur(Math.min(b.ex_accDur("read") + blk.clickTimeInc, b.ex_getMaxDur()));
         MDL_effect.showAt_click(b.x, b.y, b.team);
         Sounds.click.at(b);
       };
@@ -142,7 +118,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -263,7 +239,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-pump"],
     }),
@@ -321,3 +297,122 @@
 
 
   };
+
+
+  TEMPLATE._std = function(presProd, clickTimeInc) {
+    return {
+      fluidType: "liquid",
+      presProd: Object.val(presProd, 0.0),
+      clickTimeInc: Object.val(clickTimeInc, 300.0),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getFluidType() {
+        return TEMPLATE.ex_getFluidType(this);
+      },
+      ex_getPresProd() {
+        return TEMPLATE.ex_getPresProd(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function(useCep, splitAmt) {
+    return {
+      liqEnd: null, pres: 0.0, presBase: 0.0, presTmp: 0.0,
+      presRes: 0.0, vacRes: 0.0, corRes: 1.0, cloggable: false, fHeatCur: 0.0, fHeatTg: 0.0, heatRes: Infinity,
+      heatReg: null,
+      useCep: Object.val(useCep, false), splitAmt: 1,
+      dur: 0.0, maxDur: 3600.0,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      remove() {
+        TEMPLATE.remove(this);
+      },
+      acceptLiquid(b_f, liq) {
+        if(!this.super$acceptLiquid(b_f, liq)) return false;
+        if(!TEMPLATE.acceptLiquid(this, b_f, liq)) return false;
+        return true;
+      },
+      shouldConsume() {
+        return TEMPLATE.shouldConsume(this);
+      },
+      updateEfficiencyMultiplier() {
+        this.super$updateEfficiencyMultiplier();
+        TEMPLATE.updateEfficiencyMultiplier(this);
+      },
+      configTapped() {
+        return TEMPLATE.configTapped(this);
+      },
+      drawStatus() {
+        TEMPLATE.drawStatus(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accPresBase(param) {
+        return TEMPLATE.ex_accPresBase(this, param);
+      },
+      ex_getPresTmp() {
+        return TEMPLATE.ex_getPresTmp(this);
+      },
+      ex_updatePres() {
+        TEMPLATE.ex_updatePres(this);
+      },
+      ex_getFHeatCur() {
+        return TEMPLATE.ex_getFHeatCur(this);
+      },
+      ex_accDur(param) {
+        return TEMPLATE.ex_accDur(this, param);
+      },
+      ex_getMaxDur() {
+        return TEMPLATE.ex_getMaxDur(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

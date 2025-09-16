@@ -9,14 +9,14 @@
    * NOTE:
    *
    * @NAMEGEN
-   * Just ore on wall blocks.
+   * Intermediate: concentrate.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * BASE:
    *
-   * OreBlock
+   * Item
    * ---------------------------------------- */
 
 
@@ -37,7 +37,7 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/env/ENV_baseOverlay");
+  const PARENT = require("lovec/rs/RS_intermediateItem");
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
@@ -48,18 +48,15 @@
   /* <---------- component ----------> */
 
 
-  function comp_init(blk) {
-    blk.wallOre = true;
+  function comp_init(itm) {
+    if(itm.intmdParent != null) {
+      itm.flammability = itm.intmdParent.flammability * 1.5;
 
-    blk.needsSurface = false;
-    blk.overlayAlpha = 0.5;
-    blk.useColor = false;
-
-    let itm = blk.itemDrop;
-    if(itm != null) MDL_content.rename(
-      blk,
-      itm.localizedName + MDL_text._space() + "(" + MDL_bundle._term("lovec", "wall-ore") + ")",
-    );
+      MDL_content.rename(
+        itm,
+        MDL_bundle._term("common", "intmd-concentrate") + MDL_text._space() + "(" + itm.intmdParent.localizedName + ")",
+      );
+    };
   };
 
 
@@ -73,44 +70,57 @@
   const TEMPLATE = {
 
 
-    /* <---------- block ----------> */
+    /* <---------- resource ----------> */
 
 
-    init: function(blk) {
-      PARENT.init(blk);
-      comp_init(blk);
+    init: function(itm) {
+      PARENT.init(itm);
+      comp_init(itm);
     },
 
 
-    setStats: function(blk) {
-      PARENT.setStats(blk);
+    setStats: function(itm) {
+      PARENT.setStats(itm);
     },
 
 
-    drawBase: function(blk, t) {
-      PARENT.drawBase(blk, t);
+    loadIcon: function(itm) {
+      PARENT.loadIcon(itm);
     },
 
 
-    /* <---------- block (specific) ----------> */
+    createIcons: function(itm, packer) {
+      PARENT.createIcons(itm, packer);
+    },
 
 
-    /* <---------- block (extended) ----------> */
+    /* <---------- resource (specific) ----------> */
+
+
+    /* <---------- resource (extended) ----------> */
 
 
     // @NOSUPER
-    ex_getTags: function(blk) {
+    ex_getTags: function(itm) {
       return TEMPLATE.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-env"],
+      "funArr": ["rs-intmd", "rs-ore0conc"],
     }),
+
+
+    // @NOSUPER
+    ex_getParent: function(itm) {
+      return PARENT.ex_getParent(itm);
+    },
 
 
   };
 
 
-  TEMPLATE._std = function() {
+  TEMPLATE._std = function(intmdParent, hasReg) {
     return {
+      alts: 0,
+      intmdParent: intmdParent, useParentRegion: !hasReg,
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -119,12 +129,19 @@
         this.super$setStats();
         TEMPLATE.setStats(this);
       },
-      drawBase(t) {
-        this.super$drawBase(t);
-        TEMPLATE.drawBase(this, t);
+      loadIcon() {
+        this.super$loadIcon();
+        TEMPLATE.loadIcon(this);
+      },
+      createIcons(packer) {
+        this.super$createIcons(packer);
+        TEMPLATE.createIcons(this, packer);
       },
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);
+      },
+      ex_getParent() {
+        return TEMPLATE.ex_getParent(this);
       },
     };
   };

@@ -21,25 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.fluidType: str    // @PARAM: Type of fluid the block handles. Possible values: "liquid", "gas" and "both".
-   * b.liqEnd: null
-   * b.pres: 0.0
-   * b.presBase: 0.0
-   * b.presTmp: 0.0
-   * b.presRes: 0.0
-   * b.vacRes: 0.0
-   * b.corRes: 1.0
-   * b.cloggable: false
-   * b.fHeatCur: 0.0
-   * b.fHeatTg: 0.0
-   * b.heatRes: Infinity
-   * b.heatReg: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -103,8 +84,11 @@
 
 
   function comp_onDestroyed(b) {
-    Damage.damage(b.x, b.y, b.block.size * Vars.tilesize * 2.5, b.maxHealth * Math.abs(b.presTmp) * 0.2);
-    Fx.explosion.at(b.x, b.y, b.block.size * Vars.tilesize * 2.5);
+    let pres = Math.abs(b.presTmp);
+    if(pres > 0.5) {
+      Damage.damage(b.x, b.y, b.block.size * Vars.tilesize * 2.5, b.maxHealth * pres * 0.2);
+      Fx.explosion.at(b.x, b.y, b.block.size * Vars.tilesize * 2.5);
+    };
   };
 
 
@@ -172,7 +156,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -272,7 +256,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
@@ -312,3 +296,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

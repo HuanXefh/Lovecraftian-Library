@@ -158,7 +158,7 @@
   const _hasAnyTag = function() {
     if(arguments[0] == null) return false;
 
-    let arr = Array.from(arguments).splice(0, 1);
+    let arr = Array.from(arguments).splice(1);
 
     return arr.some(tag => Function.tryFun(arguments[0].ex_getTags, Array.air, arguments[0]).includes(tag));
   };
@@ -274,7 +274,7 @@
     let arr = VARGEN.intmds[intmdTag];
     if(arr == null) return null;
 
-    return arr.find(ors => irs.ex_getParent() === rs);
+    return arr.find(ors => ors.ex_getParent() === rs);
   };
   exports._intmd = _intmd;
 

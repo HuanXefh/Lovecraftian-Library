@@ -549,6 +549,17 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether this block is a cogwheel stack.
+   * ---------------------------------------- */
+  const _isCogStack = function(blk_gn) {
+    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cog0stack");
+  };
+  exports._isCogStack = _isCogStack;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether this block is a transmission rod.
    * ---------------------------------------- */
   const _isTransRod = function(blk_gn) {
@@ -933,19 +944,6 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit should not receive any damage.
-   * ---------------------------------------- */
-  const _isInvicible = function(unit) {
-    if(unit == null) return false;
-
-    return _isLoot(unit);
-  };
-  exports._isInvicible = _isInvicible;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Whether this unit is a loot unit.
    * ---------------------------------------- */
   const _isLoot = function(unit) {
@@ -1279,17 +1277,6 @@
     return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-fade");
   };
   exports._isFadeSta = _isFadeSta;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this status is applied based on blocks around the unit.
-   * ---------------------------------------- */
-  const _isBlkSta = function(sta_gn) {
-    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-blk");
-  };
-  exports._isBlkSta = _isBlkSta;
 
 
   /* ----------------------------------------

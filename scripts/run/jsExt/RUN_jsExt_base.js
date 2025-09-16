@@ -137,6 +137,33 @@
   };
 
 
+  /* <---------- number ----------> */
+
+
+  var ptp =  Number.prototype;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Interation using this number as cap.
+   * ---------------------------------------- */
+  ptp._it = function(gap, scr) {
+    if(gap == null) gap = 1;
+
+    gap = Math.round(gap);
+    if(gap < 1) return;
+    let iCap = Math.round(this);
+    if(iCap < 1) return;
+
+    let i = 0;
+    while(i < iCap) {
+      scr(i);
+      i += gap;
+    };
+  };
+
+
   /* <---------- string ----------> */
 
 

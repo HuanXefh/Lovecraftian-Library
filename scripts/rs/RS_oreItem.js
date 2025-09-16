@@ -20,14 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * itm.alts: 0
-   * itm.sintTemp: 0.0
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_item.db["param"]["sintTemp"]    // @PARAM: Sintering temperature, used for recipe generation.
@@ -84,7 +76,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- resource ----------> */
@@ -120,10 +112,40 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["rs-ore"],
     }),
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      alts: 0,
+      sintTemp: 0.0,
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      loadIcon() {
+        this.super$loadIcon();
+        TEMPLATE.loadIcon(this);
+      },
+      createIcons(packer) {
+        this.super$createIcons(packer);
+        TEMPLATE.createIcons(this, packer);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

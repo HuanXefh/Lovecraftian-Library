@@ -20,13 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * sta.killedScr: unit => {...}   // @PARAM: The function run when the unit is killed.
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -56,7 +49,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- status ----------> */
@@ -85,10 +78,35 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["sta-death"],
     }),
 
 
   };
+
+
+  TEMPLATE._std = function(killedScr) {
+    return {
+      killedScr: Object.val(killedScr, function(unit) {}),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(unit, staEn) {
+        this.super$update(unit, staEn);
+        TEMPLATE.update(this, unit, staEn);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

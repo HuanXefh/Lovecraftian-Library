@@ -696,7 +696,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets tiles in a quilateral triangular range... wierd.
+   * Gets tiles in a quilateral triangular range... weired.
    * ---------------------------------------- */
   const _tsTri = function(t, rad, ang, useTmp) {
     const thisFun = _tsTri;
@@ -863,9 +863,8 @@
   const _it_bs = function(x, y, rad, team, boolF, scr) {
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return;
-    if(team === undefined) team = null;
+    if(team == null) team = null;
     if(boolF == null) boolF = Function.airTrue;
-    if(scr == null) scr = Function.air;
 
     Vars.indexer.eachBlock(team, x, y, rad, boolF, scr);
   };
@@ -920,7 +919,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a random unit near (x, y), return {null} if not found.
+   * Gets a random non-loot unit near (x, y), return {null} if not found.
    * ---------------------------------------- */
   const _unit = function(x, y, rad, caller) {
     return _units(x, y, rad, caller, true).readRand();
@@ -932,6 +931,7 @@
    * NOTE:
    *
    * Gets all units in a circular range.
+   * This will filter out loot units.
    * ---------------------------------------- */
   const _units = function(x, y, rad, caller, useTmp) {
     const thisFun = _units;
@@ -941,7 +941,7 @@
     if(rad < 0.0001) return arr;
 
     Units.nearby(null, x, y, rad, unit => {
-      if(unit !== caller) arr.push(unit);
+      if(unit !== caller && !MDL_cond._isLoot(unit)) arr.push(unit);
     });
 
     return arr;
@@ -956,19 +956,54 @@
    * NOTE:
    *
    * Iterates through units in range that match {boolF}.
+   * This will filter out loot units.
    * ---------------------------------------- */
   const _it_units = function(x, y, rad, team, boolF, scr) {
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return;
-    if(team === undefined) team = null;
+    if(team == null) team = null;
     if(boolF == null) boolF = Function.airTrue;
-    if(scr == null) scr = Function.air;
 
     Units.nearby(team, x, y, rad, unit => {
-      if(boolF(unit)) scr(unit);
+      if(!MDL_cond._isLoot(unit) && boolF(unit)) scr(unit);
     });
   };
   exports._it_units = _it_units;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the closest unit controlled by any player.
+   * Set {team} to {null} to ignore player team.
+   *
+   * Don't abuse {Vars.player} in blocks and units!
+   * ---------------------------------------- */
+  const _unit_pl = function(x, y, team, rad) {
+    let unit_pl = null;
+
+    if(rad == null) rad = MATH_base.maxDst;
+    if(rad < 0.0001) return unit_pl;
+
+    let tmpRad = rad;
+    let unit, dst;
+    Groups.player.each(pl => {
+      unit = pl.unit();
+      if(unit != null && (team == null || unit.team === team)) {
+        dst = Mathf.dst(x, y, unit.x, unit.y);
+        if(dst < tmpRad) {
+          tmpRad = dst;
+          unit_pl = unit;
+        };
+      };
+    });
+
+    return unit_pl;
+  };
+  exports._unit_pl = _unit_pl;
+
+
+  /* loot unit */
 
 
   /* ----------------------------------------
@@ -1040,19 +1075,22 @@
   exports._lootsTs = _lootsTs;
 
 
+  /* entity */
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Gets the closest unit/building that is a valid target.
    * ---------------------------------------- */
-  const _unit_tg = function(x, y, team, rad) {
+  const _e_tg = function(x, y, team, rad) {
     if(team == null) return;
     if(rad == null) rad = MATH_base.maxDst;
     if(rad < 0.0001) return;
 
     return Units.closestTarget(team, x, y, rad);
   };
-  exports._unit_tg = _unit_tg;
+  exports._e_tg = _e_tg;
 
 
   /* ----------------------------------------
@@ -1060,8 +1098,8 @@
    *
    * Gets all units and buildings that are valid targets.
    * ---------------------------------------- */
-  const _units_tg = function(x, y, team, rad, size, useTmp) {
-    const thisFun = _units_tg;
+  const _es_tg = function(x, y, team, rad, size, useTmp) {
+    const thisFun = _es_tg;
     const arr = useTmp ? thisFun.funArr.clear() : [];
 
     if(team == null) return arr;
@@ -1077,7 +1115,7 @@
   .setProp({
     "funArr": [],
   });
-  exports._units_tg = _units_tg;
+  exports._es_tg = _es_tg;
 
 
   /* ----------------------------------------
@@ -1087,8 +1125,8 @@
    * {chainRayBool} is a raycast boolean function used to determine whether the chain is blocked.
    * By default you may want {_rayBool_insulated} which is used for lightnings.
    * ---------------------------------------- */
-  const _units_tgChain = function(x, y, team, rad, rad_chain, size, chainCap, chainRayBool, useTmp) {
-    const thisFun = _units_tgChain;
+  const _es_tgChain = function(x, y, team, rad, rad_chain, size, chainCap, chainRayBool, useTmp) {
+    const thisFun = _es_tgChain;
     const arr = useTmp ? thisFun.funArr.clear() : [];
 
     if(team == null) return arr;
@@ -1099,20 +1137,20 @@
     if(chainCap == null) chainCap = -1;
     if(chainRayBool == null) chainRayBool = Function.airFalse;
 
-    let units = _units_tg(x, y, team, rad * 2.0, size, useTmp);
+    let es = _es_tg(x, y, team, rad * 2.0, size, useTmp);
     let tmpTg;
     let tmpX = x;
     let tmpY = y;
     let isFirst = true;
     let i = 0;
     while(chainCap < 0 ? true : i < chainCap) {
-      tmpTg = Geometry.findClosest(tmpX, tmpY, units);
+      tmpTg = Geometry.findClosest(tmpX, tmpY, es);
       if(tmpTg == null) break;
       if(Mathf.dst(tmpX, tmpY, tmpTg.x, tmpTg.y) > (isFirst ? rad : rad_chain) + 0.0001) break;
       if(chainRayBool(tmpX, tmpY, tmpTg.x, tmpTg.y)) break;
 
       arr.push(tmpTg);
-      units.remove(tmpTg);
+      es.remove(tmpTg);
       tmpX = tmpTg.x;
       tmpY = tmpTg.y;
 
@@ -1125,38 +1163,7 @@
   .setProp({
     "funArr": [],
   });
-  exports._units_tgChain = _units_tgChain;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the closest unit controlled by any player.
-   * Set {team} to {null} to ignore player team.
-   *
-   * Don't abuse {Vars.player} in blocks and units!
-   * ---------------------------------------- */
-  const _unit_pl = function(x, y, team, rad) {
-    let unit_pl = null;
-
-    if(rad == null) rad = MATH_base.maxDst;
-    if(rad < 0.0001) return unit_pl;
-
-    let tmpRad = rad;
-    Groups.player.each(pl => {
-      var unit = pl.unit();
-      if(unit != null && (team == null || unit.team === team)) {
-        let dst = Mathf.dst(x, y, unit.x, unit.y);
-        if(dst < tmpRad) {
-          tmpRad = dst;
-          unit_pl = unit;
-        };
-      };
-    });
-
-    return unit_pl;
-  };
-  exports._unit_pl = _unit_pl;
+  exports._es_tgChain = _es_tgChain;
 
 
   /* bullet */
@@ -1174,7 +1181,9 @@
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return arr;
 
-    Groups.bullet.intersect(x - rad, y - rad, rad * 2.0, rad * 2.0).each(bul => {
+    Groups.bullet
+    .intersect(x - rad, y - rad, rad * 2.0, rad * 2.0)
+    .each(bul => {
       if(bul !== caller) arr.push(bul);
     });
 
@@ -1189,19 +1198,38 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Iterates through all nearby bullets that match {boolF}.
+   * ---------------------------------------- */
+  const _it_buls = function(x, y, rad, team, boolF, scr) {
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return;
+    if(boolF == null) boolF = Function.airTrue;
+
+    Groups.bullet
+    .intersect(x - rad, y - rad, rad * 2.0, rad * 2.0)
+    .select(bul => bul.team !== Team.derelict && (team == null ? true : bul.team !== team) && boolF(bul))
+    .each(bul => scr(bul));
+  };
+  exports._it_buls = _it_buls;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Gets the closest hittable enemy bullet.
    * ---------------------------------------- */
   const _bul_tg = function(x, y, team, rad, ignoreHittable, caller) {
-    if(team == null) return;
+    if(team == null) return null;
     if(rad == null) rad = 0.0;
-    if(rad < 0.0001) return;
+    if(rad < 0.0001) return null;
 
     let tmpDst = MATH_base.maxDst;
-    let bulTg = null;
-    Groups.bullet.intersect(x - rad, y - rad, rad * 2.0, rad * 2.0).select(bul => {
-      return bul.team !== team && (ignoreHittable ? true : bul.type.hittable) && bul !== caller;
-    }).each(bul => {
-      let dst = Mathf.dst(x, y, bul.x, bul.y);
+    let bulTg = null, dst;
+    Groups.bullet
+    .intersect(x - rad, y - rad, rad * 2.0, rad * 2.0)
+    .select(bul => bul.team !== Team.derelict && bul.team !== team && (ignoreHittable ? true : bul.type.hittable) && bul !== caller)
+    .each(bul => {
+      dst = Mathf.dst(x, y, bul.x, bul.y);
       if(dst < tmpDst) {
         tmpDst = dst;
         bulTg = bul;

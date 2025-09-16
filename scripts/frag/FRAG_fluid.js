@@ -48,7 +48,6 @@
    * ---------------------------------------- */
   const addLiquid = function(b, b_f, liq, rate, forced, returnFrac) {
     let amtTrans = 0.0;
-    if(b == null || liq == null) return amtTrans;
     if(b.liquids == null || (!forced && rate > 0.0 && !b.acceptLiquid(b_f, liq))) return amtTrans;
     if(rate == null) rate = 0.0;
     if(Math.abs(rate) < 0.0001) return amtTrans;
@@ -72,7 +71,6 @@
    * ---------------------------------------- */
   const addLiquidBatch = function(b, b_f, liq, amt, forced) {
     let amtTrans = 0.0;
-    if(b == null || liq == null) return amtTrans;
     if(b.liquids == null || (!forced && amt > 0.0 && !b.acceptLiquid(b_f, liq))) return amtTrans;
     if(amt == null) amt = 0.0;
     if(Math.abs(amt) < 0.0001) return amtTrans;
@@ -95,7 +93,7 @@
    * ---------------------------------------- */
   const transLiquid = function(b, b_t, liq, rate, isActiveTrans) {
     let amtTrans = 0.0;
-    if(b == null || b_t == null || liq == null) return amtTrans;
+    if(b_t == null) return amtTrans;
     if(b.liquids == null || b_t.liquids == null || !b_t.acceptLiquid(b, liq)) return amtTrans;
     if(rate == null) rate = 0.0;
     if(Math.abs(rate) < 0.0001) return amtTrans;
@@ -122,7 +120,7 @@
    * ---------------------------------------- */
   const dumpPres = function(b, rate, isVac, splitAmt, fluidType) {
     let amtTrans = 0.0;
-    if(b == null || b.liquids == null) return amtTrans;
+    if(b.liquids == null) return amtTrans;
     if(splitAmt == null) splitAmt = 1;
     if(fluidType == null) fluidType = "both";
 
@@ -262,7 +260,7 @@
    * This is not actually called in {updateTile}.
    * ---------------------------------------- */
   const comp_updateTile_aux = function(b) {
-    if(b == null || b.liquids == null) return;
+    if(b.liquids == null) return;
     if(MDL_cond._isAuxBlk(b.block)) return;
 
     if(MDL_cond._isAux(b.liquids.current())) {
@@ -281,7 +279,6 @@
    * If the abstract fluid is an exception (e.g. heat), it should have the tag {"rs-nocap0aux"}.
    * ---------------------------------------- */
   const comp_updateTile_capAux = function(b) {
-    if(b == null) return;
     if(b.liquids == null || !Mathf.chance(0.02)) return;
 
     let limit = VAR.ct_auxCap;

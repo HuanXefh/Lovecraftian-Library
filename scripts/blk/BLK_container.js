@@ -21,14 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.timerDump: new Interval(1)
-   * b.dumpTgs: []
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -148,7 +140,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -255,7 +247,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-cont"],
     }),
@@ -273,3 +265,86 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      outputsItems() {
+        return TEMPLATE.outputsItems(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      timerDump: new Interval(1), dumpTgs: [],
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      acceptItem(b_f, itm) {
+        if(!this.super$acceptItem(b_f, itm)) return false;
+        if(!TEMPLATE.acceptItem(this, b_f, itm)) return false;
+        return true;
+      },
+      warmup() {
+        return TEMPLATE.warmup(this);
+      },
+      buildConfiguration(tb) {
+        TEMPLATE.buildConfiguration(this, tb);
+      },
+      config() {
+        return TEMPLATE.config(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accDumpTgs(param, isAdd) {
+        return TEMPLATE.ex_accDumpTgs(this, param, isAdd);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

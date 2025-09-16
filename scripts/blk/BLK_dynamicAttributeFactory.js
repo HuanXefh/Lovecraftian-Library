@@ -10,6 +10,7 @@
    *
    * A crafter that outputs some resource based on current attribute.
    * Essentially not a crafter, more like a miner.
+   * Not used directly for content!
    * ---------------------------------------- */
 
 
@@ -17,19 +18,6 @@
    * BASE:
    *
    * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
-   * KEY:
-   *
-   * blk.attrRsMap: arr    // @PARAM: The mapper array used for attribute calculation.
-   * blk.attrMode: str    // @PARAM: Mode for attribute summation. See {MDL_attr}.
-   * b.craftSound: se_gn    // @PARAM
-   * b.shouldScaleCons: bool    // @PARAM: Whether consumption is scaled by attribute efficiency.
-   * b.attrSum: 0.0
-   * b.attrRs: null
-   * b.prog: 0.0
    * ---------------------------------------- */
 
 
@@ -140,8 +128,13 @@
 
   function comp_onProximityUpdate(b) {
     let tup = MDL_attr._dynaAttrTup(b.block.ex_getAttrRsMap(), b.block.ex_getTs(b.tileX(), b.tileY(), b.rotation), b.block.ex_getAttrMode());
-    b.attrSum = tup[1];
-    b.attrRs = tup[2];
+    if(tup == null) {
+      b.attrSum = 0.0;
+      b.attrRs = null;
+    } else {
+      b.attrSum = tup[1];
+      b.attrRs = tup[2];
+    };
   };
 
 
@@ -238,7 +231,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -352,9 +345,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-fac"],
+      "funArr": [],
     }),
 
 
@@ -425,3 +418,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

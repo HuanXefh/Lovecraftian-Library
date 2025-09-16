@@ -21,13 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.useCep: bool    // @PARAM: Whether this drill is affected by core energy.
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM: CEPs used by this block.
@@ -58,12 +51,16 @@
   const TP_stat = require("lovec/tp/TP_stat");
 
 
+  const DB_block = require("lovec/db/DB_block");
+
+
   /* <---------- component ----------> */
 
 
   function comp_init(blk) {
-    MDL_event._c_onLoad(() => {
-      if(blk.blockedItems == null) blk.blockedItems = VARGEN.sandItms.toSeq();
+    if(DB_block.db["group"]["nonSandMiner"].includes(blk.name)) MDL_event._c_onLoad(() => {
+      if(blk.blockedItems == null) blk.blockedItems = new Seq();
+      blk.blockedItems.addAll(VARGEN.sandItms);
     });
   };
 
@@ -110,7 +107,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -190,7 +187,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-min", "blk-drl"],
     }),
@@ -200,3 +197,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

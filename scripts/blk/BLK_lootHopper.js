@@ -20,16 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.ts: []
-   * b.timerCall: new Interval(1)
-   * b.amtRun: 0
-   * b.intvRun: Infinity
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["amount"]["base"]    // @PARAM
@@ -84,7 +74,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -162,7 +152,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
@@ -185,3 +175,72 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      outputsItems() {
+        return TEMPLATE.outputsItems(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getTs(tx, ty, rot) {
+        return TEMPLATE.ex_getTs(this, tx, ty, rot);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      ts: [],
+      timerCall: new Interval(1), amtRun: 0, intvRun: Infinity,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      acceptItem(b_f, itm) {
+        if(!TEMPLATE.acceptItem(this, b_f, itm)) return false;
+        return true;
+      },
+      ex_lootCall() {
+        TEMPLATE.ex_lootCall(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

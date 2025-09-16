@@ -21,14 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.isOn: false
-   * b.onReg: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -94,7 +86,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -184,7 +176,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-fjunc"],
     }),
@@ -200,3 +192,75 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      isOn: false, onReg: null,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      getLiquidDestination(b_f, liq) {
+        return TEMPLATE.getLiquidDestination(this, b_f, liq);
+      },
+      configTapped() {
+        return TEMPLATE.configTapped(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accIsOn(param) {
+        return TEMPLATE.ex_accIsOn(this, param);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

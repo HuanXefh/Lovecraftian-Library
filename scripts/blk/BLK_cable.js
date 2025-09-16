@@ -25,13 +25,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["group"]["shortCircuit"]    // @PARAM
@@ -150,7 +143,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -246,7 +239,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-pow", "blk-pow0trans", "blk-cable"],
     }),
@@ -256,3 +249,75 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      outputsItems() {
+        return TEMPLATE.outputsItems(this);
+      },
+      canPlaceOn(t, team, rot) {
+        if(!this.super$canPlaceOn(t, team, rot)) return false;
+        if(!TEMPLATE.canPlaceOn(this, t, team, rot)) return false;
+        return true;
+      },
+      blends() {
+        return TEMPLATE.blends.apply(null, Array.from(arguments).unshiftAll(this));
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      acceptItem(b_f, itm) {
+        return TEMPLATE.acceptItem(this, b_f, itm);
+      },
+      unitOn(unit) {
+        this.super$unitOn(unit);
+        TEMPLATE.unitOn(this, unit);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

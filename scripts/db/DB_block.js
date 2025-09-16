@@ -315,6 +315,14 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
+     * These drills cannot mine items from sand group.
+     * ---------------------------------------- */
+    "nonSandMiner": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * These blocks will trigger item reaction.
      * Only works for item blocks.
      * ---------------------------------------- */
@@ -343,14 +351,6 @@ const db = {
      * Theses fluid pipes will short-circuit if powered somehow.
      * ---------------------------------------- */
     "shortCircuitPipe": [],
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * These blocks cause magnetic disturbance.
-     * ---------------------------------------- */
-    "magnetic": [],
 
 
     /* ----------------------------------------

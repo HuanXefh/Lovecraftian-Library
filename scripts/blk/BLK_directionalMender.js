@@ -24,15 +24,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.useCep: bool    // @PARAM
-   * b.sideReg1: null
-   * b.sideReg2: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
@@ -153,7 +144,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -240,7 +231,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-proj", "blk-mend"],
     }),
@@ -250,3 +241,62 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      icons() {
+        return TEMPLATE.icons(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function(useCep) {
+    return {
+      useCep: Object.val(useCep, false),
+      sideReg1: null, sideReg2: null,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        TEMPLATE.drawSelect(this);
+      },
+      updateEfficiencyMultiplier() {
+        this.super$updateEfficiencyMultiplier();
+        TEMPLATE.updateEfficiencyMultiplier(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

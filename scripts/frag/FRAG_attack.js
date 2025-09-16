@@ -13,9 +13,6 @@
   const VAR = require("lovec/glb/GLB_var");
 
 
-  const MATH_geometry = require("lovec/math/MATH_geometry");
-
-
   const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -171,10 +168,9 @@
     let sta = Vars.content.statusEffect("loveclab-sta-stunned");
 
     MDL_pos._units(x, y, rad, caller).forEachFast(unit => {
-      if(MDL_cond._isInvicible(unit)) return;
       if(!MDL_cond._isOnFloor(unit) || MDL_pos._rayBool_mobileFlr(x, y, unit.x, unit.y, minRad)) return;
 
-      let dst = MATH_geometry._dst(x, y, unit.x, unit.y);
+      let dst = Mathf.dst(x, y, unit.x, unit.y);
       let frac = 1.0 - dst / rad;
       let dmg_fi = dmg * (Mathf.random(0.6) + 0.7) * Math.max(frac, 0.1) + VAR.dmg_impactMinDmg;
 
@@ -188,7 +184,7 @@
   exports.apply_impact = apply_impact;
 
 
-  const apply_lightning = function(x, y, team, dmg, amt, r, offR, noSound) {
+  const apply_lightning = function(x, y, team, dmg, amt, r, offR, color_gn, noSound) {
     if(team == null) team = Team.derelict;
     if(dmg == null) dmg = VAR.blk_lightningDmg;
     if(amt == null) amt = 1;

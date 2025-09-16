@@ -20,13 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.useCep: bool    // @PARAM: Whether this projector is affected by core energy.
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM: CEPs used by this block.
@@ -79,7 +72,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -152,7 +145,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-proj"],
     }),
@@ -162,3 +155,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

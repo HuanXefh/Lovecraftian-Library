@@ -17,17 +17,7 @@
   /* ----------------------------------------
    * BASE:
    *
-   * Conveyor | ArmoredConveyor
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
-   * KEY:
-   *
-   * sideReg1: null
-   * sideReg2: null
-   * shouldDrawSide1: false
-   * shouldDrawSide2: false
+   * Conveyor, ArmoredConveyor
    * ---------------------------------------- */
 
 
@@ -95,7 +85,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -174,7 +164,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-dis", "blk-conv"],
     }),
@@ -184,3 +174,66 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      icons() {
+        return TEMPLATE.icons(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      sideReg1: null, sideReg2: null, shouldDrawSide1: false, shouldDrawSide2: false,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      acceptItem(b_f, itm) {
+        if(!this.super$acceptItem(b_f, itm)) return false;
+        if(!TEMPLATE.acceptItem(this, b_f, itm)) return false;
+        return true;
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

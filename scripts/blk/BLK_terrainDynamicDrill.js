@@ -8,21 +8,21 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Vanilla attribute crafters.
+   * A drill that outputs variants of an item based on terrain.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * BASE:
    *
-   * AttributeCrafter
+   * Drill
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * PARAM:
    *
-   * !NOTHING
+   * DB_block.db["param"]["cep"]["use"]    // @PARAM
    * ---------------------------------------- */
 
 
@@ -36,10 +36,60 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseFactory");
+  const PARENT = require("lovec/blk/BLK_baseDrill");
+
+
+  const FRAG_faci = require("lovec/frag/FRAG_faci");
+
+
+  const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_table = require("lovec/mdl/MDL_table");
+
+
+  const TP_stat = require("lovec/tp/TP_stat");
+
+
+  const DB_item = require("lovec/db/DB_item");
 
 
   /* <---------- component ----------> */
+
+
+  function comp_setStats(blk) {
+    if(blk.itmWhitelist.length > 0) {
+      blk.stats.remove(TP_stat.blk0min_blockedItms);
+      blk.stats.add(TP_stat.blk0min_allowedItms, extend(StatValue, {display(tb) {
+        tb.row();
+        MDL_table.setDisplay_ctLi(tb, blk.itmWhitelist);
+      }}));
+    };
+  };
+
+
+  function comp_drawPlace(blk, tx, ty, rot, valid) {
+    FRAG_faci.comp_drawPlace_ter(blk, tx, ty, rot, valid, 1);
+  };
+
+
+  function comp_onProximityUpdate(b) {
+    b.terCur = FRAG_faci._ter(b.tile, b.block.size);
+
+    let terItmMap = b.block.ex_getTerItmMapMap().get(b.dominantItem == null ? "null" : b.dominantItem.name);
+    if(terItmMap == null) return;
+    let itm = MDL_content._ct(terItmMap.get(Object.val(b.terCur, "transition")), "rs");
+    if(itm == null) return;
+
+    b.dominantItem = itm;
+  };
+
+
+  function comp_canMine(blk, t) {
+    if(blk.itmWhitelist.length === 0) return true;
+    let itm = t.drop();
+    if(itm == null) return false;
+
+    return blk.itmWhitelist.includes(itm.name);
+  };
 
 
 /*
@@ -62,11 +112,13 @@
 
     setStats: function(blk) {
       PARENT.setStats(blk);
+      comp_setStats(blk);
     },
 
 
     drawPlace: function(blk, tx, ty, rot, valid) {
       PARENT.drawPlace(blk, tx, ty, rot, valid);
+      comp_drawPlace(blk, tx, ty, rot, valid);
     },
 
 
@@ -90,6 +142,7 @@
 
     onProximityUpdate: function(b) {
       PARENT.onProximityUpdate(b);
+      comp_onProximityUpdate(b);
     },
 
 
@@ -106,11 +159,16 @@
     /* <---------- block (specific) ----------> */
 
 
+    canMine: function(blk, t) {
+      return comp_canMine(blk, t);
+    },
+
+
     /* <---------- build (specific) ----------> */
 
 
-    craft: function(b) {
-      PARENT.craft(b);
+    updateEfficiencyMultiplier: function(b) {
+      PARENT.updateEfficiencyMultiplier(b);
     },
 
 
@@ -121,8 +179,14 @@
     ex_getTags: function(blk) {
       return TEMPLATE.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-fac"],
+      "funArr": ["blk-min", "blk-drl"],
     }),
+
+
+    // @NOSUPER
+    ex_getTerItmMapMap: function(blk) {
+      return blk.terItmMapMap;
+    },
 
 
     /* <---------- build (extended) ----------> */
@@ -131,8 +195,9 @@
   };
 
 
-  TEMPLATE._std = function(craftEff, updateEff, updateEffP) {
+  TEMPLATE._std = function(itmWhitelist, terItmMapMap, drillEff, drillEffP, drillEffRnd, updateEff, updateEffP) {
     return {
+      itmWhitelist: Object.val(itmWhitelist, Array.air), terItmMapMap: Object.val(terItmMapMap, new ObjectMap()),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -145,18 +210,28 @@
         this.super$drawPlace(tx, ty, rot, valid);
         TEMPLATE.drawPlace(this, tx, ty, rot, valid);
       },
+      canMine(t) {
+        if(!this.super$canMine(t)) return false;
+        if(!TEMPLATE.canMine(this, t)) return false;
+        return true;
+      },
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);
       },
+      ex_getTerItmMapMap() {
+        return TEMPLATE.ex_getTerItmMapMap(this);
+      },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      drillEffect: Object.val(drillEff, Fx.none), drillEffectChance: Object.val(drillEffP, 1.0), drillEffectRnd: Object.val(drillEffRnd, 0.0),
+      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
     };
   };
 
 
-  TEMPLATE._std_b = function(craftSe) {
+  TEMPLATE._std_b = function(useCep) {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
+      useCep: Object.val(useCep, false),
+      terCur: null,
       created() {
         this.super$created();
         TEMPLATE.created(this);
@@ -181,11 +256,16 @@
         this.super$drawSelect();
         TEMPLATE.drawSelect(this);
       },
-      craft() {
-        this.super$craft();
-        TEMPLATE.craft(this);
+      updateEfficiencyMultiplier() {
+        this.super$updateEfficiencyMultiplier();
+        TEMPLATE.updateEfficiencyMultiplier(this);
       },
     };
+  };
+
+
+  TEMPLATE.tempItms = {
+    sandItms: DB_item.db["group"]["sand"],
   };
 
 

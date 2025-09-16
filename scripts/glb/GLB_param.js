@@ -153,6 +153,7 @@
         Core.settings.put("lovec-misc-secret-code", "");
         throw new Error("You definitely know what <crash> means don't you?");
       };
+      exports.secret_steelPipe = secretCode.includes("<steel-pipe>");
 
 
       shouldLoadParam = false;

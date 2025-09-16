@@ -20,13 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -77,7 +70,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -108,10 +101,35 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-env"],
     }),
 
 
   };
+
+
+  TEMPLATE._std = function(grassLay) {
+    return {
+      layer: Object.val(grassLay, Layer.groundUnit - 1.2),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawBase(t) {
+        this.super$drawBase(t);
+        TEMPLATE.drawBase(this, t);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

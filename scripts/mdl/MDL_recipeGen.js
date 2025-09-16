@@ -68,6 +68,207 @@
   exports.addRc = addRc;
 
 
+  /* <---------- generator ----------> */
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Recipe generator: alloy furnace.
+  * Converts materials into alloy metal.
+  * ---------------------------------------- */
+  const _gen_alloyFurnace = function(rc, objF, boolF, amtO, pO, maxTemp) {
+    if(boolF == null) boolF = Function.airTrue;
+    if(amtO == null) amtO = 1;
+    if(pO == null) pO = 1.0;
+    if(maxTemp == null) maxTemp = Infinity;
+
+    DB_item.db["map"]["recipe"]["alloying"].forEachRow(3, (nmItm, tempReq, arr) => {
+      let itm = MDL_content._ct(nmItm, "rs");
+      if(itm == null) return;
+      if(tempReq > maxTemp || !boolF(itm)) return;
+
+      let amt = amtO * pO;
+      let bi = [];
+      arr.forEachRow(3, (tmp, frac, p) => {
+        if(!(tmp instanceof Array)) {
+          let rs = MDL_content._ct(tmp, "rs");
+          if(rs == null) return;
+          bi.push(rs.name, Math.round(amt * frac * (1.0 / p)), p);
+        } else {
+          let subBi = [];
+          tmp.forEachRow(3, (tmp1, frac1, p1) => {
+            let rs = MDL_content._ct(tmp1, "rs");
+            if(rs == null) return;
+            subBi.push(rs.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
+          });
+          bi.push(subBi, -1.0, -1.0);
+        };
+      });
+
+      addRc(
+        rc,
+        itm.name,
+        "alloying",
+        obj => {
+          obj["tempReq"] = tempReq;
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi(bi)
+        .__bo([itm.name, amtO, pO])
+        .build(),
+      );
+    });
+  };
+  exports._gen_alloyFurnace = _gen_alloyFurnace;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Recipe generator: brick kiln.
+   * Converts brick blend to brick.
+   * ---------------------------------------- */
+  const _gen_brickKiln = function(rc, objF, boolF, amtI, pI, amtO, pO, maxTemp) {
+    if(boolF == null) boolF = Function.airTrue;
+    if(amtI == null) amtI = 1;
+    if(pI == null) pI = 1.0;
+    if(amtO == null) amtO = 1;
+    if(pO == null) pO = 1.0;
+    if(maxTemp == null) maxTemp = Infinity;
+
+    DB_item.db["map"]["recipe"]["brickBaking"].forEachRow(2, (nmItm, tup) => {
+      let itm = MDL_content._ct(nmItm, "rs");
+      if(itm == null) return;
+      let itmTg = MDL_content._ct(tup[0], "rs");
+      if(itmTg == null) return;
+      if(tup[1] > maxTemp || !boolF(itm, itmTg)) return;
+
+      addRc(
+        rc,
+        itm.name,
+        "brick-baking",
+        obj => {
+          obj["tempReq"] = tup[1];
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi([itm, amtI, pI])
+        .__bo([itmTg, amtO, pO])
+        .build(),
+      );
+    });
+  };
+  exports._gen_brickKiln = _gen_brickKiln;
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Recipe generator: caster.
+  * Converts materials into casting target items.
+  * ---------------------------------------- */
+  const _gen_caster = function(rc, objF, boolF, amtO, pO, maxTemp) {
+    if(boolF == null) boolF = Function.airTrue;
+    if(amtO == null) amtO = 1;
+    if(pO == null) pO = 1.0;
+    if(maxTemp == null) maxTemp = Infinity;
+
+    DB_item.db["map"]["recipe"]["casting"].forEachRow(2, (nmItm, tup) => {
+      let itm = MDL_content._ct(nmItm, "rs");
+      if(itm == null) return;
+      if(tup[1] > maxTemp || !boolF(itm)) return;
+
+      let amt = amtO * pO;
+      let bi = [];
+      tup[0].forEachRow(3, (tmp, frac, p) => {
+        if(!(tmp instanceof Array)) {
+          let rs = MDL_content._ct(tmp, "rs");
+          if(rs == null) return;
+          bi.push(rs.name, Math.round(amt * frac * (1.0 / p)), p);
+        } else {
+          let subBi = [];
+          tmp.forEachRow(3, (tmp1, frac1, p1) => {
+            let rs = MDL_content._ct(tmp1, "rs");
+            if(rs == null) return;
+            subBi.push(rs.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
+          });
+          bi.push(subBi, -1.0, -1.0);
+        };
+      });
+
+      addRc(
+        rc,
+        itm.name,
+        "casting",
+        obj => {
+          obj["tempReq"] = tup[1];
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi(bi)
+        .__bo([itm, amtO, pO])
+        .build(),
+      );
+    });
+  };
+  exports._gen_caster = _gen_caster;
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Recipe generator: forge.
+  * Converts materials into forging target items.
+  * ---------------------------------------- */
+  const _gen_forge = function(rc, objF, boolF, amtO, pO, maxTemp) {
+    if(boolF == null) boolF = Function.airTrue;
+    if(amtO == null) amtO = 1;
+    if(pO == null) pO = 1.0;
+    if(maxTemp == null) maxTemp = Infinity;
+
+    DB_item.db["map"]["recipe"]["forging"].forEachRow(2, (nmItm, tup) => {
+      let itm = MDL_content._ct(nmItm, "rs");
+      if(itm == null) return;
+      if(tup[1] > maxTemp || !boolF(itm)) return;
+
+      let amt = amtO * pO;
+      let bi = [];
+      tup[0].forEachRow(3, (tmp, frac, p) => {
+        if(!(tmp instanceof Array)) {
+          let rs = MDL_content._ct(tmp, "rs");
+          if(rs == null) return;
+          bi.push(rs.name, Math.round(amt * frac * (1.0 / p)), p);
+        } else {
+          let subBi = [];
+          tmp.forEachRow(3, (tmp1, frac1, p1) => {
+            let rs = MDL_content._ct(tmp1, "rs");
+            if(rs == null) return;
+            subBi.push(rs.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
+          });
+          bi.push(subBi, -1.0, -1.0);
+        };
+      });
+
+      addRc(
+        rc,
+        itm.name,
+        "forging",
+        obj => {
+          obj["tempReq"] = tup[1];
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi(bi)
+        .__bo([itm, amtO, pO])
+        .build(),
+      );
+    });
+  };
+  exports._gen_forge = _gen_forge;
+
+
   /* ----------------------------------------
   * NOTE:
   *
@@ -138,88 +339,106 @@
   /* ----------------------------------------
   * NOTE:
   *
-  * Recipe generator: pulverizer.
-  * Converts ore items into dust.
+  * Recipe generator: mixer.
+  * Mixes materials into blend.
   * ---------------------------------------- */
-  const _gen_pulverizer = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
+  const _gen_mixer = function(rc, objF, boolF, amtO, pO, isBallMill, minHardness, maxHardness, abrasionFactor) {
     if(boolF == null) boolF = Function.airTrue;
-    if(amtI == null) amtI = 1;
-    if(pI == null) pI = 1.0;
     if(amtO == null) amtO = 1;
     if(pO == null) pO = 1.0;
     if(minHardness == null) minHardness = 0;
     if(maxHardness == null) maxHardness = Infinity;
     if(abrasionFactor == null) abrasionFactor = 1.0;
 
-    VARGEN.intmds["rs-dust"].forEachCond(itm => !MDL_content._hasAnyTag(itm, "rs-p1", "rs-p2"), itm => {
-      let itmParent = itm.ex_getParent();
-      let hardness = itmParent.hardness;
-      if(hardness < minHardness || hardness > maxHardness || !boolF(itm, itmParent)) return;
+    DB_item.db["map"]["recipe"][isBallMill ? "ballMillMixing" : "mixing"].forEachRow(2, (nmItm, arr) => {
+      let itm = MDL_content._ct(nmItm, "rs");
+      if(itm == null) return;
+      if(!boolF(itm)) return;
+
+      let amt = amtO * pO;
+      let hardness = 0;
+      let bi = [];
+      arr.forEachRow(3, (tmp, frac, p) => {
+        if(!(tmp instanceof Array)) {
+          let rs = MDL_content._ct(tmp, "rs");
+          if(rs == null) return;
+          if(isBallMill && rs instanceof Item && rs.hardness > hardness) hardness = rs.hardness;
+          bi.push(rs.name, Math.round(amt * frac * (1.0 / p)), p);
+        } else {
+          let subBi = [];
+          tmp.forEachRow(3, (tmp1, frac1, p1) => {
+            let rs = MDL_content._ct(tmp1, "rs");
+            if(rs == null) return;
+            if(isBallMill && rs instanceof Item && rs.hardness > hardness) hardness = rs.hardness;
+            subBi.push(rs.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
+          });
+          bi.push(subBi, -1.0, -1.0);
+        };
+      });
 
       addRc(
         rc,
         itm.name,
-        "pulverization",
+        isBallMill ? "ball-mill-mixing" : "mixing",
         obj => {
-          obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
+          if(isBallMill) obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
           if(objF != null) objF(obj);
         },
         new CLS_recipeBuilder()
-        .__bi([itmParent.name, amtI, pI])
+        .__bi(bi)
         .__bo([itm.name, amtO, pO])
         .build(),
       );
     });
   };
-  exports._gen_pulverizer = _gen_pulverizer;
+  exports._gen_mixer = _gen_mixer;
 
 
   /* ----------------------------------------
-   * NOTE:
-   *
-   * Recipe generator: roasting furnace.
-   * Converts items to their roasted form.
-   * ---------------------------------------- */
-  const _gen_roastingFurnace = function(rc, objF, boolF, amtI, pI, amtO, pO, maxTemp, maxFlam) {
+  * NOTE:
+  *
+  * Recipe generator: purifier.
+  * Purifies ore chunks/dusts. Specially designed for magnetic separators.
+  * ---------------------------------------- */
+  const _gen_purifier_magnetic = function(rc, objF, boolF, amtI, pI) {
     if(boolF == null) boolF = Function.airTrue;
     if(amtI == null) amtI = 1;
     if(pI == null) pI = 1.0;
-    if(amtO == null) amtO = 1;
-    if(pO == null) pO = 1.0;
-    if(maxTemp == null) maxTemp = Infinity;
-    if(maxFlam == null) maxFlam = Infinity;
 
-    DB_item.db["map"]["recipe"]["roasting"].forEachRow(2, (nmItm, tup) => {
+    DB_item.db["map"]["recipe"]["purificationMagnetic"].forEachRow(2, (nmItm, arr) => {
       let itm = MDL_content._ct(nmItm, "rs");
       if(itm == null) return;
-      let itmTg = MDL_content._ct(tup[0], "rs");
-      if(itm == null) return;
-      if(tup[1] > maxTemp || itm.flammability > maxFlam || itmTg.flammability > maxFlam || !boolF(itm, itmTg)) return;
+      if(!boolF(itm)) return;
+
+      let amt = amtI * pI;
+      let bo = [];
+      arr.forEachRow(3, (nmRs, frac, p) => {
+        let rs = MDL_content._ct(nmRs, "rs");
+        if(rs == null) return;
+        bo.push(rs, Math.round(amt * frac * (1.0 / p)), p);
+      });
 
       addRc(
         rc,
         itm.name,
-        "roasting",
-        obj => {
-          obj["tempReq"] = tup[1];
-          if(objF != null) objF(obj);
-        },
+        "purification",
+        objF,
         new CLS_recipeBuilder()
-        .__bi([itm, amtI, pI])
-        .__bo([itmTg, amtO, pO])
+        .__bi([itm.name, amtI, pI])
+        .__bo(bo)
         .build(),
       );
     });
   };
-  exports._gen_roastingFurnace = _gen_roastingFurnace;
+  exports._gen_purifier_magnetic = _gen_purifier_magnetic;
 
 
   /* ----------------------------------------
-   * NOTE:
-   *
-   * Recipe generator: rock crusher.
-   * Converts ore items into chunks.
-   * ---------------------------------------- */
+  * NOTE:
+  *
+  * Recipe generator: rock crusher.
+  * Converts ore items into chunks.
+  * ---------------------------------------- */
   const _gen_rockCrusher = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
     if(boolF == null) boolF = Function.airTrue;
     if(amtI == null) amtI = 1;
@@ -311,10 +530,49 @@
   /* ----------------------------------------
   * NOTE:
   *
-  * Recipe generator: sintering furnace.
-  * Converts dust items back into their parent items (the ore at most time).
+  * Recipe generator: pulverizer.
+  * Converts ore items into dust.
   * ---------------------------------------- */
-  const _gen_sinteringFurnace = function(rc, objF, boolF, amtI, pI, amtO, pO, maxTemp, maxFlam) {
+  const _gen_pulverizer = function(rc, objF, boolF, amtI, pI, amtO, pO, minHardness, maxHardness, abrasionFactor) {
+    if(boolF == null) boolF = Function.airTrue;
+    if(amtI == null) amtI = 1;
+    if(pI == null) pI = 1.0;
+    if(amtO == null) amtO = 1;
+    if(pO == null) pO = 1.0;
+    if(minHardness == null) minHardness = 0;
+    if(maxHardness == null) maxHardness = Infinity;
+    if(abrasionFactor == null) abrasionFactor = 1.0;
+
+    VARGEN.intmds["rs-dust"].forEachCond(itm => !MDL_content._hasAnyTag(itm, "rs-p1", "rs-p2"), itm => {
+      let itmParent = itm.ex_getParent();
+      let hardness = itmParent.hardness;
+      if(hardness < minHardness || hardness > maxHardness || !boolF(itm, itmParent)) return;
+
+      addRc(
+        rc,
+        itm.name,
+        "pulverization",
+        obj => {
+          obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0);
+          if(objF != null) objF(obj);
+        },
+        new CLS_recipeBuilder()
+        .__bi([itmParent.name, amtI, pI])
+        .__bo([itm.name, amtO, pO])
+        .build(),
+      );
+    });
+  };
+  exports._gen_pulverizer = _gen_pulverizer;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Recipe generator: roasting furnace.
+   * Converts items to their roasted form.
+   * ---------------------------------------- */
+  const _gen_roastingFurnace = function(rc, objF, boolF, amtI, pI, amtO, pO, maxTemp, maxFlam) {
     if(boolF == null) boolF = Function.airTrue;
     if(amtI == null) amtI = 1;
     if(pI == null) pI = 1.0;
@@ -323,24 +581,89 @@
     if(maxTemp == null) maxTemp = Infinity;
     if(maxFlam == null) maxFlam = Infinity;
 
-    VARGEN.intmds["rs-dust"].forEachCond(itm => !MDL_content._hasAnyTag(itm, "rs-p1", "rs-p2"), itm => {
-      let itmParent = itm.ex_getParent();
-      let tempReq = MDL_content._sintTemp(itmParent);
-      if(tempReq > maxTemp || itm.flammability > maxFlam || itmParent.flammability > maxFlam || !boolF(itm, itmParent)) return;
+    DB_item.db["map"]["recipe"]["roasting"].forEachRow(2, (nmItm, tup) => {
+      let itm = MDL_content._ct(nmItm, "rs");
+      if(itm == null) return;
+      let itmTg = MDL_content._ct(tup[0], "rs");
+      if(itmTg == null) return;
+      if(tup[1] > maxTemp || itm.flammability > maxFlam || itmTg.flammability > maxFlam || !boolF(itm, itmTg)) return;
 
       addRc(
         rc,
         itm.name,
-        "sintering",
+        "roasting",
         obj => {
-          obj["tempReq"] = tempReq;
+          obj["tempReq"] = tup[1];
           if(objF != null) objF(obj);
         },
         new CLS_recipeBuilder()
-        .__bi([itm.name, amtI, pI])
-        .__bo([itmParent.name, amtO, pO])
+        .__bi([itm, amtI, pI])
+        .__bo([itmTg, amtO, pO])
         .build(),
       );
     });
+  };
+  exports._gen_roastingFurnace = _gen_roastingFurnace;
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Recipe generator: sintering furnace.
+  * Converts dust items back into their parent items (the ore at most time).
+  * ---------------------------------------- */
+  const _gen_sinteringFurnace = function(rc, objF, boolF, isConcentrate, amtI, pI, amtO, pO, maxTemp, maxFlam) {
+    if(boolF == null) boolF = Function.airTrue;
+    if(amtI == null) amtI = 1;
+    if(pI == null) pI = 1.0;
+    if(amtO == null) amtO = 1;
+    if(pO == null) pO = 1.0;
+    if(maxTemp == null) maxTemp = Infinity;
+    if(maxFlam == null) maxFlam = Infinity;
+
+    if(!isConcentrate) {
+      VARGEN.intmds["rs-dust"].forEachCond(itm => !MDL_content._hasAnyTag(itm, "rs-p1", "rs-p2"), itm => {
+        let itmParent = itm.ex_getParent();
+        let tempReq = MDL_content._sintTemp(itmParent);
+        if(tempReq > maxTemp || itm.flammability > maxFlam || itmParent.flammability > maxFlam || !boolF(itm, itmParent)) return;
+
+        addRc(
+          rc,
+          itm.name,
+          "sintering",
+          obj => {
+            obj["tempReq"] = tempReq;
+            if(objF != null) objF(obj);
+          },
+          new CLS_recipeBuilder()
+          .__bi([itm.name, amtI, pI])
+          .__bo([itmParent.name, amtO, pO])
+          .build(),
+        );
+      });
+    } else {
+      VARGEN.intmds["rs-chunks"].concat(VARGEN.intmds["rs-dust"]).filter(itm => MDL_content._hasAnyTag(itm, "rs-p1", "rs-p2")).forEachFast(itm => {
+        let itmParent = itm.ex_getParent();
+        if(itmParent == null) return;
+        let itmTg = MDL_content._intmd(itm, "rs-ore0conc");
+        if(itmTg == null) return;
+        let tempReq = MDL_content._sintTemp(itmParent);
+        if(tempReq > maxTemp || itm.flammability > maxFlam || itmParent.flammability > maxFlam || itmTg.flammability > maxFlam || !boolF(itm, itmParent, itmTg)) return;
+
+        addRc(
+          rc,
+          itmTg.name,
+          "concentrate-sintering",
+          obj => {
+            obj["tempReq"] = tempReq;
+            if(objF != null) objF(obj);
+          },
+          new CLS_recipeBuilder()
+          .__bi([itm.name, amtI, pI])
+          .__bo([itmTg.name, amtO, pO])
+          .build(),
+        );
+      });
+    };
   };
   exports._gen_sinteringFurnace = _gen_sinteringFurnace;

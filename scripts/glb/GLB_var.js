@@ -134,5 +134,8 @@
   exports.blk_clogDmgFrac = 0.02;
   exports.blk_clogDmgMin = 3.0;
   exports.blk_auxHeatTempFrac = 0.16666667;
+  exports.blk_rpmDmgFrac = 0.15;
   exports.blk_lightningDmg = 20.0;
   exports.blk_shortCircuitDmgFrac = 0.12;
+  exports.blk_ovCogA1 = 0.35;
+  exports.blk_ovCogA2 = 0.7;

@@ -20,16 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.outputsLoot: bool    // @PARAM: Whether to output loot instead of item.
-   * b.lootCharge: 0
-   * b.backX: 0.0
-   * b.backY: 0.0
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -131,7 +121,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -220,7 +210,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-min", "blk-harv"],
     }),
@@ -238,3 +228,79 @@
 
 
   };
+
+
+  TEMPLATE._std = function(updateEff, updateEffP) {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      // @SPEC
+      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+    };
+  };
+
+
+  TEMPLATE._std_b = function(outputsLoot) {
+    return {
+      outputsLoot: Object.val(outputsLoot, false),
+      lootCharge: 0,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      offload(itm) {
+        TEMPLATE.offload(this, itm);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_getProg() {
+        return TEMPLATE.ex_getProg(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

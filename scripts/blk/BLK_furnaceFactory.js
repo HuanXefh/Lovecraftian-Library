@@ -20,46 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.rcMdl: rcMdl    // @PARAM
-   * blk.fuelType: str    // @PARAM: Types of fuel accepted. Possible values: "item", "liquid", "gas" and "any".
-   * blk.blockedFuels: nmRss    // @PARAM: Fuels that cannot be used by this furnace.
-   * b.craftSound: se_gn    // @PARAM
-   * b.useCep: bool    // @PARAM
-   * b.noDump: bool    // @PARAM
-   * b.heatIncRate: num    // @PARAM: Rate at which the furnace temperature changes.
-   * b.rcHeader: ""
-   * b.timeScl: 1.0
-   * b.ci: []
-   * b.bi: []
-   * b.aux: []
-   * b.reqOpt: false
-   * b.opt: []
-   * b.co: []
-   * b.bo: []
-   * b.failP: 0.0
-   * b.fo: []
-   * b.scrTup: null
-   * b.tmpEffc: 0.0
-   * b.progInc: 0.0
-   * b.progIncLiq: 0.0
-   * b.canAdd: false
-   * b.hasRun: false
-   * b.dumpTup: null
-   * b.heatReg: null
-   * b.heatRes: Infinity
-   * b.tempReq: 0.0
-   * b.tempAllowed: Infinity
-   * b.tempCur: -1.0
-   * b.fuelPonCur: 0.0
-   * b.fuelConsMtp: 1.0
-   * b.fuelLvlMtp: 1.0
-   * b.fuelTup: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["multiplier"]["fuelCons"]    // @PARAM: Multiplier on fuel consumption speed.
@@ -250,7 +210,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -416,7 +376,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-fac", "blk-furn"],
     }),
@@ -499,3 +459,164 @@
 
 
   };
+
+
+  TEMPLATE._std = function(nmBlk, fuelType, blockedFuels, craftEff, updateEff, updateEffP) {
+    return {
+      rcMdl: MDL_recipe._rcMdl("projreind", nmBlk),
+      fuelType: Object.val(fuelType, "item"), blockedFuels: Object.val(blockedFuels, []),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
+      consumesItem(itm) {
+        return TEMPLATE.consumesItem(this, itm);
+      },
+      consumesLiquid(liq) {
+        return TEMPLATE.consumesLiquid(this, liq);
+      },
+      outputsItems() {
+        return TEMPLATE.outputsItems(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getRcMdl() {
+        return TEMPLATE.ex_getRcMdl(this);
+      },
+      ex_getFuelType() {
+        return TEMPLATE.ex_getFuelType(this);
+      },
+      ex_getBlockedFuels() {
+        return TEMPLATE.ex_getBlockedFuels(this);
+      },
+      // @SPEC
+      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+    };
+  };
+
+
+  TEMPLATE._std_b = function(craftSe, useCep, noDump, heatIncRate) {
+    return {
+      craftSound: Object.val(craftSe, Sounds.none),
+      useCep: Object.val(useCep, false), noDump: Object.val(noDump, false), heatIncRate: Object.val(heatIncRate, 0.0001),
+      rcHeader: "", validTup: null, timeScl: 1.0, ignoreItemFullness: false,
+      ci: [], bi: [], aux: [], reqOpt: false, opt: [],
+      co: [], bo: [], failP: 0.0, fo: [],
+      scrTup: null, tmpEffc: 0.0, progInc: 0.0, progIncLiq: 0.0, canAdd: false,
+      hasRun: false, isStopped: false, dumpTup: null,
+      heatReg: null, heatRes: Infinity, tempReq: 0.0, tempAllowed: Infinity, tempCur: -1.0, fuelPonCur: 0.0, fuelConsMtp: 1.0, fuelLvlMtp: 1.0, fuelTup: null,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      displayConsumption(tb) {
+        TEMPLATE.displayConsumption(this, tb);
+      },
+      displayBars(tb) {
+        this.super$displayBars(tb);
+        TEMPLATE.displayBars(this, tb);
+      },
+      acceptItem(b_f, itm) {
+        return TEMPLATE.acceptItem(this, b_f, itm);
+      },
+      acceptLiquid(b_f, liq) {
+        return TEMPLATE.acceptLiquid(this, b_f, liq);
+      },
+      shouldConsume() {
+        return TEMPLATE.shouldConsume(this);
+      },
+      warmupTarget() {
+        return TEMPLATE.warmupTarget(this);
+      },
+      craft() {
+        this.super$craft();
+        TEMPLATE.craft(this);
+      },
+      buildConfiguration(tb) {
+        TEMPLATE.buildConfiguration(this, tb);
+      },
+      config() {
+        return TEMPLATE.config(this);
+      },
+      drawStatus() {
+        TEMPLATE.drawStatus(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accRcHeader(param) {
+        return TEMPLATE.ex_accRcHeader(this, param);
+      },
+      ex_updateParams(rcMdl, rcHeader, forceLoad) {
+        TEMPLATE.ex_updateParams(this, rcMdl, rcHeader, forceLoad);
+      },
+      ex_initParams() {
+        TEMPLATE.ex_initParams(this);
+      },
+      ex_getEffc() {
+        return TEMPLATE.ex_getEffc(this);
+      },
+      ex_getTimerEffcState() {
+        return TEMPLATE.ex_getTimerEffcState(this);
+      },
+      ex_getFailP() {
+        return TEMPLATE.ex_getFailP(this);
+      },
+      ex_getHeat() {
+        return TEMPLATE.ex_getHeat(this);
+      },
+      ex_getHeatFrac() {
+        return TEMPLATE.ex_getHeatFrac(this);
+      },
+    };
+  };
+
+
+  TEMPLATE.tempFuels = {
+    bioFuelItms: [
+      "loveclab-item0bio-log",
+      "loveclab-item0bio-timber",
+      "loveclab-item0bio-sawdust",
+      "loveclab-item0bio-hypha-rod",
+    ],
+  };
+
+
+  module.exports = TEMPLATE;

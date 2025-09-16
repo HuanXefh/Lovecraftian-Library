@@ -1813,8 +1813,8 @@
 
   const drawDebug_target = function(unit) {
     if(unit == null) return;
-    
-    var e_tg = MDL_pos._unit_tg(unit.x, unit.y, unit.team, unit.range());
+
+    let e_tg = MDL_pos._e_tg(unit.x, unit.y, unit.team, unit.range());
     if(e_tg == null) return;
 
     Draw.z(VAR.lay_debugTop);

@@ -72,11 +72,12 @@ const db = {
     "robotOnly": [
 
       "loveclab-sta-haste",
+
       "loveclab-sta0liq-sea-water-corrosion",
       "loveclab-sta0liq-brine-corrosion",
       "loveclab-sta0liq-waste-corrosion",
+      
       "loveclab-sta0death-explosion-mark",
-      "loveclab-sta0death-recycle-mark",
 
     ],
 

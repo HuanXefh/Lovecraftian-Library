@@ -21,15 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * liq.alts: 0
-   * liq.intmdParent: rs_gn    // @PARAM, @NULL
-   * liq.useParentRegion: bool    // @PARAM
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -73,7 +64,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- resource ----------> */
@@ -119,7 +110,7 @@
 
     // @NOSUPER
     ex_getTags: function(liq) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["rs-was"],
     }),
@@ -132,3 +123,44 @@
 
 
   };
+
+
+  TEMPLATE._std = function(intmdParent, hasReg, intmdTags_p) {
+    return {
+      alts: 0,
+      intmdParent: intmdParent, useParentRegion: !hasReg,
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(puddle) {
+        this.super$update(puddle);
+        TEMPLATE.update(this, puddle);
+      },
+      loadIcon() {
+        this.super$loadIcon();
+        TEMPLATE.loadIcon(this);
+      },
+      createIcons(packer) {
+        this.super$createIcons(packer);
+        TEMPLATE.createIcons(this, packer);
+      },
+      willBoil() {
+        return TEMPLATE.willBoil(this);
+      },
+      ex_getParent() {
+        return TEMPLATE.ex_getParent(this);
+      },
+      // @SPEC
+      ex_getTags: intmdTags_p == null ?
+        function() {return TEMPLATE.ex_getTags(this)} :
+        function() {return TEMPLATE.ex_getTags(this).pushAll(intmdTags_p)},
+    };
+  };
+
+
+  module.exports = TEMPLATE;

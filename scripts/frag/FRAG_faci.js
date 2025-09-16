@@ -527,8 +527,8 @@
     if((countObj["gravel"] + countObj["sand"]) / count > thr) ter = "sand";
     if(countObj["sea"] / count > thr) ter = "sea";
 
-    if(countObj["river"] / count > thr * 0.7 && (countObj["dirt"] + countObj["grass"] + countObj["gravel"] + countObj["rock"] + countObj["sand"]) / count > thr * 0.3) ter = "bank";
-    if(countObj["beach"] / count > thr * 0.7 && (countObj["gravel"] + countObj["rock"] + countObj["sand"]) / count > thr * 0.3) ter = "beach";
+    if(countObj["river"] / count > thr * 0.55 && (countObj["dirt"] + countObj["grass"] + countObj["gravel"] + countObj["rock"] + countObj["sand"]) / count > thr * 0.45) ter = "bank";
+    if(countObj["beach"] / count > thr * 0.55 && (countObj["gravel"] + countObj["rock"] + countObj["sand"]) / count > thr * 0.45) ter = "beach";
 
     return ter;
   };
@@ -566,47 +566,52 @@
   exports.comp_setStats_ter = comp_setStats_ter;
 
 
+  const comp_drawPlace_ter = function(blk, tx, ty, rot, valid, offTy) {
+    const thisFun = comp_drawPlace_ter;
+
+    if(Vars.world.tile(tx, ty) == null) return;
+
+    if(thisFun.funTup.length === 0 || blk !== thisFun.funTup[0] || tx !== thisFun.funTup[1] || ty !== thisFun.funTup[2] || rot !== thisFun.funTup[3]) {
+      thisFun.funTup[0] = blk;
+      thisFun.funTup[1] = tx;
+      thisFun.funTup[2] = ty;
+      thisFun.funTup[3] = rot;
+      thisFun.funTup[4] = _terB(_ter(Vars.world.tile(tx, ty), blk.size));
+    };
+
+    MDL_draw.drawText_place(blk, tx, ty, MDL_bundle._info("lovec", "text-terrain") + " " + thisFun.funTup[4], valid, offTy);
+  }
+  .setProp({
+    "funTup": [],
+  });
+  exports.comp_drawPlace_ter = comp_drawPlace_ter;
+
+
   const comp_canPlaceOn_ter = function(blk, t, team, rot, ters, mode, offTy) {
     const thisFun = comp_canPlaceOn_ter;
 
     if(t == null) return false;
-
     if(mode == null) mode = "enable";
     if(!mode.equalsAny(thisFun.modes)) return false;
 
-    let terCur;
-    let terCurB;
-    if(thisFun.funTup.length === 0 || t !== thisFun.funTup[0]) {
-
-      terCur = _ter(t, blk.size);
-      terCurB = _terB(terCur);
-
-      thisFun.funTup[0] = t;
-      thisFun.funTup[1] = terCur;
-      thisFun.funTup[2] = terCurB;
-
-    } else {
-
-      terCur = thisFun.funTup[1];
-      terCurB = thisFun.funTup[2];
-
+    if(thisFun.funTup.length === 0 || blk !== thisFun.funTup[0] || t !== thisFun.funTup[1]) {
+      thisFun.funTup[0] = blk;
+      thisFun.funTup[1] = t;
+      thisFun.funTup[2] = _ter(t, blk.size);
+      thisFun.funTup[3] = _terB(thisFun.funTup[2]);
     };
-    let cond = true;
 
+    var cond = true;
     if(mode === "enable") {
-
-      if(terCur == null || !ters.includes(terCur)) {
-        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-enabled") + " " + terCurB, false, offTy);
+      if(thisFun.funTup[2] == null || !ters.includes(thisFun.funTup[2])) {
+        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-enabled") + " " + thisFun.funTup[3], false, offTy);
         cond = false;
       };
-
     } else {
-
-      if(terCur != null && ters.includes(terCur)) {
-        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-disabled") + " " + terCurB, false, offTy);
+      if(thisFun.funTup[2] != null && ters.includes(thisFun.funTup[2])) {
+        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-disabled") + " " + thisFun.funTup[3], false, offTy);
         cond = false;
       };
-
     };
 
     return cond;

@@ -20,38 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.fluidType: str    // @PARAM
-   * blk.presProd: f    // @PARAM: Pressure produced by this pump (negative for vacuum).
-   * blk.attrRsMap: null
-   * blk.attrMode: "ov"
-   * blk.pumpRate: f    // @PARAM: Rate at which the target liquid is produced.
-   * b.liqEnd: null
-   * b.pres: 0.0
-   * b.presBase: 0.0
-   * b.presTmp: 0.0
-   * b.presRes: 0.0
-   * b.vacRes: 0.0
-   * b.corRes: 1.0
-   * b.cloggable: false
-   * b.fHeatCur: 0.0
-   * b.fHeatTg: 0.0
-   * b.heatRes: Infinity
-   * b.heatReg: null
-   * b.useCep: bool    // @PARAM: Whether this pump is affected by core energy.
-   * b.splitAmt: 1
-   * b.craftSound: se_gn    // @PARAM
-   * b.shouldScaleCons: false
-   * b.attrSum: 0.0
-   * b.attrRs: null
-   * b.prog: 0.0
-   * b.scannerTg: null
-   * b.liqReg: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM: CEPs used by this block.
@@ -104,9 +72,6 @@
         MDL_recipeDict.addFldProdTerm(blk, blk.presProd > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Math.abs(blk.presProd), null);
       });
     });
-
-    blk.attrRsMap = DB_item.db["map"]["attr"]["dpliq"];
-    blk.attrMode = "ov";
 
     MOD_tmi._r_presPump(blk, Math.abs(blk.presProd), blk.presProd < 0.0);
   };
@@ -163,7 +128,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -307,7 +272,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-pump"],
     }),
@@ -413,3 +378,157 @@
 
 
   };
+
+
+  TEMPLATE._std = function(fluidType, presProd, pumpRate) {
+    return {
+      fluidType: Object.val(fluidType, "liquid"),
+      presProd: Object.val(presProd, 0.0),
+      attrRsMap: DB_item.db["map"]["attr"]["dpliq"], attrMode: "ov",
+      pumpRate: Object.val(pumpRate, 0.0),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
+      canPlaceOn(t, team, rot) {
+        if(!TEMPLATE.canPlaceOn(this, t, team, rot)) return false;
+        return true;
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getFluidType() {
+        return TEMPLATE.ex_getFluidType(this);
+      },
+      ex_getPresProd() {
+        return TEMPLATE.ex_getPresProd(this);
+      },
+      ex_getTs(tx, ty, rot) {
+        return TEMPLATE.ex_getTs(this, tx, ty, rot);
+      },
+      ex_getAttrRsMap() {
+        return TEMPLATE.ex_getAttrRsMap(this);
+      },
+      ex_getAttrMode() {
+        return TEMPLATE.ex_getAttrMode(this);
+      },
+      ex_getCraftTime() {
+        return TEMPLATE.ex_getCraftTime(this);
+      },
+      ex_getProdAmt() {
+        return TEMPLATE.ex_getProdAmt(this);
+      },
+      ex_getAttrSum(tx, ty, rot) {
+        return TEMPLATE.ex_getAttrSum(this, tx, ty, rot);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function(useCep, splitAmt, craftSe) {
+    return {
+      liqEnd: null, pres: 0.0, presBase: 0.0, presTmp: 0.0,
+      presRes: 0.0, vacRes: 0.0, corRes: 1.0, cloggable: false, fHeatCur: 0.0, fHeatTg: 0.0, heatRes: Infinity,
+      heatReg: null,
+      useCep: Object.val(useCep, false), splitAmt: 1,
+      craftSound: Object.val(craftSe, Sounds.none),
+      shouldScaleCons: false,
+      attrSum: 0.0, attrRs: null, prog: 0.0,
+      scannerTg: null,
+      liqReg: null,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      remove() {
+        TEMPLATE.remove(this);
+      },
+      acceptLiquid(b_f, liq) {
+        if(!this.super$acceptLiquid(b_f, liq)) return false;
+        if(!TEMPLATE.acceptLiquid(this, b_f, liq)) return false;
+        return true;
+      },
+      shouldConsume() {
+        return TEMPLATE.shouldConsume(this);
+      },
+      getProgressIncrease(time) {
+        return TEMPLATE.getProgressIncrease(this, time);
+      },
+      efficiencyScale() {
+        return TEMPLATE.efficiencyScale(this);
+      },
+      updateEfficiencyMultiplier() {
+        this.super$updateEfficiencyMultiplier();
+        TEMPLATE.updateEfficiencyMultiplier(this);
+      },
+      drawStatus() {
+        TEMPLATE.drawStatus(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accPresBase(param) {
+        return TEMPLATE.ex_accPresBase(this, param);
+      },
+      ex_getPresTmp() {
+        return TEMPLATE.ex_getPresTmp(this);
+      },
+      ex_updatePres() {
+        TEMPLATE.ex_updatePres(this);
+      },
+      ex_getFHeatCur() {
+        return TEMPLATE.ex_getFHeatCur(this);
+      },
+      ex_getAttrRs() {
+        return TEMPLATE.ex_getAttrRs(this);
+      },
+      ex_getEffc() {
+        return TEMPLATE.ex_getEffc(this);
+      },
+      ex_updateAttrRs() {
+        TEMPLATE.ex_updateAttrRs(this);
+      },
+      ex_craftAttrRs() {
+        TEMPLATE.ex_craftAttrRs(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

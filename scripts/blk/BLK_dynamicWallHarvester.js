@@ -20,22 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.attrRsMap: arr    // @PARAM
-   * blk.attrMode: "block"
-   * blk.craftTime    // @PARAM: Time to craft.
-   * blk.prodAmt    // @PARAM: Amount parameter for resource production.
-   * blk.isLiqBlk    // @PARAM: Whether this wall crafter outputs liquid instead of item.
-   * b.craftSound: se_gn    // @PARAM
-   * b.shouldScaleCons: bool    // @PARAM
-   * b.attrSum: 0.0
-   * b.attrRs: null
-   * b.prog: 0.0
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -66,8 +50,6 @@
 
 
   function comp_init(blk) {
-    blk.attrMode = "blk";
-
     if(blk.isLiqBlk) {
       blk.outputsLiquid = true;
     };
@@ -118,7 +100,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -233,7 +215,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-min", "blk-harv"],
     }),
@@ -303,3 +285,122 @@
 
 
   };
+
+
+  TEMPLATE._std = function(attrRsMap, craftTime, prodAmt, isLiqBlk, updateEff, updateEffP) {
+    return {
+      attrRsMap: Object.val(attrRsMap, Array.air), attrMode: "blk",
+      craftTime: Object.val(craftTime, 60.0), prodAmt: Object.val(prodAmt, 1.0),
+      isLiqBlk: Object.val(isLiqBlk, false),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
+      canPlaceOn(t, team, rot) {
+        if(!TEMPLATE.canPlaceOn(this, t, team, rot)) return false;
+        return true;
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getTs(tx, ty, rot) {
+        return TEMPLATE.ex_getTs(this, tx, ty, rot);
+      },
+      ex_getAttrRsMap() {
+        return TEMPLATE.ex_getAttrRsMap(this);
+      },
+      ex_getAttrMode() {
+        return TEMPLATE.ex_getAttrMode(this);
+      },
+      ex_getCraftTime() {
+        return TEMPLATE.ex_getCraftTime(this);
+      },
+      ex_getProdAmt() {
+        return TEMPLATE.ex_getProdAmt(this);
+      },
+      ex_getAttrSum(tx, ty, rot) {
+        return TEMPLATE.ex_getAttrSum(this, tx, ty, rot);
+      },
+      // @SPEC
+      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+    };
+  };
+
+
+  TEMPLATE._std_b = function(craftSound, shouldScaleCons) {
+    return {
+      craftSound: Object.val(craftSound, Sounds.none),
+      shouldScaleCons: Object.val(shouldScaleCons, false),
+      attrSum: 0.0, attrRs: null, prog: 0.0,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      shouldConsume() {
+        if(!TEMPLATE.shouldConsume(this)) return false;
+        return true;
+      },
+      getProgressIncrease(time) {
+        return TEMPLATE.getProgressIncrease(this, time);
+      },
+      efficiencyScale() {
+        return TEMPLATE.efficiencyScale(this);
+      },
+      updateEfficiencyMultiplier() {
+        return TEMPLATE.updateEfficiencyMultiplier(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_getAttrRs() {
+        return TEMPLATE.ex_getAttrRs(this);
+      },
+      ex_getEffc() {
+        return TEMPLATE.ex_getEffc(this);
+      },
+      ex_updateAttrRs() {
+        TEMPLATE.ex_updateAttrRs(this);
+      },
+      ex_craftAttrRs() {
+        TEMPLATE.ex_craftAttrRs(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

@@ -97,6 +97,20 @@ const db = {
     "lovecMod": [],
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Sounds listed here will be loaded beforehead, or it takes time to be loaded in game.
+     * ---------------------------------------- */
+    "extraSound": [
+
+      "se-craft-ore-scanner",
+
+      "se-meme-steel-pipe",
+
+    ],
+
+
   },
 
 

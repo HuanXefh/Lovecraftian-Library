@@ -20,14 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * invReg: null
-   * isInv: false
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -119,7 +111,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -220,7 +212,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-dis", "blk-gate"],
     }),
@@ -236,3 +228,83 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      invReg: null, isInv: false,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      acceptItem(b_f, itm) {
+        if(!this.super$acceptItem(b_f, itm)) return false;
+        if(!TEMPLATE.acceptItem(this, b_f, itm)) return false;
+        return true;
+      },
+      getTileTarget(itm, b_f, isFlip) {
+        return TEMPLATE.getTileTarget(this, itm, b_f, isFlip);
+      },
+      buildConfiguration(tb) {
+        TEMPLATE.buildConfiguration(this, tb);
+      },
+      config() {
+        return TEMPLATE.config(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accIsInv(param) {
+        return TEMPLATE.ex_accIsInv(this, param);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

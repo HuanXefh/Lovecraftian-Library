@@ -27,9 +27,6 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const MATH_geometry = require("lovec/math/MATH_geometry");
-
-
   const FRAG_unit = require("lovec/frag/FRAG_unit");
 
 
@@ -123,7 +120,7 @@
       if(
         (!unit.isPlayer() || !PARAM.drawPlayerStat)
         && !(unit.type instanceof MissileUnitType) && PARAM.drawUnitNearMouse
-        && MATH_geometry._dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) > VAR.rad_mouseRad + unit.type.hitSize * 0.5
+        && Mathf.dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) > VAR.rad_mouseRad + unit.type.hitSize * 0.5
       ) cond = false;
       if(unit.type instanceof MissileUnitType && !PARAM.drawMissileStat) cond = false;
 
@@ -288,7 +285,7 @@
     var dmg = MDL_entity._bulDmg(
       bul,
       bul.type.buildingDamageMultiplier * (mode !== "shield" ? 1.0 : bul.type.shieldDamageMultiplier),
-      MATH_geometry._dst(bul.x, bul.y, b.x, b.y),
+      Mathf.dst(bul.x, bul.y, b.x, b.y),
       b.block.armor,
       b.block.size * Vars.tilesize,
     );
@@ -312,7 +309,7 @@
     var dmg = MDL_entity._bulDmg(
       bul,
       1.0 / unit.healthMultiplier * (mode !== "shield" ? 1.0 : bul.type.shieldDamageMultiplier),
-      MATH_geometry._dst(bul.x, bul.y, unit.x, unit.y),
+      Mathf.dst(bul.x, bul.y, unit.x, unit.y),
       MDL_entity._armor(unit),
       unit.type.hitSize,
     );
@@ -326,7 +323,10 @@
 
 
   function evComp_destroy_unitRemains(unit) {
+    if(MDL_cond._hasNoRemains(unit.type)) return;
+
     MDL_effect.showAt_remains(unit.x, unit.y, unit, unit.team);
+    if(PARAM.secret_steelPipe) MDL_effect.playAt(unit.x, unit.y, "se-meme-steel-pipe");
   };
 
 

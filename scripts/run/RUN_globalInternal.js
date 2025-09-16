@@ -90,6 +90,17 @@
       /* ----------------------------------------
        * NOTE:
        *
+       * Whether this content has some tag.
+       * Bypasses {MDL_content}.
+       * ---------------------------------------- */
+      _hasTag(ct, tag) {
+        return ct == null ? false : Function.tryFun(ct.ex_getTags, Array.air, ct).includes(tag);
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
        * Returns the mod that adds the content.
        * Bypasses {MDL_content}.
        * ---------------------------------------- */

@@ -10,82 +10,11 @@
    *
    * The root of all blocks.
    * The BLK files work like classes, they store pre-defined functions which can be used when creating actual contents.
-   * A BLK file is a template that extends vanilla classes. Why not classes? Cauz {class} is a reserved word and I can't use it.
-   * You can see the base class in the BASE section. If it says !NOTHING, then this file is not meant to be used as template.
-   * I mean, why do you need extend baseBlock? Just write another BLK file!
-   *
-   * How to use:
-   * const TEMPLATE = require("lovec/blk/BLK_baseBlock");    // Import the module
-   * const yourBlk = extend(BaseBlockClass, "blockname", {
-   *   blkKey1: null,
-   *   blkKey2: null,
-   *   setStats() {
-   *     this.super$setStats();
-   *     TEMPLATE.setStats(this);
-   *   },
-   * });
-   * yourBlk.buildType = () => extend(BaseBlockClass.BaseBuildClass, yourBlk, {
-   *   bKey1: null,
-   *   bKey2: null,
-   *   updateTile() {
-   *     this.super$updateTile();
-   *     TEMPLATE.updateTile(this);
-   *   },
-   * });
-   *
-   * Only {setStats()} and {updateTile()} are added in the case shown above.
-   * If you are familiar with JS, you probably know what's going on.
-   * Some functions are marked as @NOSUPER, which means you don't need {this.super$xxx()} any more.
-   *
-   * About keys:
-   * Keys are extra params defined for the content, like {blkKey1} you have seen above. Check them out in the KEY section.
-   * {blk.keyName: null} means you should put new key in the block part, with initial value as {null}.
-   * {b.keyName: null} is similiar but for building, in that {buildType}.
-   * If a key is marked as @PARAM, then you can change it for some tricks.
-   *
-   * About params:
-   * Take {DB_block.db["param"]["range"]["base"]    // @PARAM: Mending range.} for example.
-   * You need write your block name and range in the array to set the mending range.
-   * How to access this array? Create your own scripts/db/DB_block.js file.
-   * Then, do this:
-   *
-   * const db = {
-   *
-   *
-   *   "param": {
-   *
-   *
-   *     "range": {
-   *
-   *
-   *       "base": [
-   *         "modname-blockname", yourRange,
-   *       ],
-   *
-   *
-   *     },
-   *
-   *
-   *   },
-   *
-   *
-   * };
-   * exports.db = db;
-   *
-   * Your {DB_block} will be automatically merged into the one defined here.
-   * Same for other params, just keep your files correct in format. There shouldn't be things other than objects and arrays.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * BASE:
-   *
-   * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
-   * KEY:
    *
    * !NOTHING
    * ---------------------------------------- */
@@ -124,11 +53,19 @@
   /* <---------- component ----------> */
 
 
-  function comp_setStats(blk) {
-    if(MDL_cond._canShortCircuit(blk)) blk.stats.add(TP_stat.blk_shortCircuit, true);
+  const comp_setStats = function(blk) {
+    const thisFun = comp_setStats;
 
+    if(thisFun.funArr.includes(blk)) return;
+
+    if(MDL_cond._canShortCircuit(blk)) blk.stats.add(TP_stat.blk_shortCircuit, true);
     FRAG_faci.comp_setStats_pol(blk);
-  };
+
+    thisFun.funArr.push(blk);
+  }
+  .setProp({
+    "funArr": [],
+  });
 
 
   function comp_onDestroyed(b) {
@@ -161,7 +98,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -226,7 +163,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
@@ -236,3 +173,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

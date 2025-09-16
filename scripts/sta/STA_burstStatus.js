@@ -20,20 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * sta.justApplied: false
-   * sta.burstTime: f    // @PARAM: Time beyond which the unit gets damaged and the effect is removed.
-   * sta.extendTimeGetter: (unit, time) => f    // @PARAM: Time added each time the effect is applied as result of the function.
-   * sta.burstDamage: f    // @PARAM: Damage dealt when the effect bursts.
-   * sta.burstDamagePerc: frac    // @PARAM: Damage dealt by ratio of max health.
-   * sta.burstScr: unit => {...}    // @PARAM: Script called when the effect bursts.
-   * sta.burstEff: eff    // @PARAM: Effect shown when the effect bursts.
-   * sta.burstEffColor: color    // @PARAM: Color for {burstEff}.
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -107,7 +93,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- status ----------> */
@@ -143,7 +129,7 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
@@ -162,3 +148,44 @@
 
 
   };
+
+
+  TEMPLATE._std = function(eff, effP, burstTime, extendTimeGetter, burstDmg, burstDmgPerc, burstScr, burstEff, burstEffColor) {
+    return {
+      justApplied: false, burstTime: Object.val(burstTime, 0.0),
+      extendTimeGetter: Object.val(extendTimeGetter, function(unit, time) {}),
+      burstDamage: Object.val(burstDmg, 0.0), burstDamagePerc: Object.val(burstDmgPerc, 0.0),
+      burstScr: Object.val(burstScr, function(unit) {}),
+      burstEff: Object.val(burstEff, Fx.none), burstEffColor: Object.val(burstEffColor, Color.white),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(unit, staEn) {
+        this.super$update(unit, staEn);
+        TEMPLATE.update(this, unit, staEn);
+      },
+      applied(unit, time, isExtend) {
+        this.super$applied(unit, time, isExtend);
+        TEMPLATE.applied(this, unit, time, isExtend);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_isStackSta() {
+        return TEMPLATE.ex_isStackSta(this);
+      },
+      ex_getBurstTime() {
+        return TEMPLATE.ex_getBurstTime(this);
+      },
+      // @SPEC
+      effect: Object.val(eff, Fx.none), effectChance: Object.val(effP, 0.02),
+    };
+  };
+
+
+  module.exports = TEMPLATE;

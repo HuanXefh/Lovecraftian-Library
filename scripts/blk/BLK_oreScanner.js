@@ -20,17 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.scanR: int    // @PARAM: Range parameter for the scanner.
-   * b.craftSound: se_gn    // @PARAM: The sound played every time when a tile should be revealed.
-   * b.revealTgs: []
-   * b.revealQueue: []
-   * b.revealedInts: []
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -153,7 +142,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -249,7 +238,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-min", "blk-scan"],
     }),
@@ -289,3 +278,96 @@
 
 
   };
+
+
+  TEMPLATE._std = function(r, craftEff, updateEff, updateEffP) {
+    return {
+      scanR: Object.val(r, 0),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getScanR() {
+        return TEMPLATE.ex_getScanR(this);
+      },
+      // @SPEC
+      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+    };
+  };
+
+
+  TEMPLATE._std_b = function(craftSe) {
+    return {
+      craftSound: Object.val(craftSe, Sounds.none),
+      revealedTgs: [], revealQueue: [], revealedInts: [],
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      onRemoved() {
+        this.super$onRemoved();
+        TEMPLATE.onRemoved(this);
+      },
+      craft() {
+        this.super$craft();
+        TEMPLATE.craft(this);
+      },
+      buildConfiguration(tb) {
+        TEMPLATE.buildConfiguration(this, tb);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_getReloadFrac() {
+        return TEMPLATE.ex_getReloadFrac(this);
+      },
+      ex_getWarmupFrac() {
+        return TEMPLATE.ex_getWarmupFrac(this);
+      },
+      ex_getScanFrac() {
+        return TEMPLATE.ex_getScanFrac(this);
+      },
+      ex_setRevealed(bool) {
+        TEMPLATE.ex_setRevealed(this, bool);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

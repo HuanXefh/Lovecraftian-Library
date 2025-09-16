@@ -20,15 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * itm.alts: 0
-   * itm.intmdParent: rs_gn    // @PARAM, @NULL: The parent of this intermediate, should be loaded ahead!
-   * itm.useParentRegion: bool    // @PARAM: Whether to copy the parent's sprite, in case that you don't draw a new one.
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -84,7 +75,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- resource ----------> */
@@ -120,7 +111,7 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["rs-intmd"],
     }),
@@ -133,3 +124,37 @@
 
 
   };
+
+
+  TEMPLATE._std = function(intmdParent, hasReg, intmdTags_p) {
+    return {
+      alts: 0,
+      intmdParent: intmdParent, useParentRegion: !hasReg,
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      loadIcon() {
+        this.super$loadIcon();
+        TEMPLATE.loadIcon(this);
+      },
+      createIcons(packer) {
+        this.super$createIcons(packer);
+        TEMPLATE.createIcons(this, packer);
+      },
+      ex_getParent() {
+        return TEMPLATE.ex_getParent(this);
+      },
+      // @SPEC
+      ex_getTags: intmdTags_p == null ?
+        function() {return TEMPLATE.ex_getTags(this)} :
+        function() {return TEMPLATE.ex_getTags(this).pushAll(intmdTags_p)},
+    };
+  };
+
+
+  module.exports = TEMPLATE;

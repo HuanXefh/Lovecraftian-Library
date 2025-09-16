@@ -27,7 +27,6 @@
    * Generic {offload}.
    * ---------------------------------------- */
   const offload = function(b, b_f, itm, amt, checkAccept) {
-    if(b == null || itm == null) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
 
@@ -49,7 +48,6 @@
    * {offload} called on server side only for sync.
    * ---------------------------------------- */
   const offload_server = function(b, b_f, itm, amt, checkAccept) {
-    if(b == null || itm == null) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
 
@@ -82,7 +80,6 @@
    * Adds item to {b} from {b_f}.
    * ---------------------------------------- */
   const addItem = function(b, b_f, itm, amt, p, isForced) {
-    if(b == null || itm == null) return false;
     if(b.items == null || (!isForced && !b.acceptItem(b_f, itm))) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
@@ -103,7 +100,7 @@
    * Lets {b} transfer items to {b_t}.
    * ---------------------------------------- */
   const transItem = function(b, b_t, itm, amt, p, isForced) {
-    if(b == null || b_t == null || itm == null) return false;
+    if(b_t == null) return false;
     if(b.items == null || b_t.items == null || (!isForced && !b_t.acceptItem(b, itm))) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
@@ -127,7 +124,6 @@
    * Lets a building consume some items.
    * ---------------------------------------- */
   const consumeItem = function(b, itm, amt, p) {
-    if(b == null || itm == null) return false;
     if(b.items == null) return false;
     if(amt == null) amt = 1;
     if(amt < 1 || b.items.get(itm) < amt) return false;
@@ -149,7 +145,6 @@
    * Lets a building produce some items.
    * ---------------------------------------- */
   const produceItem = function(b, itm, amt, p) {
-    if(b == null || itm == null) return false;
     if(b.items == null) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
@@ -170,7 +165,6 @@
    * Set the amount of item in {b}.
    * ---------------------------------------- */
   const setItem = function(b, itm, amt) {
-    if(b == null || itm == null) return false;
     if(b.items == null) return false;
 
     Call.setItem(b, itm, amt);
@@ -186,8 +180,6 @@
    * Removes all items in {b}.
    * ---------------------------------------- */
   const clearItems = function(b) {
-    if(b == null) return false;
-
     Call.clearItems(b);
 
     return true;
@@ -201,21 +193,15 @@
    * Adds items in a batch to {b}.
    * ---------------------------------------- */
   const addItemBatch = function(b, b_f, batch, isForced) {
-    if(b == null || batch == null) return false;
     if(b.items == null) return false;
 
-    let iCap = batch.iCap();
-    if(iCap === 0) return false;
     var bool = false;
-    for(let i = 0; i < iCap; i += 3) {
-      let itm = MDL_content._ct(batch[i], "rs");
-      let amt = batch[i + 1];
-      let p = batch[i + 2];
-
-      if(itm != null && itm instanceof Item) {
-        if(addItem(b, b_f, itm, amt, p, isForced)) bool = true;
-      };
-    };
+    let itm;
+    batch.forEachRow(3, (itm_gn, amt, p) => {
+      itm = MDL_content._ct(itm_gn, "rs");
+      if(itm == null) return;
+      if(addItem(b, b_f, itm, amt, p, isForced)) bool = true;
+    });
 
     return bool;
   };
@@ -231,16 +217,17 @@
   const acceptItemBatch = function(b, b_f, batch, mode) {
     const thisFun = acceptItemBatch;
 
-    if(b == null || batch == null) return false;
     if(b.items == null) return false;
     if(mode == null) mode = "all";
     if(!mode.equalsAny(thisFun.modes)) return false;
 
     let iCap = batch.iCap();
     if(iCap === 0) return false;
+
+    let itm;
     if(mode === "any") {
       for(let i = 0; i < iCap; i += 3) {
-        let itm = MDL_content._ct(batch[i], "rs");
+        itm = MDL_content._ct(batch[i], "rs");
         if(itm != null && itm instanceof Item) {
           if(b.acceptItem(b_f, itm)) return true;
         };
@@ -249,7 +236,7 @@
       return false;
     } else {
       for(let i = 0; i < iCap; i += 3) {
-        let itm = MDL_content._ct(batch[i], "rs");
+        itm = MDL_content._ct(batch[i], "rs");
         if(itm != null && itm instanceof Item) {
           if(!b.acceptItem(b_f, itm)) return false;
         };
@@ -270,8 +257,7 @@
    * Lets a building take items from a loot unit.
    * ---------------------------------------- */
   const takeLoot = function(b, loot, max, isForced) {
-    if(b == null || loot == null) return false;
-    if(b.items == null) return false;
+    if(loot == null || b.items == null) return false;
 
     let itm = loot.item();
     if(itm == null || (!isForced && !b.acceptItem(b, itm))) return false;
@@ -296,7 +282,6 @@
    * Lets a building drops its item to spawn a loot.
    * ---------------------------------------- */
   const dropLoot = function(b, itm, max) {
-    if(b == null || itm == null) return false;
     if(b.items == null) return false;
     if(max == null) max = Infinity;
 
@@ -318,7 +303,6 @@
    * Lets a building drops its item at (x, y) and spawn a loot there.
    * ---------------------------------------- */
   const dropLootAt = function(x, y, b, itm, max, ignoreLoot) {
-    if(b == null || itm == null) return false;
     if(b.items == null) return false;
     if(max == null) max = Infinity;
 
@@ -341,7 +325,6 @@
    * Lets a building technically produce a loot.
    * ---------------------------------------- */
   const produceLoot = function(b, itm, amt) {
-    if(b == null || itm == null) return false;
     if(b.items == null) return false;
     if(amt == null) amt = 0;
     if(amt < 1) return false;
@@ -360,7 +343,6 @@
    * Lets a building produce a loot at (x, y).
    * ---------------------------------------- */
   const produceLootAt = function(x, y, b, itm, amt, ignoreLoot) {
-    if(b == null || itm == null) return false;
     if(b.items == null) return false;
     if(amt == null) amt = 0;
     if(amt < 1) return false;
@@ -381,8 +363,6 @@
    * This resets lifetime by default.
    * ---------------------------------------- */
   const convertLoot = function(b, loot, itm, amt, noReset) {
-    if(b == null || loot == null || itm == null) return false;
-
     if(amt == null) amt = 0;
     if(amt < 1) {
       loot.remove()
@@ -411,7 +391,6 @@
    * Adds items to {unit}. Will overwrite previous items the unit carries.
    * ---------------------------------------- */
   const addUnitItem = function(unit, itm, amt, p) {
-    if(unit == null || itm == null) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
@@ -432,8 +411,6 @@
    * Used for unit mining.
    * ---------------------------------------- */
   const addUnitItem_mine = function(unit, x, y, itm) {
-    if(unit == null || itm == null) return false;
-
     Call.transferItemToUnit(itm, x, y, unit);
 
     return true;
@@ -447,7 +424,6 @@
    * Lets a unit transfer its items to another unit.
    * ---------------------------------------- */
   const transUnitItem = function(unit, unit_t, amt, p) {
-    if(unit == null || unit_t == null) return false;
     if(!unit_t.acceptsItem(unit.item())) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
@@ -471,7 +447,6 @@
    * No need for effect.
    * ---------------------------------------- */
   const takeBuildItem = function(unit, b, itm, max) {
-    if(unit == null || b == null) return false;
     if(b.items == null) return false;
     if(itm == null) itm = b.items.first();
     if(itm == null || !unit.acceptsItem(itm)) return false;
@@ -491,7 +466,6 @@
    * No need for effect.
    * ---------------------------------------- */
   const dropBuildItem = function(unit, b, max, alwaysClearStack) {
-    if(unit == null || b == null) return false;
     if(b.items == null || !b.acceptItem(b, unit.item())) return false;
     if(max == null) max = Infinity;
 
@@ -512,7 +486,7 @@
    * Lets a unit take items from a loot unit.
    * ---------------------------------------- */
   const takeUnitLoot = function(unit, loot, max) {
-    if(unit == null || loot == null) return false;
+    if(loot == null) return false;
     let itm = loot.item();
     if(itm == null || !unit.acceptsItem(itm)) return false;
     let amt = loot.stack.amount;
@@ -536,7 +510,7 @@
    * A variant of {takeUnitLoot} used for client side.
    * ---------------------------------------- */
   const takeUnitLoot_client = function(unit, loot, max) {
-    if(unit == null || loot == null) return false;
+    if(loot == null) return false;
     let itm = loot.item();
     if(itm == null || !unit.acceptsItem(itm)) return false;
     let amt = loot.stack.amount;
@@ -573,11 +547,9 @@
    * Lets a unit drops its item to spawn a loot.
    * ---------------------------------------- */
   const dropUnitLoot = function(unit, max) {
-    if(unit == null) return false;
-    let itm = unit.item();
-    if(itm == null) return false;
     if(max == null) max = Infinity;
 
+    let itm = unit.item();
     let amtTrans = Math.min(unit.stack.amount, max);
     if(amtTrans < 1) return false;
 
@@ -596,11 +568,11 @@
 
 
   const comp_updateTile_exposed = function(b) {
-    if(!Mathf.chance(0.05)) return;
+    if(!Mathf.chance(0.025)) return;
     if(b.items == null || b.block.itemCapacity === 0 || !MDL_cond.isExposedBlk(b.block) || MDL_cond._isNoReacBlk(b.block)) return;
 
     b.items.each(itm => {
-      MDL_reaction.handleReaction(itm, "GROUP: air", 20.0, b);
+      MDL_reaction.handleReaction(itm, "GROUP: air", 40.0, b);
     });
   }
   exports.comp_updateTile_exposed = comp_updateTile_exposed;

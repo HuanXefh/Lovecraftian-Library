@@ -20,26 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.fluidType: str    // @PARAM
-   * b.liqEnd: null
-   * b.pres: 0.0
-   * b.presBase: 0.0
-   * b.presTmp: 0.0
-   * b.presRes: 0.0
-   * b.vacRes: 0.0
-   * b.corRes: 1.0
-   * b.cloggable: false
-   * b.fHeatCur: 0.0
-   * b.fHeatTg: 0.0
-   * b.heatRes: Infinity
-   * b.heatReg: null
-   * b.isPresInlet: false
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -197,7 +177,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -294,7 +274,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-fcont"],
     }),
@@ -334,3 +314,96 @@
 
 
   };
+
+
+  TEMPLATE._std = function(fluidType) {
+    return {
+      fluidType: Object.val(fluidType, "both"),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getFluidType() {
+        return TEMPLATE.ex_getFluidType(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      liqEnd: null, pres: 0.0, presBase: 0.0, presTmp: 0.0,
+      presRes: 0.0, vacRes: 0.0, corRes: 1.0, cloggable: false, fHeatCur: 0.0, fHeatTg: 0.0, heatRes: Infinity,
+      heatReg: null, isPresInlet: false,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      remove() {
+        TEMPLATE.remove(this);
+      },
+      acceptLiquid(b_f, liq) {
+        if(!this.super$acceptLiquid(b_f, liq)) return false;
+        if(!TEMPLATE.acceptLiquid(this, b_f, liq)) return false;
+        return true;
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accPresBase(param) {
+        return TEMPLATE.ex_accPresBase(this, param);
+      },
+      ex_getPresTmp() {
+        return TEMPLATE.ex_getPresTmp(this);
+      },
+      ex_updatePres() {
+        TEMPLATE.ex_updatePres(this);
+      },
+      ex_getFHeatCur() {
+        return TEMPLATE.ex_getFHeatCur(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

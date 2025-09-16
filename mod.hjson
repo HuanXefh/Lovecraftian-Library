@@ -15,8 +15,7 @@ softDependencies: []
 
 description:
 '''
-A simple (or not) library mod I made mostly for myself, intended for building javascript mods.
-For wanderers only, it may not work well with vanilla gameplay.
+A JavaScript library for my other mods.
 '''
 
-version: 100.25090901
+version: 100.25091701

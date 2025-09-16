@@ -21,15 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * itm.alts: 0
-   * itm.intmdParent: rs_gn    // @PARAM, @NULL
-   * itm.useParentRegion: bool    // @PARAM
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -74,7 +65,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- resource ----------> */
@@ -109,7 +100,7 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["rs-intmd", "rs-blend"],
     }),
@@ -122,3 +113,36 @@
 
 
   };
+
+
+  TEMPLATE._std = function(intmdParent, hasReg) {
+    return {
+      alts: 0,
+      intmdParent: intmdParent, useParentRegion: !hasReg,
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      loadIcon() {
+        this.super$loadIcon();
+        TEMPLATE.loadIcon(this);
+      },
+      createIcons(packer) {
+        this.super$createIcons(packer);
+        TEMPLATE.createIcons(this, packer);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getParent() {
+        return TEMPLATE.ex_getParent(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

@@ -9,7 +9,7 @@
    * NOTE:
    *
    * @NAMEGEN
-   * Intermediate: chunks.
+   * Intermediate: P1 dust.
    * ---------------------------------------- */
 
 
@@ -50,12 +50,12 @@
 
   function comp_init(itm) {
     if(itm.intmdParent != null) {
-      itm.flammability = itm.intmdParent.flammability * 1.25;
-      itm.explosiveness = itm.intmdParent.explosiveness * 1.25;
+      itm.flammability = itm.intmdParent.flammability * 1.5;
+      itm.explosiveness = itm.intmdParent.explosiveness * 1.5;
 
       MDL_content.rename(
         itm,
-        MDL_bundle._term("common", "intmd-chunks") + MDL_text._space() + "(" + itm.intmdParent.localizedName + ")",
+        MDL_bundle._term("common", "intmd-p1-dust") + MDL_text._space() + "(" + itm.intmdParent.localizedName + ")",
       );
     };
   };
@@ -105,7 +105,7 @@
     ex_getTags: function(itm) {
       return TEMPLATE.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["rs-intmd", "rs-chunks"],
+      "funArr": ["rs-intmd", "rs-dust", "rs-p1"],
     }),
 
 

@@ -138,13 +138,9 @@
     exports.weaEns = (function() {
       const obj = {};
       Vars.content.weathers().each(wea => {
-        if(wea.ex_getWeaEnPermanent != null) {
-          obj[wea.name] = wea.ex_getWeaEnPermanent();
-        } else {
-          let weaEn = new Weather.WeatherEntry(wea);
-          weaEn.always = true;
-          obj[wea.name] = weaEn;
-        };
+        let weaEn = new Weather.WeatherEntry(wea);
+        weaEn.always = true;
+        obj[wea.name] = weaEn;
       });
       return obj;
     })();
@@ -224,7 +220,6 @@
 
 
     exports.fadeStas = Vars.content.statusEffects().select(sta => MDL_cond._isFadeSta(sta)).toArray();
-    exports.blkStas = Vars.content.statusEffects().select(sta => MDL_cond._isBlkSta(sta)).toArray();
     exports.deathStas = Vars.content.statusEffects().select(sta => MDL_cond._isDeathSta(sta)).toArray();
     exports.stackStas = Vars.content.statusEffects().select(sta => MDL_cond._isStackSta(sta)).toArray();
 
@@ -263,6 +258,7 @@
     exports.auxVac = Vars.content.liquid("loveclab-aux0aux-vacuum");
     exports.auxHeat = Vars.content.liquid("loveclab-aux0aux-heat");
     exports.auxTor = Vars.content.liquid("loveclab-aux0aux-torque");
+    exports.auxRpm = Vars.content.liquid("loveclab-aux0aux-rpm");
 
 
   }, 54888119);

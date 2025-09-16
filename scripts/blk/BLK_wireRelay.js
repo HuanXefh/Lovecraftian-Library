@@ -20,15 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.wireMat: str    // @PARAM: Material used to determine the wire region.
-   * b.touchDmg: f    // @PARAM: Damage dealt when a unit touches the wire, negative to disable it.
-   * b.arcColor: color    // @PARAM: Color of the lightning arc.
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["group"]["shortCircuit"]    // @PARAM
@@ -139,7 +130,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -219,7 +210,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-pow", "blk-pow0trans", "blk-relay"],
     }),
@@ -229,3 +220,66 @@
 
 
   };
+
+
+  TEMPLATE._std = function(wireMat) {
+    return {
+      wireMat: Object.val(wireMat, "copper"),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      canPlaceOn(t, team, rot) {
+        if(!this.super$canPlaceOn(t, team, rot)) return false;
+        if(!TEMPLATE.canPlaceOn(this, t, team, rot)) return false;
+        return true;
+      },
+      drawLaser(x1, y1, x2, y2, size1, size2) {
+        TEMPLATE.drawLaser(this, x1, y1, x2, y2, size1, size2);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function(touchDmg, arcColor) {
+    return {
+      touchDmg: Object.val(touchDmg, 0.0), arcColor: Object.val(arcColor, Pal.accent),
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

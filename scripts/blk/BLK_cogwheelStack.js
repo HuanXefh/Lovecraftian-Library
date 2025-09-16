@@ -8,12 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Cogwheels, which are used to transfer torque.
-   * RPM will be passed to another cogwheel if the direction is different.
-   * Only the small cogwheels can interact with torque producers and consumers.
-   * Size of cogwheels cannot be even numbers!
-   *
-   * Using {customShadow} is recommended if you don't create a gearbox, or the block shadow looks weired.
+   * Stacked cogwheels. Block size is used for the bottom one.
    * ---------------------------------------- */
 
 
@@ -41,9 +36,8 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseTorqueBlock");
-  const JAVA = require("lovec/glb/GLB_java");
-  const TIMER = require("lovec/glb/GLB_timer");
+  const PARENT = require("lovec/blk/BLK_cogwheel");
+  const PARENT_A = require("lovec/blk/BLK_baseTorqueBlock");
   const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
@@ -52,9 +46,7 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
-  const MDL_effect = require("lovec/mdl/MDL_effect");
-  const MDL_entity = require("lovec/mdl/MDL_entity");
-  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
+  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
@@ -62,28 +54,23 @@
 
 
   function comp_init(blk) {
-    if(blk.size % 2 === 0) throw new Error("Size of a cogwheel cannot be even!");
+    if(blk.ovSize % 2 === 0) throw new Error("Size of a cogwheel cannot be even!");
 
-    blk.configurable = true;
-
-    blk.group = BlockGroup.none;
-    blk.solid = false;
-    blk.underBullets = true;
-
-    blk.config(JAVA.BOOLEAN, (b, bool) => {
-      b.ex_accIsInv(bool);
-      b.ex_accRpmCur(0.0);
-      MDL_effect.showAt_click(b.x, b.y, b.team);
-      Sounds.click.at(b);
-      // Force this cogwheel to update RPM inmediately, or it will stop for a second and waste torque
-      b.ex_accRpmCur(b.ex_getTargetRpm());
+    MDL_event._c_onLoad(() => {
+      blk.region = Core.atlas.find(blk.botParent);
+      blk.customShadowRegion = Core.atlas.find(blk.botParent + "-shadow");
+      blk.fullIcon = blk.uiIcon = Core.atlas.find(blk.name + "-icon");
     });
   };
 
 
   function comp_created(b) {
-    b.invReg = MDL_texture._reg(b.block, "-inv");
+    b.invReg = Core.atlas.find(b.block.ex_getBotParent() + "-inv");
     b.drawW = b.block.region.width * 2.0 * 1.06 / Vars.tilesize;
+    b.ovReg = Core.atlas.find(b.block.ex_getOvParent());
+    b.ovInvReg = Core.atlas.find(b.block.ex_getOvParent() + "-inv");
+    b.ovShaReg = Core.atlas.find(b.block.ex_getOvParent() + "-shadow");
+    b.ovDrawW = b.ovReg.width * 2.0 * 1.06 / Vars.tilesize;
 
     Time.run(5.0, () => {
       if(isNaN(b.rpmCur)) b.rpmCur = 0.0;
@@ -95,6 +82,7 @@
   function comp_draw(b) {
     var ang = Mathf.mod(b.tProg, 90.0);
     var invOffAng = 22.5 / (b.block.size + 1) * 2.0;
+    var ovInvOffAng = 22.5 / (b.block.ex_getOvSize() + 1) * 2.0;
 
     Draw.z(Layer.block + b.block.size * 0.001 + 0.72);
     if(b.isInv) {
@@ -106,22 +94,27 @@
       Draw.alpha(ang / 90.0);
       Draw.rect(b.block.region, b.x, b.y, b.drawW, b.drawW, ang - 90.0);
     };
+    Draw.z(Layer.power - 1.6 + b.block.ex_getOvSize() * 0.001);
+    Draw.alpha(1.0);
+    Draw.rect(b.ovShaReg, b.x, b.y);
+    let ovA = b.block.ex_getOvSize() > b.block.size ? VAR.blk_ovCogA1 : VAR.blk_ovCogA2;
+    if(b.isInv) {
+      Draw.alpha(ang / 90.0 * ovA);
+      Draw.rect(b.ovInvReg, b.x, b.y, b.ovDrawW, b.ovDrawW, -ang + 90.0 + ovInvOffAng);
+      Draw.alpha((1.0 - ang / 90.0) * ovA);
+      Draw.rect(b.ovInvReg, b.x, b.y, b.ovDrawW, b.ovDrawW, -ang + ovInvOffAng);
+    } else {
+      Draw.alpha((1.0 - ang / 90.0) * ovA);
+      Draw.rect(b.ovReg, b.x, b.y, b.ovDrawW, b.ovDrawW, ang);
+      Draw.alpha(ang / 90.0 * ovA);
+      Draw.rect(b.ovReg, b.x, b.y, b.ovDrawW, b.ovDrawW, ang - 90.0);
+    };
     Draw.reset();
   };
 
 
-  function comp_unitOn(b, unit) {
-    let dst = Mathf.dst(b.x, b.y, unit.x, unit.y);
-    (dst > 3.0 || unit.hitSize > (b.block.size + 0.5) * Vars.tilesize) ?
-      unit.impulse(Tmp.v1.set(unit).sub(b).rotate90(Mathf.sign(!b.isInv)).nor().scl(b.rpmCur * 3.0 * b.block.size / Math.max(dst * 0.7, 1.0))) :
-      MDL_entity.rotateUnit(unit, b.rpmCur * 0.2 * Mathf.sign(!b.isInv));
-  };
-
-
-  function comp_configTapped(b) {
-    b.configure(!b.isInv);
-
-    return false;
+  function comp_createIcons(blk, packer) {
+    MDL_texture.comp_createIcons_ctTag(blk, packer, blk.botParent, blk.ovParent, "-icon");
   };
 
 
@@ -150,10 +143,18 @@
       b.transTgs.forEachFast(ob => {
         if(ob.ex_accIsInv("read") === b.isInv) return;
 
-        val = Math.max(
-          ob.ex_accRpmCur("read") * ob.block.size / b.block.size,
-          val,
-        );
+        if(!MDL_cond._isCogStack(ob.block)) {
+          val = Math.max(
+            ob.ex_accRpmCur("read") * ob.block.size / b.block.size,
+            val,
+          );
+        } else {
+          val = Math.max(
+            ob.ex_accRpmCur("read") * ob.block.ex_getOvSize() / b.block.ex_getOvSize(),
+            val,
+          );
+        };
+
       });
     };
 
@@ -161,37 +162,26 @@
   };
 
 
-
-  function comp_ex_getTorSourceArr(b) {
-    const arr = [];
-
-    b.proximity.each(ob => {
-      if((!ob.block.rotate ? true : ob.relativeTo(b) === b.rotation) && ob.liquids != null) {
-        if(ob.block instanceof LiquidSource) {
-          // Liquid source is a special case here, it's buggy but for test only, I won't fix it
-          arr.push(ob, 1.66666667);
-        } else {
-          // Adds the building if it's a torque producer
-          let rate = MDL_recipeDict._prodAmt(VARGEN.auxTor, ob.block);
-          if(rate < 0.0001) return;
-
-          arr.push(ob, rate);
-        };
-      };
-    });
-
-    return arr;
-  };
-
-
   const comp_getTransTgs = function(b) {
     const thisFun = comp_getTransTgs;
     const arr = [];
 
-    let tmpSize = b.block.size;
+    let tmpSize;
+
+    tmpSize = b.block.size;
     while(tmpSize > 0) {
       for(let i = 0; i < 4; i++) {
-        let ob = thisFun.funScr(b, tmpSize, i);
+        let ob = thisFun.funScr(b, tmpSize, i, false);
+        if(ob == null) continue;
+
+        arr.push(ob);
+      };
+      tmpSize -= 2;
+    };
+    tmpSize = b.block.ex_getOvSize();
+    while(tmpSize > 0) {
+      for(let i = 0; i < 4; i++) {
+        let ob = thisFun.funScr(b, tmpSize, i, true);
         if(ob == null) continue;
 
         arr.push(ob);
@@ -203,7 +193,7 @@
   }
   .setProp({
     // Gets valid cogwheel on a proper position
-    "funScr": (b, size, ind) => {
+    "funScr": (b, size, ind, isOv) => {
       let pon2;
       let dstT = (size + 1) / 2;
       switch(ind) {
@@ -224,40 +214,11 @@
       let ot = b.tile.nearby(pon2);
       if(ot == null) return null;
       let ob = ot.build;
-      if(ob == null || !MDL_cond._isCog(ob.block) || (ob.tileX() !== b.tileX() && ob.tileY() !== b.tileY())) return null;
+      if(ob == null || (isOv ? (!MDL_cond._isCogStack(ob.block) || ot !== ob.tile) : !MDL_cond._isCog(ob.block)) || (ob.tileX() !== b.tileX() && ob.tileY() !== b.tileY())) return null;
 
       return ob;
     },
   });
-
-
-  function comp_updateTor(b) {
-    let torGenRate = 0.0, torTransAmtTg = 0.0;
-    let i, iCap;
-    i = 0;
-    iCap = b.torSourceArr.iCap();
-    while(i < iCap) {
-      torGenRate += b.torSourceArr[i].efficiency * b.torSourceArr[i + 1];
-      i += 2;
-    };
-    i = 0;
-    iCap = b.supplyTgArr.iCap();
-    while(i < iCap) {
-      torGenRate -= b.supplyTgArr[i].efficiency * b.supplyTgArr[i + 1];
-      i += 2;
-    };
-    b.torCur = Mathf.clamp(b.torCur + torGenRate * Time.delta, 0.0, b.rpmCur * b.block.size);
-
-    b.transTgs.forEachFast(ob => {
-      if(ob.ex_accIsInv("read") === b.isInv) return;
-
-      torTransAmtTg = (ob.ex_accTorCur("read") + b.torCur) * 0.5;
-      ob.ex_accTorCur(torTransAmtTg);
-      b.torCur = torTransAmtTg;
-    });
-
-    b.rpmCur = b.ex_getTargetRpm();
-  };
 
 
 /*
@@ -293,7 +254,7 @@
 
 
     created: function(b) {
-      PARENT.created(b);
+      PARENT_A.created(b);
       comp_created(b);
     },
 
@@ -315,7 +276,7 @@
 
     // @NOSUPER
     draw: function(b) {
-      PARENT.draw(b);
+      PARENT_A.draw(b);
       comp_draw(b);
     },
 
@@ -333,36 +294,39 @@
     },
 
 
+    createIcons: function(blk, packer) {
+      comp_createIcons(blk, packer);
+    },
+
+
     /* <---------- build (specific) ----------> */
 
 
     // @NOSUPER
     unitOn: function(b, unit) {
-      comp_unitOn(b, unit);
+      PARENT.unitOn(b, unit);
     },
 
 
     // @NOSUPER
     configTapped: function(b) {
-      return comp_configTapped(b);
+      return PARENT.configTapped(b);
     },
 
 
     // @NOSUPER
     config: function(b) {
-      return b.isInv;
+      return PARENT.config(b);
     },
 
 
     write: function(b, wr) {
       PARENT.write(b, wr);
-      wr.bool(b.isInv);
     },
 
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
-      b.isInv = rd.bool();
     },
 
 
@@ -373,8 +337,26 @@
     ex_getTags: function(blk) {
       return TEMPLATE.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-cog"],
+      "funArr": ["blk-cog", "blk-cog0stack"],
     }),
+
+
+    // @NOSUPER
+    ex_getOvSize: function(blk) {
+      return blk.ovSize;
+    },
+
+
+    // @NOSUPER
+    ex_getBotParent: function(blk) {
+      return blk.botParent;
+    },
+
+
+    // @NOSUPER
+    ex_getOvParent: function(blk) {
+      return blk.ovParent;
+    },
 
 
     /* <---------- build (extended) ----------> */
@@ -400,7 +382,7 @@
 
     // @NOSUPER
     ex_getTorSourceArr: function(b) {
-      return comp_ex_getTorSourceArr(b);
+      return PARENT.ex_getTorSourceArr(b);
     },
 
 
@@ -418,7 +400,7 @@
 
     // @NOSUPER
     ex_canSupplyTor: function(b) {
-      return b.block.size === 1;
+      return PARENT.ex_canSupplyTor(b);
     },
 
 
@@ -430,21 +412,22 @@
 
     // @NOSUPER
     ex_updateTor: function(b) {
-      comp_updateTor(b);
+      PARENT.ex_updateTor(b);
     },
 
 
     // @NOSUPER
     ex_accIsInv: function(b, param) {
-      return param === "read" ? b.isInv : (b.isInv = param);
+      return PARENT.ex_accIsInv(b, param);
     },
 
 
   };
 
 
-  TEMPLATE._std = function() {
+  TEMPLATE._std = function(ovSize, botParent, ovParent) {
     return {
+      ovSize: Object.val(ovSize, 3), botParent: botParent, ovParent: ovParent,
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -461,8 +444,21 @@
         this.super$setBars();
         TEMPLATE.setBars(this);
       },
+      createIcons(packer) {
+        this.super$createIcons(packer);
+        TEMPLATE.createIcons(this, packer);
+      },
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);
+      },
+      ex_getOvSize() {
+        return TEMPLATE.ex_getOvSize(this);
+      },
+      ex_getBotParent() {
+        return TEMPLATE.ex_getBotParent(this);
+      },
+      ex_getOvParent() {
+        return TEMPLATE.ex_getOvParent(this);
       },
     };
   };
@@ -472,6 +468,7 @@
     return {
       tProg: 0.0, rpmCur: 0.0, torCur: 0.0, torSourceArr: [], supplyTgArr: [], transTgs: [],
       isInv: false, invReg: null, drawW: 0.0,
+      ovReg: null, ovInvReg: null, ovShaReg: null, ovDrawW: 0.0,
       created() {
         this.super$created();
         TEMPLATE.created(this);

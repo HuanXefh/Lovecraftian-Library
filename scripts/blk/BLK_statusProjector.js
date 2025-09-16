@@ -21,16 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.staTg: sta_gn    // @PARAM, @NULL: Status effect applied to matching units.
-   * blk.filterScr: (b, unit) => bool    // @PARAM: Filter function for selection of units.
-   * b.useCep: bool    // @PARAM
-   * b.staDur: 0.0
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
@@ -120,7 +110,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -199,7 +189,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-proj"],
     }),
@@ -215,3 +205,65 @@
 
 
   };
+
+
+  TEMPLATE._std = function(sta_gn, filterScr) {
+    return {
+      staTg: Object.val(sta_gn, null),
+      filterScr: Object.val(filterScr, (b, unit) => true),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getStaTg() {
+        return TEMPLATE.ex_getStaTg(this);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function(useCep) {
+    return {
+      useCep: Object.val(useCep, false),
+      staDur: 0.0,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        TEMPLATE.drawSelect(this);
+      },
+      updateEfficiencyMultiplier() {
+        this.super$updateEfficiencyMultiplier();
+        TEMPLATE.updateEfficiencyMultiplier(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

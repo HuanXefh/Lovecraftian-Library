@@ -31,30 +31,30 @@
   const _hasInput = function(rs_gn, ci, bi, aux, opt) {
     let rs = MDL_content._ct(rs_gn, "rs");
     if(rs == null) return false;
-    var cond = false;
+    let i, iCap, j, jCap, tmp, tmp1;
 
     // CI
-    var i = 0;
-    var iCap = ci.iCap();
+    i = 0;
+    iCap = ci.iCap();
     while(i < iCap) {
-      let tmp = ci[i];
-      if(tmp === rs) cond = true;
+      tmp = ci[i];
+      if(tmp === rs) return true;
       i += 2;
     };
 
     // BI
-    var i = 0;
-    var iCap = bi.iCap();
+    i = 0;
+    iCap = bi.iCap();
     while(i < iCap) {
-      let tmp = bi[i];
+      tmp = bi[i];
       if(tmp === rs) {
-        cond = true;
+        return true;
       } else if(tmp instanceof Array) {
-        let j = 0;
-        let jCap = tmp.iCap();
+        j = 0;
+        jCap = tmp.iCap();
         while(j < jCap) {
-          let tmp1 = tmp[j];
-          if(tmp1 === rs) cond = true;
+          tmp1 = tmp[j];
+          if(tmp1 === rs) return true;
           j += 3;
         };
       };
@@ -62,24 +62,24 @@
     };
 
     // AUX
-    var i = 0;
-    var iCap = aux.iCap();
+    i = 0;
+    iCap = aux.iCap();
     while(i < iCap) {
-      let tmp = aux[i];
-      if(tmp === rs) cond = true;
+      tmp = aux[i];
+      if(tmp === rs) return true;
       i += 2;
     };
 
     // OPT
-    var i = 0;
-    var iCap = opt.iCap();
+    i = 0;
+    iCap = opt.iCap();
     while(i < iCap) {
-      let tmp = opt[i];
-      if(tmp === rs) cond = true;
+      tmp = opt[i];
+      if(tmp === rs) return true;
       i += 4;
     };
 
-    return cond;
+    return false;
   };
   exports._hasInput = _hasInput;
 
@@ -92,36 +92,36 @@
   const _hasOutput = function(rs_gn, co, bo, fo) {
     let rs = MDL_content._ct(rs_gn, "rs");
     if(rs == null) return false;
-    var cond = false;
+    let i, iCap, tmp;
 
     // CO
-    var i = 0;
-    var iCap = co.iCap();
+    i = 0;
+    iCap = co.iCap();
     while(i < iCap) {
-      let tmp = co[i];
-      if(tmp === rs) cond = true;
+      tmp = co[i];
+      if(tmp === rs) return true;
       i += 2;
     };
 
     // BO
-    var i = 0;
-    var iCap = bo.iCap();
+    i = 0;
+    iCap = bo.iCap();
     while(i < iCap) {
-      let tmp = bo[i];
-      if(tmp === rs) cond = true;
+      tmp = bo[i];
+      if(tmp === rs) return true;
       i += 3;
     };
 
     // FO
-    var i = 0;
-    var iCap = fo.iCap();
+    i = 0;
+    iCap = fo.iCap();
     while(i < iCap) {
-      let tmp = fo[i];
-      if(tmp === rs) cond = true;
+      tmp = fo[i];
+      if(tmp === rs) return true;
       i += 3;
     };
 
-    return cond;
+    return false;
   };
   exports._hasOutput = _hasOutput;
 
@@ -132,20 +132,21 @@
    * Whether the multi-crafter has any item output.
    * ---------------------------------------- */
   const _hasOutput_itm = function(bo, fo) {
-    var cond = false;
+    let i, iCap;
+
+    // FO
+    // At the top for less calculation
+    if(fo.length > 0) return true;
 
     // BO
-    var i = 0;
-    var iCap = bo.iCap();
+    i = 0;
+    iCap = bo.iCap();
     while(i < iCap) {
-      if(bo[i] instanceof Item) cond = true;
+      if(bo[i] instanceof Item) return true;
       i += 3;
     };
 
-    // FO
-    if(fo.length > 0) cond = true;
-
-    return cond;
+    return false;
   };
   exports._hasOutput_itm = _hasOutput_itm;
 
@@ -156,37 +157,37 @@
    * Whether the multi-crafter has any fluid output.
    * ---------------------------------------- */
   const _hasOutput_liq = function(includeAux, co, bo) {
-    var cond = false;
+    let i, iCap, tmp;
 
     // CO
-    var i = 0;
-    var iCap = co.iCap();
+    i = 0;
+    iCap = co.iCap();
     while(i < iCap) {
-      let tmp = co[i];
+      tmp = co[i];
       if(!MDL_cond._isAux(tmp)) {
-        cond = true;
+        return true;
       } else {
-        if(includeAux) cond = true;
+        if(includeAux) return true;
       };
       i += 2;
     };
 
     // BO
-    var i = 0;
-    var iCap = bo.iCap();
+    i = 0;
+    iCap = bo.iCap();
     while(i < iCap) {
-      let tmp = bo[i];
+      tmp = bo[i];
       if(tmp instanceof Liquid) {
         if(!MDL_cond._isAux(tmp)) {
-          cond = true;
+          return true;
         } else {
-          if(includeAux) cond = true;
+          if(includeAux) return true;
         };
       };
       i += 3;
     };
 
-    return cond;
+    return false;
   };
   exports._hasOutput_liq = _hasOutput_liq;
 
@@ -198,25 +199,26 @@
    * ---------------------------------------- */
   const _inputLiqs = function(ci, bi, aux) {
     const arr = [];
+    let i, iCap, j, jCap;
 
     // CI
-    var i = 0;
-    var iCap = ci.iCap();
+    i = 0;
+    iCap = ci.iCap();
     while(i < iCap) {
       arr.pushUnique(ci[i]);
       i += 2;
     };
 
     // BI
-    var i = 0;
-    var iCap = bi.iCap();
+    i = 0;
+    iCap = bi.iCap();
     while(i < iCap) {
       let tmp = bi[i];
       if(!(tmp instanceof Array)) {
         if(tmp instanceof Liquid) arr.pushUnique(tmp);
       } else {
-        let j = 0;
-        let jCap = tmp.iCap();
+        j = 0;
+        jCap = tmp.iCap();
         while(j < jCap) {
           let tmp1 = tmp[j];
           if(tmp1 instanceof Liquid) arr.pushUnique(tmp1);
@@ -227,8 +229,8 @@
     };
 
     // AUX
-    var i = 0;
-    var iCap = aux.iCap();
+    i = 0;
+    iCap = aux.iCap();
     while(i < iCap) {
       arr.pushUnique(aux[i]);
       i += 2;
@@ -246,18 +248,19 @@
    * ---------------------------------------- */
   const _outputLiqs = function(co, bo) {
     const arr = [];
+    let i, iCap;
 
     // CO
-    var i = 0;
-    var iCap = co.iCap();
+    i = 0;
+    iCap = co.iCap();
     while(i < iCap) {
       arr.pushUnique(co[i]);
       i += 2;
     };
 
     // BO
-    var i = 0;
-    var iCap = bo.iCap();
+    i = 0;
+    iCap = bo.iCap();
     while(i < iCap) {
       let tmp = bo[i];
       if(tmp instanceof Liquid) arr.pushUnique(tmp);
@@ -275,60 +278,59 @@
    * Whether the multi-crafter can add resource any more.
    * ---------------------------------------- */
   const _canAdd = function(b, ignoreItemFullness, co, bo, fo) {
-    var cond = true;
     let noItm = b.items == null;
     let noLiq = b.liquids == null;
 
-    let tmp, amt, p;
+    let i, iCap, tmp, amt, p;
 
     // CO
     if(!noLiq) {
       let allFull = true;
-      let i = 0;
-      let iCap = co.iCap();
+      i = 0;
+      iCap = co.iCap();
       while(i < iCap) {
         tmp = co[i];
         amt = co[i + 1];
         if(b.liquids.get(tmp) < b.block.liquidCapacity) {
           allFull = false;
         } else if(!b.block.ignoreLiquidFullness && !b.block.dumpExtraLiquid) {
-          cond = false;
+          return false;
         };
         i += 2;
       };
-      if(allFull && _hasOutput_liq(true, co, bo) && !b.block.ignoreLiquidFullness) cond = false;
+      if(allFull && _hasOutput_liq(true, co, bo) && !b.block.ignoreLiquidFullness) return false;
     };
 
     // BO
-    var i = 0;
-    var iCap = bo.iCap();
+    i = 0;
+    iCap = bo.iCap();
     while(i < iCap) {
       tmp = bo[i];
       amt = bo[i + 1];
       p = bo[i + 2];
       if(!noItm && tmp instanceof Item) {
-        if(!ignoreItemFullness && b.items.get(tmp) > b.block.itemCapacity - amt * p) cond = false;
+        if(!ignoreItemFullness && b.items.get(tmp) > b.getMaximumAccepted(tmp) - amt * p) return false;
       };
       if(!noLiq && tmp instanceof Liquid) {
-        if(!b.block.ignoreLiquidFullness && b.liquids.get(tmp) / b.block.liquidCapacity > 0.98) cond = false;
+        if(!b.block.ignoreLiquidFullness && b.liquids.get(tmp) / b.block.liquidCapacity > 0.98) return false;
       };
       i += 3;
     };
 
     // FO
     if(!noItm) {
-      let i = 0;
-      let iCap = fo.iCap();
+      i = 0;
+      iCap = fo.iCap();
       while(i < iCap) {
         tmp = fo[i];
         amt = fo[i + 1];
         // No probability for failed output
-        if(!ignoreItemFullness && b.items.get(tmp) > b.block.itemCapacity - amt) cond = false;
+        if(!ignoreItemFullness && b.items.get(tmp) > b.getMaximumAccepted(tmp) - amt) return false;
         i += 3;
       };
     };
 
-    return cond;
+    return true;
   };
   exports._canAdd = _canAdd;
 
@@ -343,14 +345,15 @@
    * {co} is called in dump method for output direction.
    * ---------------------------------------- */
   const _dumpTup = function(b, bo, fo) {
-    const itms = [];
-    const liqs = [];
+    let itms = [];
+    let liqs = [];
     let noItm = b.items == null;
     let noLiq = b.liquids == null;
+    let i, iCap;
 
     // BO
-    var i = 0;
-    var iCap = bo.iCap();
+    i = 0;
+    iCap = bo.iCap();
     while(i < iCap) {
       let tmp = bo[i];
       if(!noItm && tmp instanceof Item) itms.pushUnique(tmp);
@@ -360,8 +363,8 @@
 
     // FO
     if(!noItm) {
-      let i = 0;
-      let iCap = fo.iCap();
+      i = 0;
+      iCap = fo.iCap();
       while(i < iCap) {
         let tmp = fo[i];
         itms.pushUnique(tmp);
@@ -385,9 +388,10 @@
 
     let tup = [];
     var tmpMtp = 0.0;
+    let i, iCap;
 
-    var i = 0;
-    var iCap = opt.iCap();
+    i = 0;
+    iCap = opt.iCap();
     while(i < iCap) {
       let tmp = opt[i];
       let amt = opt[i + 1];
@@ -418,14 +422,14 @@
 
     if(b.power != null) effc *= b.power.status;
 
-    let tmp, tmp1, amt;
+    let i, iCap, j, jCap, tmp, tmp1, amt, allAbsent;
 
     // CI
     if(!noLiq) {
-      let i = 0;
-      let iCap = ci.iCap();
+      i = 0;
+      iCap = ci.iCap();
       while(i < iCap) {
-        if(effc < 0.0001) break;
+        if(effc < 0.0001) return 0.0;
         tmp = ci[i];
         amt = ci[i + 1];
         mtp = b.efficiencyScale() < 0.0001 ?
@@ -437,10 +441,10 @@
     };
 
     // BI
-    var i = 0;
-    var iCap = bi.iCap();
+    i = 0;
+    iCap = bi.iCap();
     while(i < iCap) {
-      if(effc < 0.0001) break;
+      if(effc < 0.0001) return 0.0;
       tmp = bi[i];
       if(!(tmp instanceof Array)) {
         amt = bi[i + 1];
@@ -451,9 +455,9 @@
           if(b.liquids.get(tmp) < amt) effc = 0.0;
         };
       } else {
-        let allAbsent = true;
-        let j = 0;
-        let jCap = tmp.iCap();
+        allAbsent = true;
+        j = 0;
+        jCap = tmp.iCap();
         while(j < jCap) {
           tmp1 = tmp[j];
           amt = tmp[j + 1];
@@ -472,10 +476,10 @@
 
     // AUX
     if(!noLiq) {
-      let i = 0;
-      let iCap = aux.iCap();
+      i = 0;
+      iCap = aux.iCap();
       while(i < iCap) {
-        if(effc < 0.0001) break;
+        if(effc < 0.0001) return 0.0;
         tmp = aux[i];
         amt = aux[i + 1];
         mtp = b.efficiencyScale() < 0.0001 ?
@@ -490,7 +494,10 @@
     if(effc > 0.0) {
       let optTup = _optTup(b, opt);
       if(reqOpt && optTup == null) effc = 0.0;
-      if(optTup != null) effc *= optTup[3];
+      if(optTup != null) {
+        effc *= optTup[3];
+        optTup.clear();
+      };
     };
 
     if(effc < 0.0) effc = 0.0;
@@ -511,11 +518,11 @@
     let noItm = b.items == null;
     let noLiq = b.liquids == null;
 
-    let tmp, tmp1, amt, p;
+    let i, iCap, j, jCap, tmp, tmp1, amt, p;
 
     // BI
-    var i = 0;
-    var iCap = bi.iCap();
+    i = 0;
+    iCap = bi.iCap();
     while(i < iCap) {
       tmp = bi[i];
       if(!(tmp instanceof Array)) {
@@ -528,8 +535,8 @@
           FRAG_fluid.addLiquidBatch(b, b, tmp, -amt);
         };
       } else {
-        let j = 0;
-        let jCap = tmp.iCap();
+        j = 0;
+        jCap = tmp.iCap();
         while(j < jCap) {
           tmp1 = tmp[j];
           amt = tmp[j + 1];
@@ -549,10 +556,8 @@
     // OPT
     let optTup = _optTup(b, opt);
     if(optTup != null) {
-      tmp = optTup[0];
-      amt = optTup[1];
-      p = optTup[2];
-      FRAG_item.consumeItem(b, tmp, amt, p);
+      FRAG_item.consumeItem(b, optTup[0], optTup[1], optTup[2]);
+      optTup.clear();
     };
   };
   exports.consume_itm = consume_itm;
@@ -566,11 +571,11 @@
   const consume_liq = function(b, progIncLiq, timeScl, ci, aux) {
     if(b.liquids == null) return;
 
-    let tmp, amt;
+    let i, iCap, tmp, amt;
 
     // CI
-    var i = 0;
-    var iCap = ci.iCap();
+    i = 0;
+    iCap = ci.iCap();
     while(i < iCap) {
       tmp = ci[i];
       amt = ci[i + 1];
@@ -579,8 +584,8 @@
     };
 
     // AUX
-    var i = 0;
-    var iCap = aux.iCap();
+    i = 0;
+    iCap = aux.iCap();
     while(i < iCap) {
       tmp = aux[i];
       amt = aux[i + 1];
@@ -601,17 +606,17 @@
     let noLiq = b.liquids == null;
     let failed = Mathf.chance(failP);
 
-    let tmp, amt, p;
+    let i, iCap, tmp, amt, p;
 
     // BO
     if(!failed) {
-      let i = 0;
-      let iCap = bo.iCap();
+      i = 0;
+      iCap = bo.iCap();
       while(i < iCap) {
         tmp = bo[i];
         amt = bo[i + 1];
         p = bo[i + 2];
-        if(!noItm && tmp instanceof Item && b.items.get(tmp) < b.block.itemCapacity) {
+        if(!noItm && tmp instanceof Item && b.items.get(tmp) < b.getMaximumAccepted(tmp)) {
           FRAG_item.produceItem(b, tmp, amt, p);
         };
         if(!noLiq && tmp instanceof Liquid) {
@@ -623,14 +628,14 @@
 
     // FO
     if(!noItm && failed) {
-      let i = 0;
-      let iCap = fo.iCap();
+      i = 0;
+      iCap = fo.iCap();
       for(let j = 0; j < 3; j++) {EFF.blackSmog.at(b)};
       while(i < iCap) {
         tmp = fo[i];
         amt = fo[i + 1];
         p = fo[i + 2];
-        if(b.items.get(tmp) < b.block.itemCapacity) {
+        if(b.items.get(tmp) < b.getMaximumAccepted(tmp)) {
           FRAG_item.produceItem(b, tmp, amt, p);
         };
         i += 3;
@@ -648,11 +653,11 @@
   const produce_liq = function(b, progIncLiq, timeScl, co) {
     if(b.liquids == null) return;
 
-    let tmp, amt;
+    let i, iCap, tmp, amt;
 
     // CO
-    var i = 0;
-    var iCap = co.iCap();
+    i = 0;
+    iCap = co.iCap();
     while(i < iCap) {
       tmp = co[i];
       amt = co[i + 1];
@@ -671,11 +676,11 @@
   const dump = function(b, co, dumpTup, splitAmt, fluidType) {
     if(dumpTup == null) return;
 
-    let tmp, dir;
+    let i, iCap, tmp, dir;
 
     if(b.liquids != null) {
-      let i = 0;
-      let iCap = co.iCap();
+      i = 0;
+      iCap = co.iCap();
       while(i < iCap) {
         tmp = co[i];
         dir = (b.block.liquidOutputDirections.length > i / 2) ? b.block.liquidOutputDirections[i / 2] : -1;
@@ -689,7 +694,7 @@
       };
     };
 
-    dumpTup[0].forEach(itm => b.dump(itm));
-    dumpTup[1].forEach(liq => b.dumpLiquid(liq, 2.0));
+    dumpTup[0].forEachFast(itm => b.dump(itm));
+    dumpTup[1].forEachFast(liq => b.dumpLiquid(liq, 2.0));
   };
   exports.dump = dump;

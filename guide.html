@@ -202,7 +202,7 @@
 
     <div>
       <a name="intro-struct"><h2>Library Structure</h2></a>
-      <p>Javascript files in Lovec are categorized based on their purpose. At the first glance it may be way more complex than most js mods, but you don't need all of them at most time. Just know what files to check and import when you need something.</p>
+      <p>Javascript files in Lovec are categorized according to their purpose. At the first glance it may be way more complex than most js mods, but you don't need all of them at most time. Just know what files to check and import when you need something.</p>
       <table>
 
         <tr>
@@ -327,11 +327,10 @@
     <div>
       <a name="intro-struct"><h2>Extending A Template</h2></a>
       <p>To extend a template, you should find a template file first. Template files serve as collections of pre-defined methods. As you can see in <strong>Library Structure</strong>, files in <strong>blk</strong> folder are templates for blocks, every {BLK_xxx} is a template file that you can extend to create your own contents.</p>
-      <p>Template files are meant to be used in a content file (CT file), which is in the <strong>ct</strong> folder. A CT file may consists of three parts in two sections: import (definition), auxiliay (definition) and application. Application is simply where you write {extend(..., {...})}, I won't talk about it since that's basic knowledge for a javascript modder.</p>
-      <p>In the import part, besides importing modules you need, it's important to set the right <strong>TEMPLATE</strong>. If you are creating conveyor blocks, write {const TEMPLATE = require("lovec/blk/BLK_conveyor")} or similiar line to require your own conveyor template. Generic methods for a type of contents should always be defined in a template file, NOT the content file, especially in the object in extend which is completely not reusable. If you're doing it right, you are expected to import few files in a CT file, on most occasions TEMPLATE is the only one required.</p>
-      <p>Most CT files in ProjReind have auxiliay part, where {_std} and {_std_b} are defined. The two methods are local and responsible for outputting objects used in extend. Some objects (e.g. in {CT_BLK_recipeFactory}) are really long and if you put them in extend instead of using a function, you'll get f**ked up by the huge gap between each content, and it's torture to edit every single object when something changes.</p>
-      <p>I can't export {_std} (<del>sounds kinda wierd</del>). CT files are only meant to be required in the scope of your own mod, if you use require on them in cross-mod situations something may break. For your own CT files, you have to copy {_std} or write your own ones.</p>
-      <p>You may have found that {this.super$xxx} is ommited in some methods randomly. In the template file, methods tagged with <i>@NOSUPER</i> are expected to be used without the super method.</p>
+      <p>Template files are meant to be used in a content file (CT file), which is in the <strong>ct</strong> folder. A CT file may consists of three parts in two sections: import (definition), auxiliay (definition) and application. Application is simply where you write {extend(..., {...})}, I won't talk about it since that's basic knowledge for a JavaScript modder.</p>
+      <p>In the import part, besides importing modules you need, it's important to set the right <strong>TEMPLATE</strong>. If you are creating conveyor blocks, write {const TEMPLATE = require("lovec/blk/BLK_conveyor")} or similar code to require your own conveyor template. Generic methods for a type of contents should always be defined in a template file, NOT the content file, especially in the object in extend which is completely not reusable. If you're doing it right, you are expected to import few files in a CT file, on most occasions TEMPLATE is the only one required.</p>
+      <p>Most CT files in ProjReind uses {_std} and {_std_b}. The two methods are defined in template file and are responsible for creating objects used in extend. Some objects (e.g. in {CT_BLK_recipeFactory}) are really long and if you put them in extend instead of using a function, you'll get f**ked up by the huge gap between each content, and it's torture to edit every single object when something changes.</p>
+      <p>You may have found that {this.super$xxx} is ommited in some methods randomly. In the template file, methods tagged with <i>@NOSUPER</i> are expected to be used without the super method being called. You don't need to care about that if you use {_std}, where I have set up everything.</p>
       <br>
     </div>
   </div>
@@ -946,7 +945,7 @@
 
 
   <div>
-    <p class="end"><i>By Mabo. Last edited: Sep 7, 2025</i></p>
+    <p class="end"><i>By Mabo. Last edited: Sep 9, 2025</i></p>
   </div>
 
 

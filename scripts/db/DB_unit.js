@@ -67,6 +67,60 @@ const db = {
   "map": {
 
 
+    "entity": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps type to a unit class and extra id if possible.
+       * Make sure the id here is not used by vanilla game!
+       * ---------------------------------------- */
+      "type": [
+
+        "flying", [UnitEntity, null],
+        "mech", [MechUnit, null],
+        "legs", [LegsUnit, null],
+        "naval", [UnitWaterMove, null],
+        "payload", [PayloadUnit, null],
+        "missile", [TimedKillUnit, null],
+        "tank", [TankUnit, null],
+        "hover", [ElevationMoveUnit, null],
+        "tether", [BuildingTetherPayloadUnit, null],
+        "crawl", [CrawlUnit, null],
+
+        "lovec-mech", [MechUnit, 81],
+
+      ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Used to define new entity types.
+       * Format: {id, obj}.
+       * ---------------------------------------- */
+      "entityDef": [
+
+        // lovec-mech
+        81, {
+          validMine(t, checkDst) {
+            if(t == null) return false;
+            if(global.lovecUtil.fun._hasTag(t.overlay(), "blk-dpore")) return false;
+            if(this.isPlayer()) {
+              let blk = t.overlay() != null && t.overlay().itemDrop != null ? t.overlay() : (t.block() !== Blocks.air ? t.block() : t.floor());
+              if(blk.playerUnmineable) return false;
+            };
+            return this.super$validMine(t, Object.val(checkDst, true));
+          },
+        },
+
+      ],
+
+
+    },
+
+
     /* ----------------------------------------
      * NOTE:
      *

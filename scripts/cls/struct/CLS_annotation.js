@@ -11,7 +11,7 @@
  *
  * {loadScr} is called just after the function is defined.
  *
- * {funArgCaller} is similiar to {funCaller}, but {this} refers to {arguments} of the original method.
+ * {funArgCaller} is similar to {funCaller}, but {this} refers to {arguments} of the original method.
  * ---------------------------------------- */
 
 

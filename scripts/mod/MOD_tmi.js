@@ -54,7 +54,7 @@
    * NOTE:
    *
    * Gets the TMI recipe item for {ct_gn}.
-   * Use {"power"} for {PowerMark} defined in Kotlin, and similiar for heat.
+   * Use {"power"} for {PowerMark} defined in Kotlin, and similar for heat.
    * I don't use vanilla heat, it's kept for other modders.
    * ---------------------------------------- */
   const _ct = function(ct_gn) {

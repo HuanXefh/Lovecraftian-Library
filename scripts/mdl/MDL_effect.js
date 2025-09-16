@@ -167,11 +167,11 @@
 
     var x_i;
     var y_i;
-    for(let i = 0; i < repeat; i++) {
+    (repeat)._it(1, i => {
       x_i = x + Mathf.range(rad);
       y_i = y + Mathf.range(rad);
       Effect.floorDust(x_i, y_i, 8.0);
-    };
+    });
   }
   .setAnno(ANNO.__NONHEADLESS__);
   exports.showAt_dust = showAt_dust;
@@ -415,7 +415,6 @@
     if(utp0unit == null || team == null) return;
     let unit = (utp0unit instanceof Unit) ? utp0unit : null;
     let utp = (utp0unit instanceof Unit) ? utp0unit.type : utp0unit;
-    if(MDL_cond._hasNoRemains(utp)) return;
     let t = Vars.world.tileWorld(x, y);
     if(t == null || !t.floor().canShadow) return;
 

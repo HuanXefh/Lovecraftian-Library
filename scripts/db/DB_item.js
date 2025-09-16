@@ -100,9 +100,100 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
+       * Maps an item together with temperature to its alloying ingredents, ratios and final probability.
+       * Supports alternative inputs.
+       * ---------------------------------------- */
+      "alloying": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an item to its brick baking recipe target and the temperature required.
+       * ---------------------------------------- */
+      "brickBaking": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an item to its casting ingredent array and the temperature required.
+       * ---------------------------------------- */
+      "casting": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an item to its forging ingredent array and the temperature required.
+       * ---------------------------------------- */
+      "forging": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an item to its mixing ingredents, ratios and final probability.
+       * Supports alternative inputs.
+       * ---------------------------------------- */
+      "mixing": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Like {"mixing"} but carried out in a ball mill.
+       * ---------------------------------------- */
+      "ballMillMixing": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps an ore item to its possible side products and chances.
+       * ---------------------------------------- */
+      "purificationI": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Like {"purificationI"} but used for advanced separation (like a classifier).
+       * ---------------------------------------- */
+      "purificationII": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Like {"purificationI"} but for magnetic separators only.
+       * ---------------------------------------- */
+      "purificationMagnetic": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Variant of {"purificationII"} used for floatation.
+       * TODO: Define the format.
+       * ---------------------------------------- */
+      "purificationFloat": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
        * Maps an item to its roasting recipe target and the temperature required.
        * ---------------------------------------- */
       "roasting": [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Variant of {"roasting"} used for concentrate items.
+       * ---------------------------------------- */
+      "concentrateRoasting": [],
 
 
     },
@@ -180,12 +271,13 @@ const db = {
     "rs-dust",
     "rs-blend",
     "rs-clinker",
+    "rs-ore0conc",
     "rs-crd",
 
     "rs-conc",
 
     "rs-clean",
-    "rs-crdg"
+    "rs-crdg",
 
   ],
 

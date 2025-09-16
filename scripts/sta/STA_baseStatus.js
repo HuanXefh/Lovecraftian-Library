@@ -20,13 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -76,7 +69,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- status ----------> */
@@ -105,10 +98,36 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
 
 
   };
+
+
+  TEMPLATE._std = function(eff, effP) {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(unit, staEn) {
+        this.super$update(unit, staEn);
+        TEMPLATE.update(this, unit, staEn);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      // @SPEC
+      effect: Object.val(eff, Fx.none), effectChance: Object.val(effP, 0.02),
+    };
+  };
+
+
+  module.exports = TEMPLATE;

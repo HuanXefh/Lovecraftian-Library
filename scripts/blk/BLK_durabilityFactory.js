@@ -20,40 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.rcMdl: rcMdl    // @PARAM
-   * b.craftSound: se_gn    // @PARAM
-   * b.useCep: bool    // @PARAM
-   * b.noDump: bool    // @PARAM
-   * b.rcHeader: ""
-   * b.validTup: null
-   * b.timeScl: 1.0
-   * b.ci: []
-   * b.bi: []
-   * b.aux: []
-   * b.reqOpt: false
-   * b.opt: []
-   * b.co: []
-   * b.bo: []
-   * b.failP: 0.0
-   * b.fo: []
-   * b.scrTup: null
-   * b.tmpEffc: 0.0
-   * b.progInc: 0.0
-   * b.progIncLiq: 0.0
-   * b.canAdd: false
-   * b.hasRun: false
-   * b.isStopped: false
-   * b.dumpTup: null
-   * b.durabDecMtp: 1.0
-   * b.durabTime: Infinity
-   * b.durab: 1.0
-   * b.durabMode: "dec"
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
@@ -151,7 +117,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -312,7 +278,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-fac"],
     }),
@@ -371,3 +337,141 @@
 
 
   };
+
+
+  TEMPLATE._std = function(nmBlk, craftEff, updateEff, updateEffP) {
+    return {
+      rcMdl: MDL_recipe._rcMdl("projreind", nmBlk),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
+      consumesItem(itm) {
+        return TEMPLATE.consumesItem(this, itm);
+      },
+      consumesLiquid(liq) {
+        return TEMPLATE.consumesLiquid(this, liq);
+      },
+      outputsItems() {
+        return TEMPLATE.outputsItems(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getRcMdl() {
+        return TEMPLATE.ex_getRcMdl(this);
+      },
+      // @SPEC
+      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+    };
+  };
+
+
+  TEMPLATE._std_b = function(craftSe, useCep, noDump) {
+    return {
+      craftSound: Object.val(craftSe, Sounds.none),
+      useCep: Object.val(useCep, false), noDump: Object.val(noDump, false),
+      rcHeader: "", validTup: null, timeScl: 1.0, ignoreItemFullness: false,
+      ci: [], bi: [], aux: [], reqOpt: false, opt: [],
+      co: [], bo: [], failP: 0.0, fo: [],
+      scrTup: null, tmpEffc: 0.0, progInc: 0.0, progIncLiq: 0.0, canAdd: false,
+      hasRun: false, isStopped: false, dumpTup: null,
+      durabDecMtp: 1.0, durabTime: Infinity, durab: 1.0, durabMode: "dec",
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      displayConsumption(tb) {
+        TEMPLATE.displayConsumption(this, tb);
+      },
+      displayBars(tb) {
+        this.super$displayBars(tb);
+        TEMPLATE.displayBars(this, tb);
+      },
+      acceptItem(b_f, itm) {
+        return TEMPLATE.acceptItem(this, b_f, itm);
+      },
+      acceptLiquid(b_f, liq) {
+        return TEMPLATE.acceptLiquid(this, b_f, liq);
+      },
+      shouldConsume() {
+        return TEMPLATE.shouldConsume(this);
+      },
+      craft() {
+        this.super$craft();
+        TEMPLATE.craft(this);
+      },
+      buildConfiguration(tb) {
+        TEMPLATE.buildConfiguration(this, tb);
+      },
+      config() {
+        return TEMPLATE.config(this);
+      },
+      drawStatus() {
+        TEMPLATE.drawStatus(this);
+      },
+      write(wr) {
+        this.super$write(wr);
+        TEMPLATE.write(this, wr);
+      },
+      read(rd, revi) {
+        this.super$read(rd, revi);
+        TEMPLATE.read(this, rd, revi);
+      },
+      ex_accRcHeader(param) {
+        return TEMPLATE.ex_accRcHeader(this, param);
+      },
+      ex_updateParams(rcMdl, rcHeader, forceLoad) {
+        TEMPLATE.ex_updateParams(this, rcMdl, rcHeader, forceLoad);
+      },
+      ex_initParams() {
+        TEMPLATE.ex_initParams(this);
+      },
+      ex_getEffc() {
+        return TEMPLATE.ex_getEffc(this);
+      },
+      ex_getTimerEffcState() {
+        return TEMPLATE.ex_getTimerEffcState(this);
+      },
+      ex_getFailP() {
+        return TEMPLATE.ex_getFailP(this);
+      },
+      ex_getDurabFrac() {
+        return TEMPLATE.ex_getDurabFrac(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

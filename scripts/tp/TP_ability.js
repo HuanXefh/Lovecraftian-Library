@@ -40,23 +40,18 @@
   };
 
 
-  function getAbilityDamage(dmg, e, bDmgMtp) {
-    let dmg_fi = dmg;
-    if(e instanceof Building) {
-      dmg_fi *= Object.val(bDmgMtp, 1.0);
-    } else {
-      dmg_fi *= e.damageMultiplier;
-    };
-
-    return dmg_fi;
+  const _abiDmg = function(dmg, e, bDmgMtp) {
+    return dmg * (e instanceof Building ? Object.val(bDmgMtp, 1.0) : e.damageMultiplier);
   };
+  exports._abiDmg = _abiDmg;
 
 
-  function registerAbilitySetter(nm, abiSetter) {
+  const regisAbiSetter = function(nm, abiSetter) {
     MDL_event._c_onLoad(() => {
       global.lovecUtil.db.abilitySetter.push(nm, abiSetter);
     });
   };
+  exports.regisAbiSetter = regisAbiSetter;
 
 
   /* <---------- attack ----------> */
@@ -126,12 +121,69 @@
     });
   }
   .setAnno(ANNO.__INIT__, null, function() {
-    registerAbilitySetter("explosion", this);
+    regisAbiSetter("explosion", this);
   });
   exports._explosion = _explosion;
 
 
   /* <---------- support ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Periodically regenerates shield for this unit.
+   * ---------------------------------------- */
+  const _shieldCore = function(maxShield, regenAmt, regenIntv) {
+    if(maxShield == null) maxShield = 0.0;
+    if(regenAmt == null) regenAmt = 0.0;
+    if(regenIntv == null) regenIntv = 1.0;
+
+    let nm = "shield-core";
+    let timerMap = new ObjectMap();
+    return extend(Ability, {
+
+
+      addStats(tb) {
+        comp_addStats(this, tb, nm, tb => {
+
+          tb.add(MDL_text._statText(
+            Stat.shieldHealth.localized(),
+            Strings.autoFixed(maxShield, 2),
+          ));
+          tb.row();
+
+          tb.add(MDL_text._statText(
+            Stat.repairSpeed.localized(),
+            Strings.autoFixed(regenAmt / regenIntv * 60.0, 2),
+            StatUnit.perSecond.localized(),
+          ));
+          tb.row();
+
+        });
+      },
+
+
+      update(unit) {
+        if(!timerMap.containsKey(unit)) timerMap.put(unit, new Interval(1));
+        if(unit.shield >= maxShield || !timerMap.get(unit).get(regenIntv)) return;
+
+        unit.shield = Math.min(unit.shield + regenAmt, maxShield);
+        unit.shieldAlpha = 1.0;
+      },
+
+
+      localized() {
+        return comp_localized(this, nm);
+      },
+
+
+    });
+  }
+  .setAnno(ANNO.__INIT__, null, function() {
+    regisAbiSetter("shield-core", this);
+  });
+  exports._shieldCore = _shieldCore;
 
 
   /* ----------------------------------------
@@ -225,7 +277,7 @@
     });
   }
   .setAnno(ANNO.__INIT__, null, function() {
-    registerAbilitySetter("laser-defense", this);
+    regisAbiSetter("laser-defense", this);
   });
   exports._explosion = _explosion;
 
@@ -295,6 +347,6 @@
     });
   }
   .setAnno(ANNO.__INIT__, null, function() {
-    registerAbilitySetter("building-repairer-module", this);
+    regisAbiSetter("building-repairer-module", this);
   });
   exports._buildingRepairerModule = _buildingRepairerModule;

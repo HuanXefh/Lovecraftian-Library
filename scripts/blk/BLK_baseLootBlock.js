@@ -20,16 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.ts: []
-   * b.timerCall: new Interval(1)
-   * b.amtRun: 0
-   * b.intvRun: Infinity
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["amount"]["base"]    // @PARAM: Amount of items the block processes each time.
@@ -97,7 +87,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -178,7 +168,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
@@ -201,3 +191,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

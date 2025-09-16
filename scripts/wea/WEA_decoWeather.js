@@ -20,13 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -56,7 +49,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- status ----------> */
@@ -95,22 +88,13 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["wea-deco"],
     }),
 
 
-    // @NOSUPER
-    ex_getWeaEn: function(wea, minFreq, maxFreq, minDur, maxDur) {
-      return PARENT.ex_getWeaEn(wea, minFreq, maxFreq, minDur, maxDur);
-    },
-
-
-    // @NOSUPER
-    ex_getWeaEnPermanent: function(wea) {
-      return PARENT.ex_getWeaEnPermanent(wea);
-    },
-
-
   };
+
+
+  module.exports = TEMPLATE;

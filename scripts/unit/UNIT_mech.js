@@ -15,14 +15,7 @@
   /* ----------------------------------------
    * BASE:
    *
-   * UnitType, MechUnit
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
-   * KEY:
-   *
-   * !NOTHING
+   * UnitType (MechUnit)
    * ---------------------------------------- */
 
 
@@ -56,7 +49,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- unit type ----------> */
@@ -95,10 +88,46 @@
 
     // @NOSUPER
     ex_getTags: function(utp) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["utp-lovec", "utp-inf"],
     }),
 
 
   };
+
+
+  TEMPLATE.init = PARENT.init;
+
+
+  TEMPLATE._std = function(typeStr) {
+    return {
+      etpStr: typeStr,
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(unit) {
+        this.super$update(unit);
+        TEMPLATE.update(this, unit);
+      },
+      killed(unit) {
+        this.super$killed(unit);
+        TEMPLATE.killed(this, unit);
+      },
+      draw(unit) {
+        this.super$draw(unit);
+        TEMPLATE.draw(this, unit);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

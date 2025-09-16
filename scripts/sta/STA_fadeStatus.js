@@ -20,14 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * sta.fadeReg: str    // @PARAM: The region used for drawing
-   * sta.fadeColor: color    // @PARAM: The color used for drawing
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -78,7 +70,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- status ----------> */
@@ -113,10 +105,39 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["sta-fade"],
     }),
 
 
   };
+
+
+  TEMPLATE._std = function(nmReg, fadeColor) {
+    return {
+      fadeReg: nmReg, fadeColor: Object.val(fadeColor, Color.white),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(unit, staEn) {
+        this.super$update(unit, staEn);
+        TEMPLATE.update(this, unit, staEn);
+      },
+      draw(unit) {
+        this.super$draw(unit);
+        TEMPLATE.draw(this, unit);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

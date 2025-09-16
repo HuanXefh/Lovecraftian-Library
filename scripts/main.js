@@ -43,6 +43,7 @@
 
 
   const DB_env = require("lovec/db/DB_env");
+  const DB_misc = require("lovec/db/DB_misc");
   const DB_status = require("lovec/db/DB_status");
   const DB_unit = require("lovec/db/DB_unit");
 
@@ -65,6 +66,10 @@
 
 
   MDL_event._c_onLoad(() => {
+
+
+    // Load extra sounds
+    DB_misc.db["mod"]["extraSound"].forEachFast(seStr => Vars.tree.loadSound(seStr));
 
 
     // Set name colors

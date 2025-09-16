@@ -21,13 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.dirReg: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -121,7 +114,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -207,7 +200,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-log", "blk-switch"],
     }),
@@ -229,3 +222,72 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      icons() {
+        return TEMPLATE.icons(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_isValidTg(oblk) {
+        return TEMPLATE.ex_isValidTg(this, oblk);
+      },
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      onRemoved() {
+        this.super$onRemoved();
+        TEMPLATE.onRemoved(this);
+      },
+      configTapped() {
+        TEMPLATE.configTapped(this);
+      },
+      ex_toggle(ob) {
+        TEMPLATE.ex_toggle(this, ob);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

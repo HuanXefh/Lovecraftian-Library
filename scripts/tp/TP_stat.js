@@ -61,6 +61,7 @@
   exports.blk0min_drillTier = newIns_stat("blk0min-drilltier", StatCat.crafting);
   exports.blk0min_depthMtp = newIns_stat("blk0min-depthmtp", StatCat.crafting);
   exports.blk0min_blockedItms = newIns_stat("blk0min-blockeditms", StatCat.crafting);
+  exports.blk0min_allowedItms = newIns_stat("blk0min-alloweditms", StatCat.crafting);
 
 
   /* block (factory) */

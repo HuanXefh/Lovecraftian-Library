@@ -21,17 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.impactR: int    // @PARAM: Range of impact wave.
-   * blk.depthMtp: f    // @PARAM: Multiplier on mining tier when mining depth ore.
-   * b.useCep: bool    // @PARAM
-   * b.isMiningDpore: false
-   * b.scannerTg: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * DB_block.db["param"]["cep"]["use"]    // @PARAM
@@ -191,7 +180,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -273,7 +262,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-min", "blk-drl"],
     }),
@@ -301,3 +290,79 @@
 
 
   };
+
+
+  TEMPLATE._std = function(r, mtp, drillEff, drillEffP) {
+    return {
+      impactR: Object.val(r, 5), depthMtp: Object.val(mtp, 1.0),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      canMine(t) {
+        if(!this.super$canMine(t)) return false;
+        if(!TEMPLATE.canMine(this, t)) return false;
+        return true;
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getImpactR() {
+        return TEMPLATE.ex_getImpactR(this);
+      },
+      ex_isMiningDpore(tx, ty, itm) {
+        return TEMPLATE.ex_isMiningDpore(this, tx, ty, itm);
+      },
+      // @SPEC
+      drillEffect: Object.val(drillEff, Fx.none), drillEffectChance: Object.val(drillEffP, 1.0),
+    };
+  };
+
+
+  TEMPLATE._std_b = function(useCep) {
+    return {
+      useCep: Object.val(useCep, false),
+      isMiningDpore: false, scannerTg: null,
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      updateEfficiencyMultiplier() {
+        this.super$updateEfficiencyMultiplier();
+        TEMPLATE.updateEfficiencyMultiplier(this);
+      },
+      ex_onCraft() {
+        TEMPLATE.ex_onCraft(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

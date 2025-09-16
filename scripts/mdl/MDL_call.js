@@ -15,9 +15,6 @@
   const VAR = require("lovec/glb/GLB_var");
 
 
-  const MATH_geometry = require("lovec/math/MATH_geometry");
-
-
   const FRAG_item = require("lovec/frag/FRAG_item");
 
 
@@ -170,7 +167,7 @@
       const tmp = extend(UnitType, "unit0misc-loot", {
 
 
-        envEnabled: Env.any, envDisabled: Env.none,
+        envEnabled: Env.any, envDisabled: Env.none, fogRadius: 0,
         createWreck: false, createScorch: false, deathShake: 0.0, fallEffect: Fx.none, fallEngineEffect: Fx.none, deathExplosionEffect: Fx.none, deathSound: Sounds.none,
         hoverable: false, drawMiniMap: false,
         isEnemy: false, canAttack: false, hittable: false, targetable: false, allowedInPayloads: false,
@@ -213,7 +210,7 @@
           // Let a player unit take the item, only meant for mobile player
           if(Vars.mobile && TIMER.timerState_unit && Mathf.chance(0.5)) {
             let unit_pl = MDL_pos._unit_pl(unit.x, unit.y, null, VAR.rad_lootRad);
-            if(unit_pl != null && MATH_geometry._dst(unit.x, unit.y, unit_pl.x, unit_pl.y) < unit_pl.hitSize * 0.5 + VAR.rad_lootPickRad) {
+            if(unit_pl != null && Mathf.dst(unit.x, unit.y, unit_pl.x, unit_pl.y) < unit_pl.hitSize * 0.5 + VAR.rad_lootPickRad) {
               if(FRAG_item.takeUnitLoot(unit_pl, unit)) MDL_effect.showBetween_itemTransfer(unit.x, unit.y, unit_pl);
             };
           };
@@ -272,7 +269,7 @@
           Draw.reset();
 
           // Draw amount text
-          if(PARAM.drawLootAmount && MATH_geometry._dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) < Math.max(8.0 * sizeScl, 6.0)) MDL_draw.drawText(unit.x, unit.y - 4.0, String(amt), 0.85, Pal.accent);
+          if(PARAM.drawLootAmount && Mathf.dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) < Math.max(8.0 * sizeScl, 6.0)) MDL_draw.drawText(unit.x, unit.y - 4.0, String(amt), 0.85, Pal.accent);
         },
 
 

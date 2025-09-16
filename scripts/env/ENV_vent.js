@@ -23,19 +23,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.armor: int    // @PARAM: Used to determine the size of the vent, from 2 to 5 only.
-   * blk.liq: liq_gn    // @PARAM, @NULL: Used to set up effects and names, {liq_gn} should be the expected output.
-   * blk.pons2: null
-   * blk.offDraw: 0.0
-   * blk.randRegs: tags    // @PARAM
-   * blk.randRegDenom: num    // @PARAM
-   * blk.randRegOffs: [int, int]    // @PARAM
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -157,7 +144,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -207,7 +194,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-env", "blk-vent"],
     }),
@@ -215,10 +202,55 @@
 
     // @NOSUPER
     ex_getMatGrp: function(blk) {
-      let matGrp = Function.tryFun(blk.parent.ex_getMatGrp, null, blk.parent);
+      return Object.val(Function.tryFun(blk.parent.ex_getMatGrp, null, blk.parent), "");
+    },
 
-      return Object.val(matGrp, "");
+
+    // @NOSUPER
+    ex_getRsDrop: function(blk) {
+      return blk.liq;
     },
 
 
   };
+
+
+  TEMPLATE._std = function(ventSize, nmLiq) {
+    return {
+      armor: ventSize == null ? 3 : ventSize, liq: nmLiq,
+      pons2: null, offDraw: 0.0,
+      randRegs: [], randRegDenom: 80, randRegOffs: [0, 0],
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawBase(t) {
+        TEMPLATE.drawBase(this, t);
+      },
+      isCenterVent(t) {
+        return TEMPLATE.isCenterVent(this, t);
+      },
+      renderUpdate(renderState) {
+        TEMPLATE.renderUpdate(this, renderState);
+      },
+      checkAdjacent(t) {
+        return TEMPLATE.checkAdjacent(this, t);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getMatGrp() {
+        return TEMPLATE.ex_getMatGrp(this);
+      },
+      ex_getRsDrop() {
+        return TEMPLATE.ex_getRsDrop(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

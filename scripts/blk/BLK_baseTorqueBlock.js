@@ -20,18 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * b.tProg: 0.0
-   * b.rpmCur: 0.0
-   * b.torCur: 0.0
-   * b.torSourceArr: []
-   * b.supplyTgArr: []
-   * b.transTgs: []
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -49,7 +37,11 @@
 
 
   const PARENT = require("lovec/blk/BLK_baseBlock");
+  const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
+
+
+  const FRAG_attack = require("lovec/frag/FRAG_attack");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -65,7 +57,7 @@
 
 
   MDL_event._c_onUpdate(() => {
-    timerState_align = timerAlign.get(18000.0);
+    timerState_align = timerAlign.get(7200.0);
   }, 48552116);
 
 
@@ -87,7 +79,8 @@
     b.ex_supplyTor();
 
     // Should be called last, or the RPM may stay unchanged
-    b.rpmCur = Mathf.maxZero(b.rpmCur - 0.025 * Time.delta / b.block.size);
+    b.rpmCur -= b.rpmCur * 0.002 * Time.delta / b.block.size;
+    if(b.rpmCur < 0.0) b.rpmCur = 0.0;
   };
 
 
@@ -118,7 +111,7 @@
     b.proximity.each(ob => {
       if(ob.block instanceof LiquidVoid) {
         arr.push(ob, 1.66666667);
-      } else if(ob.block.consumesLiquid(VARGEN.auxTor) || MDL_cond._isTCont(ob.block)) {
+      } else if(ob.block.consumesLiquid(VARGEN.auxTor) || ob.block.consumesLiquid(VARGEN.auxRpm) || MDL_cond._isTCont(ob.block)) {
         arr.push(ob, MDL_recipeDict._consAmt(VARGEN.auxTor, ob.block));
       };
     });
@@ -128,15 +121,24 @@
 
 
   function comp_ex_supplyTor(b) {
-    if(!b.ex_canSupplyTor()) return;
-
     let i = 0;
     let iCap = b.supplyTgArr.iCap();
-    let ob, rate;
+    let ob, rate1, rate2;
     while(i < iCap) {
       ob = b.supplyTgArr[i];
-      rate = Math.min(b.supplyTgArr[i + 1] * b.edelta(), b.torCur);
-      ob.handleLiquid(b, VARGEN.auxTor, rate);
+      rate1 = Math.min(b.supplyTgArr[i + 1], b.torCur);
+      rate2 = b.rpmCur / 60.0;
+      if(b.ex_canSupplyTor() && ob.acceptLiquid(b, VARGEN.auxTor)) ob.handleLiquid(b, VARGEN.auxTor, rate1 * b.edelta());
+      if(ob.acceptLiquid(b, VARGEN.auxRpm)) {
+        ob.handleLiquid(b, VARGEN.auxRpm, rate2 * b.edelta());
+        if(Mathf.chance(0.03)) {
+          let consAmt = MDL_recipeDict._consAmt(VARGEN.auxRpm, ob.block);
+          if(rate2 / consAmt > 2.0) {
+            let bTg = Mathf.chance(0.7) ? ob : b;
+            FRAG_attack.damage(bTg, bTg.maxHealth * (VAR.blk_rpmDmgFrac + (rate2 - consAmt * 2.0) / consAmt));
+          };
+        };
+      };
       i += 2;
     };
   };
@@ -149,7 +151,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -234,7 +236,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
@@ -298,3 +300,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

@@ -20,13 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -56,7 +49,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- status ----------> */
@@ -95,22 +88,42 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["wea-amb"],
     }),
 
 
-    // @NOSUPER
-    ex_getWeaEn: function(wea, minFreq, maxFreq, minDur, maxDur) {
-      return PARENT.ex_getWeaEn(wea, minFreq, maxFreq, minDur, maxDur);
-    },
-
-
-    // @NOSUPER
-    ex_getWeaEnPermanent: function(wea) {
-      return PARENT.ex_getWeaEnPermanent(wea);
-    },
-
-
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(weaState) {
+        this.super$update(weaState);
+        TEMPLATE.update(this, weaState);
+      },
+      drawOver(weaState) {
+        this.super$drawOver(weaState);
+        TEMPLATE.drawOver(this, weaState);
+      },
+      drawUnder(weaState) {
+        this.super$drawUnder(weaState);
+        TEMPLATE.drawUnder(this, weaState);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

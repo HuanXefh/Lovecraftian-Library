@@ -21,13 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * liq.alts: 0
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -153,7 +146,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- resource ----------> */
@@ -200,10 +193,46 @@
 
     // @NOSUPER
     ex_getTags: function(liq) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      alts: 0,
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      update(puddle) {
+        this.super$update(puddle);
+        TEMPLATE.update(this, puddle);
+      },
+      loadIcon() {
+        this.super$loadIcon();
+        TEMPLATE.loadIcon(this);
+      },
+      createIcons(packer) {
+        this.super$createIcons(packer);
+        TEMPLATE.createIcons(this, packer);
+      },
+      willBoil() {
+        return TEMPLATE.willBoil(this);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

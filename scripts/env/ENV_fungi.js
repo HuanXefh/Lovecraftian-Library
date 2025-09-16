@@ -20,15 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.armor: f    // @PARAM
-   * blk.hidable: bool    // @PARAM
-   * blk.drawTup: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -58,7 +49,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -88,7 +79,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-env", "blk-tree"],
     }),
@@ -106,4 +97,34 @@
     },
 
 
+};
+
+
+TEMPLATE._std = function(treeLay, hidable) {
+  return {
+    armor: treeLay == null ? 76.0 : treeLay, hidable: hidable == null ? false : hidable, drawTup: null,
+    init() {
+      this.super$init();
+      TEMPLATE.init(this);
+    },
+    setStats() {
+      this.super$setStats();
+      TEMPLATE.setStats(this);
+    },
+    drawBase(t) {
+      TEMPLATE.drawBase(this, t);
+    },
+    ex_getTags() {
+      return TEMPLATE.ex_getTags(this);
+    },
+    ex_getTreeGrp() {
+      return TEMPLATE.ex_getTreeGrp(this);
+    },
+    ex_getHidable() {
+      return TEMPLATE.ex_getHidable(this);
+    },
   };
+};
+
+
+module.exports = TEMPLATE;

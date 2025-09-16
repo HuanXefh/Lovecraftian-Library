@@ -21,13 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.shouldGenParam: bool    // @PARAM
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -96,7 +89,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -185,7 +178,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-pow", "blk-pow0gen"],
     }),
@@ -195,3 +188,76 @@
 
 
   };
+
+
+  TEMPLATE._std = function(shouldGenParam, genEff, genEffP, exploEff) {
+    return {
+      shouldGenParam: Object.val(shouldGenParam, false),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        this.super$drawPlace(tx, ty, rot, valid);
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
+      },
+      canPlaceOn(t, team, rot) {
+        if(!this.super$canPlaceOn(t, team, rot)) return false;
+        if(!TEMPLATE.canPlaceOn(this, t, team, rot)) return false;
+        return true;
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      // @SPEC
+      generateEffect: Object.val(genEff, Fx.none), effectChance: Object.val(genEffP, 0.02),
+      explodeEffect: Object.val(exploEff, Fx.none),
+    };
+  };
+
+
+  TEMPLATE._std_b = function() {
+    return {
+      created() {
+        this.super$created();
+        TEMPLATE.created(this);
+      },
+      onDestroyed() {
+        this.super$onDestroyed();
+        TEMPLATE.onDestroyed(this);
+      },
+      updateTile() {
+        this.super$updateTile();
+        TEMPLATE.updateTile(this);
+      },
+      onProximityUpdate() {
+        this.super$onProximityUpdate();
+        TEMPLATE.onProximityUpdate(this);
+      },
+      draw() {
+        this.super$draw();
+        TEMPLATE.draw(this);
+      },
+      drawSelect() {
+        this.super$drawSelect();
+        TEMPLATE.drawSelect(this);
+      },
+      warmup() {
+        return TEMPLATE.warmup(this);
+      },
+      totalProgress() {
+        return TEMPLATE.totalProgress(this);
+      },
+      createExplosion() {
+        this.super$createExplosion();
+        TEMPLATE.createExplosion(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

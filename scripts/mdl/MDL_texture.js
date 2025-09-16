@@ -172,21 +172,24 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts pixels from the icon region of {blk} to an icon tag pixmap.
+   * Converts pixels from the icon region of {ct} to an icon tag pixmap.
    * ---------------------------------------- */
-  const _pix_blockTag = function(blk, w) {
+  const _pix_ctTag = function(ct_gn, w) {
     if(w == null) w = 32;
     let hw = w / 2;
-    let pixBlk = Core.atlas.getPixmap(_regBlk(blk, true));
-    let wBlk = pixBlk.width;
-    let hBlk = pixBlk.height;
+    let ct = global.lovecUtil.fun._ct(ct_gn);
+    if(ct == null) throw new Error("Error when creating pixmap: content is not found for " + ct_gn + "!");
+    let reg = ct instanceof Block ? _regBlk(ct) : Core.atlas.find(ct.name);
+    let pixCt = Core.atlas.getPixmap(reg);
+    let wCt = pixCt.width;
+    let hCt = pixCt.height;
     let pix = new Pixmap(w, w);
 
     for(let x = hw; x < w; x++) {
-      for(let y = 0; y < hw; y++) {
+      for(let y = hw; y < w; y++) {
         let fracX = (x - hw) / hw;
-        let fracY = y / hw;
-        let rawColor = pixBlk.getRaw(Math.round(wBlk * fracX), Math.round(hBlk * fracY));
+        let fracY = (y - hw) / hw;
+        let rawColor = pixCt.getRaw(Math.round(wCt * fracX), Math.round(hCt * fracY));
 
         pix.setRaw(x, y, rawColor);
       };
@@ -194,4 +197,15 @@
 
     return pix;
   };
-  exports._pix_blockTag = _pix_blockTag;
+  exports._pix_ctTag = _pix_ctTag;
+
+
+  const comp_createIcons_ctTag = function(ct, packer, nmCtBot, nmCtOv, suffix) {
+    let pixBase = Core.atlas.getPixmap(nmCtBot);
+    let pixOv = _pix_ctTag(nmCtOv, pixBase.width);
+    let pix = _pix_stack(pixBase, pixOv);
+    packer.add(MultiPacker.PageType.main, ct.name + suffix, pix);
+    pixOv.dispose();
+    pix.dispose();
+  };
+  exports.comp_createIcons_ctTag = comp_createIcons_ctTag;

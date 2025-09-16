@@ -23,15 +23,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.armor: f    // @PARAM: Layer of the tree, should fall in (76.0, 80.0).
-   * blk.hidable: bool    // @PARAM: Whether the tree can hide units.
-   * blk.drawTup: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -103,7 +94,7 @@
 
   function comp_drawBase(blk, t) {
     var a = PARAM.treeAlpha;
-    if(a < 0.0001) return;
+    if(a == null || a < 0.0001) return;
 
     var ang = Mathf.randomSeed(t.pos(), 0.0, 360.0);
 
@@ -145,7 +136,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -177,7 +168,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-env", "blk-tree"],
     }),
@@ -196,3 +187,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Items and liquids are generalized as resource.
+   * Items and liquids are both resource.
    * ---------------------------------------- */
 
 
@@ -16,13 +16,6 @@
    * BASE:
    *
    * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
-   * KEY:
-   *
-   * rs.alts: 0
    * ---------------------------------------- */
 
 
@@ -53,16 +46,6 @@
 
 
   /* <---------- component ----------> */
-
-
-  function comp_init(rs) {
-
-  };
-
-
-  function comp_setStats(rs) {
-
-  };
 
 
   function comp_loadIcon(rs) {
@@ -98,7 +81,6 @@
     const tags = MDL_content._intmdTags(rs);
     let iCap = tags.iCap();
     if(iCap !== 0) {
-
       let pixBase = Core.atlas.getPixmap(Object.val(parent, rs.name));
       let pix0 = MDL_texture._pix_stack(pixBase);
       packer.add(MultiPacker.PageType.main, rs.name + "-t0", pix0);
@@ -113,12 +95,12 @@
           let pixTag = Core.atlas.getPixmap(nmMod + "-rs0tag-" + tags[i]);
           let pix = MDL_texture._pix_stack(pixBase, pixTag);
           packer.add(MultiPacker.PageType.main, rs.name + "-t" + (alts + 1), pix);
+          pix.dispose();
           alts++;
         };
       };
 
       rs.alts = alts;
-
     };
   };
 
@@ -130,19 +112,19 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- resource ----------> */
 
 
     init: function(rs) {
-      comp_init(rs);
+
     },
 
 
     setStats: function(rs) {
-      comp_setStats(rs);
+
     },
 
 
@@ -164,10 +146,13 @@
 
     // @NOSUPER
     ex_getTags: function(rs) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": [],
     }),
 
 
   };
+
+
+  module.exports = TEMPLATE;

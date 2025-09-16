@@ -208,7 +208,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Performs t-test on {xs} and {ys} when they are similiar yet not dependent of each other.
+   * Performs t-test on {xs} and {ys} when they are similar yet not dependent of each other.
    * ---------------------------------------- */
   const test_t_twoSamplePair = function(xs, ys, inTwoTailed) {
     let diffMean = _diffMean(xs, ys);

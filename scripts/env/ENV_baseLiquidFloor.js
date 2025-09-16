@@ -23,14 +23,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * updateEff: eff    // @PARAM: The effect used for the liquid floor.
-   * updateEffP: p    // @PARAM: Chance for effect creation.
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -110,7 +102,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -152,7 +144,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-env"],
     }),
@@ -165,3 +157,6 @@
 
 
   };
+
+
+  module.exports = TEMPLATE;

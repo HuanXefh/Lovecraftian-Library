@@ -8,14 +8,14 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Vanilla attribute crafters.
+   * Vanilla junction, finally added after Anuke fixed the id bug.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * BASE:
    *
-   * AttributeCrafter
+   * Junction
    * ---------------------------------------- */
 
 
@@ -36,7 +36,7 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseFactory");
+  const PARENT = require("lovec/blk/BLK_baseItemDistributor");
 
 
   /* <---------- component ----------> */
@@ -109,8 +109,8 @@
     /* <---------- build (specific) ----------> */
 
 
-    craft: function(b) {
-      PARENT.craft(b);
+    acceptItem: function(b, b_f, itm) {
+      return PARENT.acceptItem(b, b_f, itm);
     },
 
 
@@ -121,7 +121,7 @@
     ex_getTags: function(blk) {
       return TEMPLATE.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-fac"],
+      "funArr": ["blk-dis"],
     }),
 
 
@@ -131,7 +131,7 @@
   };
 
 
-  TEMPLATE._std = function(craftEff, updateEff, updateEffP) {
+  TEMPLATE._std = function() {
     return {
       init() {
         this.super$init();
@@ -148,15 +148,12 @@
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);
       },
-      // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
     };
   };
 
 
-  TEMPLATE._std_b = function(craftSe) {
+  TEMPLATE._std_b = function() {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
       created() {
         this.super$created();
         TEMPLATE.created(this);
@@ -181,9 +178,10 @@
         this.super$drawSelect();
         TEMPLATE.drawSelect(this);
       },
-      craft() {
-        this.super$craft();
-        TEMPLATE.craft(this);
+      acceptItem(b_f, itm) {
+        if(!this.super$acceptItem(b_f, itm)) return false;
+        if(!TEMPLATE.acceptItem(this, b_f, itm)) return false;
+        return true;
       },
     };
   };

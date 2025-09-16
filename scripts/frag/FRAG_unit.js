@@ -74,12 +74,10 @@
     let dst, oblk, ob;
     ts.forEachFast(ot => {
 
-
       // Param
       dst = Mathf.dst(ot.worldx(), ot.worldy(), unit.x, unit.y);
       oblk = ot.block();
       ob = ot.build;
-
 
       // Tree
       if(MDL_cond._isCoverable(unit, true) && MDL_cond._isTreeBlock(oblk)) {
@@ -88,13 +86,6 @@
           oblk.drawBase(ot);
         };
       };
-
-
-      // Block status
-      VARGEN.blkStas.forEachFast(sta => {
-        if(sta.ex_canApply(unit, ts)) unit.apply(sta, staDur);
-      });
-
 
     });
   };

@@ -21,14 +21,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * blk.drawnMap: new ObjectMap()
-   * blk.rsDrop: null
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -92,7 +84,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -135,7 +127,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-env", "blk-dpliq"],
     }),
@@ -154,3 +146,40 @@
 
 
   };
+
+
+  TEMPLATE._std = function() {
+    return {
+      drawnMap: new ObjectMap(),
+      rsDrop: null,
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawBase(t) {
+        TEMPLATE.drawBase(this, t);
+      },
+      getDisplayIcon(t) {
+        return TEMPLATE.getDisplayIcon(this, t);
+      },
+      getDisplayName(t) {
+        return TEMPLATE.getDisplayName(this, t);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_setRevealed(t, bool) {
+        TEMPLATE.ex_setRevealed(this, t, bool);
+      },
+      ex_getRsDrop() {
+        return TEMPLATE.ex_getRsDrop(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;

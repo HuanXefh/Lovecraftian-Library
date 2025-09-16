@@ -20,13 +20,6 @@
 
 
   /* ----------------------------------------
-   * KEY:
-   *
-   * !NOTHING
-   * ---------------------------------------- */
-
-
-  /* ----------------------------------------
    * PARAM:
    *
    * !NOTHING
@@ -66,7 +59,7 @@
 */
 
 
-  module.exports = {
+  const TEMPLATE = {
 
 
     /* <---------- block ----------> */
@@ -108,7 +101,7 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return module.exports.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.funArr;
     }.setProp({
       "funArr": ["blk-env"],
     }),
@@ -121,3 +114,37 @@
 
 
   };
+
+
+  TEMPLATE._std = function(updateEff, updateEffP) {
+    return {
+      updateEff: Object.val(updateEff, Fx.none), updateEffP: Object.val(updateEffP, 0.02),
+      init() {
+        this.super$init();
+        TEMPLATE.init(this);
+      },
+      setStats() {
+        this.super$setStats();
+        TEMPLATE.setStats(this);
+      },
+      drawBase(t) {
+        this.super$drawBase(t);
+        TEMPLATE.drawBase(this, t);
+      },
+      updateRender(t) {
+        return TEMPLATE.updateRender(this, t);
+      },
+      renderUpdate(renderState) {
+        TEMPLATE.renderUpdate(this, renderState);
+      },
+      ex_getTags() {
+        return TEMPLATE.ex_getTags(this);
+      },
+      ex_getMatGrp() {
+        return TEMPLATE.ex_getMatGrp(this);
+      },
+    };
+  };
+
+
+  module.exports = TEMPLATE;
