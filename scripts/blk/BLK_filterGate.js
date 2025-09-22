@@ -56,7 +56,7 @@
 
 
   function comp_init(blk) {
-    if(blk.selectionColumns === 4) blk.selectionColumns = 10;
+    blk.selectionColumns = 10;
 
     blk.config(JAVA.BOOLEAN, (b, bool) => {
       b.ex_accIsInv(bool);

@@ -76,6 +76,7 @@
        *
        * Bypasses {MDL_content} to resolve module coupling.
        * This one is less stable and won't warn, do not abuse it!
+       * Use {global.lovec.mdl_content._ct} instead if possible.
        * ---------------------------------------- */
       _ct(ct_gn, ctTpStr) {
         if(ct_gn == null) return null;
@@ -87,32 +88,6 @@
       },
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Whether this content has some tag.
-       * Bypasses {MDL_content}.
-       * ---------------------------------------- */
-      _hasTag(ct, tag) {
-        return ct == null ? false : Function.tryFun(ct.ex_getTags, Array.air, ct).includes(tag);
-      },
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Returns the mod that adds the content.
-       * Bypasses {MDL_content}.
-       * ---------------------------------------- */
-      _mod(ct_gn) {
-        let ct = global.lovecUtil.fun._ct(ct_gn);
-        if(ct == null) return null;
-
-        let mod = ct.minfo.mod;
-        return mod == null ? "vanilla" : mod.name;
-      },
-
-
     },
 
 
@@ -120,6 +95,9 @@
 
 
       abilitySetter: [],
+
+
+      aiSetter: [],
 
 
     },

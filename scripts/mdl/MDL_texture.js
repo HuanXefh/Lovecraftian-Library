@@ -74,7 +74,7 @@
    * Gets a random region from variant regions, based on tile position.
    * ---------------------------------------- */
   const _regVari = function(blk_gn, t, off) {
-    let blk = global.lovecUtil.fun._ct(blk_gn, "block");
+    let blk = global.lovec.mdl_content._ct(blk_gn, "block");
     if(blk == null) return null;
 
     if(blk.variants === 0) return blk.region;
@@ -92,7 +92,7 @@
    * Gets a the base region of a turret.
    * ---------------------------------------- */
   const _regTurBase = function(blk_gn) {
-    let blk = global.lovecUtil.fun._ct(blk_gn, "block");
+    let blk = global.lovec.mdl_content._ct(blk_gn, "block");
     if(blk == null) return null;
     if(blk.baseRegion != null) return blk.baseRegion;
 

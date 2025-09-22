@@ -133,13 +133,15 @@
     if(tup[1] == null) {
       utp.constructor = () => extend(tup[0], {});
     } else {
-      let lambda = prov(() => extend(tup[0], (function() {
-        let obj = Object.create(DB_unit.db["map"]["entity"]["entityDef"].read(tup[1], Object.air));
-        obj.classId = function() {return tup[1]};
-        return obj;
-      })()));
-      EntityMapping.idMap[tup[1]] = lambda;
-      EntityMapping.nameMap.put(utp.etpStr, lambda);
+      if(EntityMapping.idMap[tup[1]] == null) {
+        let lambda = prov(() => extend(tup[0], (function() {
+          let obj = Object.create(DB_unit.db["map"]["entity"]["entityDef"].read(tup[1], Object.air));
+          obj.classId = function() {return tup[1]};
+          return obj;
+        })()));
+        EntityMapping.idMap[tup[1]] = lambda;
+      };
+      EntityMapping.nameMap.put(utp.etpStr, EntityMapping.idMap[tup[1]]);
       utp.constructor = EntityMapping.map(utp.etpStr);
     };
   };

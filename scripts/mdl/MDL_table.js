@@ -217,14 +217,20 @@
    *
    * Simply a slider.
    * ---------------------------------------- */
-  const __slider = function(tb, valCaller, min, max, step, def) {
+  const __slider = function(tb, valCaller, min, max, step, def, w) {
     if(valCaller == null) valCaller = Function.air;
     if(min == null) min = 0;
     if(max == null) max = 2;
     if(step == null) step = 1;
     if(def == null) def = min;
 
-    tb.slider(min, max, step, ini, valCaller).row();
+    let sliderCell = tb.slider(min, max, step, def, valCaller);
+    if(w != null) {
+      sliderCell.width(w);
+      sliderCell.get().width = w;
+    };
+
+    tb.row();
   };
   exports.__slider = __slider;
 

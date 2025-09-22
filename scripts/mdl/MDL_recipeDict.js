@@ -29,6 +29,16 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Possible fields for {data} used in terms:
+   * icon: str    // @PARAM: Arbitrary texture region used.
+   * ct: str    // @PARAM: Content button used.
+   * time: f    // @PARAM: Craft time used.
+   * ---------------------------------------- */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Adds an item consumption term to recipe dictionary.
    * ---------------------------------------- */
   const addItmConsTerm = function(blk_gn, itm_gn, amt, p, data) {

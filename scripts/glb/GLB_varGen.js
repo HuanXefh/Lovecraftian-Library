@@ -33,6 +33,20 @@
   exports.__bindings = __bindings;
 
 
+  /* <---------- window ----------> */
+
+
+  let winCur = null;
+  exports.winCur = winCur;
+
+
+  const __winCur = function(tb) {
+    winCur = tb;
+    exports.winCur = winCur;
+  };
+  exports.__winCur = __winCur;
+
+
   /* <---------- sprite ----------> */
 
 

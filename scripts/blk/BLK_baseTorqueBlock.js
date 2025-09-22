@@ -73,7 +73,7 @@
   function comp_updateTile(b) {
     if(timerState_align) b.tProg = 0.0;
 
-    b.tProg += b.rpmCur / 6.0;
+    b.tProg += b.rpmCur / 6.0 * Time.delta;
 
     b.ex_updateTor();
     b.ex_supplyTor();

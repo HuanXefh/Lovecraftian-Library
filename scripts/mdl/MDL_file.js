@@ -320,10 +320,10 @@
    * Returns the json or hjson file of a content.
    * ---------------------------------------- */
   const _json_ct = function(ct_gn) {
-    let ct = global.lovecUtil.fun._ct(ct_gn);
+    let ct = global.lovec.mdl_content._ct(ct_gn);
     if(ct == null) return null;
 
-    let nmMod = global.lovecUtil.fun._mod(ct);
+    let nmMod = global.lovec.mdl_content._mod(ct);
     let dirSubCt = _subContent(nmMod, ct.getContentType());
     if(dirSubCt == null) return null;
     let nmCt = ct.name.replace(nmMod + "-", "");

@@ -207,14 +207,6 @@
           // Prevent drowning to death
           if(unit.drownTime > 0.98) unit.remove();
 
-          // Let a player unit take the item, only meant for mobile player
-          if(Vars.mobile && TIMER.timerState_unit && Mathf.chance(0.5)) {
-            let unit_pl = MDL_pos._unit_pl(unit.x, unit.y, null, VAR.rad_lootRad);
-            if(unit_pl != null && Mathf.dst(unit.x, unit.y, unit_pl.x, unit_pl.y) < unit_pl.hitSize * 0.5 + VAR.rad_lootPickRad) {
-              if(FRAG_item.takeUnitLoot(unit_pl, unit)) MDL_effect.showBetween_itemTransfer(unit.x, unit.y, unit_pl);
-            };
-          };
-
           // Randomly merge loots with the same item
           if(Mathf.chance(0.005)) {
             let loot = MDL_pos._loot(unit.x, unit.y, VAR.rad_lootMergeRad, unit);

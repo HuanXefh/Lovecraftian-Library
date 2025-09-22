@@ -45,7 +45,7 @@
 
 
   function setupKeybind() {
-    DB_misc.db["keyBind"].forEachRow(3, (nm, keyCode, categ) => {
+    DB_misc.db["mod"]["keyBind"].forEachRow(3, (nm, keyCode, categ) => {
       VARGEN.__bindings(nm, KeyBind.add(nm, keyCode, categ));
     });
   };
@@ -80,20 +80,11 @@
     if(!PARAM.modded || Vars.state.isPaused() || unit == null) return;
 
     if(Core.input.keyTap(Binding.respawn) || Core.input.keyTap(VARGEN.bindings["lovec-player-drop-loot"])) {
-      if(unit.stack.amount > 0) {
-        Vars.net.client() ?
-          MDL_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
-          MDL_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
-        unit.clearItem();
-      };
+      DB_misc.db["mod"]["dragButton"].read("lovec-player-drop-loot")[3]();
     };
 
     if(Core.input.keyTap(VARGEN.bindings["lovec-player-take-loot"])) {
-      let loot = Units.closest(null, unit.x, unit.y, VAR.rad_lootPickRad, ounit => MDL_cond._isLoot(ounit));
-      if(Vars.net.client() ?
-          FRAG_item.takeUnitLoot_client(unit, loot) :
-          FRAG_item.takeUnitLoot(unit, loot)
-      ) MDL_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
+      DB_misc.db["mod"]["dragButton"].read("lovec-player-take-loot")[3]();
     };
   };
 

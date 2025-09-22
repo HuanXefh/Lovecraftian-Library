@@ -696,7 +696,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets tiles in a quilateral triangular range... weired.
+   * Gets tiles in a quilateral triangular range... weird.
    * ---------------------------------------- */
   const _tsTri = function(t, rad, ang, useTmp) {
     const thisFun = _tsTri;

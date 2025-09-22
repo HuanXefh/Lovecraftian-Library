@@ -13,7 +13,7 @@
    * Only the small cogwheels can interact with torque producers and consumers.
    * Size of cogwheels cannot be even numbers!
    *
-   * Using {customShadow} is recommended if you don't create a gearbox, or the block shadow looks weired.
+   * Using {customShadow} is recommended if you don't create a gearbox, or the block shadow looks weird.
    * ---------------------------------------- */
 
 

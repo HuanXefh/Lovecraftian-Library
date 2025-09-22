@@ -23,7 +23,7 @@
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
-  /* <---------- component ----------> */
+  /* <---------- component (unit type) ----------> */
 
 
   const comp_update_damaged = function(utp, unit) {
@@ -113,3 +113,18 @@
   }
   .setTodo("Unit heat update.");
   exports.comp_update_heat = comp_update_heat;
+
+
+  /* <---------- component (unit entity) ----------> */
+
+
+  const comp_validMine_miner = function(unit, t, checkDst) {
+    if(t == null) return false;
+    if(global.lovec.mdl_content._hasTag(t.overlay(), "blk-dpore")) return false;
+    if(unit.isPlayer()) {
+      let blk = t.overlay() != null && t.overlay().itemDrop != null ? t.overlay() : (t.block() !== Blocks.air ? t.block() : t.floor());
+      if(blk.playerUnmineable) return false;
+    };
+    return unit.super$validMine(t, Object.val(checkDst, true));
+  };
+  exports.comp_validMine_miner = comp_validMine_miner;

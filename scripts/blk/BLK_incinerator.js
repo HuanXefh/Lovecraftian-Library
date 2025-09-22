@@ -8,15 +8,14 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Blocks for item storage, just like {Container} and {Vault} in vanilla game.
-   * Can be configured to dump particular items.
+   * Incinerator but actually a crafter.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * BASE:
    *
-   * StorageBlock
+   * GenericCrafter
    * ---------------------------------------- */
 
 
@@ -37,16 +36,18 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseStorageBlock");
+  const PARENT = require("lovec/blk/BLK_baseItemBlock");
   const EFF = require("lovec/glb/GLB_eff");
   const JAVA = require("lovec/glb/GLB_java");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const FRAG_attack = require("lovec/frag/FRAG_attack");
+
+
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
-  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
-  const MDL_entity = require("lovec/mdl/MDL_entity");
+  const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_io = require("lovec/mdl/MDL_io");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -57,25 +58,23 @@
   function comp_init(blk) {
     blk.selectionColumns = 10;
 
-    blk.update = true;
-
     blk.configurable = true;
     blk.saveConfig = true;
     blk.clearOnDoubleTap = false;
 
     blk.config(JAVA.STRING, (b, str) => {
-      b.ex_accDumpTgs(str, false);
+      b.ex_accRsTgs(str, false);
       EFF.squareFadePack[b.block.size].at(b);
     });
 
     blk.config(JAVA.OBJECT_ARRAY, (b, cfgArr) => {
 
-      if(cfgArr[0] === "BLK_container") {
+      if(cfgArr[0] === "BLK_itemIncinerator") {
         let iCap = cfgArr.length;
         let i = 1;
         while(i < iCap) {
           let rs = MDL_content._ct(cfgArr[i], "rs");
-          if(rs != null) b.ex_accDumpTgs(rs, true);
+          if(rs != null) b.ex_accRsTgs(rs, true);
           i++;
         };
         EFF.squareFadePack[b.block.size].at(b);
@@ -84,7 +83,7 @@
       if(cfgArr[0] === "selector") {
         let rs = cfgArr[1];
         let isAdd = cfgArr[2];
-        b.ex_accDumpTgs(rs, isAdd);
+        b.ex_accRsTgs(rs, isAdd);
         EFF.squareFadePack[b.block.size].at(b);
       };
 
@@ -92,38 +91,48 @@
   };
 
 
-  function comp_setStats(blk) {
-    blk.stats.add(Stat.itemsMoved, 60.0 / blk.dumpTime, StatUnit.itemsSecond);
-  };
-
-
-  function comp_updateTile(b) {
-    if(b.dumpTgs.length === 0) return;
-
-    var bSpd = MDL_entity._bSpd(b);
-    if(bSpd > 0.0 && b.timerDump.get(b.block.dumpTime / bSpd)) b.dump(b.dumpTgs.readRand());
+  function comp_setBars(blk) {
+    blk.addBar("lovec-prog", b => new Bar(
+      MDL_bundle._term("lovec", "progress"),
+      Pal.ammo,
+      () => Mathf.clamp(b.progress, 0.0, 1.0),
+    ));
   };
 
 
   function comp_acceptItem(b, b_f, itm) {
-    return b_f == null || !MDL_cond._isCont(b_f.block);
+    if(b.rsTgs.length === 0) {
+      return b.items.total() < b.block.itemCapacity;
+    } else {
+      return b.rsTgs.includes(itm) && b.items.total() < b.block.itemCapacity;
+    };
   };
 
 
-  function comp_warmup(b) {
-    var amt = 0;
-    var typeAmt = 0;
+  function comp_craft(b) {
+    MDL_effect.playAt(b.x, b.y, b.craftSound, Math.min(b.block.ambientSoundVolume * 2.0, 1.0), 1.0, 0.1);
+
+    let flam = 0.0, explo = 0.0, pow = 0.0, amt = 0;
     b.items.each(itm => {
-      typeAmt++;
-      amt += b.items.get(itm);
+      if(b.block.consumesItem(itm)) return;
+      if(b.block.outputItems != null && b.block.outputItems.some(itmStack => itmStack.item === itm)) return;
+
+      amt = b.items.get(itm);
+      flam += itm.flammability * amt * 3.0;
+      explo += itm.explosiveness * amt * 3.0;
+      pow += itm.charge * amt * 3.0;
+      b.items.set(itm, 0);
     });
 
-    return typeAmt === 0 ? 0.0 : amt / typeAmt / b.block.itemCapacity;
+    if(flam > 0.0 || explo > 0.0 || pow > 0.0) {
+      Sounds.bang.at(b);
+      Damage.dynamicExplosion(b.x, b.y, flam, explo, pow, FRAG_attack._presExploRad(b.block.size) / Vars.tilesize, true);
+    };
   };
 
 
   function comp_buildConfiguration(b, tb) {
-    MDL_table.setSelector_ctMulti(tb, b.block, Vars.content.items().toArray(), () => b.dumpTgs, val => b.configure(val), false, b.block.selectionRows, b.block.selectionColumns);
+    MDL_table.setSelector_ctMulti(tb, b.block, Vars.content.items().toArray(), () => b.rsTgs, val => b.configure(val), false, b.block.selectionRows, b.block.selectionColumns);
 
     tb.row();
     MDL_table.__btnCfg_base(tb, b, b => {
@@ -154,7 +163,6 @@
 
     setStats: function(blk) {
       PARENT.setStats(blk);
-      comp_setStats(blk);
     },
 
 
@@ -178,7 +186,6 @@
 
     updateTile: function(b) {
       PARENT.updateTile(b);
-      comp_updateTile(b);
     },
 
 
@@ -200,23 +207,28 @@
     /* <---------- block (specific) ----------> */
 
 
+    setBars: function(blk) {
+      comp_setBars(blk);
+    },
+
+
     // @NOSUPER
     outputsItems: function(blk) {
-      return true;
+      return blk.outputItems != null && blk.outputItems.length > 0;
     },
 
 
     /* <---------- build (specific) ----------> */
 
 
+    // @NOSUPER
     acceptItem: function(b, b_f, itm) {
       return PARENT.acceptItem(b, b_f, itm) && comp_acceptItem(b, b_f, itm);
     },
 
 
-    // @NOSUPER
-    warmup: function(b) {
-      return comp_warmup(b);
+    craft: function(b) {
+      comp_craft(b);
     },
 
 
@@ -228,17 +240,17 @@
 
     // @NOSUPER
     config: function(b) {
-      return ["BLK_container"].pushAll(b.dumpTgs.map(rs => rs == null ? "null" : rs.name)).toJavaArr();
+      return ["BLK_itemIncinerator"].pushAll(b.rsTgs.map(rs => rs == null ? "null" : rs.name)).toJavaArr();
     },
 
 
     write: function(b, wr) {
-      MDL_io._wr_cts(wr, b.dumpTgs);
+      MDL_io._wr_cts(wr, b.rsTgs);
     },
 
 
     read: function(b, rd, revi) {
-      MDL_io._rd_cts(rd, b.dumpTgs);
+      MDL_io._rd_cts(rd, b.rsTgs);
     },
 
 
@@ -249,7 +261,7 @@
     ex_getTags: function(blk) {
       return TEMPLATE.ex_getTags.funArr;
     }.setProp({
-      "funArr": ["blk-cont"],
+      "funArr": [],
     }),
 
 
@@ -257,17 +269,17 @@
 
 
     // @NOSUPER
-    ex_accDumpTgs: function(b, param, isAdd) {
-      if(param === "read") return b.dumpTgs;
-      if(param === "clear") return b.dumpTgs.clear();
-      return isAdd ? b.dumpTgs.pushUnique(param) : b.dumpTgs.remove(param);
+    ex_accRsTgs: function(b, param, isAdd) {
+      if(param === "read") return b.rsTgs;
+      if(param === "clear") return b.rsTgs.clear();
+      return isAdd ? b.rsTgs.pushUnique(param) : b.rsTgs.remove(param);
     },
 
 
   };
 
 
-  TEMPLATE._std = function() {
+  TEMPLATE._std = function(craftEff, updateEff, updateEffP) {
     return {
       init() {
         this.super$init();
@@ -281,19 +293,26 @@
         this.super$drawPlace(tx, ty, rot, valid);
         TEMPLATE.drawPlace(this, tx, ty, rot, valid);
       },
+      setBars() {
+        this.super$setBars();
+        TEMPLATE.setBars(this);
+      },
       outputsItems() {
         return TEMPLATE.outputsItems(this);
       },
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);
       },
+      // @SPEC
+      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
     };
   };
 
 
-  TEMPLATE._std_b = function() {
+  TEMPLATE._std_b = function(craftSe) {
     return {
-      timerDump: new Interval(1), dumpTgs: [],
+      craftSound: Object.val(craftSe, Sounds.none),
+      rsTgs: [],
       created() {
         this.super$created();
         TEMPLATE.created(this);
@@ -319,12 +338,12 @@
         TEMPLATE.drawSelect(this);
       },
       acceptItem(b_f, itm) {
-        if(!this.super$acceptItem(b_f, itm)) return false;
         if(!TEMPLATE.acceptItem(this, b_f, itm)) return false;
         return true;
       },
-      warmup() {
-        return TEMPLATE.warmup(this);
+      craft() {
+        this.super$craft();
+        TEMPLATE.craft(this);
       },
       buildConfiguration(tb) {
         TEMPLATE.buildConfiguration(this, tb);
@@ -340,8 +359,8 @@
         this.super$read(rd, revi);
         TEMPLATE.read(this, rd, revi);
       },
-      ex_accDumpTgs(param, isAdd) {
-        return TEMPLATE.ex_accDumpTgs(this, param, isAdd);
+      ex_accRsTgs(param, isAdd) {
+        return TEMPLATE.ex_accRsTgs(this, param, isAdd);
       },
     };
   };

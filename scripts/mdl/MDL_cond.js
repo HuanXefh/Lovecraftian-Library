@@ -289,39 +289,6 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this block is tall.
-   * ---------------------------------------- */
-  const _isTallBlk = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-tall");
-  };
-  exports._isTallBlk = _isTallBlk;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a hoist for tall buildings.
-   * ---------------------------------------- */
-  const _isHoist = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-hoist");
-  };
-  exports._isHoist = _isHoist;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block can transfer items to tall buildings.
-   * ---------------------------------------- */
-  const _isTallSource = function(blk_gn) {
-    return _isTallBlk(blk_gn) || _isHoist(blk_gn);
-  };
-  exports._isTallSource = _isTallSource;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Whether this block is exposed to air (can trigger some reactions).
    * ---------------------------------------- */
   const isExposedBlk = function(blk_gn) {

@@ -382,6 +382,50 @@
   exports.convertLoot = convertLoot;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Destroys a loot unit.
+   * ---------------------------------------- */
+  const destroyLoot = function(loot) {
+    if(loot == null) return false;
+    if(!MDL_cond._isLoot(loot)) return false;
+
+    loot.remove();
+
+    return true;
+  };
+  exports.destroyLoot = destroyLoot;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {destroyLoot} used for client side.
+   * ---------------------------------------- */
+  const destroyLoot_client = function(loot) {
+    if(loot == null) return false;
+    if(!MDL_cond._isLoot(loot)) return false;
+
+    let payload = Array.toPayload([
+      loot.id,
+    ]);
+
+    MDL_net.sendPacket("client", "lovec-client-destroy-loot", payload, true, true);
+
+    return true;
+  }
+  .setAnno(ANNO.__INIT__, null, function() {
+    MDL_net.__packetHandler("server", "lovec-client-destroy-loot", payload => {
+      let arr = Array.fromPayload(payload);
+      destroyLoot(Groups.unit.getById(arr[0]));
+    });
+  })
+  .setAnno(ANNO.__CLIENT__)
+  .setAnno(ANNO.__NONCONSOLE__);
+  exports.destroyLoot_client = destroyLoot_client;
+
+
   /* <---------- unit item stack ----------> */
 
 

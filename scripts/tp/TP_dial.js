@@ -42,7 +42,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Calls a dialog that shows a list of contents.
+   * A dialog that shows a list of contents.
    * If the dialog is shown after content database dialog, better set {isAfterCt} to {true}.
    * ---------------------------------------- */
   let cts;
@@ -102,7 +102,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Calls a dialog for content display in rows.
+   * A dialog for content display in rows.
    * ---------------------------------------- */
   let ctsRow;
   MDL_event._c_onLoad(() => {
@@ -141,6 +141,11 @@
   /* <---------- misc stat ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Dialog used for optional input display of multi-crafters.
+   * ---------------------------------------- */
   let rcOpt;
   MDL_event._c_onLoad(() => {
     rcOpt = extend(BaseDialog, "", {
@@ -207,6 +212,11 @@
   }, 198872);
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Dialog used for recipe dictionary display.
+   * ---------------------------------------- */
   let rcDict;
   MDL_event._c_onLoad(() => {
     rcDict = extend(BaseDialog, "", {
@@ -280,7 +290,7 @@
 
                     // Icon
                     if(data.icon != null) {
-                      // Make it smaller so you feel sick
+                      // Make it smaller so you feel sick when seeing the code
                       tb3.image(Core.atlas.find(data.icon)).left().width(26.0).height(26.0);
                     };
 
@@ -407,9 +417,8 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Calls a dialog for basic information display.
+   * A dialog for basic information display.
    * {infoStr} is the text shown above content. {null} to disable it.
-   * {cont} is a table.
    * ---------------------------------------- */
   let baseInfo;
   MDL_event._c_onLoad(() => {

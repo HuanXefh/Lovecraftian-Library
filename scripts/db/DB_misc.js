@@ -1,7 +1,9 @@
-// NOTE: Be careful with any module here to avoid looped reference!
+// NOTE: Be careful with any module here to avoid looped reference! Better use {global}.
 const PINYIN = require("lovec/lib/pinyin");
 const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_cond = require("lovec/mdl/MDL_cond");
+const DB_item = require("lovec/db/DB_item");
+const DB_fluid = require("lovec/db/DB_fluid");
 
 
 const db = {
@@ -14,7 +16,7 @@ const db = {
      * NOTE:
      *
      * Extra text information shown when mouse hovered over a tile.
-     * Put functions that return string here to build final string. Yep string only.
+     * Put functions that return string here to build final string. Yep, string only.
      * Tile won't be {null} here. It's safe to return {undefined} or {null}.
      * Format: {(t, b) => str}.
      * ---------------------------------------- */
@@ -111,25 +113,73 @@ const db = {
     ],
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to generate new key bindings.
+     * Format: {nm, keyCodeDef, categ}.
+     * ---------------------------------------- */
+    "keyBind": [
+
+      "lovec-setting-toggle-win", KeyCode.semicolon, "lovec",
+      "lovec-setting-toggle-unit-stat", KeyCode.unset, "lovec",
+      "lovec-setting-toggle-damage-display", KeyCode.unset, "lovec",
+
+      "lovec-player-drop-loot", KeyCode.l, "lovec",
+      "lovec-player-take-loot", KeyCode.k, "lovec",
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to set up draggable button group.
+     * Format: {nm, [rowInd, iconStr, isToggle, scr, updateScr]}.
+     *
+     * {this} in {updateScr} is the button.
+     * ---------------------------------------- */
+    "dragButton": [
+
+      "lovec-player-drop-loot", [0, "lovec-icon-drop-loot", false, function() {
+        let unit = Vars.player.unit();
+        if(unit == null) return;
+        if(unit.stack.amount > 0) {
+          Vars.net.client() ?
+            global.lovec.mdl_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
+            global.lovec.mdl_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
+          unit.clearItem();
+        };
+      }, null],
+
+      "lovec-player-take-loot", [0, "lovec-icon-take-loot", false, function() {
+        let unit = Vars.player.unit();
+        if(unit == null) return;
+        let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
+        if(Vars.net.client() ?
+            global.lovec.frag_item.takeUnitLoot_client(unit, loot) :
+            global.lovec.frag_item.takeUnitLoot(unit, loot)
+        ) global.lovec.mdl_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
+      }, null],
+
+      "lovec-player-destroy-loot", [0, "lovec-icon-destroy-loot", false, function() {
+        let unit = Vars.player.unit();
+        if(unit == null) return;
+        let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
+        Vars.net.client() ?
+          global.lovec.frag_item.destroyLoot_client(loot) :
+          global.lovec.frag_item.destroyLoot(loot);
+      }, null],
+
+      "lovec-player-detach-camera", [0, "lovec-icon-detach-camera", true, function() {}, function() {
+        Core.settings.put("detach-camera", this.isChecked());
+        if(this.isChecked() && Vars.player.unit() != null) Vars.player.unit().apply(StatusEffects.unmoving, 5.0);
+      }],
+
+    ],
+
+
   },
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Used to generate new key bindings.
-   * Format: {nm, keyCode, categ}.
-   * ---------------------------------------- */
-  "keyBind": [
-
-    "lovec-setting-toggle-win", KeyCode.semicolon, "lovec",
-    "lovec-setting-toggle-unit-stat", KeyCode.unset, "lovec",
-    "lovec-setting-toggle-damage-display", KeyCode.unset, "lovec",
-
-    "lovec-player-drop-loot", KeyCode.l, "lovec",
-    "lovec-player-take-loot", KeyCode.k, "lovec",
-
-  ],
 
 
   /* ----------------------------------------
@@ -184,6 +234,11 @@ const db = {
   "search": {
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Extra tags used for search.
+     * ---------------------------------------- */
     "tag": [
 
       "no:", (ct, str) => !ct.name.toLowerCase().includes(str) && !Strings.stripColors(ct.localizedName).toLowerCase().includes(str) && (!Core.settings.getString("locale") === "zh_CN" || !PINYIN.get(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str)),
@@ -191,6 +246,36 @@ const db = {
       "mod:", (ct, str) => ct.minfo.mod !== null && ct.minfo.mod.name === str,
 
       "hardness:", (ct, str) => ct instanceof Item && ct.hardness == str,
+
+      "group:", (ct, str) => db["search"]["group"].read(str, Function.airFalse)(ct),
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * @CONTENTGEN
+     * {"group:xxx"}.
+     * ---------------------------------------- */
+    "group": [
+
+      "flammable", ct => ct.flammability != null && ct.flammability > 0.0,
+      "explosive", ct => ct.explosiveness != null && ct.explosiveness > 0.0,
+      "charged", ct => ct.charge != null && ct.charge > 0.0,
+      "radioactive", ct => ct.radioactivity != null && ct.radioactivity > 0.0,
+      "viscous", ct => ct.viscosity != null && ct.viscosity > 0.5,
+      "coolant", ct => ct.coolanet != null && ct.coolant && ct.temperature != null && ct.temperature <= 0.5 && ct.flammability != null && ct.flammability < 0.1,
+
+      "intermediate", ct => MDL_cond._isIntmd(ct),
+      "waste", ct => MDL_cond._isWas(ct),
+
+      "sand", ct => DB_item.db["group"]["sand"].includes(ct.name),
+      "aggregate", ct => DB_item.db["group"]["aggregate"].includes(ct.name),
+
+      "aqueous", ct => DB_fluid.db["group"]["aqueous"].includes(ct.name),
+      "conductive", ct => DB_fluid.db["group"]["conductive"].includes(ct.name),
+      "aux", ct => MDL_cond._isAux(ct),
 
     ],
 
@@ -251,7 +336,7 @@ const db = {
 
       ConsumeLiquid, (blk, cons, dictConsItm, dictConsFld) => {
         if(blk instanceof LandingPad) {
-          // NOTE: Why it is not another consumer class...
+          // NOTE: Why is it not another consumer class...
           dictConsFld[blk.consumeLiquid.id].push(blk, blk.consumeLiquidAmount / blk.cooldownTime, {});
         } else {
           dictConsFld[cons.liquid.id].push(blk, cons.amount, {"icon": cons.optional ? "lovec-icon-optional" : null});
@@ -432,6 +517,11 @@ Object.mergeDB(db, "DB_misc");
 
 Vars.mods.eachEnabled(mod => {
   if(mod.meta.dependencies.contains("lovec") || mod.meta.softDependencies.contains("lovec")) db["mod"]["lovecMod"].push(mod.name);
+});
+
+
+Object._it(DB_fluid.db["group"]["elementary"], (eleGrp, arr) => {
+  db["search"]["group"].push(eleGrp, ct => arr.includes(ct.name));
 });
 
 

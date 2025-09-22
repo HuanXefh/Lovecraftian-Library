@@ -31,6 +31,7 @@
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_file = require("lovec/mdl/MDL_file");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
   const MDL_util = require("lovec/mdl/MDL_util");
@@ -164,7 +165,7 @@
     });
 
 
-    // Set up abilities assigned in {DB_unit.db["map"]["ability"]}
+    // Set up abilities/ai controllers assigned in {DB_unit.db["map"]["ability"]}
     DB_unit.db["map"]["ability"].forEachRow(3, (nmUtp, nmAbi, args) => {
       let utp = MDL_content._ct(nmUtp, "utp");
       if(utp == null) return;
@@ -172,6 +173,14 @@
       if(abiSetter == null) return;
 
       utp.abilities.add(abiSetter.apply(null, args));
+    });
+    DB_unit.db["map"]["ai"].forEachRow(3, (nmUtp, nmAi, args) => {
+      let utp = MDL_content._ct(nmUtp, "utp");
+      if(utp == null) return;
+      let aiSetter = global.lovecUtil.db.aiSetter.read(nmAi);
+      if(aiSetter == null) return;
+
+      utp.controller = aiSetter.apply(null, args);
     });
 
 
@@ -235,8 +244,16 @@
     });
 
 
+    Core.scene.add(TP_table._dragBtn());
+
+
     if(!PARAM.modded && MDL_util._loadedMod("projreind") != null) {
       throw new Error("PARAM.modded is broken again, WTF D:");
+    };
+
+
+    if(MDL_file._root("lovec").parent().parent() == null) {
+      Log.info("[LOVEC] Lovec is loaded from a " + "zip file".color(Pal.remove) + ".");
     };
 
 

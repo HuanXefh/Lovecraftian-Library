@@ -84,12 +84,3 @@
     };
   };
   exports._i_liq = _i_liq;
-
-
-  /* <---------- tool ----------> */
-
-
-  const _i_timeControl = function(timeScl) {
-    Log.info("[LOVEC] Current time scale: " + Strings.autoFixed(timeScl, 3) + "x");
-  };
-  exports._i_timeControl = _i_timeControl;

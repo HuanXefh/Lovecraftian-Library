@@ -89,6 +89,7 @@ const db = {
         "tether", [BuildingTetherPayloadUnit, null],
         "crawl", [CrawlUnit, null],
 
+        "lovec-air", [UnitEntity, 80],
         "lovec-mech", [MechUnit, 81],
 
       ],
@@ -102,16 +103,17 @@ const db = {
        * ---------------------------------------- */
       "entityDef": [
 
+        // lovec-air
+        80, {
+          validMine(t, checkDst) {
+            return global.lovec.frag_unit.comp_validMine_miner(this, t, checkDst);
+          },
+        },
+
         // lovec-mech
         81, {
           validMine(t, checkDst) {
-            if(t == null) return false;
-            if(global.lovecUtil.fun._hasTag(t.overlay(), "blk-dpore")) return false;
-            if(this.isPlayer()) {
-              let blk = t.overlay() != null && t.overlay().itemDrop != null ? t.overlay() : (t.block() !== Blocks.air ? t.block() : t.floor());
-              if(blk.playerUnmineable) return false;
-            };
-            return this.super$validMine(t, Object.val(checkDst, true));
+            return global.lovec.frag_unit.comp_validMine_miner(this, t, checkDst);
           },
         },
 
@@ -138,6 +140,15 @@ const db = {
      * Format: {nmUtp, nmAbi, args}.
      * ---------------------------------------- */
     "ability": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to add ai controllers to some unit types.
+     * Similar to {"ability"}.
+     * ---------------------------------------- */
+    "ai": [],
 
 
   },
@@ -170,6 +181,7 @@ const db = {
      * NOTE:
      *
      * These units are rare exceptions that don't create remains.
+     * No need to add biotic units here.
      * ---------------------------------------- */
     "noRemains": [
 
@@ -182,7 +194,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * If a mod has customized unit debris, don't create extra remains now.
+     * If a mod has customized unit debris, don't create extra remains.
      * ---------------------------------------- */
     "noRemainsMod": [
 

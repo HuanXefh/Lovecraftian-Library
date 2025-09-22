@@ -167,8 +167,9 @@
    * @FIELD: ctrl.timerFind, ctrl.isMining, ctrl.oreT
    * Miner AI.
    * ---------------------------------------- */
-  const comp_updateMovement_mine = function(ctrl, unit, b, itm) {
+  const comp_updateMovement_mine = function(ctrl, unit, b, itm, rad) {
     if(!unit.canMine()) return false;
+    if(rad == null) rad = Infinity;
 
     if(!unit.validMine(unit.mineTile)) unit.mineTile = null;
 
@@ -199,10 +200,11 @@
         ctrl.isMining = false;
       } else {
         // Update ore tile
-        if(ctrl.timerFind.get(60.0)) {
+        if(ctrl.timerFind.get(120.0)) {
           ctrl.oreT = null;
           if(unit.type.mineFloor) ctrl.oreT = Vars.indexer.findClosestOre(b.x, b.y, itm);
           if(ctrl.oreT == null && unit.type.mineWalls) ctrl.oreT = Vars.indexer.findClosestWallOre(b.x, b.y, itm);
+          if(Mathf.dst(b.x, b.y, ctrl.oreT.worldx(), ctrl.oreT.worldy()) > rad) ctrl.oreT = null;
         };
         // Move to ore
         if(ctrl.oreT != null) {

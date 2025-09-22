@@ -9,6 +9,7 @@
    * NOTE:
    *
    * Adds some methods to {global} so you can use them in game, if you know how to use console.
+   * Can be used to avoid module coupling.
    * ---------------------------------------- */
 
 
@@ -45,6 +46,7 @@
   const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
   const FRAG_item = require("lovec/frag/FRAG_item");
+  const FRAG_unit = require("lovec/frag/FRAG_unit");
 
 
   const MDL_call = require("lovec/mdl/MDL_call");
@@ -136,6 +138,7 @@
       frag_faci: FRAG_faci,
       frag_fluid: FRAG_fluid,
       frag_item: FRAG_item,
+      frag_unit: FRAG_unit,
 
 
       mdl_call: MDL_call,
@@ -208,19 +211,6 @@
 
 
     global.lovec.tool = {
-
-
-      timeControl(param) {
-        var timeScl = Number(param);
-        // NOTE: Too large {timeScl} will BREAK your save forever.
-        if(isNaN(timeScl) || timeScl < 0.0 || timeScl > 50.0) {
-          MDL_test._i_invalidArgs();
-          return;
-        };
-
-        Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0 * timeScl);
-        MDL_test._i_timeControl(timeScl);
-      },
 
 
       propListener: {
