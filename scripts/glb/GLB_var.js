@@ -31,6 +31,9 @@
   exports.lay_vent = 0.61;
   exports.lay_randOv = 1.07;
   exports.lay_debugFlr = 2.21;
+  exports.lay_buildingRemainsDrown = 22.05;
+  exports.lay_buildingRemains = 27.07;
+  exports.lay_buildingRemainsDrown = 22.07;
   exports.lay_unitRemains = 58.11;
   exports.lay_dporeRevealed = 107.21;
   exports.lay_debugTop = 118.91;

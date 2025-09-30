@@ -60,8 +60,8 @@
    * See {DB_misc.db["mod"]["dragButton"]}.
    * ---------------------------------------- */
   const _dragBtn = function(x, y) {
-    if(x == null) x = MDL_ui._centerX() * 1.5;
-    if(y == null) y = MDL_ui._centerY() * 0.5;
+    if(x == null) x = MDL_ui._centerX() * 1.4;
+    if(y == null) y = MDL_ui._centerY() * 0.4;
 
     const root = extend(Table, {
       isHidden: false,
@@ -125,7 +125,10 @@
             arr[i].forEachFast(tup => {
               btnCell = btns.button(tup[1], tup[2] ? Styles.clearTogglei : Styles.cleari, tup[3]).size(42.0);
               if(tup[0] != null) btnCell.tooltip(tup[0], true);
-              if(tup[4] != null) btnCell.update(() => tup[4].call(btnCell.get()));
+              if(tup[4] != null) {
+                let btn = btnCell.get();
+                btnCell.update(() => tup[4].call(btn));
+              };
             });
             btns.row();
             i++;

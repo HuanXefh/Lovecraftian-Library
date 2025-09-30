@@ -43,12 +43,12 @@
 
     if(!shouldReturnName) {
 
-      return Core.atlas.find(blk.name + "-icon", Core.atlas.find(blk.name));
+      return Core.atlas.find(blk.name + "-icon", blk.fullIcon);
 
     } else {
 
       let nm = blk.name + "-icon";
-      return Core.atlas.has(nm) ? nm : blk.name;
+      return Core.atlas.has(nm) ? nm : blk.name + "-full";
 
     };
   }

@@ -122,7 +122,7 @@
    * Used when a dialog has no contents.
    * ---------------------------------------- */
   const __textNothing = function(tb) {
-    tb.add(MDL_bundle._info("lovec", "nothing")).center().row();
+    tb.add(MDL_bundle._info("lovec", "nothing").color(Color.lightGray)).center().row();
   };
   exports.__textNothing = __textNothing;
 

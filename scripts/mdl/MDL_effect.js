@@ -21,11 +21,13 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_draw = require("lovec/mdl/MDL_draw");
+  const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_texture = require("lovec/mdl/MDL_texture");
   const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
   const TP_effect = require("lovec/tp/TP_effect");
+  const TP_shader = require("lovec/tp/TP_shader");
 
 
   /* <---------- base ----------> */
@@ -411,21 +413,29 @@
    *
    * Creates remains of a unit.
    * ---------------------------------------- */
-  const showAt_remains = function(x, y, utp0unit, team, isPermanent, forceHot) {
-    if(utp0unit == null || team == null) return;
-    let unit = (utp0unit instanceof Unit) ? utp0unit : null;
-    let utp = (utp0unit instanceof Unit) ? utp0unit.type : utp0unit;
+  const showAt_remains = function(x, y, e0etp, team, isPermanent, forceHot) {
+    if(e0etp == null || team == null) return;
+    let e = (e0etp instanceof Unit) ? e0etp : (e0etp instanceof Building ? e0etp : null);
+    let etp = (e0etp instanceof Unit) ? e0etp.type : (e0etp instanceof Building ? e0etp.block : e0etp);
     let t = Vars.world.tileWorld(x, y);
     if(t == null || !t.floor().canShadow) return;
 
     let tint = null;
     var a = 1.0;
-    var z = VAR.lay_unitRemains;
+    var z = etp instanceof Block ? VAR.lay_buildingRemains : VAR.lay_unitRemains;
     let inLiq = false;
     let shouldFloat = false;
-    if(t.floor().isLiquid && t.build == null && (!t.solid() || t.block() instanceof TreeBlock)) {
+    if((function () {
+      if(!t.floor().isLiquid) return false;
+      if(etp instanceof Block) {
+        return true;
+      } else {
+        if(t.build != null || (t.solid() && !(t.block() instanceof TreeBlock))) return false;
+      };
+      return true;
+    })()) {
       inLiq = true;
-      if(utp.hitSize < 17.5001) {shouldFloat = true} else {
+      if(!(etp instanceof Block) && MDL_entity._hitSize(etp) < 17.5001) {shouldFloat = true} else {
         let liq = t.floor().liquidDrop;
         if(liq != null) {
           tint = liq.color;
@@ -433,7 +443,7 @@
           tint = t.floor().mapColor;
         };
         a = 0.5;
-        z = 22.0;
+        z = etp instanceof Block ? VAR.lay_buildingRemainsDrown : VAR.lay_unitRemainsDrown;
       };
     };
 
@@ -441,40 +451,58 @@
 
 
       lifetime: isPermanent ? MATH_base.maxTime : PARAM.unitRemainsLifetime, offTime: Mathf.random(1200.0),
-      x: x, y: y, rotation: Mathf.random(360.0), team: team,
-      color: Color.valueOf("606060"), tint: tint, a: a, z: z,
-      region: Core.atlas.find(utp.name + "-icon", utp.region),
-      cellRegion: Core.atlas.find(utp.name + "-cell-icon", utp.cellRegion), softShadowRegion: utp.softShadowRegion,
+      x: x, y: y, rotation: etp instanceof Block ? (Mathf.random(90.0) - 45.0) : Mathf.random(360.0), team: team,
+      color: Color.valueOf("606060"), tint: tint, a: a, z: z, off: Mathf.random(90.0),
+      region: etp instanceof Block ? MDL_texture._regBlk(etp) : Core.atlas.find(etp.name + "-icon", etp.region),
+      cellRegion: etp instanceof Block ? null : Core.atlas.find(etp.name + "-cell-icon", etp.cellRegion), softShadowRegion: etp instanceof Block ? null : etp.softShadowRegion,
       shouldFloat: shouldFloat,
-      isHot: forceHot ? true : MDL_cond._isHot(unit, t), shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
+      isHot: forceHot ? true : MDL_cond._isHot(e, t), shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
 
 
       draw() {
         var x = this.x + (!this.shouldFloat ? 0.0 : Math.sin((Time.time + this.offTime) * 0.01) * 0.35 * Vars.tilesize);
         var y = this.y + (!this.shouldFloat ? 0.0 : Math.cos((Time.time + this.offTime) * 0.05 + 32.0) * 0.15 * Vars.tilesize);
-        if(this.shouldFloat && Mathf.chanceDelta(0.01)) showAt_ripple(x, y, utp.hitSize * 1.2);
+        if(this.shouldFloat && Mathf.chanceDelta(0.01)) showAt_ripple(x, y, MDL_entity._hitSize(etp) * 1.2);
 
         Draw.z(this.z - 1.0);
-        Draw.color(Color.black, 0.5);
-        Draw.rect(this.softShadowRegion, x, y, this.region.width * 0.4, this.region.width * 0.4, this.rotation);
-        Draw.z(this.z);
-        if(this.tint != null) {Draw.tint(this.color, this.tint, 0.5)} else {
-          if(!this.isHot) {Draw.color(this.color)} else {
-            Draw.color(Tmp.c1.set(Color.valueOf("ea8878")).lerp(this.color, Interp.pow2Out.apply(this.fin())));
-          };
+        Draw.color(Color.black, etp instanceof Block ? 0.3 : 0.5);
+        if(this.softShadowRegion == null) {
+          Draw.rect("square-shadow", x, y, MDL_entity._hitSize(etp) * 2.1, MDL_entity._hitSize(etp) * 2.1, this.rotation);
+        } else {
+          Draw.rect(this.softShadowRegion, x, y, this.region.width * 0.4, this.region.width * 0.4, this.rotation);
         };
-        Draw.alpha(this.a - Mathf.curve(this.fin(), 0.98) * this.a);
-        Draw.rect(this.region, x, y, this.rotation);
-        Draw.color(Tmp.c2.set(this.color).mul(this.team.color));
-        Draw.alpha(this.a - Mathf.curve(this.fin(), 0.98) * this.a);
-        Draw.rect(this.cellRegion, x, y, this.rotation);
-        Draw.color();
-        if(this.isHot) {
-          Draw.blend(Blending.additive);
-          Draw.mixcol(Color.valueOf("ff3838"), 1.0);
-          Draw.alpha((0.5 + Mathf.absin(10.0, 0.5)) * (!this.shouldFadeHeat ? (0.5 - Mathf.curve(this.fin(), 0.98) * 0.5) : (0.5 - Interp.pow2Out.apply(this.fin()) * 0.5)));
+        if(etp instanceof Block) {
+          Draw.draw(this.z, () => {
+            // Use a shader to create incomplete debris
+            TP_shader.shader0blk_debris.ex_accRegion(this.region);
+            TP_shader.shader0blk_debris.ex_accMulColor(this.color);
+            TP_shader.shader0blk_debris.ex_accA(this.a - Mathf.curve(this.fin(), 0.98) * this.a);
+            TP_shader.shader0blk_debris.ex_accOff(this.off);
+            Draw.shader(TP_shader.shader0blk_debris);
+            Draw.rect(this.region, x, y, this.rotation);
+            Draw.shader();
+            Draw.flush();
+          });
+        } else {
+          Draw.z(this.z);
+          if(this.tint != null) {Draw.tint(this.color, this.tint, 0.5)} else {
+            if(!this.isHot) {Draw.color(this.color)} else {
+              Draw.color(Tmp.c1.set(Color.valueOf("ea8878")).lerp(this.color, Interp.pow2Out.apply(this.fin())), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
+            };
+          };
           Draw.rect(this.region, x, y, this.rotation);
-          Draw.blend();
+          if(this.cellRegion != null) {
+            Draw.color(Tmp.c2.set(this.color).mul(this.team.color), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
+            Draw.rect(this.cellRegion, x, y, this.rotation);
+          };
+          Draw.color();
+          if(this.isHot) {
+            Draw.blend(Blending.additive);
+            Draw.mixcol(Color.valueOf("ff3838"), 1.0);
+            Draw.alpha((0.5 + Mathf.absin(10.0, 0.5)) * (!this.shouldFadeHeat ? (0.5 - Mathf.curve(this.fin(), 0.98) * 0.5) : (0.5 - Interp.pow2Out.apply(this.fin()) * 0.5)));
+            Draw.rect(this.region, x, y, this.rotation);
+            Draw.blend();
+          };
         };
         Draw.reset();
       },

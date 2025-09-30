@@ -1083,12 +1083,15 @@
    *
    * Gets the closest unit/building that is a valid target.
    * ---------------------------------------- */
-  const _e_tg = function(x, y, team, rad) {
+  const _e_tg = function(x, y, team, rad, targetAir, targetGround, boolF) {
     if(team == null) return;
     if(rad == null) rad = MATH_base.maxDst;
     if(rad < 0.0001) return;
+    if(targetAir == null) targetAir = true;
+    if(targetGround == null) targetGround = true;
+    if(boolF == null) boolF = Function.airTrue;
 
-    return Units.closestTarget(team, x, y, rad);
+    return Units.closestTarget(team, x, y, rad, ounit => ounit.checkTarget(targetAir, targetGround) && boolF(ounit), ot => targetGround && boolF(ot));
   };
   exports._e_tg = _e_tg;
 

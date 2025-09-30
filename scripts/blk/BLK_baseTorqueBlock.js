@@ -131,11 +131,10 @@
       if(b.ex_canSupplyTor() && ob.acceptLiquid(b, VARGEN.auxTor)) ob.handleLiquid(b, VARGEN.auxTor, rate1 * b.edelta());
       if(ob.acceptLiquid(b, VARGEN.auxRpm)) {
         ob.handleLiquid(b, VARGEN.auxRpm, rate2 * b.edelta());
-        if(Mathf.chance(0.03)) {
+        if(TIMER.timerState_secFive) {
           let consAmt = MDL_recipeDict._consAmt(VARGEN.auxRpm, ob.block);
-          if(rate2 / consAmt > 2.0) {
-            let bTg = Mathf.chance(0.7) ? ob : b;
-            FRAG_attack.damage(bTg, bTg.maxHealth * (VAR.blk_rpmDmgFrac + (rate2 - consAmt * 2.0) / consAmt));
+          if(rate2 / consAmt > 3.0) {
+            FRAG_attack.damage(ob, ob.maxHealth * (VAR.blk_rpmDmgFrac + (rate2 - consAmt * 3.0) / consAmt));
           };
         };
       };

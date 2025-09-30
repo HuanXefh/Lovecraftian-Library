@@ -373,6 +373,15 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
+     * These blocks won't create remains upon destruction.
+     * No need for 1-block sized blocks and core blocks.
+     * ---------------------------------------- */
+    "noRemains": [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * These blocks have reload bars (long time of reloading).
      * ---------------------------------------- */
     "showReload": [

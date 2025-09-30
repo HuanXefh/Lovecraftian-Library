@@ -8,14 +8,15 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Simply {WallCrafter}.
+   * A harvester that has a rectangular range.
+   * Setting {rotate} to {true} is recommended if the block outputs loot.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * BASE:
    *
-   * WallCrafter
+   * AttributeCrafter
    * ---------------------------------------- */
 
 
@@ -37,6 +38,7 @@
 
 
   const PARENT = require("lovec/blk/BLK_baseHarvester");
+  const PARENT_A = require("lovec/blk/BLK_rangeAttributeFactory");
 
 
   const FRAG_faci = require("lovec/frag/FRAG_faci");
@@ -48,44 +50,21 @@
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
-  const TP_stat = require("lovec/tp/TP_stat");
-
-
   /* <---------- component ----------> */
 
 
-  function comp_setStats(blk) {
-    blk.stats.add(TP_stat.blk_attrReq, MDL_attr._attrB(blk.attribute));
+  function comp_init(blk) {
+    blk.baseEfficiency = 0.0;
+    blk.maxBoost = 9999.0;
   };
 
 
-  const comp_drawPlace = function(blk, tx, ty, rot, valid) {
-    const thisFun = comp_drawPlace;
-
-    let t = Vars.world.tile(tx, ty);
-    if(t == null) return;
-
-    let ts;
-    if(thisFun.funTup.length === 0 || thisFun.funTup[0] !== t) {
-
-      ts = MDL_pos._tsRect(t, 5, blk.size);
-
-      thisFun.funTup[0] = t;
-      thisFun.funTup[1] = ts;
-
-    } else {
-
-      ts = thisFun.funTup[1];
-
-    };
-
-    ts.forEachFast(ot => {
-      if(ot.block().attributes.get(blk.attribute) > 0.0) MDL_draw.drawArea_tShrink(ot, 1, Pal.accent);
+  function comp_drawPlace(blk, tx, ty, rot, valid) {
+    MDL_draw.bufferedDraw_place(blk, tx, ty, rot, () => MDL_pos._tsRect(Vars.world.tile(tx, ty), blk.attrR, blk.size).filter(ot => MDL_attr._sum_ts([ot], blk.attribute, blk.attrMode) > 0.0), () => valid, (blk, tx, ty, rot, ts, valid) => {
+      if(!(ts instanceof Array)) return;
+      ts.forEachFast(ot => MDL_draw.drawArea_tShrink(ot, blk.attrMode === "blk" ? ot.block().size : 1, valid));
     });
-  }
-  .setProp({
-    "funTup": [],
-  });
+  };
 
 
   function comp_onProximityUpdate(b) {
@@ -121,18 +100,18 @@
 
 
     init: function(blk) {
-      PARENT.init(blk);
+      PARENT_A.init(blk);
+      comp_init(blk);
     },
 
 
     setStats: function(blk) {
-      PARENT.setStats(blk);
-      comp_setStats(blk);
+      PARENT_A.setStats(blk);
     },
 
 
     drawPlace: function(blk, tx, ty, rot, valid) {
-      PARENT.drawPlace(blk, tx, ty, rot, valid);
+      PARENT_A.drawPlace(blk, tx, ty, rot, valid);
       comp_drawPlace(blk, tx, ty, rot, valid);
     },
 
@@ -156,7 +135,7 @@
 
 
     onProximityUpdate: function(b) {
-      PARENT.onProximityUpdate(b);
+      PARENT_A.onProximityUpdate(b);
       comp_onProximityUpdate(b);
     },
 
@@ -167,15 +146,22 @@
 
 
     drawSelect: function(b) {
-      PARENT.drawSelect(b);
+      PARENT_A.drawSelect(b);
     },
 
 
     /* <---------- block (specific) ----------> */
 
 
+    // @NOSUPER
     setBars: function(blk) {
       comp_setBars(blk);
+    },
+
+
+    // @NOSUPER
+    sumAttribute: function(blk, attr, tx, ty) {
+      return PARENT_A.sumAttribute(blk, attr, tx, ty);
     },
 
 
@@ -209,22 +195,41 @@
     }),
 
 
+    // @NOSUPER
+    ex_getAttrMode: function(blk) {
+      return PARENT_A.ex_getAttrMode(blk);
+    },
+
+
+    // @NOSUPER
+    ex_getAttrSum: function(blk, tx, ty, rot) {
+      return PARENT_A.ex_getAttrSum(blk, tx, ty, rot);
+    },
+
+
+    // @NOSUPER
+    ex_getAttrR: function(blk) {
+      return PARENT_A.ex_getAttrR(blk);
+    },
+
+
     /* <---------- build (extended) ----------> */
 
 
     // @NOSUPER
     ex_getProg : function(b) {
       return !b.outputsLoot ?
-        b.time / b.block.drillTime :
-        (b.lootCharge * b.block.drillTime + b.time) / (b.block.itemCapacity * b.block.drillTime);
+        b.progress :
+        (b.lootCharge + b.progress) / b.block.itemCapacity;
     },
 
 
   };
 
 
-  TEMPLATE._std = function(updateEff, updateEffP) {
+  TEMPLATE._std = function(attrMode, attrR, craftEff, updateEff, updateEffP) {
     return {
+      attrMode: Object.val(attrMode, "flr"), attrR: Object.val(attrR, 0),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -241,11 +246,23 @@
         this.super$setBars();
         TEMPLATE.setBars(this);
       },
+      sumAttribute(attr, tx, ty) {
+        return TEMPLATE.sumAttribute(this, attr, tx, ty);
+      },
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);
       },
+      ex_getAttrMode() {
+        return TEMPLATE.ex_getAttrMode(this);
+      },
+      ex_getAttrSum(tx, ty, rot) {
+        return TEMPLATE.ex_getAttrSum(this, tx, ty, rot);
+      },
+      ex_getAttrR() {
+        return TEMPLATE.ex_getAttrR(this);
+      },
       // @SPEC
-      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
     };
   };
 

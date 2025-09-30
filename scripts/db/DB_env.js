@@ -127,6 +127,26 @@ const db = {
   },
 
 
+  "group": {
+
+
+    "map": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * These maps are considered as cave, where flying units cannot go over walls.
+       * ---------------------------------------- */
+      "cave": [],
+
+
+    },
+
+
+  },
+
+
   "grpParam": {
 
 

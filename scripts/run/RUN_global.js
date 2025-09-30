@@ -54,6 +54,7 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_effect = require("lovec/mdl/MDL_effect");
+  const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_file = require("lovec/mdl/MDL_file");
   const MDL_java = require("lovec/mdl/MDL_java");
@@ -146,6 +147,7 @@
       mdl_content: MDL_content,
       mdl_draw: MDL_draw,
       mdl_effect: MDL_effect,
+      mdl_entity: MDL_entity,
       mdl_file: MDL_file,
       mdl_java: MDL_java,
       mdl_json: MDL_json,

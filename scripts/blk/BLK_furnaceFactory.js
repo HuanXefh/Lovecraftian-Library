@@ -74,6 +74,7 @@
 
 
   function comp_init(blk) {
+    blk.clipSize += 140.0;
     MDL_event._c_onLoad(() => {
       Core.app.post(() => {
         let arr;
@@ -146,19 +147,20 @@
           b.fuelPonCur += b.fuelTup[1];
         };
       } else {
-        let amtCons = b.fuelTup[1] * b.fuelConsMtp * b.edelta() * VAR.time_heatIntv;
+        let amtCons = b.fuelTup[1] * b.fuelConsMtp * b.delta() * VAR.time_heatIntv;
         if(FRAG_fluid.addLiquid(b, null, b.fuelTup[0], -amtCons) > amtCons) {
           b.fuelPonCur = 1.0;
         };
       };
     };
-    b.fuelPonCur = Mathf.maxZero(b.fuelPonCur - b.edelta() / 60.0 * b.fuelConsMtp);
+    b.fuelPonCur = Mathf.maxZero(b.fuelPonCur - b.delta() / 60.0 * b.fuelConsMtp);
   };
 
 
   function comp_draw(b) {
     MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(b.ex_getHeatFrac(), 3) * 0.8, b.heatReg, b.drawrot(), b.block.size);
     MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(b.ex_getHeatFrac(), 3) * 0.5, VARGEN.blockHeatRegs[b.block.size + 2], b.drawrot(), b.block.size);
+    MDL_draw.drawRegion_light(b.x, b.y, Mathf.clamp(b.tempCur / 1000.0), 64.0, b.block.size);
   };
 
 

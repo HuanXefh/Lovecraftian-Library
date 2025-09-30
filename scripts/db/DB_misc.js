@@ -141,6 +141,16 @@ const db = {
      * ---------------------------------------- */
     "dragButton": [
 
+      "lovec-player-take-loot", [0, "lovec-icon-take-loot", false, function() {
+        let unit = Vars.player.unit();
+        if(unit == null) return;
+        let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
+        if(Vars.net.client() ?
+        global.lovec.frag_item.takeUnitLoot_client(unit, loot) :
+        global.lovec.frag_item.takeUnitLoot(unit, loot)
+      ) global.lovec.mdl_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
+    }, null],
+
       "lovec-player-drop-loot", [0, "lovec-icon-drop-loot", false, function() {
         let unit = Vars.player.unit();
         if(unit == null) return;
@@ -150,16 +160,6 @@ const db = {
             global.lovec.mdl_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
           unit.clearItem();
         };
-      }, null],
-
-      "lovec-player-take-loot", [0, "lovec-icon-take-loot", false, function() {
-        let unit = Vars.player.unit();
-        if(unit == null) return;
-        let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
-        if(Vars.net.client() ?
-            global.lovec.frag_item.takeUnitLoot_client(unit, loot) :
-            global.lovec.frag_item.takeUnitLoot(unit, loot)
-        ) global.lovec.mdl_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
       }, null],
 
       "lovec-player-destroy-loot", [0, "lovec-icon-destroy-loot", false, function() {
@@ -175,6 +175,10 @@ const db = {
         Core.settings.put("detach-camera", this.isChecked());
         if(this.isChecked() && Vars.player.unit() != null) Vars.player.unit().apply(StatusEffects.unmoving, 5.0);
       }],
+
+      "lovec-info-wave-enemies", [0, "lovec-icon-skull", false, function() {
+        global.lovec.tp_dial.waveInfo.ex_show(null);
+      }, null],
 
     ],
 
@@ -216,13 +220,15 @@ const db = {
     "damagedisplay-min", useScl => Core.settings.getInt("lovec-damagedisplay-min", 0) * (useScl ? 20.0 : 1.0),
 
     "unit0stat-show", useScl => Core.settings.getBool("lovec-unit0stat-show", true),
+    "unit0stat-range", useScl => Core.settings.getBool("lovec-unit0stat-range", true),
     "unit0stat-player", useScl => Core.settings.getBool("lovec-unit0stat-player", true),
     "unit0stat-reload", useScl => Core.settings.getBool("lovec-unit0stat-reload", true),
     "unit0stat-missile", useScl => Core.settings.getBool("lovec-unit0stat-missile", false),
     "unit0stat-build", useScl => Core.settings.getBool("lovec-unit0stat-build", true),
     "unit0stat-mouse", useScl => Core.settings.getBool("lovec-unit0stat-mouse", true),
     "unit0stat-minimalistic", useScl => Core.settings.getBool("lovec-unit0stat-minimalistic", false),
-    "unit0remains-lifetime", useScl => Core.settings.getInt("lovec-unit0remains-lifetime", 12) * (useScl ? 300.0 : 1.0),
+    "unit0remains-lifetime", useScl => Core.settings.getInt("lovec-unit0remains-lifetime", 36) * (useScl ? 300.0 : 1.0),
+    "unit0remains-building", useScl => Core.settings.getBool("lovec-unit0remains-building", true),
 
     "window-show", useScl => Core.settings.getBool("lovec-window-show", true),
 

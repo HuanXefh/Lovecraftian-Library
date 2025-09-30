@@ -28,7 +28,7 @@
   let upSupTime = 300;
   let secretCode = "";
   let unit_pl = null;
-  let shouldLoadParam = false;
+  let shouldLoadParam = true;
 
 
   // Not in {MDL_flow} to avoid coupling of modules
@@ -80,9 +80,20 @@
   })();
 
 
+  // Settings that cannot be {undefined} when loading
+  exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
+
+
   MDL_event._c_onLoad(() => {
 
   }, 59556227);
+
+
+  MDL_event._c_onWorldLoad(() => {
+
+    Time.run(5.0, () => forceLoadParam());
+
+  }, 44492271);
 
 
   MDL_event._c_onUpdate(() => {
@@ -105,6 +116,7 @@
 
       exports.plaCur = global.lovecUtil.fun._plaCur();
       exports.mapCur = global.lovecUtil.fun._mapCur();
+      exports.isCaveMap = DB_env.db["group"]["map"]["cave"].includes(module.exports.mapCur);
       exports.glbHeat = _glbHeat();
 
 
@@ -132,6 +144,7 @@
 
 
       exports.drawUnitStat = MDL_util._cfg("unit0stat-show");
+      exports.drawUnitRange = MDL_util._cfg("unit0stat-range");
       exports.drawPlayerStat = MDL_util._cfg("unit0stat-player");
       exports.drawUnitReload = MDL_util._cfg("unit0stat-reload");
       exports.drawMissileStat = MDL_util._cfg("unit0stat-missile");
@@ -139,6 +152,7 @@
       exports.drawUnitNearMouse = MDL_util._cfg("unit0stat-mouse");
       exports.drawMinimalisticStat = MDL_util._cfg("unit0stat-minimalistic");
       exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
+      exports.createBuildingRemains = MDL_util._cfg("unit0remains-building");
 
 
       exports.displayDamage = MDL_util._cfg("damagedisplay-show");

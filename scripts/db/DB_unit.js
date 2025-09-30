@@ -105,6 +105,9 @@ const db = {
 
         // lovec-air
         80, {
+          solidity() {
+            return global.lovec.frag_unit.comp_solidity_flying(this);
+          },
           validMine(t, checkDst) {
             return global.lovec.frag_unit.comp_validMine_miner(this, t, checkDst);
           },
@@ -112,6 +115,9 @@ const db = {
 
         // lovec-mech
         81, {
+          solidity() {
+            return global.lovec.frag_unit.comp_solidity_flying(this);
+          },
           validMine(t, checkDst) {
             return global.lovec.frag_unit.comp_validMine_miner(this, t, checkDst);
           },

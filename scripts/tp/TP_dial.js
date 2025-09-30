@@ -26,6 +26,7 @@
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
@@ -467,3 +468,69 @@
     });
     exports.baseInfo = baseInfo;
   }, 426331);
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A dialog for wave enemy display.
+   * ---------------------------------------- */
+  let waveInfo;
+  MDL_event._c_onLoad(() => {
+    waveInfo = extend(BaseDialog, "", {
+
+
+      tmpCount: 0,
+
+
+      ex_show(countWave) {
+        if(countWave == null) countWave = Vars.state.wave;
+
+        this.cont.clear();
+        this.buttons.clear();
+
+        this.title.setText((MDL_bundle._info("lovec", "dial-wave-enemies") + " (" + countWave + ")").color(Pal.accent));
+        this.title.getStyle().fontColor = Color.white;
+        this.tmpCount = countWave;
+
+        // @TABLE: list
+        this.cont.pane(pn => {
+
+          MDL_table.__margin(pn);
+
+          if(countWave < 1) {
+            MDL_table.__textNothing(pn);
+          } else {
+            let matArr = [[
+              "",
+              MDL_bundle._term("lovec", "unit"),
+              MDL_bundle._term("lovec", "amount"),
+              MDL_bundle._term("lovec", "total-health"),
+              MDL_bundle._term("lovec", "shield"),
+              MDL_bundle._term("lovec", "status"),
+            ]];
+            MDL_entity._waveArr(countWave).forEachRow(4, (utp, amt, shield, sta) => {
+              matArr.push([utp, utp.localizedName, amt, (utp.health * amt).ui(), shield, sta === StatusEffects.none ? "-" : sta]);
+            });
+            if(matArr.length === 1) {
+              MDL_table.__textNothing(pn);
+            } else {
+              MDL_table.setTable_base(pn, matArr);
+            };
+          };
+
+        }).width(MDL_ui._uiW()).row();
+
+        // @TABLE: buttons
+        MDL_table.__break(this.cont);
+        MDL_table.__btnClose(this.buttons, this);
+        MDL_table.__btnBase(this.buttons, MDL_bundle._term("lovec", "last-wave"), () => waveInfo.ex_show(Math.max(this.tmpCount - 1, 1)));
+        MDL_table.__btnBase(this.buttons, MDL_bundle._term("lovec", "next-wave"), () => waveInfo.ex_show(this.tmpCount + 1));
+
+        this.show();
+      },
+
+
+    });
+    exports.waveInfo = waveInfo;
+  }, 492207);

@@ -231,13 +231,15 @@
       tb.checkPref("lovec-damagedisplay-show", true);
       tb.sliderPref("lovec-damagedisplay-min", 0, 0, 50, val => Strings.fixed(val * 20.0, 0));
       tb.checkPref("lovec-unit0stat-show", true);
+      tb.checkPref("lovec-unit0stat-range", true);
       tb.checkPref("lovec-unit0stat-player", true);
       tb.checkPref("lovec-unit0stat-reload", true);
       tb.checkPref("lovec-unit0stat-missile", false);
       tb.checkPref("lovec-unit0stat-build", true);
       tb.checkPref("lovec-unit0stat-mouse", true);
       tb.checkPref("lovec-unit0stat-minimalistic", false);
-      tb.sliderPref("lovec-unit0remains-lifetime", 12, 0, 60, val => Strings.fixed(val * 5.0, 0) + "s");
+      tb.sliderPref("lovec-unit0remains-lifetime", 36, 0, 120, val => Strings.fixed(val * 5.0, 0) + "s");
+      tb.checkPref("lovec-unit0remains-building", true);
 
       tb.areaTextPref("lovec-misc-secret-code", "");
 

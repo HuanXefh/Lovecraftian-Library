@@ -37,7 +37,7 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseStorageBlock");
+  const PARENT = require("lovec/blk/BLK_baseItemBlock");
 
 
   const MDL_event = require("lovec/mdl/MDL_event");

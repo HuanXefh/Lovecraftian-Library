@@ -17,6 +17,7 @@
 
   const FRAG_attack = require("lovec/frag/FRAG_attack");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
+  const FRAG_item = require("lovec/frag/FRAG_item");
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
@@ -347,11 +348,27 @@
   exports.comp_init_depthOre = comp_init_depthOre;
 
 
+  // @FIELD: b.outputsLoot, b.lootCharge, b.lootBackX, b.lootBackY
+  const comp_offload_loot = function(b, itm) {
+    if(!b.outputsLoot) {
+      b.super$offload(itm);
+    } else {
+      b.lootCharge++;
+      let cap = b.block.itemCapacity;
+      if(b.lootCharge >= cap) {
+        b.lootCharge = 0;
+        FRAG_item.produceLootAt(b.lootBackX, b.lootBackY, b, itm, cap, true);
+      };
+    };
+  };
+  exports.comp_offload_loot = comp_offload_loot;
+
+
   /* <---------- pollution ----------> */
 
 
-  var blkPol = 0.0;
-  var dynaPol = 0.0;
+  let blkPol = 0.0;
+  let dynaPol = 0.0;
 
 
   /* ----------------------------------------

@@ -19,34 +19,40 @@
   /* <---------- generic ----------> */
 
 
-  const _size = function(e) {
-    if(e == null) return 0.0;
+  const _size = function(e0etp) {
+    if(e0etp == null) return 0.0;
 
-    if(e instanceof Building) return e.block.size;
-    if(e instanceof Unit || e instanceof Bullet) return e.type.hitSize / Vars.tilesize;
+    if(e0etp instanceof Building) return e0etp.block.size;
+    if(e0etp instanceof Block) return e0etp.size;
+    if(e0etp instanceof Unit || e0etp instanceof Bullet) return e0etp.type.hitSize / Vars.tilesize;
+    if(e0etp instanceof UnitType || e0etp instanceof BulletType) return e0etp.hitSize / Vars.tilesize;
 
     return 0.0;
   };
   exports._size = _size;
 
 
-  const _hitSize = function(e) {
-    if(e == null) return 0.0;
+  const _hitSize = function(e0etp) {
+    if(e0etp == null) return 0.0;
 
-    if(e instanceof Building) return e.block.size * Vars.tilesize;
-    if(e instanceof Unit || e instanceof Bullet) return e.type.hitSize;
+    if(e0etp instanceof Building) return e0etp.block.size * Vars.tilesize;
+    if(e0etp instanceof Block) return e0etp.size * Vars.tilesize;
+    if(e0etp instanceof Unit || e0etp instanceof Bullet) return e0etp.type.hitSize;
+    if(e0etp instanceof UnitType || e0etp instanceof BulletType) return e0etp.hitSize;
 
     return 0.0;
   };
   exports._hitSize = _hitSize;
 
 
-  const _clipSize = function(e) {
-    if(e == null) return 0.0;
+  const _clipSize = function(e0etp) {
+    if(e0etp == null) return 0.0;
 
-    if(e instanceof Building) return e.block.clipSize;
-    if(e instanceof Unit) return e.clipSize();
-    if(e instanceof Bullet) return e.type.drawSize;
+    if(e0etp instanceof Building) return e0etp.block.clipSize;
+    if(e0etp instanceof Block || e0etp instanceof UnitType) return e0etp.clipSize;
+    if(e0etp instanceof Unit) return e0etp.clipSize();
+    if(e0etp instanceof Bullet) return e0etp.type.drawSize;
+    if(e0etp instanceof BulletType) return e0etp.drawSize;
 
     return 0.0;
   };
@@ -233,3 +239,20 @@
     return dmg_fi * mtp;
   };
   exports._bulDmg = _bulDmg;
+
+
+  /* <---------- wave ----------> */
+
+
+  const _waveArr = function(countWave) {
+    if(countWave == null) countWave = Vars.state.wave;
+
+    const arr = [];
+    Vars.state.rules.spawns.each(spawnGrp => spawnGrp.team == null || spawnGrp.team === Vars.state.rules.waveTeam, spawnGrp => {
+      let amt = spawnGrp.getSpawned(countWave);
+      if(amt > 0) arr.push(spawnGrp.type, amt, spawnGrp.getShield(countWave), spawnGrp.effect);
+    });
+
+    return arr;
+  };
+  exports._waveArr = _waveArr;

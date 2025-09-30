@@ -13,6 +13,7 @@
 
   const MDL_ai = require("lovec/mdl/MDL_ai");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
   /* <---------- auxiliay ----------> */
@@ -24,6 +25,48 @@
     });
   };
   exports.regisAiSetter = regisAiSetter;
+
+
+  /* <---------- attack ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A missile unit that will only target missiles in range.
+   * ---------------------------------------- */
+  const _missileInterceptor = function() {
+    return extend(MissileAI, {
+
+
+      updateMovement() {
+        this.unloadPayloads();
+
+        let time = this.unit instanceof TimedKillc ? unit.time : 999999.0;
+        if(time >= unit.type.homingDelay && this.shooter != null && !this.shooter.dead) {
+          this.unit.lookAt(this.shooter.aimX, this.shooter.aimY);
+        };
+
+        this.unit.moveAt(Reflect.get(AIController, this, "vec").trns(
+          this.unit.rotation,
+          this.unit.type.missileAccelTime < 0.0001 ?
+            this.unit.speed() :
+            Mathf.pow(Math.min(time / unit.type.missileAccelTime, 1.0), 2.0) * unit.speed(),
+        ));
+      },
+
+
+      target(x, y, rad, targetAir, targetGround) {
+        return MDL_pos._e_tg(x, y, this.unit.team, rad, true, false, e => e.isMissile());
+      },
+
+
+    });
+  }
+  .setAnno(ANNO.__INIT__, null, function() {
+    regisAiSetter("missile-interceptor", this);
+  });
+  exports._missileInterceptor = _missileInterceptor;
 
 
   /* <---------- support ----------> */

@@ -20,6 +20,7 @@
   /* <---------- particle ----------> */
 
 
+  exports.harvesterParticle = TP_effect._shrinkParticle("lovec-efr-square", 4.0, 0.0, Pal.accent, 0.7, false, true, false);
   exports.powerParticle = TP_effect._releaseParticle("circle", 3, 1.2, 8.0, Pal.accent);
 
 

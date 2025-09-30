@@ -17,6 +17,40 @@
   exports.newIns_surf = newIns_surf;
 
 
+  const newIns_block = function(nmFrag) {
+    return extend(Shaders.LoadShader, nmFrag, "default", {
+      region: new TextureRegion(), mulColor: new Color(), a: 1.0, off: 0.0,
+      apply() {
+        if(this.region.texture == null) {
+          this.setUniformf("u_uv", 0.0, 0.0);
+          this.setUniformf("u_uv2", 1.0, 1.0);
+          this.setUniformf("u_texsize", 1, 1);
+        } else {
+          this.setUniformf("u_uv", this.region.u, this.region.v);
+          this.setUniformf("u_uv2", this.region.u2, this.region.v2);
+          this.setUniformf("u_texsize", this.region.texture.width, this.region.texture.height);
+          this.setUniformf("u_mulColor", this.mulColor.r, this.mulColor.g, this.mulColor.b, this.mulColor.a);
+          this.setUniformf("u_a", this.a);
+          this.setUniformf("u_off", this.off);
+        };
+      },
+      ex_accRegion(param) {
+        return param === "read" ? this.region : (this.region = param);
+      },
+      ex_accMulColor(param) {
+        return param === "read" ? this.mulColor : (this.mulColor.set(param));
+      },
+      ex_accA(param) {
+        return param === "read" ? this.a : (this.a = param);
+      },
+      ex_accOff(param) {
+        return param === "read" ? this.off : (this.off = param);
+      },
+    });
+  };
+  exports.newIns_block = newIns_block;
+
+
   /* <---------- base ----------> */
 
 
@@ -24,3 +58,6 @@
   exports.shader0surf_flr0liq_puddle = newIns_surf("shader0surf-flr0liq-puddle");
   exports.shader0surf_flr0liq_river = newIns_surf("shader0surf-flr0liq-river");
   exports.shader0surf_flr0liq_sea = newIns_surf("shader0surf-flr0liq-sea");
+
+
+  exports.shader0blk_debris = newIns_block("shader0blk-debris");

@@ -13,6 +13,7 @@
 
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
   /* <---------- base ----------> */

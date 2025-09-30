@@ -9,6 +9,7 @@
 
 
   const EFF = require("lovec/glb/GLB_eff");
+  const PARAM = require("lovec/glb/GLB_param");
   const TIMER = require("lovec/glb/GLB_timer");
   const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
@@ -118,6 +119,27 @@
   /* <---------- component (unit entity) ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @NOSUPER
+   * This unit will collide with darkness like a leg unit if in a cave map, see {DB_env.db["group"]["map"]["cave"]}.
+   * ---------------------------------------- */
+  const comp_solidity_flying = function(unit) {
+    return extend(EntityCollisions.SolidPred, {solid(tx, ty) {
+      return (unit.super$solidity() == null ? false : unit.super$solidity().solid(tx, ty)) || (PARAM.isCaveMap && EntityCollisions.legsSolid(tx, ty));
+    }});
+  };
+  exports.comp_solidity_flying = comp_solidity_flying;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @NOSUPER
+   * Fixes some bugs related to double-tap mining and {playerUnmineable}.
+   * This also bans units from mining depth ore.
+   * ---------------------------------------- */
   const comp_validMine_miner = function(unit, t, checkDst) {
     if(t == null) return false;
     if(global.lovec.mdl_content._hasTag(t.overlay(), "blk-dpore")) return false;

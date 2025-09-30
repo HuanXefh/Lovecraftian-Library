@@ -820,16 +820,21 @@
    *
    * Whether this unit can creates remains upon death.
    * ---------------------------------------- */
-  const _hasNoRemains = function(utp_gn) {
-    let utp = MDL_content._ct(utp_gn, "utp");
+  const _hasNoRemains = function(etp_gn) {
+    let etp = MDL_content._ct(etp_gn, null, true);
+    if(etp == null) return false;
 
-    return utp == null ? false : (
-      DB_unit.db["group"]["noRemainsMod"].includes(MDL_content._mod(utp))
-        || DB_unit.db["group"]["noRemains"].includes(utp.name)
-        || _isNonRobot(utp)
-        || utp instanceof MissileUnitType
-        || !utp.createScorch
-    );
+    if(etp instanceof Block) {
+      return DB_block.db["group"]["noRemains"].includes(etp.name)
+        || _isCoreBlock(etp)
+        || !etp.createRubble;
+    } else {
+      return DB_unit.db["group"]["noRemainsMod"].includes(MDL_content._mod(etp))
+        || DB_unit.db["group"]["noRemains"].includes(etp.name)
+        || _isNonRobot(etp)
+        || etp instanceof MissileUnitType
+        || !etp.createScorch;
+    };
   };
   exports._hasNoRemains = _hasNoRemains;
 
@@ -1144,17 +1149,18 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit ot a tile is HOT.
+   * Whether this unit or tile on is HOT, {false} for buildings.
    * Used for remains.
    * ---------------------------------------- */
-  const _isHot = function(unit, t) {
-    if(unit == null) {
+  const _isHot = function(e, t) {
+    if(e == null) {
       if(t == null) return false;
 
       return _isHotSta(t.floor().status);
     } else {
-      if(_hasEffectAny(unit, DB_status.db["group"]["hot"])) return true;
-      let t = unit.tileOn();
+      if(e instanceof Building) return false;
+      if(_hasEffectAny(e, DB_status.db["group"]["hot"])) return true;
+      let t = e.tileOn();
       if(t != null && _isHotSta(t.floor().status)) return true;
 
       return false;

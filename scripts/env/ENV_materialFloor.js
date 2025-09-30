@@ -75,6 +75,7 @@
 
 
   function comp_drawBase(blk, t) {
+    if(t.overlay() != null) return;
     MDL_draw.drawRegion_randomOverlay(t, blk.randRegs, blk.randRegDenom, blk.randRegOffs[0], blk.randRegOffs[1]);
   };
 
