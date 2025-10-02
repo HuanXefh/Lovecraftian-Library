@@ -7,6 +7,7 @@ uniform vec2 u_texsize;
 uniform vec4 u_mulColor;
 uniform float u_a;
 uniform float u_off;
+uniform float u_offCap;
 varying vec2 v_texCoords;
 
 
@@ -17,13 +18,13 @@ const float thr = 120.0;
 float getTester(vec2 pos) {
 
 	return mod((
-	  (pos.x + u_off * 4.0 + pos.y * 1.8 + sin(pos.x / 5.0 - pos.y / 100.0 + u_off) * 3.0)
+	  (pos.x + u_off * u_offCap / 22.5 + pos.y * 1.8 + sin(pos.x / 5.0 - pos.y / 100.0 + u_off) * 3.0)
 		+ sin(pos.y / 3.0 + u_off) * 10.0
 		+ sin(pos.y / 2.0) * 2.0
 		- sin(pos.y / 1.0 + u_off * u_off) * 2.0
 		+ sin(pos.y / 2.0 - u_off) * 0.5
 		+ 25.0
-		+ sin(pos.x / 4.0 - u_off) * 6.0), scl + u_off * 0.4
+		+ sin(pos.x / 4.0 - u_off) * 6.0), scl + u_off * u_offCap / 225.0
 	);
 
 }

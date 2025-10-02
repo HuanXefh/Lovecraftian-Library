@@ -510,7 +510,7 @@
               MDL_bundle._term("lovec", "status"),
             ]];
             MDL_entity._waveArr(countWave).forEachRow(4, (utp, amt, shield, sta) => {
-              matArr.push([utp, utp.localizedName, amt, (utp.health * amt).ui(), shield, sta === StatusEffects.none ? "-" : sta]);
+              matArr.push([utp, utp.localizedName, amt, (utp.health * amt).ui(), shield.ui(), sta === StatusEffects.none ? "-" : sta]);
             });
             if(matArr.length === 1) {
               MDL_table.__textNothing(pn);

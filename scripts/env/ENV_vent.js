@@ -12,6 +12,9 @@
    * Steam vents with customized size.
    * Set {parent} to load parameters from it.
    * Vents should be loaded after the parent floors!
+   *
+   * Special values for {nmLiq}:
+   * "fire" - Turns the vent into a fire vent.
    * ---------------------------------------- */
 
 
@@ -66,17 +69,33 @@
       blk.playerUnmineable = blk.parent.playerUnmineable;
     };
 
-    blk.liq = MDL_content._ct(blk.liq, "rs");
-    if(blk.liq != null) {
-      blk.effect = TP_effect._ventSmog(null, null, blk.liq, null);
-      blk.effectSpacing = 20.0;
-      MDL_content.rename(
-        blk,
-        blk.liq.localizedName + MDL_text._space() + MDL_bundle._term("lovec", "vent") + MDL_text._space() + "(" + blk.parent.localizedName + ")",
-      );
+    if(!blk.liq.equalsAny([
+      "fire",
+    ])) {
+      blk.liq = MDL_content._ct(blk.liq, "rs");
+      if(blk.liq != null) {
+        blk.effect = TP_effect._ventSmog(null, null, blk.liq, null);
+        blk.effectSpacing = 20.0;
+        MDL_content.rename(
+          blk,
+          blk.liq.localizedName + MDL_text._space() + MDL_bundle._term("lovec", "vent") + MDL_text._space() + "(" + blk.parent.localizedName + ")",
+        );
+      };
+    } else {
+      switch(blk.liq) {
+        case "fire" :
+          blk.effect = TP_effect._ventSmog(null, null, "bfbfbf", 0.25);
+          blk.effectSpacing = 2.0;
+          MDL_content.rename(
+            blk,
+            MDL_bundle._term("lovec", "fire") + MDL_text._space() + MDL_bundle._term("lovec", "vent") + MDL_text._space() + "(" + blk.parent.localizedName + ")",
+          );
+          break;
+      };
     };
 
-    var ventSize = Math.round(blk.armor);
+
+    let ventSize = Math.round(blk.armor);
     if(ventSize > 1 && ventSize < 6) {
       blk.armor = ventSize;
       blk.pons2 = MDL_pos.sizeOffsetPons2[ventSize];
@@ -86,7 +105,7 @@
 
 
   function comp_setStats(blk) {
-    var ventSize = Math.round(blk.armor);
+    let ventSize = Math.round(blk.armor);
     blk.stats.add(TP_stat.blk0env_ventSize, ventSize + "x" + ventSize);
   };
 
@@ -116,6 +135,8 @@
     if(blk.isCenterVent(t) && t.block() === Blocks.air && ((renderState.data += Time.delta) > blk.effectSpacing - 0.0001)) {
       blk.effect.at(t.worldx() + blk.offDraw, t.worldy() + blk.offDraw);
       renderState.data = 0.0;
+
+      if(blk.liq === "fire" && !Vars.state.isEditor() && Mathf.chance(0.02)) Damage.createIncend(t.worldx() + blk.offDraw, t.worldy() + blk.offDraw, blk.armor * Vars.tilesize * 0.6, 1);
     };
   };
 

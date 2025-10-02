@@ -382,9 +382,23 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
+     * If a mod has customized building debris, don't create extra remains.
+     * ---------------------------------------- */
+    "noRemainsMod": [
+
+      "aquarion",
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * These blocks have reload bars (long time of reloading).
      * ---------------------------------------- */
     "showReload": [
+
+      /* vanilla */
 
       "mass-driver",
       "payload-mass-driver",

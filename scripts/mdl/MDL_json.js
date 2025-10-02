@@ -22,11 +22,12 @@
    *
    * Returns json value of a json or hjson file.
    * ---------------------------------------- */
-  const parse = function(fi) {
-    if(fi == null || !fi.exists()) return null;
+  const parse = function(fi0str) {
+    if(fi0str == null) return null;
+    if(fi0str instanceof Fi && !fi0str.exists()) return null;
 
-    let jsonStr = fi.readString("UTF-8");
-    if(fi.extension() === "json") jsonStr = jsonStr.replace("#", "\\#");
+    let jsonStr = fi0str instanceof Fi ? fi0str.readString("UTF-8") : fi0str;
+    if(fi0str instanceof Fi && fi0str.extension() === "json") jsonStr = jsonStr.replace("#", "\\#");
 
     return VAR.json.fromJson(null, Jval.read(jsonStr).toString(Jval.Jformat.plain));
   };

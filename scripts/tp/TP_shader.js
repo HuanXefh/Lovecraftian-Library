@@ -17,9 +17,9 @@
   exports.newIns_surf = newIns_surf;
 
 
-  const newIns_block = function(nmFrag) {
+  const newIns_reg = function(nmFrag) {
     return extend(Shaders.LoadShader, nmFrag, "default", {
-      region: new TextureRegion(), mulColor: new Color(), a: 1.0, off: 0.0,
+      region: new TextureRegion(), mulColor: new Color(), a: 1.0, off: 0.0, offCap: 1.0,
       apply() {
         if(this.region.texture == null) {
           this.setUniformf("u_uv", 0.0, 0.0);
@@ -32,6 +32,7 @@
           this.setUniformf("u_mulColor", this.mulColor.r, this.mulColor.g, this.mulColor.b, this.mulColor.a);
           this.setUniformf("u_a", this.a);
           this.setUniformf("u_off", this.off);
+          this.setUniformf("u_offCap", this.offCap);
         };
       },
       ex_accRegion(param) {
@@ -46,9 +47,12 @@
       ex_accOff(param) {
         return param === "read" ? this.off : (this.off = param);
       },
+      ex_accOffCap(param) {
+        return param === "read" ? this.offCap : (this.offCap = param);
+      },
     });
   };
-  exports.newIns_block = newIns_block;
+  exports.newIns_reg = newIns_reg;
 
 
   /* <---------- base ----------> */
@@ -60,4 +64,4 @@
   exports.shader0surf_flr0liq_sea = newIns_surf("shader0surf-flr0liq-sea");
 
 
-  exports.shader0blk_debris = newIns_block("shader0blk-debris");
+  exports.shader0reg_debris = newIns_reg("shader0reg-debris");

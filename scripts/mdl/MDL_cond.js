@@ -818,14 +818,15 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit can creates remains upon death.
+   * Whether this unit or building can creates remains upon death.
    * ---------------------------------------- */
   const _hasNoRemains = function(etp_gn) {
     let etp = MDL_content._ct(etp_gn, null, true);
     if(etp == null) return false;
 
     if(etp instanceof Block) {
-      return DB_block.db["group"]["noRemains"].includes(etp.name)
+      return DB_block.db["group"]["noRemainsMod"].includes(MDL_content._mod(etp))
+        || DB_block.db["group"]["noRemains"].includes(etp.name)
         || _isCoreBlock(etp)
         || !etp.createRubble;
     } else {

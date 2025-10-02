@@ -33,7 +33,7 @@
   const _rcMdl = function(nmMod, nmBlk) {
     let rcMdl;
     try {
-      rcMdl = require(nmMod + "/aux/rc/" + nmBlk);
+      rcMdl = require(nmMod + "/auxFi/rc/" + nmBlk);
     } catch(err) {
       rcMdl = null;
     };

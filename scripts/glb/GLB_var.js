@@ -8,6 +8,7 @@
   /* <---------- base ----------> */
 
 
+  exports.ctParser = Reflect.get(Mods, Vars.mods, "parser");
   exports.json = new Json();
   exports.jsonReader = new JsonReader();
 
@@ -127,6 +128,7 @@
   exports.ct_auxCap = 1.0;
 
 
+  exports.blk_remainsOffCap = 90.0;
   exports.blk_updateEffcThr = 0.96;
   exports.blk_terFlrThr = 0.75;
   exports.blk_presDmgFrac = 0.015;

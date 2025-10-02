@@ -60,7 +60,7 @@
       _mapCur() {
         let nm = "";
         if(!Vars.state.isMenu()) {
-          if(Vars.state.sector != null) {
+          if(Vars.state.sector != null && Vars.state.sector.preset != null) {
             nm = Vars.state.sector.preset.name;
           } else if(Vars.state.map != null) {
             nm = Vars.state.map.plainName();

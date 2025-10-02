@@ -116,6 +116,14 @@
   exports.CLASS_ARRAY = CLASS_ARRAY;
 
 
+  const RUNNABLE = java.lang.Runnable;
+  exports.RUNNABLE = RUNNABLE;
+
+
+  const RUNNABLE_ARRAY = getArrayClass(RUNNABLE);
+  exports.RUNNABLE_ARRAY = RUNNABLE_ARRAY;
+
+
   /* <---------- arc ----------> */
 
 

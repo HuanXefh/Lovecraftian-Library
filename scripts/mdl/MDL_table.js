@@ -496,7 +496,7 @@
           } else if(typeof tmp === "number") {
             tbCell.add(Strings.autoFixed(tmp, 2)).padLeft(8.0).padRight(8.0);
           } else {
-            tb3.add("!ERR");
+            tbCell.add("!ERR");
           };
 
         }).growX().height(j === 0 ? 24.0 : (imgW + 8.0));
@@ -917,7 +917,7 @@
   /* <---------- recipe ----------> */
 
 
-  const setDisplay_recipe = function(tb, rcMdl, blk) {
+  const setDisplay_recipe = function(tb, rcMdl, blk, isCollapsed) {
     if(MDL_recipe._rcSize(rcMdl) === 0) {
       __textNothing(tb);
       return;
@@ -936,17 +936,35 @@
       let chunk = new Table();
       cont.left().add(chunk).growX().row();
 
+      let rcRoot = new Table();
+      let coll = new Collapser(rcRoot, false);
+      coll.setDuration(0.5);
+      Core.app.post(() => {
+        coll.setCollapsed(Object.val(isCollapsed, false), false);
+      });
+
       // @TABLE: category title
       chunk.table(Tex.whiteui, tb1 => {
 
         tb1.center().setColor(Color.darkGray);
         __margin(tb1, 0.5);
 
-        tb1.add(MDL_recipe._categB(categ)).pad(4.0);
+        tb1.table(Styles.none, tb2 => {
+          tb2.add(MDL_recipe._categB(categ)).pad(4.0);
+          tb2.button(isCollapsed ? Icon.downOpen : Icon.upOpen, Styles.emptyi, () => coll.toggle(true))
+          .update(btn => btn.getStyle().imageUp = !coll.isCollapsed() ? Icon.upOpen : Icon.downOpen)
+          .size(10.0)
+          .padLeft(72.0)
+          .expandX();
+        });
+
+        tb1.row();
+        tb1.add(coll).growX();
 
       }).left().growX().row();
+      __break(chunk, 1);
 
-      categHeaderObj[categ].forEach(rcHeader => {
+      categHeaderObj[categ].forEachFast(rcHeader => {
 
         let timeScl = MDL_recipe._timeScl(rcMdl, rcHeader);
         let isGen = MDL_recipe._isGen(rcMdl, rcHeader);
@@ -968,7 +986,7 @@
         let fo = MDL_recipe._fo(rcMdl, rcHeader);
 
         // @TABLE: recipe root
-        chunk.table(Tex.whiteui, tb1 => {
+        rcRoot.table(Tex.whiteui, tb1 => {
 
           tb1.left().setColor(Pal.darkestGray);
 
@@ -1241,7 +1259,7 @@
 
         }).left().growX().row();
 
-        __bar(chunk, Color.valueOf("303030"), null, 1.0);
+        __bar(rcRoot, Color.valueOf("303030"), null, 1.0);
         i++;
 
       });

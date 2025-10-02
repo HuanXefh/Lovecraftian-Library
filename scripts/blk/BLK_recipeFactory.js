@@ -138,7 +138,7 @@
       tb.row();
       MDL_table.setDisplay_recipe(tb, blk.rcMdl, blk);
       MDL_table.__btnBase(tb, MDL_bundle._term("lovec", "new-window"), () => {
-        Core.scene.add(TP_table._winDial(TP_stat.blk0fac_recipes.localized() + " (" + blk.localizedName + ")", tb1 => MDL_table.setDisplay_recipe(tb1, blk.rcMdl, blk)));
+        Core.scene.add(TP_table._winDial(TP_stat.blk0fac_recipes.localized() + " (" + blk.localizedName + ")", tb1 => MDL_table.setDisplay_recipe(tb1, blk.rcMdl, blk, true)));
       }).row();
     }}));
 

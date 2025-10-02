@@ -411,7 +411,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Creates remains of a unit.
+   * Creates remains of a unit or building.
    * ---------------------------------------- */
   const showAt_remains = function(x, y, e0etp, team, isPermanent, forceHot) {
     if(e0etp == null || team == null) return;
@@ -452,7 +452,7 @@
 
       lifetime: isPermanent ? MATH_base.maxTime : PARAM.unitRemainsLifetime, offTime: Mathf.random(1200.0),
       x: x, y: y, rotation: etp instanceof Block ? (Mathf.random(90.0) - 45.0) : Mathf.random(360.0), team: team,
-      color: Color.valueOf("606060"), tint: tint, a: a, z: z, off: Mathf.random(90.0),
+      color: Color.valueOf("606060"), tint: tint, a: a, z: z, off: Mathf.random(VAR.blk_remainsOffCap),
       region: etp instanceof Block ? MDL_texture._regBlk(etp) : Core.atlas.find(etp.name + "-icon", etp.region),
       cellRegion: etp instanceof Block ? null : Core.atlas.find(etp.name + "-cell-icon", etp.cellRegion), softShadowRegion: etp instanceof Block ? null : etp.softShadowRegion,
       shouldFloat: shouldFloat,
@@ -474,11 +474,12 @@
         if(etp instanceof Block) {
           Draw.draw(this.z, () => {
             // Use a shader to create incomplete debris
-            TP_shader.shader0blk_debris.ex_accRegion(this.region);
-            TP_shader.shader0blk_debris.ex_accMulColor(this.color);
-            TP_shader.shader0blk_debris.ex_accA(this.a - Mathf.curve(this.fin(), 0.98) * this.a);
-            TP_shader.shader0blk_debris.ex_accOff(this.off);
-            Draw.shader(TP_shader.shader0blk_debris);
+            TP_shader.shader0reg_debris.ex_accRegion(this.region);
+            TP_shader.shader0reg_debris.ex_accMulColor(this.color);
+            TP_shader.shader0reg_debris.ex_accA(this.a - Mathf.curve(this.fin(), 0.98) * this.a);
+            TP_shader.shader0reg_debris.ex_accOff(this.off);
+            TP_shader.shader0reg_debris.ex_accOffCap(VAR.blk_remainsOffCap);
+            Draw.shader(TP_shader.shader0reg_debris);
             Draw.rect(this.region, x, y, this.rotation);
             Draw.shader();
             Draw.flush();
