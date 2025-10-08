@@ -67,7 +67,7 @@
   function comp_drawPlace(blk, tx, ty, rot, valid) {
     MDL_draw.comp_drawPlace_baseBlock(blk, tx, ty, rot, valid);
 
-    MDL_draw.drawPulse_circle(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, blk.impactR * Vars.tilesize);
+    MDL_draw.drawPulse_circle(tx.toFCoord(blk.size), ty.toFCoord(blk.size), blk.impactR * Vars.tilesize);
 
     let t = Vars.world.tile(tx, ty);
     if(t == null) return;
@@ -79,8 +79,8 @@
     if(returnItm != null) {
 
       let w = blk.drawPlaceText(Core.bundle.formatFloat("bar.drillspeed", 60.0 / blk.getDrillTime(returnItm) * returnCount, 2), tx, ty, valid);
-      let x = tx * Vars.tilesize + blk.offset - w * 0.5 - 4.0;
-      let y = ty * Vars.tilesize + blk.offset + blk.size * Vars.tilesize * 0.5 + 5.0;
+      let x = tx.toFCoord(blk.size) - w * 0.5 - 4.0;
+      let y = ty.toFCoord(blk.size) + blk.size * Vars.tilesize * 0.5 + 5.0;
       let iconW = Vars.iconSmall * 0.25;
 
       Draw.mixcol(Color.darkGray, 1.0);
@@ -90,7 +90,7 @@
 
       if(blk.drawMineItem) {
         Draw.color(returnItm.color);
-        Draw.rect(blk.itemRegion, t.worldx() + blk.offset, t.worldy() + blk.offset);
+        Draw.rect(blk.itemRegion, t.x.toFCoord(blk.size), t.y.toFCoord(blk.size));
         Draw.color();
       };
 

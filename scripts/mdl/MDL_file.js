@@ -317,7 +317,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Returns the json or hjson file of a content.
+   * Returns the .json or .hjson file of a content.
    * ---------------------------------------- */
   const _json_ct = function(ct_gn) {
     let ct = global.lovec.mdl_content._ct(ct_gn);
@@ -332,6 +332,21 @@
     return fiSeq.size === 0 ? null : fiSeq.get(0);
   };
   exports._json_ct = _json_ct;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns globalScript.js file which is run later.
+   * ---------------------------------------- */
+  const _glbScr = function(nmMod) {
+    let dir = _script(nmMod);
+    if(dir == null) return null;
+    let fiSeq = dir.findAll(fi => (fi.name() === "globalScript.js"));
+
+    return fiSeq.size === 0 ? null : fiSeq.get(0);
+  };
+  exports._glbScr = _glbScr;
 
 
   /* ----------------------------------------

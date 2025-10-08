@@ -19,6 +19,7 @@
 
 
   Object.printKeys = function(obj) {
+    if(typeof obj !== "object" && typeof obj !== "function") return;
     Object.keys(obj).printEach();
   };
 

@@ -60,7 +60,7 @@
 
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
-    MDL_draw.bufferedDraw_place(blk, tx, ty, rot, () => MDL_pos._tsRect(Vars.world.tile(tx, ty), blk.attrR, blk.size).filter(ot => MDL_attr._sum_ts([ot], blk.attribute, blk.attrMode) > 0.0), () => valid, (blk, tx, ty, rot, ts, valid) => {
+    MDL_draw.drawBuffer_place(blk, tx, ty, rot, () => MDL_pos._tsRect(Vars.world.tile(tx, ty), blk.attrR, blk.size).filter(ot => MDL_attr._sum_ts([ot], blk.attribute, blk.attrMode) > 0.0), () => valid, (blk, tx, ty, rot, ts, valid) => {
       if(!(ts instanceof Array)) return;
       ts.forEachFast(ot => MDL_draw.drawArea_tShrink(ot, blk.attrMode === "blk" ? ot.block().size : 1, valid));
     });

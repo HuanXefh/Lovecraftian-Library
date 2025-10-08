@@ -20,7 +20,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Returns json value of a json or hjson file.
+   * Returns Json value of a .json or .hjson file.
    * ---------------------------------------- */
   const parse = function(fi0str) {
     if(fi0str == null) return null;
@@ -37,7 +37,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Writes json string/object to {fi}.
+   * Writes Json string/object to {fi}.
    * Note that there should be primitive values only.
    * ---------------------------------------- */
   const write = function(fi, json_gn) {
@@ -52,7 +52,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a sub-json value.
+   * Gets a sub-Json value.
    * ---------------------------------------- */
   const fetch = function(jsonVal, keys_p, noConvert, arrMode) {
     let tmpJsonVal;
@@ -106,10 +106,10 @@
   /* ----------------------------------------
   * NOTE:
   *
-  * Returns json value of json file of the content.
+  * Returns Json value of .json file of the content.
   *
-  * Don't do extra json fields.
-  * It's possible to write extra fields in the json file but the game's gonna warn you a lot in the console.
+  * Don't do extra Json fields.
+  * It's possible to write extra fields in the .json file but the game's gonna warn you a lot in the console.
   * ---------------------------------------- */
   const _jsonVal_ct = function(ct_gn) {
     return parse(MDL_file._json_ct(ct_gn));

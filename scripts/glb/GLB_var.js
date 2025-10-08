@@ -34,6 +34,7 @@
   exports.lay_debugFlr = 2.21;
   exports.lay_buildingRemainsDrown = 22.05;
   exports.lay_buildingRemains = 27.07;
+  exports.lay_onConveyor = 29.76;
   exports.lay_buildingRemainsDrown = 22.07;
   exports.lay_unitRemains = 58.11;
   exports.lay_dporeRevealed = 107.21;
@@ -43,6 +44,7 @@
   exports.lay_bulBase = 74.11;
   exports.lay_bulHigh = 86.01;
   exports.lay_bulFlame = 108.51;
+  exports.lay_unitRange = 115.03;
 
 
   /* <---------- time ----------> */

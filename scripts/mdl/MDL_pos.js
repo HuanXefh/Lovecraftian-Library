@@ -1003,6 +1003,21 @@
   exports._unit_pl = _unit_pl;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a player unit by player name, can be {null}.
+   * IF {nm} not given, this returns YOU.
+   * ---------------------------------------- */
+  const _unit_plNm = function(nm) {
+    if(nm == null) return Vars.player.unit();
+    let pl = Groups.player.find(tmp => tmp.name === nm);
+
+    return pl == null ? null : pl.unit();
+  };
+  exports._unit_plNm = _unit_plNm;
+
+
   /* loot unit */
 
 

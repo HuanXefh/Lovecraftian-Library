@@ -73,7 +73,8 @@
   function comp_drawPlace(blk, tx, ty, rot, valid) {
     MDL_draw.comp_drawPlace_baseBlock(blk, tx, ty, rot, valid);
 
-    MDL_draw.drawCircle_normalPlace(blk, tx, ty, blk.range, blk.baseColor, true)
+    MDL_draw.drawP3d_cylinderFade(tx.toFCoord(blk.size), ty.toFCoord(blk.size), 1.0, blk.range, blk.baseColor);
+    MDL_draw.drawDisk_expand(tx.toFCoord(blk.size), ty.toFCoord(blk.size), blk.range, 1.5, blk.baseColor, 0.3);
   };
 
 
@@ -99,7 +100,8 @@
 
 
   function comp_drawSelect(b) {
-    MDL_draw.drawCircle_normalSelect(b, b.block.range * b.heat, b.block.baseColor, true);
+    MDL_draw.drawP3d_cylinderFade(b.x, b.y, 1.0, b.block.range * b.heat, b.block.baseColor);
+    MDL_draw.drawDisk_expand(b.x, b.y, b.block.range * b.heat, 1.5, b.block.baseColor, 0.3);
   };
 
 

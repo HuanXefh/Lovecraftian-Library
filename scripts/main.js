@@ -249,6 +249,18 @@
     Core.scene.add(TP_table._dragBtn());
 
 
+    Core.app.post(() => {
+      Vars.mods.eachEnabled(mod => {
+        let fi = MDL_file._glbScr(mod.meta.name);
+        if(fi != null) try {
+          Vars.mods.scripts.context.evaluateString(Vars.mods.scripts.scope, fi.readString(), fi.name(), 0)
+        } catch(err) {
+          Log.err("[LOVEC] Error loading global script for " + mod.meta.name + ": \n" + err);
+        };
+      });
+    });
+
+
     if(!PARAM.modded && MDL_util._loadedMod("projreind") != null) {
       throw new Error("PARAM.modded is broken again, WTF D:");
     };

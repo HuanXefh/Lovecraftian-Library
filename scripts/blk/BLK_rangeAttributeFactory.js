@@ -66,12 +66,12 @@
 
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
-    MDL_draw.drawRect_normalPlace(blk, tx, ty, blk.attrR, valid, true);
+    MDL_draw.drawP3d_roomFade(tx.toFCoord(blk.size), ty.toFCoord(blk.size), 1.0, blk.attrR.toRectW(blk.size), blk.attrR.toRectW(blk.size), valid ? Pal.accent : Pal.remove);
   };
 
 
   function comp_drawSelect(b) {
-    MDL_draw.drawRect_normalSelect(b, b.block.ex_getAttrR(), true, true);
+    MDL_draw.drawP3d_roomFade(b.x, b.y, 1.0, b.block.ex_getAttrR().toRectW(b.block.size), b.block.ex_getAttrR().toRectW(b.block.size), Pal.accent);
   };
 
 

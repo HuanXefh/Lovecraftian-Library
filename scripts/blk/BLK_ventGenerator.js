@@ -9,7 +9,7 @@
    * NOTE:
    *
    * Generators built on vents. It checks vent size now since it's not strictly 3x3.
-   * You don't need divide production by squared block size in json files, it's done in {init}.
+   * You don't need to divide production by squared block size in .json files, it's done in {init}.
    * ---------------------------------------- */
 
 

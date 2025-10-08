@@ -87,22 +87,6 @@
   const MOD_tmi = require("lovec/mod/MOD_tmi");
 
 
-  /* <---------- tool ----------> */
-
-
-  let propListenerState = false;
-  const propListenerTimer = new Interval(1);
-  let propListenerIntv = 120.0;
-  let propListenerGetter = null;
-  let propListenerInd = 1;
-
-
-  let drawTesterState = false;
-  let drawTesterXGetter = () => Vars.player.unit() == null ? 0.0 : Vars.player.unit().x;
-  let drawTesterYGetter = () => Vars.player.unit() == null ? 0.0 : Vars.player.unit().y;
-  let drawTesterDrawF = () => {};
-
-
 /*
   ========================================
   Section: Application
@@ -212,116 +196,11 @@
     };
 
 
-    global.lovec.tool = {
-
-
-      propListener: {
-
-
-        setState(bool) {
-          propListenerState = Boolean(bool);
-
-          propListenerInd = 1;
-        },
-
-
-        setProp(propGetter) {
-          propListenerGetter = null;
-          if(propGetter != null && propGetter instanceof Function) propListenerGetter = propGetter;
-
-          propListenerInd = 1;
-        },
-
-
-        setInterval(time) {
-          propListenerIntv = Mathf.clamp(time, 6.0, 600.0);
-          if(isNaN(propListenerIntv)) propListenerIntv = 120.0;
-
-          propListenerInd = 1;
-        },
-
-
-      },
-
-
-      drawTester: {
-
-
-        setState(bool) {
-          drawTesterState = Boolean(bool);
-        },
-
-
-        setGetter(xGetter, yGetter) {
-          if(xGetter != null) drawTesterXGetter = xGetter;
-          if(yGetter != null) drawTesterYGetter = yGetter;
-        },
-
-
-        setDrawF(drawF) {
-          drawTesterDrawF = drawF;
-        },
-
-
-      },
-
-
-      cheat() {
-        Core.scene.add(TP_table._winDial("NOPE", tb => {
-          tb.add("[red]Just no way.[]");
-        }));
-
-        Log.info("[LOVEC] Nice try :)");
-      },
-
-
-
-    };
+    Time.run(1.0, () => {
+      MDL_event._c_onDraw(() => {
+        if(drawTest.enabled) drawTest.draw();
+      });
+    });
 
 
   }, 75112593);
-
-
-  MDL_event._c_onUpdate(() => {
-
-
-    // Property listener
-    if(propListenerState && propListenerGetter != null && propListenerTimer.get(propListenerIntv)) {
-      let prop = propListenerGetter();
-      if(prop instanceof Array) {
-
-        let str = "[LOVEC] Property listener (" + propListenerInd + "): [accent](";
-        for(let ele of prop) {
-          str += String(ele) + ", ";
-        };
-        str += ")[]";
-
-        Log.info(str);
-
-      } else {
-        Log.info("[LOVEC] Property listener (" + propListenerInd + "): " + String(prop).color(Pal.accent));
-      };
-
-      propListenerInd++;
-    };
-
-
-  }, 62543995);
-
-
-  MDL_event._c_onDraw(() => {
-
-
-    // Draw tester
-    if(drawTesterState) {
-      try {
-        drawTesterDrawF(drawTesterXGetter(), drawTesterYGetter());
-      } catch(err) {
-        drawTesterDrawF = () => {};
-        drawTesterState = false;
-        Log.info("[LOVEC] " + "Draw tester ended due to error:".color(Pal.remove) + "\n" + err);
-      };
-    };
-
-
-  }, 75111268);

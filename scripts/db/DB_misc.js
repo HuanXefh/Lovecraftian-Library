@@ -176,7 +176,7 @@ const db = {
         if(this.isChecked() && Vars.player.unit() != null) Vars.player.unit().apply(StatusEffects.unmoving, 5.0);
       }],
 
-      "lovec-info-wave-enemies", [0, "lovec-icon-skull", false, function() {
+      "lovec-info-wave-enemies", [0, "units", false, function() {
         global.lovec.tp_dial.waveInfo.ex_show(null);
       }, null],
 
@@ -504,9 +504,56 @@ const db = {
        * NOTE:
        *
        * The color used for a character.
-       * Format: {nmMod, chara, colorStr}.
+       * Format: {nmMod, nmChara, color_gn}.
        * ---------------------------------------- */
-      "color": [],
+      "color": [
+
+        "lovec", "earlan", "d4c0d8",
+
+      ],
+
+
+    },
+
+
+    "dial": {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Definition of dialog flow.
+       * See {MDL_ui._d_flow}.
+       * ---------------------------------------- */
+      "flow": [
+
+        // Example dialog flow, type {global.lovec.mdl_ui._d_flow('lovec-test')} in console to see
+        "lovec-test", [
+          // Start of music
+          null, null, {haltTimeS: 0.0, scr: () => {global.lovecUtil.bool[0] = true; global.lovec.mdl_ui._d_bgm(0.0, Musics.boss1, () => !global.lovecUtil.bool[0])}}, null,
+          // Character art in, spoken by the character
+          ["lovec", "test", 0], ["lovec", "earlan"], null, [
+            [0.0, "lovec", "earlan", 0.5, false, "fade-in"],
+          ],
+          // Keep the art, spoken by the narrator
+          ["lovec", "test", 1], null, null, [
+            [0.0, "lovec", "earlan", 0.5, true],
+          ],
+          // Black in and out
+          null, null, {haltTimeS: 2.5, scr: () => global.lovec.mdl_ui._d_fade()}, [
+            [0.0, "lovec", "earlan", 0.5, true],
+          ],
+          // Movement of character
+          ["lovec", "test", 2], null, null, [
+            [0.0, "lovec", "earlan", 0.5, true, "move", [1.0, 0.5, 0.33]],
+          ],
+          // End of music, empty tail, character art out
+          null, null, {isTail: true, scr: () => global.lovecUtil.bool[0] = false}, [
+            [0.0, "lovec", "earlan", 0.33, true, "fade-out"],
+          ],
+        ],
+
+      ],
 
 
     },

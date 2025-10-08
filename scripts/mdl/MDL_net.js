@@ -45,7 +45,7 @@
   const sendPacket = function(mode, header, payload, isReliable, useConnection) {
     const thisFun = sendPacket;
 
-    if(!global.lovec.modded || header == null || payload == null) return;
+    if(!global.lovec.param.modded || header == null || payload == null) return;
     if(mode == null) mode = "server";
     if(!mode.equalsAny(thisFun.modes)) return;
 
@@ -86,7 +86,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Opens an HTTP GET request, result is called as json object.
+   * Opens an HTTP GET request, result is called as Json object.
    * ---------------------------------------- */
   const _h_obj = function(url, caller) {
     Http.get(url, res => {

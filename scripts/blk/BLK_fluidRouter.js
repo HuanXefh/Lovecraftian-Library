@@ -73,7 +73,7 @@
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
     if(blk.ex_getFluidType() !== "liquid") {
-      MDL_draw.drawDisk_warning(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, FRAG_attack._presExploRad(blk.size));
+      MDL_draw.drawDisk_warning(tx.toFCoord(blk.size), ty.toFCoord(blk.size), FRAG_attack._presExploRad(blk.size));
     };
   };
 

@@ -186,6 +186,14 @@
   exports._elev = _elev;
 
 
+  const _lay = function(unit) {
+    return unit == null ? 60.0 :
+      unit.elevation > 0.5 || (unit.type.flying && unit.dead) ? unit.type.flyingLayer :
+        unit.type.groundLayer + Mathf.clamp(unit.hitSize / 4000.0, 0.0, 0.01);
+  };
+  exports._lay = _lay;
+
+
   const _reloadMtp = function(unit, isClamped) {
     var mtp = unit == null ? 1.0 : unit.reloadMultiplier * (unit.disarmed ? 0.0 : 1.0);
 

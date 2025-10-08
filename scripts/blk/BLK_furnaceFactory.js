@@ -160,7 +160,7 @@
   function comp_draw(b) {
     MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(b.ex_getHeatFrac(), 3) * 0.8, b.heatReg, b.drawrot(), b.block.size);
     MDL_draw.drawRegion_heat(b.x, b.y, Math.pow(b.ex_getHeatFrac(), 3) * 0.5, VARGEN.blockHeatRegs[b.block.size + 2], b.drawrot(), b.block.size);
-    MDL_draw.drawRegion_light(b.x, b.y, Mathf.clamp(b.tempCur / 1000.0), 64.0, b.block.size);
+    MDL_draw.drawRegion_light(b.x, b.y, Mathf.clamp((b.tempCur - 60.0) / 940.0), 56.0, b.block.size);
   };
 
 

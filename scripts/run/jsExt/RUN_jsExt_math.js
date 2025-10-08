@@ -20,6 +20,8 @@
 
   Number.intMax = java.lang.Integer.MAX_VALUE;
   Number.intMin = java.lang.Integer.MIN_VALUE;
+  Number.fMax = java.lang.Float.MAX_VALUE;
+  Number.fMin = java.lang.Float.MIN_VALUE;
 
 
   var ptp = Number.prototype;

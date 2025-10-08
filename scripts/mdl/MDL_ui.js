@@ -14,6 +14,8 @@
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
+  const MDL_color = require("lovec/mdl/MDL_color");
+  const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_event = require("lovec/mdl/MDL_event");
 
 
@@ -175,29 +177,45 @@
   /* <---------- drama ----------> */
 
 
-  const setPos_center = function(tb) {
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Makes the actor appear at a position, by default the center of screen.
+   * ---------------------------------------- */
+  const setActor_pos = function(tb, x, y, align) {
     var done = false;
     tb.update(() => {
       if(!done) {
-        tb.setPosition(_centerX(), _centerY(), Align.center);
+        tb.setPosition(Object.val(x, _centerX()), Object.val(y, _centerY()), Object.val(align, Align.center));
         done = true;
       };
     });
   };
-  exports.setPos_center = setPos_center;
+  exports.setActor_pos = setActor_pos;
 
 
-  const setActor = function(tb, delay, acts, permanent) {
-    let acts_fi = [Actions.fadeOut(0.0), Actions.delay(delay)].pushAll(acts);
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Applys a list of actions to the actor, and adds it to the scene.
+   * If {permanent} is {true}, the actor won't get removed finally.
+   * ---------------------------------------- */
+  const setActor_action = function(tb, delay, acts, permanent) {
+    let acts_fi = [Actions.fadeOut(0.0), Actions.delay(Object.val(delay, 0.0))].pushAll(acts);
     if(!permanent) acts_fi.push(Actions.remove());
     tb.actions.apply(tb, acts_fi);
     tb.pack();
     tb.act(0.1);
     if(Core.scene != null) Core.scene.add(tb);
   };
-  exports.setActor = setActor;
+  exports.setActor_action = setActor_action;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Simply removes the acctor from the scene.
+   * ---------------------------------------- */
   const removeActor = function(tb) {
     tb.actions(Actions.remove());
   };
@@ -215,22 +233,25 @@
     if(outTimeS == null) outTimeS = inTimeS;
     if(susTimeS == null) susTimeS = 0.5;
 
-    const tb = new Table();
-    tb.touchable = Touchable.disabled;
+    // Created last so it's on top of everything
+    Core.app.post(() => {
+      const tb = new Table();
+      tb.touchable = Touchable.disabled;
 
-    tb.table(Tex.whiteui, tb1 => {
-      tb1.setColor(color);
-    })
-    .width(_screenW() * 1.2)
-    .height(_screenH() * 1.2)
-    .row();
+      tb.table(Tex.whiteui, tb1 => {
+        tb1.setColor(color);
+      })
+      .width(_screenW() * 1.2)
+      .height(_screenH() * 1.2)
+      .row();
 
-    setPos_center(tb);
-    setActor(tb, delay, [
-      Actions.fadeIn(inTimeS),
-      Actions.delay(susTimeS),
-      Actions.fadeOut(outTimeS),
-    ]);
+      setActor_pos(tb);
+      setActor_action(tb, delay, [
+        Actions.fadeIn(inTimeS),
+        Actions.delay(susTimeS),
+        Actions.fadeOut(outTimeS),
+      ]);
+    });
 
     return inTimeS + susTimeS;
   };
@@ -253,7 +274,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Creates a background image display.
+   * Shows a background image.
    * ---------------------------------------- */
   const _d_bg = function(delay, nmBg, endGetter, inTimeS) {
     if(inTimeS == null) inTimeS = 1.0;
@@ -266,8 +287,8 @@
     .height(VAR.len_bgH * _uiScl())
     .row();
 
-    setPos_center(tb);
-    setActor(tb, delay, [
+    setActor_pos(tb);
+    setActor_action(tb, delay, [
       Actions.fadeIn(inTimeS),
       Actions.run(() => tb.update(() => {
         if(endGetter()) removeActor(tb);
@@ -288,7 +309,7 @@
   const _d_bgm = function(delay, song, endGetter) {
     const tb = new Table();
 
-    setActor(tb, delay, [
+    setActor_action(tb, delay, [
       Actions.run(() => {
         shouldMuteMusic = true;
         song.play();
@@ -310,7 +331,13 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Creates a character art display.
+   * Shows a character art.
+   * Format for image name: {chara-*character name*}.
+   *
+   * {fracX} determines the initial position of the character, 0.5 for center.
+   * {isDark0color} can be boolean or Arc color. If {true} the character is darkened, if color the image will be tinted.
+   * {anim} is the animation used, see the code below, {animParam} can be used if noted.
+   * {customActs} is a list of cutomized actions, and {customActTimeS} is the expected duration in seconds.
    * ---------------------------------------- */
   const _d_chara = function(
     delay, nmMod, chara, endGetter,
@@ -324,13 +351,11 @@
     tb.touchable = Touchable.disabled;
 
     tb.table(new TextureRegionDrawable(Core.atlas.find(nmMod + "-chara-" + chara, Core.atlas.find("lovec-chara-error"))), tb1 => {
-
       if(isDark0color instanceof Color) {
         tb1.setColor(isDark0color);
       } else if(isDark0color) {
         tb1.setColor(Color.valueOf("606060"));
       };
-
     })
     .width(VAR.len_charaW * _uiScl())
     .height(VAR.len_charaH * _uiScl())
@@ -339,19 +364,13 @@
     var done = false;
     tb.update(() => {
       if(!done) {
-        tb.setPosition(_screenW() *(Object.val(fracX, 0.5)), _screenH() * 0.4, Align.center);
+        tb.setPosition(_screenW() * (Object.val(fracX, 0.5)), _screenH() * 0.4, Align.center);
         done = true;
       };
     });
 
-    let animTup;
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * I have to hard-code this or it's bugged, WTF.
-     * ---------------------------------------- */
-    let transTimeS;
-    let tup;
+    // I have to hard-code this or it's bugged, WTF???
+    let transTimeS, animTup, tup;
     switch(anim) {
 
 
@@ -359,10 +378,10 @@
        * NOTE:
        *
        * Lets the chara fades in or out.
-       * {param} should be the time of transition.
+       * {animParam} should be the time of transition.
        * ---------------------------------------- */
       case "fade-in" :
-        transTimeS = typeof param !== "number" ? 0.75 : param;
+        transTimeS = typeof animParam !== "number" ? 0.75 : animParam;
         animTup = [transTimeS, [
           Actions.fadeIn(transTimeS),
         ]];
@@ -370,7 +389,7 @@
 
 
       case "fade-out" :
-        transTimeS = typeof param !== "number" ? 0.75 : param;
+        transTimeS = typeof animParam !== "number" ? 0.75 : animParam;
         animTup = [transTimeS, [
           Actions.fadeIn(0.0),
           Actions.fadeOut(transTimeS),
@@ -382,11 +401,11 @@
        * NOTE:
        *
        * Lets the chara move somewhere else, no y-coordinate.
-       * {param} should be a 2-tup.
+       * {animParam} should be a 3-tup.
        * Format: {transTimeS, fracX_f, fracX_t}.
        * ---------------------------------------- */
       case "move" :
-        tup = (param instanceof Array && param.length === 2) ? param : [0.75, 0.5, 0.5];
+        tup = (animParam instanceof Array && animParam.length === 3) ? animParam : [0.75, 0.5, 0.5];
         animTup = [tup[0], [
           Actions.fadeIn(0.0),
           Actions.translateBy((tup[2] - tup[1]) * _screenW() * 0.5, 0.0, tup[0] * 0.5, Interp.pow2In),
@@ -428,10 +447,10 @@
 
 
       default :
-        animTup = [0.0, []];
+        animTup = [0.0, [Actions.fadeIn(0.0)]];
 
     };
-    setActor(tb, delay, animTup[1].concat(customActs).concat([
+    setActor_action(tb, delay, animTup[1].concat(customActs).concat([
       Actions.run(() => tb.update(() => {
         if(endGetter()) removeActor(tb);
       })),
@@ -440,6 +459,106 @@
     return animTup[0] + customActTimeS;
   };
   exports._d_chara = _d_chara;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A common text box used for drama that is shown at the bottom of screen.
+   * {tupDial} is a 3-tuple of {nmMod}, {nmDial} and {ind}.
+   * {tupChara} is a 2-tuple of {nmMod} and {nmChara}.
+   * {scr} is called before the box is removed.
+   * ---------------------------------------- */
+  const _d_text = function(delay, tupDial, tupChara, scr, paramObj) {
+    if(scr == null) scr = Function.air;
+    if(paramObj == null) paramObj = Object.air;
+
+    const tb = new Table();
+
+    let color = Color.white;
+    if(tupChara != null) {
+      color = MDL_color._charaColor(tupChara[0], tupChara[1]);
+      // @TABLE: character name
+      tb.table(Tex.bar, tb1 => {
+        tb1.marginLeft(24.0).marginRight(24.0).marginTop(8.0).marginBottom(8.0).setColor(Color.darkGray);
+        tb1.add(MDL_bundle._chara(tupChara[0], tupChara[1]).color(color)).center().fontScale(1.35).labelAlign(Align.left);
+      }).left().row();
+    };
+    // @TABLE: text box
+    tb.table(Tex.bar, tb1 => {
+      tb1.left().top().marginLeft(48.0).marginRight(48.0).marginTop(32.0).marginBottom(32.0).setColor(Pal.darkestGray);
+      let dialText = tupDial == null ? "" : MDL_bundle._dialText(tupDial[0], tupDial[1], tupDial[2]).color(color);
+      tb1.add(dialText).left().fontScale(1.35).style(Styles.outlineLabel).labelAlign(Align.left).wrap().width(_uiW(90.0));
+    }).width(_screenW() * 0.6).height(160.0).row();
+
+    if(paramObj.haltTimeS == null && !paramObj.autoClick && !paramObj.isTail) tb.clicked(() => {
+      scr();
+      tb.actions(Actions.remove());
+    });
+
+    setActor_pos(tb, null, 0.0, Align.bottom);
+    setActor_action(tb, delay,
+      paramObj.haltTimeS != null ?
+        [Actions.delay(paramObj.haltTimeS), Actions.run(() => scr()), Actions.remove()] :
+        paramObj.autoClick ?
+          [Actions.fadeIn(0.25), Actions.run(() => scr()), Actions.remove()] :
+          paramObj.isTail ?
+            [Actions.fadeIn(0.25), Actions.run(() => scr()), Actions.fadeOut(0.25), Actions.remove()] :
+            [Actions.fadeIn(0.25)],
+      true,
+    );
+
+    if(paramObj.sound != null) MDL_effect.play(paramObj.sound);
+
+    return paramObj.haltTimeS != null ?
+      paramObj.haltTimeS :
+      paramObj.autoClick ?
+        0.25 :
+        0.5;
+  };
+  exports._d_text = _d_text;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Creates a dialog flow (multiple texts in sequence).
+   * Format for {flowArr}: {[nmMod1, nmDial, dialInd], [nmMod2, nmChara], paramObj, charaArgs}.
+   * Format for {charaArgs}: {[delay, nmMod, nmChara, fracX, isDark0color, anim, animParam, customActs]}
+   * ---------------------------------------- */
+  const _d_flow = function(dialKey) {
+    let flowArr = global.lovec.db_misc.db["drama"]["dial"]["flow"].read(dialKey);
+    if(flowArr == null) {
+      Log.warn("[LOVEC] Cannot find dialog flow for " + dialKey + "!");
+      return;
+    };
+
+    _d_flow.funIndMap.put(flowArr, 0);
+    _d_flow.funScr(flowArr);
+  }
+  .setProp({
+    "funIndMap": new ObjectMap(),
+    "funScr": flowArr => {
+      let ind = _d_flow.funIndMap.get(flowArr, 0);
+      let obj = Object.val(flowArr[ind * 4 + 2], Object.air);
+      let args = flowArr[ind * 4 + 3];
+      let cond = false;
+
+      if(obj.scr != null) obj.scr();
+      if(args != null) {
+        args.forEachFast(arr => _d_chara(arr[0], arr[1], arr[2], () => cond, arr[3], arr[4], arr[5], arr[6], arr[7]));
+      };
+      _d_text(0.0, flowArr[ind * 4], flowArr[ind * 4 + 1], () => {
+        let nextInd = ind + 1;
+        _d_flow.funIndMap.put(flowArr, nextInd);
+        cond = true;
+        if(nextInd * 4 < flowArr.length) {
+          _d_flow.funScr(flowArr);
+        };
+      }, obj);
+    },
+  });
+  exports._d_flow = _d_flow;
 
 
 /*

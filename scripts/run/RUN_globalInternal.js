@@ -34,6 +34,44 @@
   global.lovecUtil = {
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Global switches.
+     * ---------------------------------------- */
+    bool: [
+      false,                    // For dialog flow: music
+      false,                    // For dialog flow: background
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Global variables.
+     * ---------------------------------------- */
+    vari: [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+    ],
+
+
     fun: {
 
 

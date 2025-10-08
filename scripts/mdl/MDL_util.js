@@ -111,14 +111,16 @@
     const thisFun = lockModContents;
 
     if(cts != null) {
-      cts.forEach(ct => {
+      cts.forEachFast(ct => {
         if(thisFun.funBoolF(ct, nmMod)) isUnlocking ? ct.unlock() : ct.clearUnlock();
       });
+      TechTree.all.each(node => cts.includes(node.content) && thisFun.funBoolF(node.content, nmMod), node => node.reset());
     } else {
-      thisFun.funArr.forEach(seq => seq.each(
+      thisFun.funArr.forEachFast(seq => seq.each(
         ct => thisFun.funBoolF(ct, nmMod),
-        ct => isUnlocking ? ct.unlock() : ct.clearUnlock(),
+        ct => {isUnlocking ? ct.unlock() : ct.clearUnlock(); Log.info("[LOVEC] Cleared unlock state for " + ct.name.color(Pal.accent) + ".")},
       ));
+      TechTree.all.each(node => thisFun.funBoolF(node.content, nmMod), node => node.reset());
     };
   }
   .setAnno(ANNO.__DEBUG__)

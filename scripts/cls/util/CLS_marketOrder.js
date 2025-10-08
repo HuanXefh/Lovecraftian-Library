@@ -3,6 +3,8 @@
  *
  * Orders, used for market system.
  * TODO: Very unfinished!
+ *
+ * @FIELD: b.ex_accMkOrds
  * ---------------------------------------- */
 
 
@@ -30,7 +32,7 @@ const CLS_marketOrder = function() {
 
 
 CLS_marketOrder.prototype.init = function(b, isSell, ct_gn, amt, price, lifetime) {
-  this.id = Math.intUnique(0, 99999999, CLS_marketOrder.getIds);
+  this.id = (tmpId++).next();
 
   if(b == null) throw new Error("No building is assigned to the market order???");
   if(b.ex_accMkOrds == null) throw new Error("Some methods are not defined for: " + b.block.name);
@@ -49,17 +51,7 @@ CLS_marketOrder.prototype.init = function(b, isSell, ct_gn, amt, price, lifetime
 /* <---------- static method ----------> */
 
 
-/* ----------------------------------------
- * NOTE:
- *
- * Gets a list of ids of currently active orders.
- * ---------------------------------------- */
-CLS_marketOrder.getIds = function() {
-  return CLS_marketOrder.getIds.funArr;
-}.
-setProp({
-  "funArr": [],
-});
+let tmpId = 0;
 
 
 /* ----------------------------------------
@@ -79,7 +71,7 @@ CLS_marketOrder.write = function(b, wr) {
   let mkOrds = b.ex_accMkOrds("read", false);
   wr.i(mkOrd.length);
 
-  mkOrds.forEach(mkOrd => {
+  mkOrds.forEachFast(mkOrd => {
     wr.bool(mkOrd.isSell);
     wr.str(mkOrd.ct.name);
     wr.f(mkOrd.amt);
@@ -142,7 +134,6 @@ ptp.create = function() {
  * ---------------------------------------- */
 ptp.remove = function() {
   this.owner.ex_accMkOrds(this, false);
-  CLS_marketOrder.getIds.funArr.pull(this.id);
 };
 
 
@@ -153,15 +144,10 @@ ptp.remove = function() {
  * ---------------------------------------- */
 ptp.canFinish = function() {
   if(this.ct instanceof Item) {
-
     if(b.items == null) return false;
-
-    if(this.isSell) {
-      return b.items.get(this.ct) >= this.amt;
-    } else {
-      return MDL_market._bitAmt(b.team) >= this.price && b.acceptStack(this.ct, this.amt, b) >= this.amt;
-    };
-
+    return this.isSell ?
+      b.items.get(this.ct) >= this.amt :
+      MDL_market._bitAmt(b.team) >= this.price && b.acceptStack(this.ct, this.amt, b) >= this.amt;
   } else if(this.ct instanceof UnitType) {
 
     // TODO
@@ -177,9 +163,7 @@ ptp.canFinish = function() {
  * ---------------------------------------- */
 ptp.finish = function() {
   if(this.ct instanceof Item) {
-
     if(b.items == null) return;
-
     if(this.isSell) {
       b.items.remove(this.ct, this.amt);
       MDL_market.addBit(b.team, this.price);
@@ -187,7 +171,6 @@ ptp.finish = function() {
       b.items.add(this.ct, this.amt);
       MDL_market.addBit(b.team, this.price * -1.0);
     };
-
   } else if(this.ct instanceof UnitType) {
 
     // TODO
@@ -244,8 +227,43 @@ ptp.update = function(mtp) {
 };
 
 
-ptp.display = function(tb) {
-  // TODO
+ptp.display = function(tb, dial) {
+  const thisOrd = this;
+
+  tb.table(Styles.none, tb1 => {
+    // @TABLE: title
+    tb1.table(Tex.whiteui, tb2 => {
+      tb2.center().setColor(Color.darkGray);
+      MDL_table.__rcCt(tb2, thisOrd.ct, thisOrd.amt);
+      tb2.add(thisOrd.ct.localizedName);
+    }).growX().row();
+    // @TABLE: container
+    tb1.table(Tex.whiteui, tb2 => {
+      tb2.setColor(Pal.darkestGray);
+      // @TABLE: stats
+      tb2.table(Styles.none, tb3 => {
+        tb2.add(MDL_text._statText(
+          MDL_bundle._term("lovec", "price"),
+          thisOrd.price.ui(),
+        )).left().row();
+      }).left().growX();
+      // @TABLE: buttons
+      tb2.table(Styles.none, tb3 => {
+        MDL_table.__btnBase(
+          tb3,
+          thisOrd.isSell ? MDL_bundle._term("lovec", "sell") : MDL_bundle._term("lovec", "buy"),
+          () => {
+            if(!thisOrd.canFinish()) return;
+
+            thisOrd.finish_global();
+            dial.hide();
+          },
+          100.0,
+          50.0,
+        ).right();
+      }).left().growX();
+    }).growX().row();
+  }).left().width(400.0).height(250.0);
 };
 
 

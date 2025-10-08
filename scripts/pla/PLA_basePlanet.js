@@ -95,7 +95,7 @@
 
 
   TEMPLATE.init = function(pla) {
-    // I have to do this since a json file always causes a new planet to be created
+    // I have to do this since a .json file always causes a new planet to be created
     let dir = MDL_file._script(MDL_content._mod(pla)).child("auxFi").child("json").child("planets");
     let fi = (function() {
       let tmp = dir.child(MDL_content._nmCtNoPrefix(pla) + ".json");

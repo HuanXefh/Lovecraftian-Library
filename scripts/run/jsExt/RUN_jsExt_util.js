@@ -21,16 +21,6 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets current scripting scope.
-   * ---------------------------------------- */
-  Object.scope = function() {
-    return Vars.mods.getScripts().scope;
-  };
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Converts array to object.
    * This also works on function arguments.
    * ---------------------------------------- */
@@ -156,6 +146,42 @@
   };
 
 
+  /* <---------- number ----------> */
+
+
+  var ptp = Number.prototype;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Converts a tile coordination to world coordination.
+   * ---------------------------------------- */
+  ptp.toFCoord = function(size) {
+    return this * Vars.tilesize + (Object.val(size, 1) % 2 === 0 ? 4.0 : 0.0);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Converts a world coordination to tile coordination.
+   * ---------------------------------------- */
+  ptp.toIntCoord = function() {
+    return Math.round(this / Vars.tilesize);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Converts a rectangular range parameter to full width of the rectangle.
+   * ---------------------------------------- */
+  ptp.toRectW = function(size) {
+    return (this * 2.0 + size) * Vars.tilesize;
+  };
+
+
   /* <---------- array ----------> */
 
 
@@ -176,7 +202,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts array to json payload.
+   * Converts array to Json payload.
    * The array should only contain primitive values!
    * ---------------------------------------- */
   Array.toPayload = function(arr) {
@@ -187,7 +213,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts json payload back to array.
+   * Converts Json payload back to array.
    * ---------------------------------------- */
   Array.fromPayload = function(payload) {
     return Object.objToArr(JSON.parse(payload));

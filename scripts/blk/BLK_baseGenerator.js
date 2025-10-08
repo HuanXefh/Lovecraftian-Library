@@ -77,7 +77,7 @@
 
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
-    if(blk.explosionDamage > 0) MDL_draw.drawDisk_warning(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, blk.explosionRadius * Vars.tilesize);
+    if(blk.explosionDamage > 0) MDL_draw.drawDisk_warning(tx.toFCoord(blk.size), ty.toFCoord(blk.size), blk.explosionRadius * Vars.tilesize);
   };
 
 

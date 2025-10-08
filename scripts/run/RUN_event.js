@@ -103,7 +103,22 @@
       return true;
     }, unit => {
       if(PARAM.drawUnitRange) {
-        MDL_draw.drawCircle_normal(unit.x, unit.y, unit.range(), unit.team.color, 0.7, true, true);
+        let z = Draw.z();
+        Draw.z(VAR.lay_unitRange);
+        Draw.color(unit.team.color, 0.2);
+        let wp, rot = unit.rotation - 90.0, mtX, mtY, mtRot, hasAnyMountShown = false;
+        unit.mounts.forEach(mt => {
+          wp = mt.weapon;
+          if(wp.shootCone > 0.0 && wp.shootCone < 179.99) {
+            mtX = unit.x + Angles.trnsx(rot, wp.x, wp.y);
+            mtY = unit.y + Angles.trnsy(rot, wp.x, wp.y);
+            Fill.arc(mtX, mtY, wp.range(), wp.shootCone / 180.0, rot + mt.rotation + 90.0 - wp.shootCone);
+            hasAnyMountShown = true;
+          };
+        });
+        Draw.reset();
+        if(!hasAnyMountShown) MDL_draw.drawCircle_normal(unit.x, unit.y, unit.range(), Pal.accent, 0.35, false, true);
+        Draw.z(z);
       };
       MDL_draw.drawUnit_healthBar(
         unit, MDL_entity._healthFrac(unit), unit.type.hitSize / Vars.tilesize, unit.team.color,
@@ -121,7 +136,9 @@
   };
 
 
-  function evComp_draw_buildStat() {
+  const evComp_draw_buildStat = function() {
+    const thisFun = evComp_draw_buildStat;
+
     if(!PARAM.drawBuildStat || !Vars.ui.hudfrag.shown) return;
 
     let t = MDL_pos._tMouse();
@@ -131,21 +148,31 @@
 
     // Draw player building
     if(b_pl != null && PARAM.drawPlayerStat) {
-      MDL_draw.drawUnit_healthBar(
-        b_pl, b_pl.health / b_pl.maxHealth, b_pl.block.size, b_pl.team.color,
-        1.0, 0.0, -1.0 + VAR.r_offBuildStat, 1.0,
-        b_pl.block.armor, MDL_entity._bShield(b_pl), MDL_entity._bSpd(b_pl), null,
-      );
-      if(PARAM.drawUnitReload) {
-        let hasReload = DB_block.db["group"]["showReload"].includes(b_pl.block.name);
-        if(hasReload) MDL_draw.drawUnit_reload(b_pl, null, Pal.techBlue, 1.0, -16.0, -1.25 + VAR.r_offBuildStat, MDL_entity._reloadFrac(b_pl));
-        MDL_draw.drawUnit_reload(b_pl, null, Pal.accent, 1.0, -16.0, (hasReload ? -0.25 : -1.25) + VAR.r_offBuildStat, MDL_entity._warmupFrac(b_pl, true));
-      };
-      MDL_draw.drawRect_normal(b_pl.x, b_pl.y, VAR.r_offBuildStat, b_pl.block.size, Pal.accent, 0.5, false, true);
+      thisFun.funScr(b_pl);
     };
 
     // Draw mouse building if not player
     if(b != null && !b.block.privileged && (!PARAM.drawPlayerStat || b !== b_pl)) {
+      thisFun.funScr(b);
+
+      if(b.team !== Vars.player.team()) return;
+
+      // Draw bridge tranportation
+      if(b.block instanceof ItemBridge || b.block instanceof DirectionBridge) {
+        MDL_draw.comp_drawSelect_bridgeLine(b);
+      };
+    };
+  }
+  .setProp({
+    "funScr": b => {
+      if(PARAM.drawUnitRange && b.block instanceof Turret && b.block.shootCone > 0.0 && b.block.shootCone < 179.99) {
+        let z = Draw.z();
+        Draw.color(b.team.color, 0.2);
+        Draw.z(VAR.lay_unitRange);
+        Fill.arc(b.x, b.y, b.range() + b.block.shootY, b.block.shootCone / 180.0, b.rotation - b.block.shootCone);
+        Draw.reset();
+        Draw.z(z);
+      };
       MDL_draw.drawUnit_healthBar(
         b, b.health / b.maxHealth, b.block.size, b.team.color,
         1.0, 0.0, -1 + VAR.r_offBuildStat, 1.0, b.block.armor,
@@ -157,15 +184,8 @@
         MDL_draw.drawUnit_reload(b, null, Pal.accent, 1.0, -16.0, (hasReload ? -0.25 : -1.25) + VAR.r_offBuildStat, MDL_entity._warmupFrac(b, true));
       };
       MDL_draw.drawRect_normal(b.x, b.y, VAR.r_offBuildStat, b.block.size, Pal.accent, 0.5, false, true);
-
-      if(b.team !== Vars.player.team()) return;
-
-      // Draw bridge tranportation
-      if(b.block instanceof ItemBridge || b.block instanceof DirectionBridge) {
-        MDL_draw.comp_drawSelect_bridgeLine(b);
-      };
-    };
-  };
+    },
+  });
 
 
   function evComp_draw_extraInfo() {

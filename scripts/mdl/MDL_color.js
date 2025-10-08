@@ -81,3 +81,14 @@
     return color.set(pix.get(Math.round(pix.width * 0.5) - 1, Math.round(pix.height * 0.5) - 1));
   };
   exports._iconColor = _iconColor;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the color for some character.
+   * ---------------------------------------- */
+  const _charaColor = function(nmMod, nmChara) {
+    return _color(global.lovec.db_misc.db["drama"]["chara"]["color"].read([nmMod, nmChara]));
+  };
+  exports._charaColor = _charaColor;

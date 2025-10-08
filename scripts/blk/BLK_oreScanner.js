@@ -39,6 +39,7 @@
   const PARENT = require("lovec/blk/BLK_baseMiner");
   const JAVA = require("lovec/glb/GLB_java");
   const PARAM = require("lovec/glb/GLB_param");
+  const VAR = require("lovec/glb/GLB_var");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -70,7 +71,7 @@
 
 
   function comp_drawPlace(blk, tx, ty, rot, valid) {
-    MDL_draw.drawCircle_normalPlace(blk, tx, ty, blk.scanR * Vars.tilesize, valid, true);
+    MDL_draw.drawP3d_cylinderFade(tx.toFCoord(blk.size), ty.toFCoord(blk.size), 1.0, blk.scanR * Vars.tilesize, valid ? Pal.accent : Pal.remove);
   };
 
 
@@ -80,11 +81,22 @@
       b.revealQueue = b.revealTgs.slice().pullAll(b.revealedInts.map(int => Vars.world.tile(int)));
       b.ex_setRevealed(true);
     });
+    b.offConeAng = Mathf.random(180.0);
+  };
+
+
+  function comp_draw(b) {
+    let z = Draw.z();
+    Draw.z(VAR.lay_effFlr + 0.01);
+    Draw.color(Pal.accent, b.warmup * 0.2);
+    Fill.arc(b.x, b.y, b.block.ex_getScanR() * Vars.tilesize, 0.125, b.offConeAng + b.totalProgress * 2.0);
+    Draw.color();
+    Draw.z(z);
   };
 
 
   function comp_drawSelect(b) {
-    MDL_draw.drawCircle_normalSelect(b, b.block.ex_getScanR() * Vars.tilesize, true, true);
+    MDL_draw.drawP3d_cylinderFade(b.x, b.y, 1.0, b.block.ex_getScanR() * Vars.tilesize, Pal.accent);
   };
 
 
@@ -192,6 +204,7 @@
 
     draw: function(b) {
       PARENT.draw(b);
+      comp_draw(b);
     },
 
 
@@ -310,7 +323,7 @@
   TEMPLATE._std_b = function(craftSe) {
     return {
       craftSound: Object.val(craftSe, Sounds.none),
-      revealedTgs: [], revealQueue: [], revealedInts: [],
+      revealedTgs: [], revealQueue: [], revealedInts: [], offConeAng: 0.0,
       created() {
         this.super$created();
         TEMPLATE.created(this);

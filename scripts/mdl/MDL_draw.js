@@ -18,6 +18,7 @@
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_entity = require("lovec/mdl/MDL_entity");
+  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_texture = require("lovec/mdl/MDL_texture");
 
@@ -34,8 +35,8 @@
    * Used when radius and/or color parameters are dynamic and costy to get.
    * Format for {drawF}: {(blk, tx, ty, rot, rad, color) => {...}}.
    * ---------------------------------------- */
-  const bufferedDraw_place = function(blk, tx, ty, rot, radGetter, colorGetter, drawF) {
-    const thisFun = bufferedDraw_place;
+  const drawBuffer_place = function(blk, tx, ty, rot, radGetter, colorGetter, drawF) {
+    const thisFun = drawBuffer_place;
 
     if(drawF == null) return;
     if(radGetter == null) radGetter = Function.airZero;
@@ -58,7 +59,7 @@
   .setProp({
     "funTup": [],
   });
-  exports.bufferedDraw_place = bufferedDraw_place;
+  exports.drawBuffer_place = drawBuffer_place;
 
 
   /* ----------------------------------------
@@ -69,7 +70,7 @@
    * ---------------------------------------- */
   const comp_drawPlace_baseBlock = function(blk, tx, ty, rot, valid) {
     blk.drawPotentialLinks(tx, ty);
-    blk.drawOverlay(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, rot);
+    blk.drawOverlay(tx.toFCoord(blk.size), ty.toFCoord(blk.size), rot);
   };
   exports.comp_drawPlace_baseBlock = comp_drawPlace_baseBlock;
 
@@ -203,6 +204,7 @@
     var w = reg.width * 2.0 * regScl / Vars.tilesize;
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
 
+    let prevZ = Draw.z();
     if(z != null) Draw.z(z);
     if(shouldMixcol) {
       Draw.mixcol(MDL_color._color(color_gn), Object.val(mixcolA, 1.0));
@@ -213,6 +215,7 @@
     Draw.alpha(a);
     Draw.rect(reg, x, y, w, h, ang);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_normal = drawRegion_normal;
 
@@ -228,11 +231,13 @@
     if(color_gn == null) color_gn = Color.white;
     if(a == null) a = 1.0;
 
+    let prevZ = Draw.z();
     if(z != null) Draw.z(z);
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a);
     Draw.rect(rot > 1 ? reg1 : reg2, x, y, rot * 90.0);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_side = drawRegion_side;
 
@@ -252,12 +257,14 @@
     var w = reg.width * 2.0 * regScl / Vars.tilesize;
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
 
+    let prevZ = Draw.z();
     if(z != null) Draw.z(z);
     Draw.color(MDL_color._color(color_gn), a);
     Draw.shader(shader);
     Draw.rect(reg, x, y, w, h, ang);
     Draw.shader();
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_shader = drawRegion_shader;
 
@@ -278,10 +285,12 @@
     var w = reg.width * 2.0 * regScl / Vars.tilesize * Mathf.cos(Mathf.wrapAngleAroundZero(flipAng * Mathf.degressToRadians));
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
 
+    let prevZ = Draw.z();
     if(z != null) Draw.z(z);
     Draw.color(MDL_color._color(color_gn), a);
     Draw.rect(reg, x, y, w, h, ang);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_flip = drawRegion_flip;
 
@@ -369,12 +378,14 @@
     var x_fi = x + size * Vars.tilesize * 0.5 - Vars.tilesize * 0.5 * mtp;
     var y_fi = y - size * Vars.tilesize * 0.5 + Vars.tilesize * 0.5 * mtp;
 
+    let prevZ = Draw.z();
     Draw.z(z);
     Draw.color(Pal.gray);
     Fill.square(x_fi, y_fi, mtp * 2.5, 45.0);
     Draw.color(MDL_color._color(color_gn));
     Fill.square(x_fi, y_fi, mtp * 1.5, 45.0);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_status = drawRegion_status;
 
@@ -474,6 +485,7 @@
     var ang_fd = 360.0 / sideAmt;
     var ang_fi = Mathf.mod(tProg * rate + ang, ang_fd);
 
+    let prevZ = Draw.z();
     if(z != null) Draw.z(z);
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a);
@@ -481,6 +493,7 @@
     Draw.alpha(ang_fi / ang_fd);
     Draw.rect(reg, x, y, w, h, ang_fi - ang_fd);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_rotator = drawRegion_rotator;
 
@@ -511,6 +524,7 @@
     var rad_fi = rad + Mathf.absin(Time.time, radScl, radMag) + param3;
     var radIn_fi = radIn + Mathf.absin(Time.time, radScl, radInMag) + param3;
 
+    let prevZ = Draw.z();
     Draw.z(Layer.block + 0.01);
     Draw.alpha(a * warmup);
     Draw.rect(reg, x, y);
@@ -520,6 +534,7 @@
     Draw.color(1.0, 1.0, 1.0, a * warmup);
     Fill.circle(x, y, radIn_fi);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_flame = drawRegion_flame;
 
@@ -537,6 +552,7 @@
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
 
+    let prevZ = Draw.z();
     if(z != null) Draw.z(z);
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(warmup * a);
@@ -547,6 +563,7 @@
       size * Vars.tilesize / 2.0,
     );
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_scan = drawRegion_scan;
 
@@ -578,6 +595,7 @@
     var lenScl = 1.0 + Mathf.sin(Time.time, 1.0, 0.07);
 
     Drawf.light(x_fi, y_fi, x + Mathf.cosDeg(ang) * len * 1.2, y + Mathf.sinDeg(ang) * len * 1.2, w_t * 6.0, color1, a * 0.65);
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : VAR.lay_bulFlame);
     for(let i = 0; i < 4; i++) {
       let frac_i = 1.0 - i / 3.0;
@@ -589,6 +607,7 @@
       Drawf.flame(x_fi, y_fi, 12, ang, len_i * lenScl, w_i, 0.2);
     };
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_torch = drawRegion_torch;
 
@@ -611,6 +630,7 @@
 
     var a_fi = a * (1.0 - pulse + Mathf.absin(pulseScl, pulse));
 
+    let prevZ = Draw.z();
     Draw.z(Layer.blockAdditive);
     Draw.blend(Blending.additive);
     Draw.color(MDL_color._color(color_gn));
@@ -618,6 +638,7 @@
     Draw.rect(reg, x, y, ang);
     Draw.blend();
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_glow = drawRegion_glow;
 
@@ -681,11 +702,13 @@
     var w = reg.width * 2.0 * regScl_fi / Vars.tilesize;
     var h = reg.height * 2.0 * regScl_fi / Vars.tilesize;
 
+    let prevZ = Draw.z();
     Draw.z(Layer.power - 0.01);
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(0.75 * a);
     Draw.rect(reg, x, y, ang, w, h);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_plan = drawRegion_plan;
 
@@ -695,7 +718,7 @@
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
 
-    drawRegion_plan(t.worldx() + blk.offset, t.worldy() + blk.offset, MDL_texture._regBlk(blk), color_gn);
+    drawRegion_plan(t.x.toFCoord(blk.size), t.y.toFCoord(blk.size), MDL_texture._regBlk(blk), color_gn);
   };
   exports.drawRegion_planBlk = drawRegion_planBlk;
 
@@ -716,12 +739,13 @@
     var x_fi = x - Vars.tilesize * 0.5 * size;
     var y_fi = y + Vars.tilesize * 0.5 * size;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.mixcol(Color.darkGray, 1.0);
     Draw.rect(rs.uiIcon, x_fi, y_fi - 1.0, 6.0, 6.0);
     Draw.mixcol();
     Draw.rect(rs.uiIcon, x_fi, y_fi, 6.0, 6.0);
-    Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_rs = drawRegion_rs;
 
@@ -739,9 +763,10 @@
     var off = size % 2 === 0 ? 4.0 : 0.0;
     var w = size * Vars.tilesize;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.rect(rs.uiIcon, x + off, y + off, w, w);
-    Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRegion_rsBlk = drawRegion_rsBlk;
 
@@ -762,24 +787,27 @@
   exports._coord_p3d = _coord_p3d;
 
 
-  const drawP3d_wall = function(x1, y1, x2, y2, z3d, colorIn_gn, colorOut_gn) {
+  const drawP3d_wall = function(x1, y1, x2, y2, z3d, colorIn_gn, colorOut_gn, z) {
     if(colorIn_gn == null) colorIn_gn = Color.white;
     if(colorOut_gn == null) colorOut_gn = colorIn_gn;
 
     let fBits1 = MDL_color._color(colorIn_gn).toFloatBits();
     let fBits2 = MDL_color._color(colorOut_gn).toFloatBits();
 
+    let prevZ = Draw.z();
+    if(z != null) Draw.z(z);
     Fill.quad(
       x1, y1, fBits1,
       x2, y2, fBits1,
       _coord_p3d(x2, z3d, false), _coord_p3d(y2, z3d, true), fBits2,
       _coord_p3d(x1, z3d, false), _coord_p3d(y1, z3d, true), fBits2,
     );
+    Draw.z(prevZ)
   };
   exports.drawP3d_wall = drawP3d_wall;
 
 
-  const drawP3d_room = function(x, y, z3d, w, h, colorIn_gn, colorOut_gn) {
+  const drawP3d_room = function(x, y, z3d, w, h, colorIn_gn, colorOut_gn, z) {
     const thisFun = drawP3d_room;
 
     if(w == null) w = 0.0;
@@ -792,16 +820,11 @@
     let colorIn = MDL_color._color(colorIn_gn, Tmp.c1);
     let colorOut = MDL_color._color(colorOut_gn, Tmp.c2);
 
-    let z = Draw.z();
-    Draw.z(z - 0.1 + thisFun.funScr(0, x, y - h * 0.5));
-    drawP3d_wall(x - w * 0.5, y - h * 0.5, x + w * 0.5, y - h * 0.5, z3d, Tmp.c2.set(colorIn).mul(0.75), Tmp.c3.set(colorOut).mul(0.75));
-    Draw.z(z - 0.1 + thisFun.funScr(2, x, y + h * 0.5));
-    drawP3d_wall(x - w * 0.5, y + h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn).mul(1.2), Tmp.c3.set(colorOut).mul(1.2));
-    Draw.z(z - 0.1 + thisFun.funScr(3, x - w * 0.5, y));
-    drawP3d_wall(x - w * 0.5, y - h * 0.5, x - w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut));
-    Draw.z(z - 0.1 + thisFun.funScr(1, x + w * 0.5, y));
-    drawP3d_wall(x + w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut));
-    Draw.z(z);
+    if(z == null) z = Draw.z();
+    drawP3d_wall(x - w * 0.5, y - h * 0.5, x + w * 0.5, y - h * 0.5, z3d, Tmp.c2.set(colorIn).mul(0.75), Tmp.c3.set(colorOut).mul(0.75), z - 0.1 + thisFun.funScr(0, x, y - h * 0.5));
+    drawP3d_wall(x - w * 0.5, y + h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn).mul(1.2), Tmp.c3.set(colorOut).mul(1.2), z - 0.1 + thisFun.funScr(2, x, y + h * 0.5));
+    drawP3d_wall(x - w * 0.5, y - h * 0.5, x - w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut), z - 0.1 + thisFun.funScr(3, x - w * 0.5, y));
+    drawP3d_wall(x + w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut), z - 0.1 + thisFun.funScr(1, x + w * 0.5, y));
   }
   .setProp({
     "funScr": (ind, x, y) => {
@@ -841,6 +864,15 @@
   exports.drawP3d_room = drawP3d_room;
 
 
+  const drawP3d_roomFade = function(x, y, z3d, w, h, color_gn, z) {
+    let colorIn = MDL_color._color(color_gn);
+    let colorOut = Tmp.c3.set(colorIn);
+    colorOut.a = 0.0;
+    drawP3d_room(x, y, z3d, w, h, colorIn, colorOut, z);
+  };
+  exports.drawP3d_roomFade = drawP3d_roomFade;
+
+
   const drawP3d_region = function(x, y, z3d, reg, regScl, regFixScl, color_gn, z) {
     if(reg == null) return;
     // 0.5 is enough for regular tall buildings
@@ -853,19 +885,18 @@
     var w = reg.width * 2.0 * regScl / Vars.tilesize;
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
 
-    Draw.z(Object.val(z, Layer.power - 1.85));
-    drawP3d_room(x, y, z3d, w, h, color_gn);
+    let prevZ = Draw.z();
+    drawP3d_room(x, y, z3d, w, h, color_gn, Object.val(z, Layer.power - 1.85));
     Draw.rect(reg, _coord_p3d(x, z3d, false), _coord_p3d(y, z3d, true), w * regFixScl, h * regFixScl);
-    Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawP3d_region = drawP3d_region;
 
 
-  const drawP3d_cylinder = function(x, y, z3d, rad, colorIn_gn, colorOut_gn) {
+  const drawP3d_cylinder = function(x, y, z3d, rad, colorIn_gn, colorOut_gn, z) {
     var sideAmt = Lines.circleVertices(rad) * 2;
     var angSide = 360.0 / sideAmt;
 
-    let z = Draw.z();
     let ang_i;
     for(let i = 0; i < sideAmt; i++) {
       ang_i = angSide * i;
@@ -877,11 +908,20 @@
         z3d,
         colorIn_gn,
         colorOut_gn,
+        z,
       );
     };
-    Draw.z(z);
   };
   exports.drawP3d_cylinder = drawP3d_cylinder;
+
+
+  const drawP3d_cylinderFade = function(x, y, z3d, rad, color_gn, z) {
+    let colorIn = MDL_color._color(color_gn);
+    let colorOut = Tmp.c3.set(colorIn);
+    colorOut.a = 0.0;
+    drawP3d_cylinder(x, y, z3d, rad, colorIn, colorOut, z);
+  };
+  exports.drawP3d_cylinderFade = drawP3d_cylinderFade;
 
 
   /* <---------- line ----------> */
@@ -898,6 +938,7 @@
 
     var amtSeg = Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0);
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     if(!noBot) {
       Lines.stroke(3.0, Pal.gray);
@@ -908,6 +949,7 @@
     Draw.alpha(a);
     isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawLine_normal = drawLine_normal;
 
@@ -926,11 +968,13 @@
     var scl_fi = scl * 15.0;
     var a = 0.35 + Math.sin(Time.time / scl_fi) * 0.25;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Lines.stroke(stroke, MDL_color._color(color_gn));
     Draw.alpha(a);
     isDashed ? (Lines.dashLine(x1, y1, x2, y2, amtSeg)) : (Lines.line(x1, y1, x2, y2));
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawLine_flicker = drawLine_flicker;
 
@@ -947,6 +991,7 @@
 
     var scl = (1.0 + Math.sin(Time.time * 0.065) * 0.2) * strokeScl;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Lines.stroke(3.0 * scl, MDL_color._color(color1_gn));
     Draw.alpha(a == null ? Vars.renderer.laserOpacity : a);
@@ -958,7 +1003,8 @@
     Fill.circle(x1, y1, 1.2 * scl);
     Fill.circle(x2, y2, 1.2 * scl);
     Lines.line(x1, y1, x2, y2);
-    Draw.color();
+    Draw.reset();
+    Draw.z(prevZ);
     if(hasLight) Drawf.light(x1, y1, x2, y2);
   };
   exports.drawLine_laser = drawLine_laser;
@@ -993,6 +1039,7 @@
     var dx = Mathf.cosDeg(ang) * Draw.scl * 4.0 * strokeScl;
     var dy = Mathf.sinDeg(ang) * Draw.scl * 4.0 * strokeScl;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : Layer.power);
     Draw.color(Color.white, 1.0);
     Draw.rect(wireEndReg, x1, y1, wireEndReg.width * wireEndReg.scl() * 0.5 * strokeScl, wireEndReg.height * wireEndReg.scl() * 0.5 * strokeScl, ang + 180.0);
@@ -1010,6 +1057,7 @@
     Lines.line(VARGEN.wireRegs.glowReg, x1 + dx, y1 + dy, x2 - dx, y2 - dy, false);
     Draw.blend();
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawLine_wire = drawLine_wire;
 
@@ -1032,6 +1080,7 @@
     var hw = (size * 0.5 + r) * Vars.tilesize;
     var amtSeg = (size + r * 2) * 2;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     if(!noBot) {
       Lines.stroke(3.0, Pal.gray);
@@ -1062,12 +1111,13 @@
       Lines.line(x - hw, y + hw, x - hw, y - hw);
     };
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawRect_normal = drawRect_normal;
 
 
   const drawRect_normalPlace = function(blk, tx, ty, r, color_gn, isDashed) {
-    drawRect_normal(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, r, blk.size, color_gn, 1.0, isDashed);
+    drawRect_normal(tx.toFCoord(blk.size), ty.toFCoord(blk.size), r, blk.size, color_gn, 1.0, isDashed);
   };
   exports.drawRect_normalPlace = drawRect_normalPlace;
 
@@ -1099,6 +1149,7 @@
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     if(!noBot) {
       Lines.stroke(3.0, Pal.gray);
@@ -1109,12 +1160,13 @@
     Draw.alpha(a);
     isDashed ? Lines.dashCircle(x, y, rad) : Lines.circle(x, y, rad);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawCircle_normal = drawCircle_normal;
 
 
   const drawCircle_normalPlace = function(blk, tx, ty, rad, color_gn, isDashed) {
-    drawCircle_normal(tx * Vars.tilesize + blk.offset, ty * Vars.tilesize + blk.offset, rad, color_gn, 1.0, isDashed);
+    drawCircle_normal(tx.toFCoord(blk.size), ty.toFCoord(blk.size), rad, color_gn, 1.0, isDashed);
   };
   exports.drawCircle_normalPlace = drawCircle_normalPlace;
 
@@ -1138,11 +1190,13 @@
     if(color_gn == null) color_gn = Pal.accent;
     if(a == null) a = 1.0;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.7);
     Fill.rect(x, y, size * Vars.tilesize, size * Vars.tilesize);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawArea_normal = drawArea_normal;
 
@@ -1175,16 +1229,43 @@
 
     var w = b.block.size * Vars.tilesize - pad * 2.0;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.5);
     Fill.rect(b.x, b.y, w, w);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawArea_build = drawArea_build;
 
 
   /* <---------- disk ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A disk that expands from the center and fades out.
+   * ---------------------------------------- */
+  const drawDisk_expand = function(x, y, rad, scl, color_gn, a, z) {
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return;
+    if(scl == null) scl = 1.0;
+    if(color_gn == null) color_gn = Pal.accent;
+    if(a == null) a = 1.0;
+
+    var frac = Time.time % (90.0 * scl) / (90.0 * scl);
+
+    let prevZ = Draw.z();
+    Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
+    Draw.color(MDL_color._color(color_gn));
+    Draw.alpha(Mathf.lerp(a, 0.0, frac));
+    Fill.circle(x, y, Mathf.lerp(0.0, rad, frac));
+    Draw.reset();
+    Draw.z(prevZ);
+  };
+  exports.drawDisk_expand = drawDisk_expand;
 
 
   /* ----------------------------------------
@@ -1202,11 +1283,13 @@
 
     var a_fi = a * (0.15 + Math.sin(Time.time / scl / 15.0) * 0.15);
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a_fi);
     Fill.circle(x, y, rad);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawDisk_warning = drawDisk_warning;
 
@@ -1236,6 +1319,7 @@
       Math.min(1.0 + Math.pow(1.0 - frac2, 0.5) * rad, rad),
     ];
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.7);
@@ -1249,6 +1333,7 @@
       Lines.line(x - rad_i, y + rad_i, x - rad_i, y - rad_i);
     };
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawPulse_rect = drawPulse_rect;
 
@@ -1282,6 +1367,7 @@
       Math.min(1.0 + (1.0 - frac4) * rad, rad),
     ];
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a_fi);
@@ -1292,6 +1378,7 @@
       Lines.circle(x, y, rad_i);
     };
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawPulse_circle = drawPulse_circle;
 
@@ -1382,6 +1469,7 @@
     var w = (size + 1) * Vars.tilesize + offW;
     var offY = (offTy + size * 0.5 + 0.5) * Vars.tilesize;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Lines.stroke(5.0, Pal.gray);
     Draw.alpha(a * 0.7);
@@ -1392,6 +1480,7 @@
     Draw.alpha(a * 0.7);
     Lines.line(x - w * 0.5, y + offY, Mathf.lerp(x - w * 0.5, x + w * 0.5, Mathf.clamp(frac)), y + offY);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawProgress_bar = drawProgress_bar;
 
@@ -1422,6 +1511,7 @@
     var radIn = rad - stroke * 0.5 * (noBot ? 1.0 : 0.6);
     var radOut = rad + stroke * 0.5 * (noBot ? 1.0 : 0.6);
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     if(!noBot) {
       Lines.stroke(stroke, Pal.gray);
@@ -1449,6 +1539,7 @@
       );
     };
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawProgress_circle = drawProgress_circle;
 
@@ -1476,11 +1567,13 @@
     var h = size * Vars.tilesize * hScl * frac_fi;
     var y_fi = y + offY + Mathf.lerp(w * -0.5, 0.0, frac_fi);
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw));
     Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a * 0.3);
     Fill.rect(x + offX, y_fi, w, h);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawProgress_vArea = drawProgress_vArea;
 
@@ -1513,11 +1606,10 @@
     if(offY == null) offY = 0.0;
     if(offZ == null) offZ = 0.0;
 
-    var z = Drawf.text();
-
-    var font = Fonts.outline;
-    var layout = Pools.obtain(GlyphLayout, () => new GlyphLayout());
-    var useInt = font.usesIntegerPositions();
+    let z = Drawf.text();
+    let font = Fonts.outline;
+    let layout = Pools.obtain(GlyphLayout, () => new GlyphLayout());
+    let useInt = font.usesIntegerPositions();
 
     Draw.z(Layer.playerName + 0.5 + offZ);
     font.setUseIntegerPositions(false);
@@ -1587,6 +1679,7 @@
     var offY = (offTy + size * 0.5 + 1.5) * Vars.tilesize;
     let amtSeg = Math.ceil(w / 4.0 / segScl);
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw + 1.0));
     if(PARAM.drawMinimalisticStat) {
       Lines.stroke(5.0, Pal.gray);
@@ -1687,6 +1780,7 @@
     };
 
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawUnit_healthBar = drawUnit_healthBar;
 
@@ -1714,6 +1808,7 @@
     var w = (hitSize + 8.0 + offW) * 1.7;
     var offY = hitSize * 0.5 + 4.0 + (offTy + 1.25) * Vars.tilesize;
 
+    let prevZ = Draw.z();
     Draw.z(z != null ? z : (Layer.effect + VAR.lay_offDraw + 1.0));
     Lines.stroke(5.0, Pal.gray);
     Draw.alpha(a * 0.5);
@@ -1724,6 +1819,7 @@
     Draw.alpha(a * 0.5);
     Lines.line(x - w * 0.5, y - offY, Mathf.lerp(x - w * 0.5, x + w * 0.5, frac), y - offY);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawUnit_reload = drawUnit_reload;
 
@@ -1758,12 +1854,14 @@
     var x4 = x + 3.0 * Mathf.cosDeg(ang + 45.0);
     var y4 = y + 3.0 * Mathf.sinDeg(ang + 45.0);
 
+    let prevZ = Draw.z();
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(1.0);
     Draw.color(color);
     Lines.line(x1, y1, x2, y2);
     Lines.line(x3, y3, x4, y4);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawDebug_cross = drawDebug_cross;
 
@@ -1779,6 +1877,7 @@
     var x3 = x + 3.0 * Mathf.cosDeg(ang + 330.0);
     var y3 = y + 3.0 * Mathf.sinDeg(ang + 330.0);
 
+    let prevZ = Draw.z();
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(0.7);
     Draw.color(color);
@@ -1786,6 +1885,7 @@
     Lines.line(x2, y2, x3, y3);
     Lines.line(x3, y3, x1, y1);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawDebug_tri = drawDebug_tri;
 
@@ -1800,6 +1900,7 @@
     var x2 = e.x + (rad + offRad) * Mathf.cosDeg(e.rotation);
     var y2 = e.y + (rad + offRad) * Mathf.sinDeg(e.rotation);
 
+    let prevZ = Draw.z();
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(1.0);
     Draw.color(Pal.place);
@@ -1807,6 +1908,7 @@
     Draw.color(Pal.accent);
     Lines.line(x1, y1, x2, y2);
     Draw.reset();
+    Draw.z(prevZ);
   };
   exports.drawDebug_hitSize = drawDebug_hitSize;
 
@@ -1817,11 +1919,13 @@
     let e_tg = MDL_pos._e_tg(unit.x, unit.y, unit.team, unit.range());
     if(e_tg == null) return;
 
+    let prevZ = Draw.z();
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(0.5);
     Draw.color(Color.scarlet);
     Lines.line(unit.x, unit.y, e_tg.x, e_tg.y);
     Draw.reset();
+    Draw.z(prevZ);
     drawDebug_cross(e_tg.x, e_tg.y, 0.0, Color.scarlet);
   };
   exports.drawDebug_target = drawDebug_target;
@@ -1831,11 +1935,13 @@
     if(bul == null) return;
     if(bul.aimX < 0.0 || bul.aimY < 0.0) return;
 
+    let prevZ = Draw.z();
     Draw.z(VAR.lay_debugTop);
     Lines.stroke(0.5);
     Draw.color(Pal.heal);
     Lines.line(bul.x, bul.y, bul.aimX, bul.aimY);
     Draw.reset();
+    Draw.z(prevZ);
     drawDebug_tri(bul.aimX, bul.aimY, 0.0, Pal.heal);
   };
   exports.drawDebug_aim = drawDebug_aim;
