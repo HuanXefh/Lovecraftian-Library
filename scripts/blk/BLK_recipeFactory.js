@@ -44,6 +44,9 @@
   const VAR = require("lovec/glb/GLB_var");
 
 
+  const CLS_window = require("lovec/cls/ui/CLS_window");
+
+
   const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_recipe = require("lovec/frag/FRAG_recipe");
 
@@ -58,7 +61,6 @@
 
 
   const TP_stat = require("lovec/tp/TP_stat");
-  const TP_table = require("lovec/tp/TP_table");
 
 
   const MOD_tmi = require("lovec/mod/MOD_tmi");
@@ -138,7 +140,10 @@
       tb.row();
       MDL_table.setDisplay_recipe(tb, blk.rcMdl, blk);
       MDL_table.__btnBase(tb, MDL_bundle._term("lovec", "new-window"), () => {
-        Core.scene.add(TP_table._winDial(TP_stat.blk0fac_recipes.localized() + " (" + blk.localizedName + ")", tb1 => MDL_table.setDisplay_recipe(tb1, blk.rcMdl, blk, true)));
+        new CLS_window(
+          TP_stat.blk0fac_recipes.localized() + " (" + blk.localizedName + ")",
+          tb1 => MDL_table.setDisplay_recipe(tb1, blk.rcMdl, blk, true),
+        ).add();
       }).row();
     }}));
 

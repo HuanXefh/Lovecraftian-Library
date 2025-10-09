@@ -62,7 +62,61 @@
   /* <---------- string ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: str1, str2, str3, ...
+   * Builds a multiline string with given strings.
+   * {null} in the arguments will be ignored.
+   * Arrays in the arguments will finally get flattened.
+   * ---------------------------------------- */
+  String.multiline = function() {
+    let str_fi = "";
+    let args = Array.from(arguments).flatten().filter(tmp => tmp != null);
+    let i = 0;
+    let iCap = args.length;
+    while(i < iCap) {
+      str_fi += args[i];
+      if(i !== iCap - 1) str_fi += "\n";
+      i++;
+    };
+
+    return str_fi;
+  };
+
+
   var ptp = String.prototype;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: str1, str2, str3, ...
+   * Replaces {"[$1]"} in the string with {str1}, and so on...
+   * ---------------------------------------- */
+  ptp.format = function() {
+    let str = this, strTg;
+    let i = 0;
+    let iCap = arguments.length;
+    while(i < iCap) {
+      strTg = "\\[\\$" + (i + 1) + "\\]";
+      str = str.replace(new RegExp(strTg, "g"), arguments[i]);
+      i++;
+    };
+
+    return str;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Removes color markup.
+   * WTF why should it be strictly Java string.
+   * ---------------------------------------- */
+  ptp.plain = function() {
+    return Strings.stripColors(new java.lang.String(this));
+  };
 
 
   /* ----------------------------------------

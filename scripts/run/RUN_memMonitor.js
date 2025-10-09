@@ -37,10 +37,10 @@
 
   const memUseData = [];
   const memUseMeanData = [];
-  var memUseMax = 0.0;
-  var memMonitorCount = 1;
-  var memMonitorRunning = false;
-  var memMonitorInit = false;
+  let memUseMax = 0.0;
+  let memMonitorCount = 1;
+  let memMonitorRunning = false;
+  let memMonitorInit = false;
 
 
   const _memUse = function() {
@@ -68,14 +68,14 @@
 
 
   const _memLeakSig = function() {
-    var memUseMeanMean = memUseMeanData.mean();
+    let memUseMeanMean = memUseMeanData.mean();
 
     return (memUseMeanMean - MATH_statistics.linearReg(memUseMeanData, null)[1]) / memUseMeanMean;
   };
   exports._memLeakSig = _memLeakSig;
 
 
-  const initMemMonitor = function() {
+  function initMemMonitor() {
     memUseData.clear();
     memUseMeanData.clear();
     memUseMax = 0.0;
@@ -85,40 +85,35 @@
 
     _i_memMonitorInit();
   };
-  exports.initMemMonitor = initMemMonitor;
 
 
-  const _i_memMonitor = function() {
-    Log.info(
-      "[LOVEC] Memory monitor result (" + memMonitorCount + ")"
-        + "\n- Sample points: " + memUseData.length
-        + "\n- Mean sample points: " + memUseMeanData.length
-        + "\n- Memory use mean: " + Strings.fixed(memUseMeanData.mean(), 3) + " MB"
-        + "\n- Max memory used: " + _memUseMax() + " MB"
-        + "\n- Memory increase slope: " + Strings.fixed(_memIncSlp(), 8)
-        + "\n- Memory leak significance: " + _memLeakSig().perc(3)
-    );
+  function _i_memMonitor() {
+    Log.info(String.multiline(
+      "[LOVEC] Memory monitor result ([$1]):".format(memMonitorCount),
+      "- Sample points: " + memUseData.length,
+      "- Mean sample points: " + memUseMeanData.length,
+      "- Memory use mean: [$1] MB".format(Strings.fixed(memUseMeanData.mean(), 3)),
+      "- Max memory used: [$1] MB".format(_memUseMax()),
+      "- Memory increase slope: " + Strings.fixed(_memIncSlp(), 8),
+      "- Memory leak significance: " + _memLeakSig().perc(3),
+    ));
     memMonitorCount++;
   };
-  exports._i_memMonitor = _i_memMonitor;
 
 
-  const _i_memMonitorStart = function() {
+  function _i_memMonitorStart() {
     Log.info("[LOVEC] Memory monitor started.");
   };
-  exports._i_memMonitorStart = _i_memMonitorStart;
 
 
-  const _i_memMonitorEnd = function() {
+  function _i_memMonitorEnd() {
     Log.info("[LOVEC] Memory monitor ended.");
   };
-  exports._i_memMonitorEnd = _i_memMonitorEnd;
 
 
-  const _i_memMonitorInit = function() {
+  function _i_memMonitorInit() {
     Log.info("[LOVEC] Memory monitor initialized.");
   };
-  exports._i_memMonitorInit = _i_memMonitorInit;
 
 
 /*
@@ -130,10 +125,7 @@
 
   MDL_event._c_onUpdate(() => {
     if(PARAM.enableMemoryMonitor) {
-
-
       if(Vars.state.isGame()) {
-
         if(!memMonitorInit) initMemMonitor();
         if(!memMonitorRunning) {
           _i_memMonitorStart();
@@ -143,30 +135,18 @@
         if(TIMER.timerState_memUse) memUseData.push(_memUse());
         if(TIMER.timerState_memUseMean) memUseMeanData.push(_memUseMean());
         if(TIMER.timerState_memPrint) _i_memMonitor();
-
-
       } else {
-
-
         if(memMonitorRunning) {
           _i_memMonitorEnd();
           memMonitorRunning = false;
           memMonitorInit = false;
         };
-
-
       };
-
-
     } else {
-
-
       if(memMonitorRunning) {
         _i_memMonitorEnd();
         memMonitorRunning = false;
         memMonitorInit = false;
       };
-
-
     };
   }, 75912248);

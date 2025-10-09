@@ -81,7 +81,7 @@
       b.revealQueue = b.revealTgs.slice().pullAll(b.revealedInts.map(int => Vars.world.tile(int)));
       b.ex_setRevealed(true);
     });
-    b.offConeAng = Mathf.random(180.0);
+    b.offConeAng = Mathf.range(180.0);
   };
 
 

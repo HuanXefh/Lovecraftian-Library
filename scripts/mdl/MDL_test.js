@@ -11,22 +11,22 @@
   /* <---------- base ----------> */
 
 
-  const _i_invalidArgs = function() {
-    Log.info("[LOVEC] " + "Invalid arguments!".color(Pal.remove));
+  const _w_invalidArgs = function() {
+    Log.warn("[LOVEC] " + "Invalid arguments!".color(Pal.remove));
   };
-  exports._i_invalidArgs = _i_invalidArgs;
+  exports._w_invalidArgs = _w_invalidArgs;
 
 
-  const _i_notInGame = function() {
-    Log.info("[LOVEC] " + "Method unavailable outside of game.".color(Pal.remove));
+  const _w_notInGame = function() {
+    Log.warn("[LOVEC] " + "Method unavailable outside of game.".color(Pal.remove));
   };
-  exports._i_notInGame = _i_notInGame;
+  exports._w_notInGame = _w_notInGame;
 
 
-  const _i_noBuild = function(tx, ty) {
-    Log.info("[LOVEC] " + ("There's no building at (" + tx + ", " + ty + ").").color(Pal.remove));
+  const _w_noBuild = function(tx, ty) {
+    Log.warn("[LOVEC] " + ("There's no building at ([$1], [$2]).").format(tx, ty).color(Pal.remove));
   };
-  exports._i_noBuild = _i_noBuild;
+  exports._w_noBuild = _w_noBuild;
 
 
   /* <---------- content ----------> */
@@ -39,13 +39,13 @@
 
 
   const _w_ctNotFound = function(nmCt) {
-    Log.warn("[LOVEC] Content not found for " + nmCt);
+    Log.warn("[LOVEC] Content not found for [$1].".format(nmCt.color(Pal.accent)));
   };
   exports._w_ctNotFound = _w_ctNotFound;
 
 
   const _w_costySearch = function(nmCt) {
-    Log.warn("[LOVEC] Costy search for " + nmCt + ", better add a mode argument!");
+    Log.warn("[LOVEC] Costy search for [$1], better add a mode argument!".format(nmCt.color(Pal.accent)));
   };
   exports._w_costySearch = _w_costySearch;
 
@@ -55,13 +55,13 @@
 
   const _i_liq = function(tx, ty) {
     if(!Vars.state.isGame()) {
-      _i_notInGame();
+      _w_notInGame();
       return;
     };
 
-    var b = Vars.world.build(tx, ty);
+    let b = Vars.world.build(tx, ty);
     if(b == null) {
-      _i_noBuild(tx, ty);
+      _w_noBuild(tx, ty);
       return;
     };
 
@@ -69,16 +69,19 @@
       Log.info("[LOVEC] " + b.block.localizedName.color(b.team.color) + " at (" + tx + ", " + ty + ") does not have liquid module.");
     } else {
       let cap = b.block.liquidCapacity;
-      let str = "[LOVEC] liquid info for " + b.block.localizedName.color(b.team.color) + " at (" + tx + ", " + ty + ")"
-        + "\n- Liquid capacity: " + Strings.fixed(cap, 2);
-      if(b.liquids.currentAmount() > 0.0001) {
-        str += "\n- Current liquid: " + b.liquids.current().localizedName
-          + "\n- Liquids: ";
-        b.liquids.each(liq => {
-          let amt = b.liquids.get(liq);
-          str += "\n  > " + liq.localizedName + ": " + Strings.fixed(amt, 4) + " (" + (amt / cap).perc() + ")";
-        });
-      };
+      let str = String.multiline(
+        "[LOVEC] Liquid info for [$1] at ([$2], [$3]):".format(b.block.localizedName.plain().color(b.team.color), tx, ty),
+        "- Liquid capacity: " + Strings.fixed(cap, 2),
+        (function() {
+          if(b.liquids.currentAmount() < 0.0001) return null;
+          let amt, arr = ["- Current liquid: " + b.liquids.current().localizedName, "- Liquids:"];
+          b.liquids.each(liq => {
+            amt = b.liquids.get(liq);
+            arr.push("  > [$1]: [$2] ([$3])".format(liq.localizedName, Strings.fixed(amt, 4), (amt / cap).perc()));
+          });
+          return arr;
+        })(),
+      );
 
       Log.info(str);
     };

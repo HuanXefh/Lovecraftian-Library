@@ -144,7 +144,7 @@
     if(t == null) return false;
     if(global.lovec.mdl_content._hasTag(t.overlay(), "blk-dpore")) return false;
     if(unit.isPlayer()) {
-      let blk = t.overlay() != null && t.overlay().itemDrop != null ? t.overlay() : (t.block() !== Blocks.air ? t.block() : t.floor());
+      let blk = t.overlay().itemDrop != null ? t.overlay() : (t.block() !== Blocks.air ? t.block() : t.floor());
       if(blk.playerUnmineable) return false;
     };
     return unit.super$validMine(t, Object.val(checkDst, true));

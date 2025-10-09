@@ -94,14 +94,11 @@ const BOX_annotation = new CLS_objectBox({
     let timer = new Interval(1);
     let tmp = this;
     MDL_event._c_onUpdate(() => {
-
       if(checkTimerFirst ?
           (!timer.get(intv) || !boolF()) :
           (!boolF() || !timer.get(intv))
       ) return;
-
       scr(tmp);
-
     }, id);
 
   }),

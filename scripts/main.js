@@ -28,6 +28,9 @@
   const RUN_rule = require("lovec/run/RUN_rule");
 
 
+  const CLS_dragButton = require("lovec/cls/ui/CLS_dragButton");
+
+
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
@@ -40,7 +43,6 @@
   const TP_ability = require("lovec/tp/TP_ability");
   const TP_dial = require("lovec/tp/TP_dial");
   const TP_stat = require("lovec/tp/TP_stat");
-  const TP_table = require("lovec/tp/TP_table");
 
 
   const DB_env = require("lovec/db/DB_env");
@@ -246,7 +248,7 @@
     });
 
 
-    Core.scene.add(TP_table._dragBtn());
+    new CLS_dragButton().add();
 
 
     Core.app.post(() => {

@@ -61,9 +61,13 @@
    * Iterates through an object, if you're that lazy.
    * {_it_xxx} means interation, I assume that you have seen it in {MDL_pos}.
    * ---------------------------------------- */
-  Object._it = function(obj, scr) {
+  Object._it = function(obj, scr, forceIns) {
     for(let key in obj) {
-      scr(key, obj[key]);
+      if(!forceIns) {
+        scr(key, obj[key]);
+      } else {
+        if(obj[key] != null && typeof obj[key] === "object") scr(key, obj[key]);
+      };
     };
   };
 

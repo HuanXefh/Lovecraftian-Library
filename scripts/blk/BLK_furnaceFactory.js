@@ -46,6 +46,9 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const CLS_window = require("lovec/cls/ui/CLS_window");
+
+
   const FRAG_attack = require("lovec/frag/FRAG_attack");
   const FRAG_item = require("lovec/frag/FRAG_item");
   const FRAG_faci = require("lovec/frag/FRAG_faci");
@@ -67,7 +70,6 @@
 
 
   const TP_stat = require("lovec/tp/TP_stat");
-  const TP_table = require("lovec/tp/TP_table");
 
 
   /* <---------- component ----------> */
@@ -110,7 +112,10 @@
     blk.stats.add(TP_stat.blk0fac_fuel, extend(StatValue, {display(tb) {
       tb.row();
       MDL_table.__btnSmallBase(tb, "?", () => {
-        Core.scene.add(TP_table._winDial(MDL_bundle._term("lovec", "fuel") + " (" + blk.localizedName + ")", tb1 => MDL_table.setDisplay_ctLi(tb1, FRAG_faci._fuelArr(blk), null, 7)));
+        new CLS_window(
+          MDL_bundle._term("lovec", "fuel") + " (" + blk.localizedName + ")",
+          tb1 => MDL_table.setDisplay_ctLi(tb1, FRAG_faci._fuelArr(blk), null, 7),
+        ).add();
       }).left().padLeft(28.0).row();
     }}));
 

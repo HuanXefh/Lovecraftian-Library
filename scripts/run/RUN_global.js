@@ -34,6 +34,7 @@
 
   const CLS_matrix = require("lovec/cls/math/CLS_matrix");
   const CLS_tree = require("lovec/cls/struct/CLS_tree");
+  const CLS_window = require("lovec/cls/ui/CLS_window");
 
 
   const MATH_base = require("lovec/math/MATH_base");
@@ -72,7 +73,6 @@
 
   const TP_dial = require("lovec/tp/TP_dial");
   const TP_effect = require("lovec/tp/TP_effect");
-  const TP_table = require("lovec/tp/TP_table");
 
 
   const DB_block = require("lovec/db/DB_block");
@@ -111,6 +111,7 @@
 
       cls_matrix: CLS_matrix,
       cls_tree: CLS_tree,
+      cls_window: CLS_window,
 
 
       math_base: MATH_base,
@@ -140,6 +141,7 @@
       mdl_reaction: MDL_reaction,
       mdl_recipe: MDL_recipe,
       mdl_recipeDict: MDL_recipeDict,
+      mdl_test: MDL_test,
       mdl_text: MDL_text,
       mdl_ui: MDL_ui,
       mdl_util: MDL_util,
@@ -147,7 +149,6 @@
 
       tp_dial: TP_dial,
       tp_effect: TP_effect,
-      tp_table: TP_table,
 
 
       db_block: DB_block,
@@ -178,7 +179,7 @@
 
       printCep(team) {
         if(!Vars.state.isGame()) {
-          MDL_test._i_notInGame();
+          MDL_test._w_notInGame();
           return;
         };
 

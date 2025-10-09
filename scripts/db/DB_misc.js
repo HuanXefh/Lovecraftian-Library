@@ -27,11 +27,10 @@ const db = {
         let itm = t.wallDrop() || t.drop();
         if(itm == null) return;
 
-        var str = ""
-        + (MDL_cond._isDepthOre(t.overlay()) ? "" : (MDL_bundle._term("lovec", "ore") + ": " + Strings.stripColors(itm.localizedName) + "\n"))
-        + MDL_bundle._term("lovec", "ore-hardness") + ": " + itm.hardness + "\n";
-
-        return str;
+        return String.multiline(
+          MDL_cond._isDepthOre(t.overlay()) ? null : (MDL_bundle._term("lovec", "ore") + ": " + itm.localizedName.plain()),
+          MDL_bundle._term("lovec", "ore-hardness") + ": " + itm.hardness,
+        );
       },
 
       // Ore liquid info
@@ -39,13 +38,10 @@ const db = {
         let liq = t.floor().liquidDrop;
         if(liq == null) return;
 
-        var str = ""
-        + MDL_bundle._term("lovec", "liquid") + ": " + Strings.stripColors(liq.localizedName)
-        + "\n"
-        + MDL_bundle._term("lovec", "liquid-multiplier") + ": " + t.floor().liquidMultiplier.perc()
-        + "\n";
-
-        return str;
+        return String.multiline(
+          MDL_bundle._term("lovec", "liquid") + ": " + liq.localizedName.plain(),
+          MDL_bundle._term("lovec", "liquid-multiplier") + ": " + t.floor().liquidMultiplier.perc(),
+        );
       },
 
       // Conveyor info
@@ -54,10 +50,9 @@ const db = {
         let itm = b.items.first();
         if(itm == null) return;
 
-        var str = ""
-        + MDL_bundle._term("lovec", "item") + ": " + Strings.stripColors(itm.localizedName) + "\n";
-
-        return str;
+        return String.multiline(
+          MDL_bundle._term("lovec", "item") + ": " + itm.localizedName.plain(),
+        );
       },
 
     ],

@@ -24,6 +24,9 @@
   /* <---------- import ----------> */
 
 
+  const CLS_window = require("lovec/cls/ui/CLS_window");
+
+
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_entity = require("lovec/mdl/MDL_entity");
@@ -32,9 +35,6 @@
   const MDL_table = require("lovec/mdl/MDL_table");
   const MDL_text = require("lovec/mdl/MDL_text");
   const MDL_ui = require("lovec/mdl/MDL_ui");
-
-
-  const TP_table = require("lovec/tp/TP_table");
 
 
   /* <---------- content ----------> */
@@ -391,16 +391,13 @@
         MDL_table.__btnClose(this.buttons, this);
         MDL_table.__btnBase(this.buttons, MDL_bundle._term("lovec", "new-window"), () => {
           this.hide();
-          Core.scene.add(TP_table._winDial(rs.localizedName, tb => {
-
+          new CLS_window(rs.localizedName, tb => {
             tb.center();
-
             let tmpRs = rs;
             tb.button(new TextureRegionDrawable(tmpRs.uiIcon), 48.0, () => {
               rcDict.ex_show(tmpRs.localizedName, tmpRs);
             }).center();
-
-          }));
+          }).add();
         });
 
         this.show();

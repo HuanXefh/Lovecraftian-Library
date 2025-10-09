@@ -21,6 +21,11 @@ printKeys = function(obj) {
 };
 
 
+printLiq = function(tx, ty) {
+  lovec.mdl_test._i_liq(tx, ty);
+};
+
+
 drawTest = {
   enabled: false, safe: false,
   xGetter: Function.airZero, yGetter: Function.airZero, radGetter: Function.airZero, colorGetter: Function.airWhite,
@@ -115,12 +120,39 @@ changeTeam = function(nmTeam) {
   if(Vars.net.client()) return;
 
   let team;
-  try {
-    team = Team[nmTeam]
-  } catch(err) {
-    team = null;
+  switch(nmTeam) {
+    case "yellow" :
+      team = Team.sharded;
+      break;
+    case "red" :
+      team = Team.crux;
+      break;
+    case "purple" :
+      team = Team.malis;
+      break;
+    default :
+      try {
+        team = Team[nmTeam]
+      } catch(err) {
+        team = null;
+      };
   };
   if(team == null) return;
 
   Vars.player.team(team);
 };
+
+
+spawnUnit = function(nmUtp) {
+  if(Vars.net.client()) return;
+  if(typeof nmUtp !== "string" || nmUtp.equalsAny(spawnUnit.blacklist)) return;
+  let unit = Vars.player.unit();
+  if(unit == null) return;
+  let utp = lovec.mdl_content._ct(nmUtp, "utp");
+  if(utp == null || utp.internal) return;
+
+  lovec.mdl_call.spawnUnit(unit.x, unit.y, utp, unit.team);
+}
+.setProp({
+  "blacklist": [],
+});

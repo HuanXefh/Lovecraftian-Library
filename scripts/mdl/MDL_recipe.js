@@ -36,6 +36,7 @@
       rcMdl = require(nmMod + "/auxFi/rc/" + nmBlk);
     } catch(err) {
       rcMdl = null;
+      Log.warn("[LOVEC] Failed to load recipe for " + nmMod + "-" + nmBlk + ":\n" + err);
     };
 
     return rcMdl;
@@ -430,63 +431,41 @@
    * NOTE:
    *
    * Gets the full text for recipe tooltip.
+   * Very unsightreadable cauz why not.
    * ---------------------------------------- */
   const _ttStr = function(rcMdl, rcHeader, valid) {
     if(Vars.headless) return "";
 
     if(valid) {
-
-      let strCateg = _categB(_categ(rcMdl, rcHeader));
-
-      let ct = MDL_content._ct(_iconNm(rcMdl, rcHeader), null, true);
-      let strCt = ct == null ? "-" : ct.localizedName;
-
-      let failP = _failP(rcMdl, rcHeader);
-      let strFail = failP < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "chance-to-fail"), failP.perc(1));
-
-      let tempReq = _tempReq(rcMdl, rcHeader);
-      let strTempReq = tempReq < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-required"), Strings.fixed(tempReq, 2), TP_stat.rs_heatUnits.localized());
-
-      let tempAllowed = _tempAllowed(rcMdl, rcHeader);
-      let strTempAllowed = !isFinite(tempAllowed) ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-allowed"), Strings.fixed(tempAllowed, 2), TP_stat.rs_heatUnits.localized());
-
-      let durabDecMtp = _durabDecMtp(rcMdl, rcHeader);
-      let strDurabDecMtp = durabDecMtp.fEqual(1.0) ? null : MDL_text._statText(MDL_bundle._term("lovec", "abrasion-multiplier"), durabDecMtp.perc());
-
-      let strIsGen = _isGen(rcMdl, rcHeader) ? MDL_bundle._term("lovec", "generated-recipe") : null;
-
-      let tt = _tt(rcMdl, rcHeader);
-      let strTt = tt == null ? null : MDL_bundle._info("common", "tt-" + tt);
-
-      let strStat = "\n"
-        + (strIsGen == null ? "" : ("\n" + strIsGen).color(Color.gray))
-        + (strFail == null ? "" : ("\n" + strFail))
-        + (strTempReq == null ? "" : ("\n" + strTempReq))
-        + (strTempAllowed == null ? "" : ("\n" + strTempAllowed))
-        + (strDurabDecMtp == null ? "" : ("\n" + strDurabDecMtp))
-        + (strTt == null ? "" : ("\n\n" + strTt).color(Color.gray));
-
-      return ("<" + strCateg + ">").color(Pal.accent)
-        + "\n" + strCt
-        + (strStat === "\n" ? "" : strStat);
-
+      // Regular display
+      return String.multiline(
+        ("<" + _categB(_categ(rcMdl, rcHeader)) + ">").color(Pal.accent),
+        (function() {let ct = MDL_content._ct(_iconNm(rcMdl, rcHeader), null, true); return ct == null ? "-" : ct.localizedName})(),
+        (function() {
+          let str = String.multiline(
+            "",
+            !_isGen(rcMdl, rcHeader) ? null : MDL_bundle._term("lovec", "generated-recipe"),
+            (function() {let p = _failP(rcMdl, rcHeader); return p < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "chance-to-fail"), p.perc(1))})(),
+            (function() {let temp = _tempReq(rcMdl, rcHeader); return temp < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-required"), Strings.fixed(temp, 2), TP_stat.rs_heatUnits.localized())})(),
+            (function() {let temp = _tempAllowed(rcMdl, rcHeader); return !isFinite(temp) ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-allowed"), Strings.fixed(temp, 2), TP_stat.rs_heatUnits.localized())})(),
+            (function() {let mtp = _durabDecMtp(rcMdl, rcHeader); return mtp.fEqual(1.0) ? null : MDL_text._statText(MDL_bundle._term("lovec", "abrasion-multiplier"), mtp.perc())})(),
+            (function() {let tt = _tt(rcMdl, rcHeader); return tt == null ? null : MDL_bundle._info("common", "tt-" + tt)})(),
+          );
+          return str === "\n" ? null : str;
+        })(),
+      );
     } else {
-
-      let lockedByCts = _lockedBy(rcMdl, rcHeader, true);
-      let strLockedBy = null;
-      if(lockedByCts.length > 0) {
-        strLockedBy = MDL_text._statText(MDL_bundle._term("lovec", "locked"), "");
-        lockedByCts.forEach(ct => {
-          strLockedBy += ("\n- " + Strings.stripColors(ct.localizedName)).color(Pal.remove);
-        });
-      };
-
-      let strStat = "\n"
-        + (strLockedBy == null ? "" : ("\n" + strLockedBy));
-
-      return MDL_bundle._info("lovec", "recipe-unavailable")
-        + (strStat === "\n" ? "" : strStat);
-
+      // When content is still locked
+      return String.multiline(
+        MDL_bundle._info("lovec", "recipe-unavailable"),
+        (function() {
+          let str = String.multiline(
+            "",
+            (function() {let cts = _lockedBy(rcMdl, rcHeader, true); let str1 = null; if(cts.length > 0) {str1 = MDL_text._statText(MDL_bundle._term("lovec", "locked"), ""); cts.forEachFast(ct => str1 += "\n- " + ct.localizedName.plain().color(Pal.remove))}; return str1})(),
+          );
+          return str === "\n" ? null : str;
+        })(),
+      );
     };
   };
   exports._ttStr = _ttStr;
