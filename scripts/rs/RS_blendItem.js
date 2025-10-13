@@ -100,9 +100,9 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["rs-intmd", "rs-blend"],
+      tempTags: ["rs-intmd", "rs-blend"],
     }),
 
 

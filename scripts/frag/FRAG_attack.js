@@ -137,7 +137,7 @@
   const apply_explosion_global = function(x, y, dmg, rad, shake, noSound) {
     apply_explosion(x, y, dmg, rad, shake, noSound);
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       x,
       y,
       dmg,
@@ -150,7 +150,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("both", "lovec-both-attack-explosion", payload => {
-      apply_explosion.apply(this, Array.fromPayload(payload));
+      apply_explosion.apply(this, unpackPayload(payload));
     });
   });
   exports.apply_explosion_global = apply_explosion_global;

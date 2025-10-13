@@ -88,9 +88,9 @@
 
     // @NOSUPER
     ex_getTags: function(utp) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["utp-lovec", "utp-inf"],
+      tempTags: ["utp-lovec", "utp-inf"],
     }),
 
 

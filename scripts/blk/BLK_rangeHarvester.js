@@ -141,7 +141,7 @@
 
 
     draw: function(b) {
-      PARENT.draw(b);
+      PARENT_A.draw(b);
     },
 
 
@@ -189,9 +189,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["blk-min", "blk-harv"],
+      tempTags: ["blk-min", "blk-harv"],
     }),
 
 

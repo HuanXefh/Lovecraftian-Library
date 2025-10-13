@@ -180,20 +180,20 @@
   const comp_ex_getAttrSum = function(blk, tx, ty, rot) {
     const thisFun = comp_ex_getAttrSum;
 
-    if(thisFun.funTup.length === 0 || thisFun.funTup[0] !== blk || thisFun.funTup[1] !== tx || thisFun.funTup[2] !== ty || thisFun.funTup[3] !== rot) {
-      thisFun.funTup[0] = blk;
-      thisFun.funTup[1] = tx;
-      thisFun.funTup[2] = ty;
-      thisFun.funTup[3] = rot;
+    if(thisFun.tmpTup.length === 0 || thisFun.tmpTup[0] !== blk || thisFun.tmpTup[1] !== tx || thisFun.tmpTup[2] !== ty || thisFun.tmpTup[3] !== rot) {
+      thisFun.tmpTup[0] = blk;
+      thisFun.tmpTup[1] = tx;
+      thisFun.tmpTup[2] = ty;
+      thisFun.tmpTup[3] = rot;
 
       let tup = MDL_attr._dynaAttrTup(blk.attrRsMap, blk.ex_getTs(tx, ty, rot), blk.attrMode);
-      thisFun.funTup[4] = tup == null ? 0.0 : tup[1];
+      thisFun.tmpTup[4] = tup == null ? 0.0 : tup[1];
     };
 
-    return thisFun.funTup[4];
+    return thisFun.tmpTup[4];
   }
   .setProp({
-    "funTup": [],
+    tmpTup: [],
   });
 
 
@@ -345,9 +345,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": [],
+      tempTags: [],
     }),
 
 

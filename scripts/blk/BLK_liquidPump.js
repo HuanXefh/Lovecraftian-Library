@@ -122,18 +122,18 @@
 
     if(Math.abs(b.block.ex_getPresProd()) < 0.0001) return;
 
-    thisFun.funInd = 0;
+    thisFun.tmpInd = 0;
     b.proximity.each(ob => {
-      if(thisFun.funBoolF(ob)) {
-        MDL_draw.drawArea_tShrink(ob.tile, ob.block.size, thisFun.funInd++ < b.splitAmt);
+      if(thisFun.checkTg(ob)) {
+        MDL_draw.drawArea_tShrink(ob.tile, ob.block.size, thisFun.tmpInd++ < b.splitAmt);
       };
     });
 
     if(b.useCep) FRAG_faci.comp_drawSelect_cep(b, 1);
   }
   .setProp({
-    "funInd": 0,
-    "funBoolF": ob => ob.ex_accPresBase != null && !MDL_cond._isPump(ob.block) && Function.tryFun(ob.block.ex_getFluidType, "", ob.block) === "liquid",
+    tmpInd: 0,
+    checkTg: ob => ob.ex_accPresBase != null && !MDL_cond._isPump(ob.block) && Function.tryFun(ob.block.ex_getFluidType, "", ob.block) === "liquid",
   });
 
 
@@ -277,9 +277,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["blk-pump"],
+      tempTags: ["blk-pump"],
     }),
 
 

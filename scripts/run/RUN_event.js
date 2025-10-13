@@ -148,12 +148,12 @@
 
     // Draw player building
     if(b_pl != null && PARAM.drawPlayerStat) {
-      thisFun.funScr(b_pl);
+      thisFun.drawBaseBuildStats(b_pl);
     };
 
     // Draw mouse building if not player
     if(b != null && !b.block.privileged && (!PARAM.drawPlayerStat || b !== b_pl)) {
-      thisFun.funScr(b);
+      thisFun.drawBaseBuildStats(b);
 
       if(b.team !== Vars.player.team()) return;
 
@@ -164,7 +164,7 @@
     };
   }
   .setProp({
-    "funScr": b => {
+    drawBaseBuildStats: b => {
       if(PARAM.drawUnitRange && b.block instanceof Turret && b.block.shootCone > 0.0 && b.block.shootCone < 179.99) {
         let z = Draw.z();
         Draw.color(b.team.color, 0.2);

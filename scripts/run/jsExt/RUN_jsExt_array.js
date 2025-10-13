@@ -225,7 +225,7 @@
 
     return this.sort((a, b) => {
       // Sort different types
-      if(typeof a !== typeof b) return thisFun.funArr.indexOf(typeof a) - thisFun.funArr.indexOf(typeof b);
+      if(typeof a !== typeof b) return thisFun.ordList.indexOf(typeof a) - thisFun.ordList.indexOf(typeof b);
       // No need to sort objects
       if(typeof a === "object") return 0.0;
 
@@ -233,8 +233,7 @@
     });
   }
   .setProp({
-    // Order of types
-    "funArr": ["string", "number", "boolean", "undefined", "object"],
+    ordList: ["string", "number", "boolean", "undefined", "object"],
   });
 
 
@@ -580,14 +579,14 @@
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.funBoolF(nms, this, i, jCap, unordered)) return this[i + jCap];
+      if(thisFun.checkTg(nms, this, i, jCap, unordered)) return this[i + jCap];
       i += jCap + 1;
     };
 
     return def;
   }
   .setProp({
-    "funBoolF": (nms, arr, rowCur, fieldAmt, unordered) => {
+    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
       let i = 0;
       if(!unordered) {
         while(i < fieldAmt) {
@@ -621,14 +620,14 @@
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.funBoolF(nms, this, i, jCap, unordered)) return Math.round(i / (jCap + 1));
+      if(thisFun.checkTg(nms, this, i, jCap, unordered)) return Math.round(i / (jCap + 1));
       i += jCap + 1;
     };
 
     return -1;
   }
   .setProp({
-    "funBoolF": (nms, arr, rowCur, fieldAmt, unordered) => {
+    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
       let i = 0;
       if(!unordered) {
         while(i < fieldAmt) {
@@ -730,14 +729,14 @@
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.funBoolF(nms, this, i, jCap, unordered)) arr.push(this[i + jCap]);
+      if(thisFun.checkTg(nms, this, i, jCap, unordered)) arr.push(this[i + jCap]);
       i += jCap + 1;
     };
 
     return arr;
   }
   .setProp({
-    "funBoolF": (nms, arr, rowCur, fieldAmt, unordered) => {
+    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
       let i = 0;
       if(!unordered) {
         while(i < fieldAmt) {
@@ -770,7 +769,7 @@
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.funBoolF(nms, this, i, jCap, unordered)) {
+      if(thisFun.checkTg(nms, this, i, jCap, unordered)) {
         this[i + jCap] = val;
         return;
       };
@@ -781,7 +780,7 @@
     this.push(val);
   }
   .setProp({
-    "funBoolF": (nms, arr, rowCur, fieldAmt, unordered) => {
+    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
       let i = 0;
       if(!unordered) {
         while(i < fieldAmt) {

@@ -11,10 +11,10 @@ varying vec2 v_texCoords;
 const float scl = 110.0;
 const float thr = 70.0;
 const float params[4 * 3] = float[](
-	0.2, 1.8, 1.01,
-	0.4, 1.6, 1.03,
-	0.7, 1.3, 1.06,
-	0.9, 1.1, 1.1
+	0.2, 1.8, 1.04,
+	0.4, 1.6, 1.06,
+	0.7, 1.3, 1.09,
+	0.9, 1.1, 1.14
 );
 
 

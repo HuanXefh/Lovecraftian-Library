@@ -289,7 +289,7 @@
     Core.app.post(() => Vars.content.blocks().each(blk => {
 
       if(!DB_block.db["group"]["noRcDict"]["cons"].includes(blk.name)) {
-        blk.consumers.forEach(cons => {
+        blk.consumers.forEachFast(cons => {
           let arr = DB_misc.db["recipe"]["consumeReader"];
           let dictCaller = null;
           let i = 0;

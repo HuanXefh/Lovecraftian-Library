@@ -123,6 +123,8 @@ ptp.initParams = function() {
   this.minH = 40.0, this.maxH = 420.0;
   this.titleColor = Color.darkGray;
   this.contColor = Pal.darkestGray;
+
+  return this;
 };
 
 
@@ -134,6 +136,8 @@ ptp.initParams = function() {
 ptp.setColor = function(titleColor, contColor) {
   if(titleColor != null) this.titleColor = titleColor;
   if(contColor != null) this.contColor = contColor;
+
+  return this;
 };
 
 
@@ -147,6 +151,8 @@ ptp.setSizeRange = function(minW, maxW, minH, maxH) {
   if(maxW != null) this.maxW = maxW;
   if(minH != null) this.minH = minH;
   if(maxH != null) this.maxH = maxH;
+
+  return this;
 };
 
 

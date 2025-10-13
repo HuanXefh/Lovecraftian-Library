@@ -66,6 +66,15 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * "Mindustry/saves/mods/data/sharedData", or "io.anuke.mindustry/files/mods/data/sharedData" on Android.
+   * ---------------------------------------- */
+  const sharedData = mod.child("data").child("sharedData");
+  exports.sharedData = sharedData;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * "Mindustry/saves/mods/data/lovec", or "io.anuke.mindustry/files/mods/data/lovec" on Android.
    * ---------------------------------------- */
   const lovecData = mod.child("data").child("lovec");
@@ -168,19 +177,18 @@
     if(dirCur == null) dirCur = save;
     if(path == null) path = "";
 
-    var path_fi = path;
+    let path_fi = path;
     if(!path.endsWith("/")) path_fi += "/";
-    thisFun.funArr.clear();
+    thisFun.tmpStrs.clear();
 
     let tmp = "";
-    let i = 0;
-    let iCap = path_fi.iCap();
+    let i = 0, iCap = path_fi.iCap();
     while(i < iCap) {
       let l = path_fi[i];
       if(l === "." && tmp === "") {
-        thisFun.funArr.push(".");
+        thisFun.tmpStrs.push(".");
       } else if(l === "/") {
-        thisFun.funArr.push(String(tmp));
+        thisFun.tmpStrs.push(String(tmp));
         tmp = "";
       } else {
         tmp += l;
@@ -189,7 +197,7 @@
     };
 
     let dir = dirCur;
-    thisFun.funArr.forEachFast(nm => {
+    thisFun.tmpStrs.forEachFast(nm => {
       dir = nm === "." ?
         dir.parent() :
         dir.child(nm);
@@ -198,7 +206,7 @@
     return writeMode ? dir : (!dir.exists() ? null : dir);
   }
   .setProp({
-    "funArr": [],
+    tmpStrs: [],
   });
   exports._fi = _fi;
 
@@ -239,18 +247,17 @@
 
     if(fi == null || (!bypassExt && fi.extension() !== "csv")) return arr;
 
-    var str = fi.readString();
-    let tmp = "";
-    let i = 0;
-    let iCap = str.iCap();
+    let str = fi.readString();
+    let tmp = "", i = 0, iCap = str.iCap(), j, jCap;
     while(i < iCap) {
       let l = str[i];
       if(l === ",") {
-        arr.push(tmp);
+        let tmp1 = tmp;
+        arr.push(tmp1);
         tmp = "";
       } else if(l === " ") {
-        let j = 0;
-        let jCap = i;
+        j = 0;
+        jCap = i;
         while(j < jCap) {
           let ol = str[i - j];
           if(ol === " ") {
@@ -270,8 +277,9 @@
         };
       } else if(l.charCodeAt(0) === 13) {
         let ol = str[i + 1];
-        if(ol.charCodeAt(0) === 10 || ol == null) {
-          arr.push(tmp);
+        if((ol.charCodeAt(0) === 10 || ol == null) && tmp !== "") {
+          let tmp1 = tmp;
+          arr.push(tmp1);
           tmp = "";
         };
       } else if(l.charCodeAt(0) === 10) {
@@ -281,7 +289,7 @@
       };
       i++;
     };
-    if(i > 0) arr.push(tmp);
+    if(i > 0 && tmp !== "") arr.push(tmp);
 
     return arr;
   };
@@ -297,9 +305,8 @@
     if(fi == null || (!bypassExt && fi.extension() !== "csv") || arr == null) return;
     if(ord == null) ord = 2;
 
-    var str = "";
-    let i = 0;
-    let iCap = arr.iCap();
+    let str = "";
+    let i = 0, iCap = arr.iCap();
     while(i < iCap) {
       str += String(arr[i]);
       str += ",";
@@ -332,21 +339,6 @@
     return fiSeq.size === 0 ? null : fiSeq.get(0);
   };
   exports._json_ct = _json_ct;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Returns globalScript.js file which is run later.
-   * ---------------------------------------- */
-  const _glbScr = function(nmMod) {
-    let dir = _script(nmMod);
-    if(dir == null) return null;
-    let fiSeq = dir.findAll(fi => (fi.name() === "globalScript.js"));
-
-    return fiSeq.size === 0 ? null : fiSeq.get(0);
-  };
-  exports._glbScr = _glbScr;
 
 
   /* ----------------------------------------

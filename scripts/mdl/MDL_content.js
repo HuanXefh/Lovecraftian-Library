@@ -43,12 +43,12 @@
    * ---------------------------------------- */
   const _ct = function(ct_gn, mode, suppressWarning) {
     if(ct_gn == null || ct_gn === "null") return null;
-    if(ct_gn instanceof UnlockableContent) return ct_gn;
+    if(ct_gn instanceof UnlockableContent) return global.lovecUtil.db.oreDict.get(ct_gn, ct_gn);
 
     let ct = null;
     if(mode != null) {
       // Try finding content in specific categories
-      _ct.funMap.get(mode, Array.air).forEachFast(ctTpStr => {
+      _ct.modeMap.get(mode, Array.air).forEachFast(ctTpStr => {
         if(ct != null) return;
         ct = Vars.content.getByName(ContentType[ctTpStr], ct_gn);
       });
@@ -60,10 +60,10 @@
 
     if(ct == null && !suppressWarning) MDL_test._w_ctNotFound(ct_gn);
 
-    return ct;
+    return ct == null ? null : global.lovecUtil.db.oreDict.get(ct, ct);
   }
   .setProp({
-    "funMap": ObjectMap.of(
+    modeMap: ObjectMap.of(
       "rs", ["item", "liquid"],
       "blk", ["block"],
       "utp", ["unit"],

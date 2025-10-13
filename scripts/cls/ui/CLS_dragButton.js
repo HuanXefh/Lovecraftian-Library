@@ -102,7 +102,13 @@ ptp.load = function() {
 
   if(Vars.headless || this.isLoaded) return;
 
-  DB_misc.db["mod"]["dragButton"].forEachRow(2, (nm, tup) => {
+  (function() {
+    let obj = DB_misc.db["mod"]["dragButton"];
+    return !PARAM.modded ?
+      obj["base"] :
+      obj["base"].concat(obj["modded"]);
+  })()
+  .forEachRow(2, (nm, tup) => {
     thisIns.btnData[tup[0]].push([
       !Core.bundle.has("drag." + nm) ? null : Core.bundle.get("drag." + nm),
       (function() {let icon; try {icon = Icon[tup[1]]} catch(err) {icon = new TextureRegionDrawable(Core.atlas.find(tup[1]))}; return icon})(),

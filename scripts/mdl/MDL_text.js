@@ -174,7 +174,7 @@
     let iCap = str.iCap();
     while(i < iCap) {
       let l = str[i];
-      cond = thisFun.funArr.includes(l);
+      cond = thisFun.splitters.includes(l);
       if(!cond) {
         tmpStr += l;
       } else {
@@ -188,7 +188,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [
+    splitters: [
       ",", ";",
       "，", "。", "、",
     ],

@@ -171,7 +171,7 @@
     tmpSize = b.block.size;
     while(tmpSize > 0) {
       for(let i = 0; i < 4; i++) {
-        let ob = thisFun.funScr(b, tmpSize, i, false);
+        let ob = thisFun.findCog(b, tmpSize, i, false);
         if(ob == null) continue;
 
         arr.push(ob);
@@ -181,7 +181,7 @@
     tmpSize = b.block.ex_getOvSize();
     while(tmpSize > 0) {
       for(let i = 0; i < 4; i++) {
-        let ob = thisFun.funScr(b, tmpSize, i, true);
+        let ob = thisFun.findCog(b, tmpSize, i, true);
         if(ob == null) continue;
 
         arr.push(ob);
@@ -192,8 +192,7 @@
     return arr;
   }
   .setProp({
-    // Gets valid cogwheel on a proper position
-    "funScr": (b, size, ind, isOv) => {
+    findCog: (b, size, ind, isOv) => {
       let pon2;
       let dstT = (size + 1) / 2;
       switch(ind) {
@@ -335,9 +334,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["blk-cog", "blk-cog0stack"],
+      tempTags: ["blk-cog", "blk-cog0stack"],
     }),
 
 

@@ -117,7 +117,7 @@
       liq.stats.add(TP_stat.rs_isOre, true);
       liq.stats.add(TP_stat.rs_blockRelated, extend(StatValue, {display(tb) {
         tb.row();
-        MDL_table.setDisplay_ctRow(tb, oreblks);
+        MDL_table.setDisplay_ctLi(tb, oreblks, 48.0);
       }}));
     };
 
@@ -193,9 +193,9 @@
 
     // @NOSUPER
     ex_getTags: function(liq) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": [],
+      tempTags: [],
     }),
 
 

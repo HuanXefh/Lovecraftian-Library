@@ -250,7 +250,7 @@
    * Linear regression, returns slope and y-intercept as a 2-tuple.
    * ---------------------------------------- */
   const linearReg = function(ys, xs) {
-    if(xs == null) xs = ys.toIndArr(true);
+    if(xs == null) xs = Array.getIndArr(ys.length, true);
 
     let meanX = xs.mean();
     let meanY = ys.mean();

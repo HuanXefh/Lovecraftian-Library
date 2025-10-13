@@ -123,9 +123,9 @@
 
     // @NOSUPER
     ex_getTags: function(liq) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["rs-intmd"],
+      tempTags: ["rs-intmd"],
     }),
 
 

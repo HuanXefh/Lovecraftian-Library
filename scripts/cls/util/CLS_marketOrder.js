@@ -188,7 +188,7 @@ ptp.finish = function() {
  * A variant of {finish} that syncs.
  * ---------------------------------------- */
 ptp.finish_global = function() {
-  let payload = Array.toPayload([
+  let payload = packPayload([
     this.owner.pos(),
     this.owner.ex_accMkOrds("read", false).indexOf(this),
   ]);
@@ -199,7 +199,7 @@ ptp.finish_global = function() {
 }
 .setAnno(ANNO.__INIT__, null, function() {
   MDL_net.__packetHandler("both", "lovec-both-market-order-finish", payload => {
-    let args = Array.fromPayload(payload);
+    let args = unpackPayload(payload);
     let b = Vars.world.build(args[0]);
     if(b == null || b.ex_accMkOrds == null) return;
     let mkOrd = b.ex_accMkOrds("read", false)[args[1]];

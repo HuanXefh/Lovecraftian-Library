@@ -35,36 +35,36 @@
     let intv = (cap - base) / lineAmt;
     if(intv < 0.000001) return;
 
-    thisFun.funArr.clear();
-    thisFun.funArr1.clear();
+    thisFun.tmpArr.clear();
+    thisFun.tmpArr1.clear();
     var i = 0;
     while(i < lineAmt) {
       let numStart = (base + intv * i).roundFixed(deciAmt1);
       let numEnd = (base + intv * (i + 1)).roundFixed(deciAmt2);
       let p = disArr.countBy(val => val > numStart && val < numEnd) / disArr.length;
-      thisFun.funArr1.push(p);
+      thisFun.tmpArr1.push(p);
       i++;
     };
-    let minP = Math.min.apply(null, thisFun.funArr1);
-    let maxP = Math.max.apply(null, thisFun.funArr1);
+    let minP = Math.min.apply(null, thisFun.tmpArr1);
+    let maxP = Math.max.apply(null, thisFun.tmpArr1);
     var i = 0;
     while(i < lineAmt) {
       let numStart = (base + intv * i).roundFixed(deciAmt1);
       let numEnd = (base + intv * (i + 1)).roundFixed(deciAmt2);
-      let p = thisFun.funArr1[i];
+      let p = thisFun.tmpArr1[i];
       let str = "(" + Strings.fixed(numStart, deciAmt1) + ", " + Strings.fixed(numEnd, deciAmt2) + ")"
         + "\n                         |" + "*".repeat(Math.round(((maxP - minP < 0.0001) ? 1.0 : ((p - minP) / (maxP - minP))) * astAmt)) + " " + p.perc(deciAmt2);
-      thisFun.funArr.push(str);
+      thisFun.tmpArr.push(str);
       i++;
     };
 
     var str_fi = "[Lovec] Data distribution:\n";
-    thisFun.funArr.forEachFast(str => str_fi += "\n" + str);
+    thisFun.tmpArr.forEachFast(str => str_fi += "\n" + str);
     Log.info(str_fi);
   }
   .setProp({
-    "funArr": [],
-    "funArr1": [],
+    tmpArr: [],
+    tmpArr1: [],
   });
   exports.printDis = printDis;
 

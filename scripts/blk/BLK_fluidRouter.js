@@ -118,13 +118,13 @@
 
     // If no liquid for some time, clear pressure
     if(b.liquids.currentAmount() < 0.01) {
-      thisFun.funCount++;
-      if(thisFun.funCount > 4) {
+      thisFun.presClearCount++;
+      if(thisFun.presClearCount > 4) {
         b.pres = 0.0;
         return;
       };
     } else {
-      thisFun.funCount = 0;
+      thisFun.presClearCount = 0;
     };
 
     // Find any pressure supplier
@@ -166,7 +166,7 @@
     b.pres = b.presBase + val;
   }
   .setProp({
-    "funCount": 0,
+    presClearCount: 0,
   });
 
 
@@ -274,9 +274,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["blk-fcont"],
+      tempTags: ["blk-fcont"],
     }),
 
 

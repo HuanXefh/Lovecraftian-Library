@@ -64,7 +64,7 @@
     const oreblks = MDL_content._oreBlks(itm);
     if(oreblks.length > 0) itm.stats.add(TP_stat.rs_blockRelated, extend(StatValue, {display(tb) {
       tb.row();
-      MDL_table.setDisplay_ctRow(tb, oreblks);
+      MDL_table.setDisplay_ctLi(tb, oreblks, 48.0);
     }}));
   };
 
@@ -112,9 +112,9 @@
 
     // @NOSUPER
     ex_getTags: function(itm) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["rs-ore"],
+      tempTags: ["rs-ore"],
     }),
 
 

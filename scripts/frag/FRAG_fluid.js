@@ -201,16 +201,16 @@
     const thisFun = comp_canPlaceOn_shortCircuit;
 
     let cond;
-    if(thisFun.funTup.length === 0 || t !== thisFun.funTup[0]) {
+    if(thisFun.tmpTup.length === 0 || t !== thisFun.tmpTup[0]) {
       cond = MDL_cond._canShortCircuit(blk)
         && t != null
         && t.floor().liquidDrop != null
         && MDL_cond._isConductiveLiq(t.floor().liquidDrop);
 
-      thisFun.funTup[0] = t;
-      thisFun.funTup[1] = cond;
+      thisFun.tmpTup[0] = t;
+      thisFun.tmpTup[1] = cond;
     } else {
-      cond = thisFun.funTup[1];
+      cond = thisFun.tmpTup[1];
     };
 
     if(cond) {
@@ -219,7 +219,7 @@
     } else return true;
   }
   .setProp({
-    "funTup": [],
+    tmpTup: [],
   });
   exports.comp_canPlaceOn_shortCircuit = comp_canPlaceOn_shortCircuit;
 
@@ -398,10 +398,10 @@
     let liqCur = b.liquids.current();
     let amt = b.liquids.get(liqCur);
     if(amt < 0.05) return;
-    let corPow = thisFun.funMap.get(liqCur.id);
+    let corPow = thisFun.tmpMap.get(liqCur.id);
     if(corPow == null) {
       corPow = MDL_flow._corPow(liqCur);
-      thisFun.funMap.put(liqCur.id, corPow);
+      thisFun.tmpMap.put(liqCur.id, corPow);
     };
     let corMtp = MDL_flow._corMtp(b.block, liqCur);
     if(corPow < 0.01 && corMtp > 1.0) corPow = 1.0;
@@ -414,7 +414,7 @@
     if(Mathf.chance(0.5)) MDL_effect.showAt_corrosion(b.x, b.y, b.block.size, liqCur.color);
   }
   .setProp({
-    "funMap": new ObjectMap(),
+    tmpMap: new ObjectMap(),
   });
   exports.comp_updateTile_corrosion = comp_updateTile_corrosion;
 

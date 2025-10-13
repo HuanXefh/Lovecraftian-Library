@@ -146,9 +146,9 @@
 
     // @NOSUPER
     ex_getTags: function(rs) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": [],
+      tempTags: [],
     }),
 
 

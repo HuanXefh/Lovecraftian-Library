@@ -105,9 +105,9 @@
 
     // @NOSUPER
     ex_getTags: function(sta) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["sta-fade"],
+      tempTags: ["sta-fade"],
     }),
 
 

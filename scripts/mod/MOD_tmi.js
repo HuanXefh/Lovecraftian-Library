@@ -318,9 +318,9 @@
 
     if(!hasTmi) return;
 
-    if(thisFun.funSeq.size === 0) {
-      Vars.content.items().each(itm => thisFun.funSeq.add(itm));
-      Vars.content.liquids().each(liq => thisFun.funSeq.add(liq));
+    if(thisFun.tmpSeq.size === 0) {
+      Vars.content.items().each(itm => thisFun.tmpSeq.add(itm));
+      Vars.content.liquids().each(liq => thisFun.tmpSeq.add(liq));
     };
 
     MDL_event._c_onLoad(() => {
@@ -343,7 +343,7 @@
           addCons(rawRc, "power", blk.consPower.usage, true);
         };
 
-        thisFun.funSeq.each(ct0 => {
+        thisFun.tmpSeq.each(ct0 => {
           let amtCi = 0.0, amtBi = 0.0, amtCo = 0.0, amtBo = 0.0;
 
           // CI
@@ -420,6 +420,6 @@
     });
   }
   .setProp({
-    "funSeq": new Seq(),
+    tmpSeq: new Seq(),
   });
   exports._r_recipe = _r_recipe;

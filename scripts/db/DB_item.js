@@ -14,7 +14,11 @@ const db = {
     "fuel": {
 
 
-      "item": [],
+      "item": [
+
+        "coal", [8.0, 8.0],
+
+      ],
 
 
       "fluid": [],
@@ -210,11 +214,7 @@ const db = {
      *
      * Items here are not mineable by regular drills by default, a sand miner is required.
      * ---------------------------------------- */
-    "sand": [
-
-      "sand",
-
-    ],
+    "sand": [],
 
 
     /* ----------------------------------------

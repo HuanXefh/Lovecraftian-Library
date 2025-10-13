@@ -527,19 +527,21 @@
    * Format for {charaArgs}: {[delay, nmMod, nmChara, fracX, isDark0color, anim, animParam, customActs]}
    * ---------------------------------------- */
   const _d_flow = function(dialKey) {
+    const thisFun = _d_flow;
+
     let flowArr = global.lovec.db_misc.db["drama"]["dial"]["flow"].read(dialKey);
     if(flowArr == null) {
       Log.warn("[LOVEC] Cannot find dialog flow for " + dialKey + "!");
       return;
     };
 
-    _d_flow.funIndMap.put(flowArr, 0);
-    _d_flow.funScr(flowArr);
+    thisFun.flowIndMap.put(flowArr, 0);
+    thisFun.callFlow(flowArr);
   }
   .setProp({
-    "funIndMap": new ObjectMap(),
-    "funScr": flowArr => {
-      let ind = _d_flow.funIndMap.get(flowArr, 0);
+    flowIndMap: new ObjectMap(),
+    callFlow: flowArr => {
+      let ind = _d_flow.flowIndMap.get(flowArr, 0);
       let obj = Object.val(flowArr[ind * 4 + 2], Object.air);
       let args = flowArr[ind * 4 + 3];
       let cond = false;
@@ -550,10 +552,10 @@
       };
       _d_text(0.0, flowArr[ind * 4], flowArr[ind * 4 + 1], () => {
         let nextInd = ind + 1;
-        _d_flow.funIndMap.put(flowArr, nextInd);
+        _d_flow.flowIndMap.put(flowArr, nextInd);
         cond = true;
         if(nextInd * 4 < flowArr.length) {
-          _d_flow.funScr(flowArr);
+          _d_flow.callFlow(flowArr);
         };
       }, obj);
     },

@@ -132,6 +132,9 @@
     db: {
 
 
+      oreDict: new ObjectMap(),
+
+
       abilitySetter: [],
 
 

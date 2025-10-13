@@ -235,13 +235,13 @@
    * Only safe properties are allowed.
    * ---------------------------------------- */
   const requestSet = function(header, val) {
-    let payload = Array.toPayload([header, val]);
+    let payload = packPayload([header, val]);
 
     MDL_net.sendPacket("client", "lovec-client-lsav-set-request", payload, true, true);
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("server", "lovec-client-lsav-set-request", payload => {
-      setSafe.apply(this, Array.fromPayload(payload));
+      setSafe.apply(this, unpackPayload(payload));
     });
   })
   .setAnno(ANNO.__CLIENT__)

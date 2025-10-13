@@ -56,15 +56,15 @@
   const comp_setStats = function(blk) {
     const thisFun = comp_setStats;
 
-    if(thisFun.funArr.includes(blk)) return;
+    if(thisFun.addedStats.includes(blk)) return;
 
     if(MDL_cond._canShortCircuit(blk)) blk.stats.add(TP_stat.blk_shortCircuit, true);
     FRAG_faci.comp_setStats_pol(blk);
 
-    thisFun.funArr.push(blk);
+    thisFun.addedStats.push(blk);
   }
   .setProp({
-    "funArr": [],
+    addedStats: [],
   });
 
 
@@ -163,9 +163,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": [],
+      tempTags: [],
     }),
 
 

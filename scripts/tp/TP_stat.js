@@ -183,6 +183,7 @@
 
   exports.spec_faction = newIns_stat("spec-faction");
   exports.spec_facFami = newIns_stat("spec-facfami");
+  exports.spec_oreDict = newIns_stat("spec-oredict");
   exports.spec_fromTo = newIns_stat("spec-fromto");
 
 

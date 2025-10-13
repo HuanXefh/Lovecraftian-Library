@@ -51,7 +51,7 @@
     if(amt == null) amt = 1;
     if(amt < 1) return false;
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       b.pos(),
       b_f == null ? -1 : b_f.pos(),
       itm.name,
@@ -65,7 +65,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("client", "lovec-server-item-offload", payload => {
-      let args = Array.fromPayload(payload);
+      let args = unpackPayload(payload);
 
       offload(Vars.world.build(args[0]), Vars.world.build(args[1]), Vars.content.item(args[2]), args[3], args[4]);
     });
@@ -407,7 +407,7 @@
     if(loot == null) return false;
     if(!MDL_cond._isLoot(loot)) return false;
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       loot.id,
     ]);
 
@@ -417,7 +417,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("server", "lovec-client-destroy-loot", payload => {
-      let arr = Array.fromPayload(payload);
+      let arr = unpackPayload(payload);
       destroyLoot(Groups.unit.getById(arr[0]));
     });
   })
@@ -564,7 +564,7 @@
     var amtTrans = Mathf.maxZero(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max));
     if(amtTrans < 1) return false;
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       unit.id,
       loot.id,
       max,
@@ -576,7 +576,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("server", "lovec-client-unit-take-loot", payload => {
-      let arr = Array.fromPayload(payload);
+      let arr = unpackPayload(payload);
       takeUnitLoot(Groups.unit.getById(arr[0]), Groups.unit.getById(arr[1]), arr[2]);
     });
   })

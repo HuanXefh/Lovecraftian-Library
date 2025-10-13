@@ -71,7 +71,7 @@
 
     changePuddle(puddle, liq_gn, mtp);
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       puddle.id,
       liq.name,
       mtp,
@@ -81,7 +81,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("both", "lovec-both-puddle-change", payload => {
-      let args = Array.fromPayload(payload);
+      let args = unpackPayload(payload);
       changePuddle(Groups.puddle.getById(args[0], args[1], args[2]));
     });
   });

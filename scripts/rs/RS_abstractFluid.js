@@ -115,9 +115,9 @@
 
     // @NOSUPER
     ex_getTags: function(aux) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["rs-aux"],
+      tempTags: ["rs-aux"],
     }),
 
 

@@ -54,21 +54,21 @@
   /* <---------- listener ----------> */
 
 
-  const listener_setting_toggle = function() {
-    const thisFun = listener_setting_toggle;
+  const evComp_update_settingToggle = function() {
+    const thisFun = evComp_update_settingToggle;
 
     let i = 0;
-    let iCap = thisFun.funArr.iCap();
+    let iCap = thisFun.keybindSettingMap.iCap();
     while(i < iCap) {
-      if(Core.input.keyTap(VARGEN.bindings[thisFun.funArr[i]])) {
-        Core.settings.put("lovec-" + thisFun.funArr[i + 1], !MDL_util._cfg(thisFun.funArr[i + 1]));
+      if(Core.input.keyTap(VARGEN.bindings[thisFun.keybindSettingMap[i]])) {
+        Core.settings.put("lovec-" + thisFun.keybindSettingMap[i + 1], !MDL_util._cfg(thisFun.keybindSettingMap[i + 1]));
         PARAM.forceLoadParam();
       };
       i += 2;
     };
   }
   .setProp({
-    "funArr": [
+    keybindSettingMap: [
       "lovec-setting-toggle-win", "window-show",
       "lovec-setting-toggle-unit-stat", "unit0stat-show",
       "lovec-setting-toggle-damage-display", "damagedisplay-show",
@@ -76,15 +76,15 @@
   });
 
 
-  function listener_player_loot(unit) {
+  function evComp_update_playerLoot(unit) {
     if(!PARAM.modded || Vars.state.isPaused() || unit == null) return;
 
     if(Core.input.keyTap(Binding.respawn) || Core.input.keyTap(VARGEN.bindings["lovec-player-drop-loot"])) {
-      DB_misc.db["mod"]["dragButton"].read("lovec-player-drop-loot")[3]();
+      DB_misc.db["mod"]["dragButton"]["modded"].read("lovec-player-drop-loot")[3]();
     };
 
     if(Core.input.keyTap(VARGEN.bindings["lovec-player-take-loot"])) {
-      DB_misc.db["mod"]["dragButton"].read("lovec-player-take-loot")[3]();
+      DB_misc.db["mod"]["dragButton"]["modded"].read("lovec-player-take-loot")[3]();
     };
   };
 
@@ -101,16 +101,11 @@
 
   MDL_event._c_onUpdate(() => {
 
-
     if(Vars.headless) return;
-
-
     let unit_pl = Vars.player.unit();
     let t_pl = MDL_pos._tMouse();
 
-
-    listener_setting_toggle();
-    listener_player_loot(unit_pl);
-
+    evComp_update_settingToggle();
+    evComp_update_playerLoot(unit_pl);
 
   }, 70216990);

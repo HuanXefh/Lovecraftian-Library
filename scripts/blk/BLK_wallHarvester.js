@@ -66,17 +66,13 @@
     if(t == null) return;
 
     let ts;
-    if(thisFun.funTup.length === 0 || thisFun.funTup[0] !== t) {
-
+    if(thisFun.tmpTup.length === 0 || thisFun.tmpTup[0] !== t) {
       ts = MDL_pos._tsRect(t, 5, blk.size);
 
-      thisFun.funTup[0] = t;
-      thisFun.funTup[1] = ts;
-
+      thisFun.tmpTup[0] = t;
+      thisFun.tmpTup[1] = ts;
     } else {
-
-      ts = thisFun.funTup[1];
-
+      ts = thisFun.tmpTup[1];
     };
 
     ts.forEachFast(ot => {
@@ -84,7 +80,7 @@
     });
   }
   .setProp({
-    "funTup": [],
+    tmpTup: [],
   });
 
 
@@ -203,9 +199,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["blk-min", "blk-harv"],
+      tempTags: ["blk-min", "blk-harv"],
     }),
 
 

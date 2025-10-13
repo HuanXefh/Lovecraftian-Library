@@ -122,18 +122,18 @@ ptp.getChildren = function(ele) {
 ptp.getBranch = function(ele) {
   const arr = [];
 
-  CLS_tree.prototype.getBranch.funScr(ele, arr, this);
+  CLS_tree.prototype.getBranch.pushAndNext(ele, arr, this);
 
   return arr;
 }
 .setProp({
-  "funScr": (ele, arr, thisTree) => {
+  pushAndNext: (ele, arr, thisTree) => {
     let nodeObj = thisTree.nodeMap.get(ele);
     if(nodeObj == null) return;
 
     arr.push(ele);
     nodeObj.children.forEachFast(oele => {
-      CLS_tree.prototype.getBranch.funScr(oele, arr, thisTree);
+      CLS_tree.prototype.getBranch.pushAndNext(oele, arr, thisTree);
     });
   },
 });
@@ -224,15 +224,15 @@ ptp.forEach = function(ele, scr) {
   if(ele == null) ele = this.root;
   if(!this.nodeMap.hasKey(ele)) return;
 
-  CLS_tree.forEach.funScr(ele, scr, this);
+  CLS_tree.forEach.callAndNext(ele, scr, this);
 }
 .setProp({
-  "funScr": (ele, scr, thisTree) => {
+  callAndNext: (ele, scr, thisTree) => {
     let nodeObj = thisTree.nodeMap.get(ele);
     if(nodeObj == null) return;
 
     scr(ele);
-    nodeObj.children.forEachFast(oele => CLS_tree.forEach.funScr(oele, scr, thisTree));
+    nodeObj.children.forEachFast(oele => CLS_tree.forEach.callAndNext(oele, scr, thisTree));
   },
 });
 

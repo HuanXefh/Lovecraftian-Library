@@ -92,11 +92,10 @@
     Fill.arc(b.x, b.y, b.block.ex_getScanR() * Vars.tilesize, 0.125, b.offConeAng + b.totalProgress * 2.0);
     Draw.color();
     Draw.z(z);
-  };
 
-
-  function comp_drawSelect(b) {
-    MDL_draw.drawP3d_cylinderFade(b.x, b.y, 1.0, b.block.ex_getScanR() * Vars.tilesize, Pal.accent);
+    if(MDL_cond._posHoveredRect(b.x, b.y, 0, b.block.size)) {
+      MDL_draw.drawP3d_cylinderFade(b.x, b.y, 1.0, b.block.ex_getScanR() * Vars.tilesize, Pal.accent, VAR.lay_p3dRange);
+    };
   };
 
 
@@ -210,7 +209,6 @@
 
     drawSelect: function(b) {
       PARENT.drawSelect(b);
-      comp_drawSelect(b);
     },
 
 
@@ -251,9 +249,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["blk-min", "blk-scan"],
+      tempTags: ["blk-min", "blk-scan"],
     }),
 
 

@@ -38,9 +38,11 @@
 
 
   const PARENT = require("lovec/blk/BLK_attributeFactory");
+  const VAR = require("lovec/glb/GLB_var");
 
 
   const MDL_attr = require("lovec/mdl/MDL_attr");
+  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -70,8 +72,10 @@
   };
 
 
-  function comp_drawSelect(b) {
-    MDL_draw.drawP3d_roomFade(b.x, b.y, 1.0, b.block.ex_getAttrR().toRectW(b.block.size), b.block.ex_getAttrR().toRectW(b.block.size), Pal.accent);
+  function comp_draw(b) {
+    if(MDL_cond._posHoveredRect(b.x, b.y, 0, b.block.size)) {
+      MDL_draw.drawP3d_roomFade(b.x, b.y, 1.0, b.block.ex_getAttrR().toRectW(b.block.size), b.block.ex_getAttrR().toRectW(b.block.size), Pal.accent, VAR.lay_p3dRange);
+    };
   };
 
 
@@ -83,19 +87,19 @@
   const comp_ex_getAttrSum = function(blk, tx, ty, rot) {
     const thisFun = comp_ex_getAttrSum;
 
-    if(thisFun.funTup.length === 0 || thisFun.funTup[0] !== blk || thisFun.funTup[1] !== tx || thisFun.funTup[2] !== ty || thisFun.funTup[3] !== rot) {
-      thisFun.funTup[0] = blk;
-      thisFun.funTup[1] = tx;
-      thisFun.funTup[2] = ty;
-      thisFun.funTup[3] = rot;
+    if(thisFun.tmpTup.length === 0 || thisFun.tmpTup[0] !== blk || thisFun.tmpTup[1] !== tx || thisFun.tmpTup[2] !== ty || thisFun.tmpTup[3] !== rot) {
+      thisFun.tmpTup[0] = blk;
+      thisFun.tmpTup[1] = tx;
+      thisFun.tmpTup[2] = ty;
+      thisFun.tmpTup[3] = rot;
 
-      thisFun.funTup[4] = MDL_attr._sum_rect(Vars.world.tile(tx, ty), blk.attrR, blk.size, blk.attribute, blk.ex_getAttrMode());
+      thisFun.tmpTup[4] = MDL_attr._sum_rect(Vars.world.tile(tx, ty), blk.attrR, blk.size, blk.attribute, blk.ex_getAttrMode());
     };
 
-    return thisFun.funTup[4];
+    return thisFun.tmpTup[4];
   }
   .setProp({
-    "funTup": [],
+    tmpTup: [],
   });
 
 
@@ -154,12 +158,12 @@
 
     draw: function(b) {
       PARENT.draw(b);
+      comp_draw(b);
     },
 
 
     drawSelect: function(b) {
       PARENT.drawSelect(b);
-      comp_drawSelect(b);
     },
 
 
@@ -180,9 +184,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": [],
+      tempTags: [],
     }),
 
 

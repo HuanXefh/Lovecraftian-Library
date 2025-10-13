@@ -399,7 +399,7 @@
 
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return 0.0;
-    let pol = thisFun.funMap.get(liq.name);
+    let pol = thisFun.tmpMap.get(liq.name);
     if(pol != null) return pol;
 
     pol = DB_fluid.db["param"]["pol"].read(liq.name);
@@ -409,12 +409,12 @@
     };
 
     if(pol == null) pol = 0.0;
-    thisFun.funMap.put(liq.name, pol);
+    thisFun.tmpMap.put(liq.name, pol);
 
     return pol;
   }
   .setProp({
-    "funMap": new ObjectMap(),
+    tmpMap: new ObjectMap(),
   });
   exports._liqPol = _liqPol;
 
@@ -588,18 +588,18 @@
 
     if(Vars.world.tile(tx, ty) == null) return;
 
-    if(thisFun.funTup.length === 0 || blk !== thisFun.funTup[0] || tx !== thisFun.funTup[1] || ty !== thisFun.funTup[2] || rot !== thisFun.funTup[3]) {
-      thisFun.funTup[0] = blk;
-      thisFun.funTup[1] = tx;
-      thisFun.funTup[2] = ty;
-      thisFun.funTup[3] = rot;
-      thisFun.funTup[4] = _terB(_ter(Vars.world.tile(tx, ty), blk.size));
+    if(thisFun.tmpTup.length === 0 || blk !== thisFun.tmpTup[0] || tx !== thisFun.tmpTup[1] || ty !== thisFun.tmpTup[2] || rot !== thisFun.tmpTup[3]) {
+      thisFun.tmpTup[0] = blk;
+      thisFun.tmpTup[1] = tx;
+      thisFun.tmpTup[2] = ty;
+      thisFun.tmpTup[3] = rot;
+      thisFun.tmpTup[4] = _terB(_ter(Vars.world.tile(tx, ty), blk.size));
     };
 
-    MDL_draw.drawText_place(blk, tx, ty, MDL_bundle._info("lovec", "text-terrain") + " " + thisFun.funTup[4], valid, offTy);
+    MDL_draw.drawText_place(blk, tx, ty, MDL_bundle._info("lovec", "text-terrain") + " " + thisFun.tmpTup[4], valid, offTy);
   }
   .setProp({
-    "funTup": [],
+    tmpTup: [],
   });
   exports.comp_drawPlace_ter = comp_drawPlace_ter;
 
@@ -611,22 +611,22 @@
     if(mode == null) mode = "enable";
     if(!mode.equalsAny(thisFun.modes)) return false;
 
-    if(thisFun.funTup.length === 0 || blk !== thisFun.funTup[0] || t !== thisFun.funTup[1]) {
-      thisFun.funTup[0] = blk;
-      thisFun.funTup[1] = t;
-      thisFun.funTup[2] = _ter(t, blk.size);
-      thisFun.funTup[3] = _terB(thisFun.funTup[2]);
+    if(thisFun.tmpTup.length === 0 || blk !== thisFun.tmpTup[0] || t !== thisFun.tmpTup[1]) {
+      thisFun.tmpTup[0] = blk;
+      thisFun.tmpTup[1] = t;
+      thisFun.tmpTup[2] = _ter(t, blk.size);
+      thisFun.tmpTup[3] = _terB(thisFun.tmpTup[2]);
     };
 
     var cond = true;
     if(mode === "enable") {
-      if(thisFun.funTup[2] == null || !ters.includes(thisFun.funTup[2])) {
-        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-enabled") + " " + thisFun.funTup[3], false, offTy);
+      if(thisFun.tmpTup[2] == null || !ters.includes(thisFun.tmpTup[2])) {
+        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-enabled") + " " + thisFun.tmpTup[3], false, offTy);
         cond = false;
       };
     } else {
-      if(thisFun.funTup[2] != null && ters.includes(thisFun.funTup[2])) {
-        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-disabled") + " " + thisFun.funTup[3], false, offTy);
+      if(thisFun.tmpTup[2] != null && ters.includes(thisFun.tmpTup[2])) {
+        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-disabled") + " " + thisFun.tmpTup[3], false, offTy);
         cond = false;
       };
     };
@@ -634,8 +634,8 @@
     return cond;
   }
   .setProp({
-    "modes": ["enable", "disable"],
-    "funTup": [],
+    modes: ["enable", "disable"],
+    tmpTup: [],
   });
   exports.comp_canPlaceOn_ter = comp_canPlaceOn_ter;
 

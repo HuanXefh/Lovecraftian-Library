@@ -42,22 +42,22 @@
     if(radGetter == null) radGetter = Function.airZero;
     if(colorGetter == null) colorGetter = Function.airWhite;
 
-    let tmpBlk = thisFun.funTup[0];
-    var tmpTx = thisFun.funTup[1];
-    var tmpTy = thisFun.funTup[2];
-    var tmpRot = thisFun.funTup[3];
+    let tmpBlk = thisFun.tmpTup[0];
+    var tmpTx = thisFun.tmpTup[1];
+    var tmpTy = thisFun.tmpTup[2];
+    var tmpRot = thisFun.tmpTup[3];
     if(blk !== tmpBlk || tx !== tmpTx || ty !== tmpTy || rot !== tmpRot) {
-      thisFun.funTup.clear().push(blk, tx, ty, rot, radGetter(), colorGetter(), drawF);
-      tmpBlk = thisFun.funTup[0];
-      tmpTx = thisFun.funTup[1];
-      tmpTy = thisFun.funTup[2];
-      tmpRot = thisFun.funTup[3];
+      thisFun.tmpTup.clear().push(blk, tx, ty, rot, radGetter(), colorGetter(), drawF);
+      tmpBlk = thisFun.tmpTup[0];
+      tmpTx = thisFun.tmpTup[1];
+      tmpTy = thisFun.tmpTup[2];
+      tmpRot = thisFun.tmpTup[3];
     };
 
-    thisFun.funTup[6](tmpBlk, tmpTx, tmpTy, tmpRot, thisFun.funTup[4], thisFun.funTup[5]);
+    thisFun.tmpTup[6](tmpBlk, tmpTx, tmpTy, tmpRot, thisFun.tmpTup[4], thisFun.tmpTup[5]);
   }
   .setProp({
-    "funTup": [],
+    tmpTup: [],
   });
   exports.drawBuffer_place = drawBuffer_place;
 
@@ -145,11 +145,11 @@
       let tmpB = b;
       let tmpOb = b.findLink();
       var isFirst = true;
-      thisFun.funArr.clear().push(tmpB);
+      thisFun.tmpBs.clear().push(tmpB);
       while(tmpOb != null) {
-        if(!thisFun.funArr.includes(tmpOb)) {
+        if(!thisFun.tmpBs.includes(tmpOb)) {
           if(!isFirst) drawConnector_circleArrow(tmpOb, tmpB);
-          thisFun.funArr.push(tmpOb);
+          thisFun.tmpBs.push(tmpOb);
           tmpB = tmpOb;
           tmpOb = tmpB.findLink();
           isFirst = false;
@@ -162,12 +162,12 @@
       let tmpB = b;
       let tmpOb = null;
       var isFirst = true;
-      thisFun.funArr.clear().push(tmpB);
+      thisFun.tmpBs.clear().push(tmpB);
       while(ot != null) {
         tmpOb = ot.build;
-        if(tmpOb != null && tmpOb.block === b.block && !thisFun.funArr.includes(tmpOb)) {
+        if(tmpOb != null && tmpOb.block === b.block && !thisFun.tmpBs.includes(tmpOb)) {
           if(!isFirst) drawConnector_circleArrow(tmpOb, tmpB);
-          thisFun.funArr.push(tmpOb);
+          thisFun.tmpBs.push(tmpOb);
           tmpB = ot.build;
           // Idk why but on rare occasions this throws NullPointerException
           if(tmpB == null || tmpB.block !== b.block) break;
@@ -179,7 +179,7 @@
     };
   }
   .setProp({
-    "funArr": [],
+    tmpBs: [],
   });
   exports.comp_drawSelect_bridgeLine = comp_drawSelect_bridgeLine;
 
@@ -821,13 +821,13 @@
     let colorOut = MDL_color._color(colorOut_gn, Tmp.c2);
 
     if(z == null) z = Draw.z();
-    drawP3d_wall(x - w * 0.5, y - h * 0.5, x + w * 0.5, y - h * 0.5, z3d, Tmp.c2.set(colorIn).mul(0.75), Tmp.c3.set(colorOut).mul(0.75), z - 0.1 + thisFun.funScr(0, x, y - h * 0.5));
-    drawP3d_wall(x - w * 0.5, y + h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn).mul(1.2), Tmp.c3.set(colorOut).mul(1.2), z - 0.1 + thisFun.funScr(2, x, y + h * 0.5));
-    drawP3d_wall(x - w * 0.5, y - h * 0.5, x - w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut), z - 0.1 + thisFun.funScr(3, x - w * 0.5, y));
-    drawP3d_wall(x + w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut), z - 0.1 + thisFun.funScr(1, x + w * 0.5, y));
+    drawP3d_wall(x - w * 0.5, y - h * 0.5, x + w * 0.5, y - h * 0.5, z3d, Tmp.c2.set(colorIn).mul(0.75), Tmp.c3.set(colorOut).mul(0.75), z - 0.1 + thisFun.calcOff(0, x, y - h * 0.5));
+    drawP3d_wall(x - w * 0.5, y + h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn).mul(1.2), Tmp.c3.set(colorOut).mul(1.2), z - 0.1 + thisFun.calcOff(2, x, y + h * 0.5));
+    drawP3d_wall(x - w * 0.5, y - h * 0.5, x - w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut), z - 0.1 + thisFun.calcOff(3, x - w * 0.5, y));
+    drawP3d_wall(x + w * 0.5, y - h * 0.5, x + w * 0.5, y + h * 0.5, z3d, Tmp.c2.set(colorIn), Tmp.c3.set(colorOut), z - 0.1 + thisFun.calcOff(1, x + w * 0.5, y));
   }
   .setProp({
-    "funScr": (ind, x, y) => {
+    calcOff: (ind, x, y) => {
       let condX = x - Core.camera.position.x >= 0.0;
       let condY = y - Core.camera.position.y + 48.0 >= 0.0;
       if(condX && condY) {
@@ -873,9 +873,23 @@
   exports.drawP3d_roomFade = drawP3d_roomFade;
 
 
-  const drawP3d_region = function(x, y, z3d, reg, regScl, regFixScl, color_gn, z) {
+  const drawP3d_region = function(x, y, z3d, reg, regScl, z) {
     if(reg == null) return;
-    // 0.5 is enough for regular tall buildings
+    if(z3d == null) z3d = 0.5;
+    if(regScl == null) regScl = 1.0;
+
+    var w = reg.width * 2.0 * regScl / Vars.tilesize;
+    var h = reg.height * 2.0 * regScl / Vars.tilesize;
+
+    let prevZ = Draw.z();
+    Draw.rect(reg, _coord_p3d(x, z3d, false), _coord_p3d(y, z3d, true), w, h);
+    Draw.z(prevZ);
+  };
+  exports.drawP3d_region = drawP3d_region;
+
+
+  const drawP3d_regionRoom = function(x, y, z3d, reg, regScl, regFixScl, color_gn, z) {
+    if(reg == null) return;
     if(z3d == null) z3d = 0.5;
     if(regScl == null) regScl = 1.0;
     // Have to test this value in game if {z3d} is larger than one, not linear
@@ -890,7 +904,7 @@
     Draw.rect(reg, _coord_p3d(x, z3d, false), _coord_p3d(y, z3d, true), w * regFixScl, h * regFixScl);
     Draw.z(prevZ);
   };
-  exports.drawP3d_region = drawP3d_region;
+  exports.drawP3d_regionRoom = drawP3d_regionRoom;
 
 
   const drawP3d_cylinder = function(x, y, z3d, rad, colorIn_gn, colorOut_gn, z) {

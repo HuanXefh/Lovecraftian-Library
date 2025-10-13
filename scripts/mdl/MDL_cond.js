@@ -56,6 +56,35 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether mouse is in range with (x, y) as the center.
+   * ---------------------------------------- */
+  const _posHovered = function(x, y, rad) {
+    if(rad == null || rad < 0.0001) return false;
+
+    return Mathf.dst(x, y, Core.input.mouseWorldX(), Core.input.mouseWorldY()) < rad;
+  };
+  exports._posHovered = _posHovered;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Variant of {_posHovered} where the range is a rectangle.
+   * ---------------------------------------- */
+  const _posHoveredRect = function(x, y, r, size) {
+    if(r == null) r = 0;
+    if(size == null) size = 0;
+    let hw = (r + size * 0.5) * Vars.tilesize;
+    if(hw < 0.0001) return false;;
+
+    return Math.abs(x - Core.input.mouseWorldX()) < hw && Math.abs(y - Core.input.mouseWorldY()) < hw;
+  };
+  exports._posHoveredRect = _posHoveredRect;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether there's any loot unit at (x, y).
    * ---------------------------------------- */
   const _posHasLoot = function(x, y) {
@@ -1094,12 +1123,12 @@
     const thisFun = _isInjured;
 
     if(unit == null) return false;
-    if(_hasEffectAny(unit, thisFun.funStas)) return true;
+    if(_hasEffectAny(unit, thisFun.injuredStas)) return true;
 
     return false;
   }
   .setProp({
-    "funStas": [
+    injuredStas: [
       "loveclab-sta-slightly-injured",
       "loveclab-sta-injured",
       "loveclab-sta-heavily-injured",
@@ -1117,12 +1146,12 @@
     const thisFun = _isDamaged;
 
     if(unit == null) return false;
-    if(_hasEffectAny(unit, thisFun.funStas)) return true;
+    if(_hasEffectAny(unit, thisFun.damagedStas)) return true;
 
     return false;
   }
   .setProp({
-    "funStas": [
+    damagedStas: [
       "loveclab-sta-damaged",
       "loveclab-sta-severely-damaged",
     ],

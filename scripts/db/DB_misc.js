@@ -97,6 +97,20 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
+     * Overwrites the vanilla list of menu flyers.
+     * ---------------------------------------- */
+    "menuFlyer": [
+
+      "crawler",
+      "oct",
+      "risso",
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * Sounds listed here will be loaded beforehead, or it takes time to be loaded in game.
      * ---------------------------------------- */
     "extraSound": [
@@ -134,48 +148,69 @@ const db = {
      *
      * {this} in {updateScr} is the button.
      * ---------------------------------------- */
-    "dragButton": [
+    "dragButton": {
 
-      "lovec-player-take-loot", [0, "lovec-icon-take-loot", false, function() {
-        let unit = Vars.player.unit();
-        if(unit == null) return;
-        let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
-        if(Vars.net.client() ?
-        global.lovec.frag_item.takeUnitLoot_client(unit, loot) :
-        global.lovec.frag_item.takeUnitLoot(unit, loot)
-      ) global.lovec.mdl_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
-    }, null],
 
-      "lovec-player-drop-loot", [0, "lovec-icon-drop-loot", false, function() {
-        let unit = Vars.player.unit();
-        if(unit == null) return;
-        if(unit.stack.amount > 0) {
+      "base": [
+
+        "lovec-player-detach-camera", [0, "lovec-icon-detach-camera", true, function() {}, function() {
+          Core.settings.put("detach-camera", this.isChecked());
+          if(this.isChecked() && Vars.player.unit() != null) Vars.player.unit().apply(StatusEffects.unmoving, 5.0);
+        }],
+
+        "lovec-setting-unit-range", [0, "lovec-icon-range", false, function() {
+          Core.settings.put("lovec-unit0stat-range", !global.lovec.mdl_util._cfg("unit0stat-range"));
+          global.lovec.param.forceLoadParam();
+        }, null],
+
+        "lovec-info-wave-enemies", [0, "units", false, function() {
+          global.lovec.tp_dial.waveInfo.ex_show(null);
+        }, null],
+
+      ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Buttons defined here will only be added if {PARAM.modded}.
+       * ---------------------------------------- */
+      "modded": [
+
+        "lovec-player-take-loot", [0, "lovec-icon-take-loot", false, function() {
+          let unit = Vars.player.unit();
+          if(unit == null) return;
+          let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
+          if(Vars.net.client() ?
+            global.lovec.frag_item.takeUnitLoot_client(unit, loot) :
+            global.lovec.frag_item.takeUnitLoot(unit, loot)
+          ) global.lovec.mdl_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
+        }, null],
+
+        "lovec-player-drop-loot", [0, "lovec-icon-drop-loot", false, function() {
+          let unit = Vars.player.unit();
+          if(unit == null) return;
+          if(unit.stack.amount > 0) {
+            Vars.net.client() ?
+              global.lovec.mdl_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
+              global.lovec.mdl_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
+            unit.clearItem();
+          };
+        }, null],
+
+        "lovec-player-destroy-loot", [0, "lovec-icon-destroy-loot", false, function() {
+          let unit = Vars.player.unit();
+          if(unit == null) return;
+          let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
           Vars.net.client() ?
-            global.lovec.mdl_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
-            global.lovec.mdl_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
-          unit.clearItem();
-        };
-      }, null],
+            global.lovec.frag_item.destroyLoot_client(loot) :
+            global.lovec.frag_item.destroyLoot(loot);
+        }, null],
 
-      "lovec-player-destroy-loot", [0, "lovec-icon-destroy-loot", false, function() {
-        let unit = Vars.player.unit();
-        if(unit == null) return;
-        let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
-        Vars.net.client() ?
-          global.lovec.frag_item.destroyLoot_client(loot) :
-          global.lovec.frag_item.destroyLoot(loot);
-      }, null],
+      ],
 
-      "lovec-player-detach-camera", [0, "lovec-icon-detach-camera", true, function() {}, function() {
-        Core.settings.put("detach-camera", this.isChecked());
-        if(this.isChecked() && Vars.player.unit() != null) Vars.player.unit().apply(StatusEffects.unmoving, 5.0);
-      }],
 
-      "lovec-info-wave-enemies", [0, "units", false, function() {
-        global.lovec.tp_dial.waveInfo.ex_show(null);
-      }, null],
-
-    ],
+    },
 
 
   },
@@ -191,7 +226,11 @@ const db = {
 
     "test-draw", useScl => Core.settings.getBool("lovec-test-draw", false),
     "test-memory", useScl => Core.settings.getBool("lovec-test-memory", false),
+    "test0error-shader", useScl => Core.settings.getBool("lovec-test0error-shader", false),
+    "load-ore-dict", useScl => Core.settings.getBool("lovec-load-ore-dict", false),
+    "load-ore-dict-def", useScl => Core.settings.getBool("lovec-load-ore-dict-def", true),
 
+    "load-vanilla-flyer", useScl => Core.settings.getBool("lovec-load-vanilla-flyer", false),
     "load-colored-name", useScl => Core.settings.getBool("lovec-load-colored-name", true),
     "load-force-modded", useScl => Core.settings.getBool("lovec-load-force-modded", false),
 
@@ -304,7 +343,7 @@ const db = {
       },
 
       ConsumeItems, (blk, cons, dictConsItm, dictConsFld) => {
-        cons.items.forEach(itmStack => dictConsItm[itmStack.item.id].push(blk, itmStack.amount, {"icon": cons.optional ? "lovec-icon-optional" : null}));
+        cons.items.forEachFast(itmStack => dictConsItm[itmStack.item.id].push(blk, itmStack.amount, {"icon": cons.optional ? "lovec-icon-optional" : null}));
       },
 
       ConsumeItemFlammable, (blk, cons, dictConsItm, dictConsFld) => {
@@ -345,7 +384,7 @@ const db = {
       },
 
       ConsumeLiquids, (blk, cons, dictConsItm, dictConsFld) => {
-        cons.liquids.forEach(liqStack => dictConsFld[liqStack.liquid.id].push(blk, liqStack.amount, {"icon": cons.optional ? "lovec-icon-optional" : null}));
+        cons.liquids.forEachFast(liqStack => dictConsFld[liqStack.liquid.id].push(blk, liqStack.amount, {"icon": cons.optional ? "lovec-icon-optional" : null}));
       },
 
       ConsumeCoolant, (blk, cons, dictConsItm, dictConsFld) => {
@@ -400,6 +439,87 @@ const db = {
       GenericCrafter, (blk, dictProdItm, dictProdFld) => {
         if(blk.outputItems != null) blk.outputItems.forEach(itmStack => dictProdItm[itmStack.item.id].push(blk, itmStack.amount, {}));
         if(blk.outputLiquids != null) blk.outputLiquids.forEach(liqStack => dictProdFld[liqStack.liquid.id].push(blk, liqStack.amount, {}));
+      },
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to generate default files for ore dictionary.
+     * DO NOT MODIFY THIS!
+     * For other mods, simply put .csv files in "./saves/mods/data/sharedData/ore-dict".
+     * ---------------------------------------- */
+    "oreDictDef": [
+
+      "beryllium", [],
+      "blast-compound", [],
+      "carbide", [],
+      "coal", ["loveclab-item0chem-coal"],
+      "copper", ["loveclab-item0chem-copper"],
+      "graphite", ["loveclab-item0chem-graphite"],
+      "lead", ["loveclab-item0chem-lead"],
+      "metaglass", [],
+      "oxide", [],
+      "phase-fabric", [],
+      "plastanium", [],
+      "pyratite", [],
+      "sand", ["loveclab-item0ore-sand"],
+      "scrap", ["loveclab-item0was-scrap-steel"],
+      "spore-pod", [],
+      "surge-alloy", [],
+      "silicon", [],
+      "thorium", [],
+      "titanium", [],
+      "tungsten", [],
+
+      "cryofluid", [],
+      "oil", [],
+      "slag", [],
+      "water", ["loveclab-liq0ore-water"],
+
+    ],
+
+
+    "oreDictConsSetter": [
+
+      ConsumeItems, (blk, cons, oreDict) => {
+        cons.items.forEachFast(itmStack => {
+          itmStack.item = oreDict.get(itmStack.item, itmStack.item);
+        });
+      },
+
+      ConsumeLiquids, (blk, cons, oreDict) => {
+        cons.liquids.forEachFast(liqStack => {
+          liqStack.liquid = oreDict.get(liqStack.liquid, liqStack.liquid);
+        });
+      },
+
+    ],
+
+
+    "oreDictProdSetter": [
+
+      WallCrafter, (blk, oreDict) => {
+        blk.output = oreDict.get(blk.output, blk.output);
+      },
+
+      SolidPump, (blk, oreDict) => {
+        blk.result = oreDict.get(blk.result, blk.result);
+      },
+
+      ConsumeGenerator, (blk, oreDict) => {
+        if(blk.outputLiquid != null) blk.outputLiquid.liquid = oreDict.get(blk.outputLiquid.liquid, blk.outputLiquid.liquid);
+      },
+
+      ThermalGenerator, (blk, oreDict) => {
+        if(blk.outputLiquid != null) blk.outputLiquid.liquid = oreDict.get(blk.outputLiquid.liquid, blk.outputLiquid.liquid);
+      },
+
+      GenericCrafter, (blk, oreDict) => {
+        if(blk.outputItems != null) blk.outputItems.forEachFast(itmStack => itmStack.item = oreDict.get(itmStack.item, itmStack.item));
+        if(blk.outputLiquids != null) blk.outputLiquids.forEachFast(liqStack => liqStack.liquid = oreDict.get(liqStack.liquid, liqStack.liquid));
       },
 
     ],

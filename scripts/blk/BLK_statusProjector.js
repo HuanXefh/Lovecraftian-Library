@@ -39,8 +39,10 @@
 
 
   const PARENT = require("lovec/blk/BLK_baseProjector");
+  const VAR = require("lovec/glb/GLB_var");
 
 
+  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_pos = require("lovec/mdl/MDL_pos");
@@ -99,8 +101,14 @@
   };
 
 
+  function comp_draw(b) {
+    if(MDL_cond._posHoveredRect(b.x, b.y, 0, b.block.size)) {
+      MDL_draw.drawP3d_cylinderFade(b.x, b.y, 1.0, b.block.range * b.heat, b.block.baseColor, VAR.lay_p3dRange);
+    };
+  };
+
+
   function comp_drawSelect(b) {
-    MDL_draw.drawP3d_cylinderFade(b.x, b.y, 1.0, b.block.range * b.heat, b.block.baseColor);
     MDL_draw.drawDisk_expand(b.x, b.y, b.block.range * b.heat, 1.5, b.block.baseColor, 0.3);
   };
 
@@ -165,6 +173,7 @@
 
     draw: function(b) {
       PARENT.draw(b);
+      comp_draw(b);
     },
 
 
@@ -191,9 +200,9 @@
 
     // @NOSUPER
     ex_getTags: function(blk) {
-      return TEMPLATE.ex_getTags.funArr;
+      return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      "funArr": ["blk-proj"],
+      tempTags: ["blk-proj"],
     }),
 
 

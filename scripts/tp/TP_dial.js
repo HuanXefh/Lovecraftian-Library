@@ -63,28 +63,20 @@
         MDL_table.__break(this.cont);
         var thisDial = this;
         this.cont.pane(pn => {
-
           MDL_table.__margin(pn);
-
           let iCap = cts_gn.iCap();
           let colAmt = MDL_ui._colAmt(32.0, 4.0, 2);
           if(iCap > 0) {
-
             for(let i = 0, j = 0; i < iCap; i++) {
               (function(i) {
                 MDL_table.__ct(pn, MDL_content._ct(cts_gn[i], null, true), null, null, !isAfterCt ? null : thisDial);
               })(i);
-
               if(j % colAmt === colAmt - 1) pn.row();
               j++;
             };
-
           } else {
-
             MDL_table.__textNothing(pn);
-
           };
-
         }).width(MDL_ui._uiW()).row();
 
         // @TABLE: buttons
@@ -121,9 +113,7 @@
         // @TABLE: content
         MDL_table.__break(this.cont);
         this.cont.pane(pn => {
-
           MDL_table.setDisplay_ctRow(pn, cts_gn, true);
-
         }).width(MDL_ui._uiW()).row();
 
         // @TABLE: buttons
@@ -173,11 +163,9 @@
         // @TABLE: content
         MDL_table.__break(this.cont);
         this.cont.pane(pn => {
-
           MDL_table.__margin(pn);
           let iCap = opt.iCap();
           if(iCap > 0) {
-
             for(let i = 0; i < iCap; i += 4) {
               let tmp = opt[i];
               let amt = opt[i + 1];
@@ -191,13 +179,9 @@
               )).center().padRight(6.0);
               pn.row();
             };
-
           } else {
-
             MDL_table.__textNothing(pn);
-
           };
-
         }).width(MDL_ui._uiW()).row();
 
         // @TABLE: buttons
@@ -238,9 +222,7 @@
         // @TABLE: content
         MDL_table.__break(this.cont);
         this.cont.pane(pn => {
-
           MDL_table.__margin(pn);
-
           let cont = new Table();
           cont.button(new TextureRegionDrawable(rs.uiIcon), 48.0, () => {
             thisDial.hide();
@@ -249,36 +231,23 @@
           pn.add(cont).growX();
 
           let rebuildList = (tb, rcDictArr) => {
-
-            let i = 0;
-            let j = 0;
-            let iCap = rcDictArr.iCap();
+            let i = 0, iCap = rcDictArr.iCap(), j = 0;
             while(i < iCap) {
               tb.table(Styles.none, tb1 => {
-
                 tb1.left();
-
                 tb1.table(Styles.none, tb2 => {
-
                   MDL_table.__ct(tb2, rcDictArr[i], 48.0, 8.0, thisDial);
-
                 });
-
                 tb1.table(Styles.none, tb2 => {
-
                   let data = rcDictArr[i + 2];
-
                   let craftTime = data.time != null ? data.time : MDL_content._craftTime(rcDictArr[i], data.icon === "lovec-icon-mining");
                   let craftRate = (!isFinite(craftTime) && rs instanceof Item) ? null : (rs instanceof Item ? (rcDictArr[i + 1] / craftTime * 60.0) : (rcDictArr[i + 1] * 60.0));
                   tb2.add(MDL_text._statText(
                     MDL_bundle._term("lovec", "rate"),
                     craftRate == null ? "-" : ((craftRate < 0.01 ? "<0.01" : craftRate.roundFixed(2)) + "/s"),
                   )).left().tooltip(typeof craftRate !== "number" ? "-" : (craftRate.roundFixed(7) + "/s"), true).row();
-
                   tb2.table(Styles.none, tb3 => {
-
                     tb3.left();
-
                     // Content
                     let ors = MDL_content._ct(data.ct, null, true);
                     if(ors != null) {
@@ -288,102 +257,69 @@
                       }).left().get();
                       btn.getStyle().imageUp = new TextureRegionDrawable(ors.uiIcon);
                     };
-
                     // Icon
                     if(data.icon != null) {
                       // Make it smaller so you feel sick when seeing the code
                       tb3.image(Core.atlas.find(data.icon)).left().width(26.0).height(26.0);
                     };
-
                   }).left().height(30.0).row();
-
                 });
-
               }).left().width(240.0).height(60.0);
               i += 3;
               if(j % 3 === 2) tb.row();
               j++;
             };
-
           };
 
           // @TABLE: producer
           let prodArr = MDL_recipeDict._producers(rs, true);
           if(prodArr.length > 0) {
-
             // @TABLE: consumer title
             cont.table(Tex.whiteui, tb => {
-
               tb.center().setColor(Color.darkGray);
               MDL_table.__margin(tb, 0.5);
-
               tb.add(MDL_bundle._term("lovec", "produced-in")).pad(4.0);
-
             }).left().growX().row();
-
             // @TABLE: consumer list
             cont.table(Tex.whiteui, tb => {
-
               tb.left().setColor(Pal.darkestGray);
               MDL_table.__margin(tb);
-
               rebuildList(tb, prodArr);
-
             }).left().growX().row();
-
           };
 
           // @TABLE: consumer
           let consArr = MDL_recipeDict._consumers(rs, true);
           if(consArr.length > 0) {
-
             // @TABLE: consumer title
             cont.table(Tex.whiteui, tb => {
-
               tb.center().setColor(Color.darkGray);
               MDL_table.__margin(tb, 0.5);
-
               tb.add(MDL_bundle._term("lovec", "used-in")).pad(4.0);
-
             }).left().growX().row();
-
             // @TABLE: consumer list
             cont.table(Tex.whiteui, tb => {
-
               tb.left().setColor(Pal.darkestGray);
               MDL_table.__margin(tb);
-
               rebuildList(tb, consArr);
-
             }).left().growX().row();
-
           };
 
           // @TABLE: building
           let reqBlks = MDL_content._reqBlks(rs);
           if(reqBlks.length > 0) {
-
             // @TABLE: building title
             cont.table(Tex.whiteui, tb => {
-
               tb.center().setColor(Color.darkGray);
               MDL_table.__margin(tb, 0.5);
-
               tb.add(MDL_bundle._term("lovec", "building")).pad(4.0);
-
             }).left().growX().row();
-
             // @TABLE: building list
             cont.table(Tex.whiteui, tb => {
-
               tb.center().setColor(Pal.darkestGray);
-
               MDL_table.setDisplay_ctLi(tb, reqBlks, 48.0, null, thisDial);
-
             }).left().growX().row();
-
           };
-
         }).row();
 
         // @TABLE: buttons
@@ -446,11 +382,8 @@
         if(tableF != null) {
           MDL_table.__break(this.cont);
           this.cont.pane(pn => {
-
             MDL_table.__margin(pn);
-
             tableF(pn);
-
           }).width(MDL_ui._uiW()).row();
         };
 
@@ -492,9 +425,7 @@
 
         // @TABLE: list
         this.cont.pane(pn => {
-
           MDL_table.__margin(pn);
-
           if(countWave < 1) {
             MDL_table.__textNothing(pn);
           } else {
@@ -509,13 +440,10 @@
             MDL_entity._waveArr(countWave).forEachRow(4, (utp, amt, shield, sta) => {
               matArr.push([utp, utp.localizedName, amt, (utp.health * amt).ui(), shield.ui(), sta === StatusEffects.none ? "-" : sta]);
             });
-            if(matArr.length === 1) {
-              MDL_table.__textNothing(pn);
-            } else {
+            matArr.length === 1 ?
+              MDL_table.__textNothing(pn) :
               MDL_table.setTable_base(pn, matArr);
-            };
           };
-
         }).width(MDL_ui._uiW()).row();
 
         // @TABLE: buttons

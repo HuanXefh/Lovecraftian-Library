@@ -75,7 +75,7 @@
     let utp = MDL_content._ct(utp_gn, "utp");
     if(utp == null) return;
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       x,
       y,
       utp.name,
@@ -90,7 +90,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("server", "lovec-client-unit-spawn", payload => {
-      spawnUnit.apply(this, Array.fromPayload(payload));
+      spawnUnit.apply(this, unpackPayload(payload));
     });
   })
   .setAnno(ANNO.__CLIENT__)
@@ -153,7 +153,7 @@
     if(rad == null) rad = VAR.rad_unitLootRad;
     if(repeat == null) repeat = 1;
 
-    spawnUnit(x, y, thisFun.funUtp, Vars.player.team(), rad, null, repeat, false, unit => {
+    spawnUnit(x, y, thisFun.lootUtp, Vars.player.team(), rad, null, repeat, false, unit => {
       unit.addItem(itm, amt);
       MDL_effect.showAt_global(unit.x, unit.y, EFF.circlePulseDynamic, 5.0, Pal.accent);
       MDL_effect.showBetween_line(x, y, null, unit, Pal.accent);
@@ -161,7 +161,7 @@
   }
   .setAnno(ANNO.__SERVER__)
   .setProp({
-    "funUtp": (function() {
+    lootUtp: (function() {
       if(!PARAM.modded) return null;
 
       const tmp = extend(UnitType, "unit0misc-loot", {
@@ -285,7 +285,7 @@
     let itm = MDL_content._ct(itm_gn, "rs");
     if(itm == null) return;
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       x,
       y,
       itm.name,
@@ -298,7 +298,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("server", "lovec-client-loot-spawn", payload => {
-      spawnLoot.apply(this, Array.fromPayload(payload));
+      spawnLoot.apply(this, unpackPayload(payload));
     });
   })
   .setAnno(ANNO.__CLIENT__)

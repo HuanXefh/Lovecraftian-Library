@@ -190,11 +190,11 @@
     if(Vars.state.isPaused()) return;
     if(color_gn == null) color_gn = Pal.accent;
 
-    showAt(x, y, thisFun.funEff, 0.0, MDL_color._color(color_gn));
+    showAt(x, y, thisFun.eff, 0.0, MDL_color._color(color_gn));
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": TP_effect._circleWave(2.0, 0.0, 6.0, null, 0.75),
+    eff: TP_effect._circleWave(2.0, 0.0, 6.0, null, 0.75),
   });
   exports.showAt_click = showAt_click;
 
@@ -210,11 +210,11 @@
     if(Vars.state.isPaused()) return;
     if(rad == null) rad = 20.0;
 
-    showAt(x, y, thisFun.funEff, rad, MDL_color._color(color_gn));
+    showAt(x, y, thisFun.eff, rad, MDL_color._color(color_gn));
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": (function() {
+    eff: (function() {
       const tmp = new Effect(80.0, eff => {
         let frac1 = Interp.pow10Out.apply(Interp.pow10Out.apply(eff.fin()));
         let frac2 = 1.0 - Interp.pow2In.apply(eff.fin());
@@ -256,11 +256,11 @@
     if(pad == null) pad = 0.0;
     if(rad == null) rad = 120.0;
 
-    showAt(x, y, thisFun.funEff, rad, team.color, [b, pad, Math.random() > 0.5]);
+    showAt(x, y, thisFun.eff, rad, team.color, [b, pad, Math.random() > 0.5]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": new Effect(280.0, eff => {
+    eff: new Effect(280.0, eff => {
       var ang = Mathf.angle(eff.data[0].x - eff.x, eff.data[0].y - eff.y);
       var size = 24.0 - 18.0 * Interp.pow2Out.apply(1.0 - eff.fout());
 
@@ -299,11 +299,11 @@
     };
     if(liqColor == null) return;
 
-    showAt(x, y, thisFun.funEff, rad, liqColor);
+    showAt(x, y, thisFun.eff, rad, liqColor);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": (function() {
+    eff: (function() {
       const tmp = new Effect(30.0, eff => {
         eff.lifetime = 30.0 * eff.rotation * 0.25;
 
@@ -330,13 +330,13 @@
 
     if(Vars.state.isPaused()) return;
 
-    thisFun.funEffPack.forEach(eff => {
+    thisFun.effPack.forEach(eff => {
       showAt(x, y, eff, rad);
     });
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEffPack": [
+    "effPack": [
       TP_effect._impactWave(6.0, 0.0, null, 1.0),
       TP_effect._impactWave(6.0, 0.0, null, 1.2),
       TP_effect._impactWave(6.0, 0.0, null, 1.5),
@@ -357,11 +357,11 @@
 
     if(Vars.state.isPaused()) return;
 
-    showAt(x, y, thisFun.funEff, rad);
+    showAt(x, y, thisFun.eff, rad);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": (function() {
+    eff: (function() {
       const tmp = new Effect(20.0, eff => {
         eff.lifetime = 20.0 * Math.pow(eff.rotation * 0.025, 0.5);
 
@@ -391,11 +391,11 @@
     if(liqColor == null) liqColor = Color.white;
 
     var rad = size * Vars.tilesize * 0.5;
-    showAround(x, y, thisFun.funEff, rad, null, liqColor, Object.val(isClogging, false));
+    showAround(x, y, thisFun.eff, rad, null, liqColor, Object.val(isClogging, false));
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": new Effect(120.0, eff => {
+    eff: new Effect(120.0, eff => {
       Draw.z(VAR.lay_effBase);
       Draw.color(eff.color);
 
@@ -414,9 +414,12 @@
    * Creates remains of a unit or building.
    * ---------------------------------------- */
   const showAt_remains = function(x, y, e0etp, team, isPermanent, forceHot) {
+    const thisFun = showAt_remains;
+
     if(e0etp == null || team == null) return;
     let e = (e0etp instanceof Unit) ? e0etp : (e0etp instanceof Building ? e0etp : null);
     let etp = (e0etp instanceof Unit) ? e0etp.type : (e0etp instanceof Building ? e0etp.block : e0etp);
+    if(etp instanceof Block && thisFun.shader == null) return;
     let t = Vars.world.tileWorld(x, y);
     if(t == null || !t.floor().canShadow) return;
 
@@ -474,12 +477,12 @@
         if(etp instanceof Block) {
           Draw.draw(this.z, () => {
             // Use a shader to create incomplete debris
-            TP_shader.shader0reg_debris.ex_accRegion(this.region);
-            TP_shader.shader0reg_debris.ex_accMulColor(this.color);
-            TP_shader.shader0reg_debris.ex_accA(this.a - Mathf.curve(this.fin(), 0.98) * this.a);
-            TP_shader.shader0reg_debris.ex_accOff(this.off);
-            TP_shader.shader0reg_debris.ex_accOffCap(VAR.blk_remainsOffCap);
-            Draw.shader(TP_shader.shader0reg_debris);
+            thisFun.shader.ex_accRegion(this.region);
+            thisFun.shader.ex_accMulColor(this.color);
+            thisFun.shader.ex_accA(this.a - Mathf.curve(this.fin(), 0.98) * this.a);
+            thisFun.shader.ex_accOff(this.off);
+            thisFun.shader.ex_accOffCap(VAR.blk_remainsOffCap);
+            Draw.shader(thisFun.shader);
             Draw.rect(this.region, x, y, this.rotation);
             Draw.shader();
             Draw.flush();
@@ -512,7 +515,10 @@
     });
     remains.add();
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.__NONHEADLESS__)
+  .setProp({
+    shader: TP_shader.shader0reg_debris,
+  });
   exports.showAt_remains = showAt_remains;
 
 
@@ -532,7 +538,7 @@
       let reg = e.block instanceof BaseTurret ?
         Object.val(MDL_texture._regTurBase(e.block), e.block.region) :
         Core.atlas.find(e.block.name + "-icon", e.block.region);
-      if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.funEff, 0.0, MDL_color._color(color_gn), [reg, e]);
+      if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.eff, 0.0, MDL_color._color(color_gn), [reg, e]);
     } else {
       if(MDL_color._isSameColor(color, Pal.heal)) {
         unit.healTime = 1.0;
@@ -543,7 +549,7 @@
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": new Effect(20.0, eff => {
+    eff: new Effect(20.0, eff => {
       let e = eff.data[1];
 
       MDL_draw.drawRegion_normal(e.x, e.y, eff.data[0], e.drawrot(), 1.0, eff.color, eff.color.a * eff.fout(), Layer.effect + VAR.lay_offDrawOver, true);
@@ -563,11 +569,11 @@
     if(Vars.state.isPaused() || reg0icon == null) return;
     if(scl == null) scl = 1.0;
 
-    showAt(x, y, thisFun.funEff, scl, MDL_color._color(color_gn), reg0icon);
+    showAt(x, y, thisFun.eff, scl, MDL_color._color(color_gn), reg0icon);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": new Effect(40.0, eff => {
+    eff: new Effect(40.0, eff => {
       eff.lifetime = 40.0 * eff.rotation;
 
       var a = eff.fout() * color.a;
@@ -619,12 +625,12 @@
 
     let sizeScl = Math.max(Math.log((dmg + 10.0) / 10.0), 0.7);
 
-    showAround(x, y, thisFun.funEff, 8.0, dmg, color, [str, sizeScl]);
+    showAround(x, y, thisFun.eff, 8.0, dmg, color, [str, sizeScl]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     "modes": ["health", "shield", "heal", "heat"],
-    "funEff": new Effect(40.0, eff => {
+    eff: new Effect(40.0, eff => {
       MDL_draw.drawText(
         eff.x,
         eff.y,
@@ -652,11 +658,11 @@
     if(Vars.state.isPaused() || e == null) return;
     if(strokeScl == null) strokeScl = 1.0;
 
-    showAt(x, y, thisFun.funEff, strokeScl, MDL_color._color(color_gn), [e0, e]);
+    showAt(x, y, thisFun.eff, strokeScl, MDL_color._color(color_gn), [e0, e]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": new Effect(40.0, eff => {
+    eff: new Effect(40.0, eff => {
       let e0 = eff.data[0];
 
       Lines.stroke(2.0 * eff.rotation, eff.color);
@@ -736,11 +742,11 @@
     if(Vars.state.isPaused() || e == null) return;
     if(color_gn == null) color_gn = Pal.accent;
 
-    showAt(x, y, thisFun.funEff, Object.val(strokeScl, 1.0), MDL_color._color(color_gn), [e0, e, hasLight]);
+    showAt(x, y, thisFun.eff, Object.val(strokeScl, 1.0), MDL_color._color(color_gn), [e0, e, hasLight]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff": new Effect(30.0, eff => {
+    eff: new Effect(30.0, eff => {
       let e0 = eff.data[0];
 
       MDL_draw.drawLine_laser(
@@ -773,21 +779,21 @@
     let color = MDL_color._color(color_gn);
     let tup = [e.x, e.y];
 
-    showAt(x, y, thisFun.funEff1, 0.0, color, tup);
-    showAt(x, y, thisFun.funEff2, 0.0, color, tup);
-    showAt(x, y, thisFun.funEff2, 0.0, color);
+    showAt(x, y, thisFun.eff1, 0.0, color, tup);
+    showAt(x, y, thisFun.eff2, 0.0, color, tup);
+    showAt(x, y, thisFun.eff2, 0.0, color);
     if(se_gn != null) playAt(x, y, se_gn, 1.0, 1.0, 0.05);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "funEff1": new Effect(30.0, 300.0, eff => {
+    "eff1": new Effect(30.0, 300.0, eff => {
       Draw.color(eff.color, eff.fout());
       Lines.stroke(2.0);
       Lines.line(eff.x, eff.y, eff.data[0], eff.data[1]);
       Drawf.light(eff.x, eff.y, eff.data[0], eff.data[1], 20.0, eff.color, 0.65 * eff.fout());
       Draw.reset();
     }),
-    "funEff2": new Effect(30.0, eff => {
+    "eff2": new Effect(30.0, eff => {
       Draw.color(eff.color, eff.fout());
       eff.data == null ?
         Fill.circle(eff.x, eff.y, 2.0 + eff.fout()) :

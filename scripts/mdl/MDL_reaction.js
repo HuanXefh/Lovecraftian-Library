@@ -68,8 +68,8 @@
     if(str1 === str2) return Array.air;
 
     let key = str1 + " + " + str2;
-    if(thisFun.funMap.containsKey(key)) {
-      return thisFun.funMap.get(key);
+    if(thisFun.tmpMap.containsKey(key)) {
+      return thisFun.tmpMap.get(key);
     } else {
       let arr = [];
       let grps1 = _reacGrps(reac1);
@@ -79,13 +79,13 @@
         arr.pushNonNull(DB_reaction.db["fluid"].read([grp1, grp2], null, true));
         arr.pushNonNull(DB_reaction.db["item"].read([grp1, grp2], null, true));
       });
-      thisFun.funMap.put(key, arr);
+      thisFun.tmpMap.put(key, arr);
 
       return arr;
     };
   }
   .setProp({
-    "funMap": new ObjectMap(),
+    tmpMap: new ObjectMap(),
   });
   exports._reactions = _reactions;
 
@@ -123,7 +123,7 @@
   const requestReaction = function(reactions, pMtp, x, y, b, rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
 
-    let payload = Array.toPayload([
+    let payload = packPayload([
       reactions,
       pMtp,
       x,
@@ -136,7 +136,7 @@
   }
   .setAnno(ANNO.__INIT__, null, function() {
     MDL_net.__packetHandler("server", "lovec-client-reaction", payload => {
-      let args = Array.fromPayload(payload);
+      let args = unpackPayload(payload);
       applyReaction(args[0], args[1], args[2], args[3], Vars.world.build(args[4]), args[5]);
     });
   })

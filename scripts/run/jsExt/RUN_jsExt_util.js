@@ -90,15 +90,15 @@
     Object._it(obj0, (key1, val1) => {
       // Depth: 0
       val1 instanceof Array ?
-        thisFun.funScr(key1, obj, val1) :
+        thisFun.applyMerge(key1, obj, val1) :
         Object._it(obj0[key1], (key2, val2) => {
           // Depth: 1
           val2 instanceof Array ?
-            thisFun.funScr(key2, Object.dir(obj, [key1], Object.air), val2) :
+            thisFun.applyMerge(key2, Object.dir(obj, [key1], Object.air), val2) :
             Object._it(obj0[key1][key2], (key3, val3) => {
               // Depth: 2
               val3 instanceof Array ?
-                thisFun.funScr(key3, Object.dir(obj, [key1, key2], Object.air), val3) :
+                thisFun.applyMerge(key3, Object.dir(obj, [key1, key2], Object.air), val3) :
                 Log.warn("[LOVEC] Cannot fully merge an object due to " + "too many layers".color(Pal.remove) + ".");
             });
         });
@@ -106,7 +106,7 @@
 
   }
   .setProp({
-    "funScr": (key, objTg, arrTg) => {
+    applyMerge: (key, objTg, arrTg) => {
       let tmp = objTg[key];
       if(tmp == null || !(tmp instanceof Array)) return;
 
@@ -196,27 +196,6 @@
    * ---------------------------------------- */
   ptp.hasIns = function(obj) {
     return this.some(cls => obj instanceof cls);
-  };
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Converts array to Json payload.
-   * The array should only contain primitive values!
-   * ---------------------------------------- */
-  Array.toPayload = function(arr) {
-    return JSON.stringify(Object.arrToObj(arr));
-  };
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Converts Json payload back to array.
-   * ---------------------------------------- */
-  Array.fromPayload = function(payload) {
-    return Object.objToArr(JSON.parse(payload));
   };
 
 

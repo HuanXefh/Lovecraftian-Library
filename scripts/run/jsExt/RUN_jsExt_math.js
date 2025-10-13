@@ -264,14 +264,14 @@
     let arr0 = this;
     let i = 0;
     while(i < repeat) {
-      arr0 = thisFun.funScr(arr0);
+      arr0 = thisFun.applyDiff(arr0);
       i++;
     };
 
     return arr0;
   }
   .setProp({
-    "funScr": arr => {
+    applyDiff: arr => {
       const arr0 = [];
 
       let i = 0;

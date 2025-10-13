@@ -395,8 +395,8 @@
     if(iCap === 0) return null;
 
     let i = 0;
-    var t = null;
-    while((i < iCap && !boolF(t)) || i === 0) {
+    let t = null;
+    while((i < iCap && (t == null || boolF(t))) || i === 0) {
       t = ts[(iCap - 1.0).randInt()];
       i++;
     };
@@ -408,7 +408,7 @@
 
   const _tRand_ground = function(ts, iCap) {
     return _tRand_base(ts, t => {
-      return !(t.solid() || (t.floor().isLiquid && !t.floor().shallow));
+      return t.solid() || (t.floor().isLiquid && !t.floor().shallow);
     }, iCap);
   };
   exports._tRand_ground = _tRand_ground;
@@ -416,7 +416,7 @@
 
   const _tRand_naval = function(ts, iCap) {
     return _tRand_base(ts, t => {
-      return !(t.solid() || !t.floor().isLiquid);
+      return t.solid() || !t.floor().isLiquid;
     }, iCap);
   };
   exports._tRand_naval = _tRand_naval;
@@ -457,7 +457,7 @@
    * ---------------------------------------- */
   const _tsRot = function(t, rot, size, useTmp) {
     const thisFun = _tsRot;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpTs.clear() : [];
 
     if(t == null) return arr;
     if(rot == null) rot = 0;
@@ -521,7 +521,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpTs: [],
   });
   exports._tsRot = _tsRot;
 
@@ -533,7 +533,7 @@
    * ---------------------------------------- */
   const _tsEdge = function(t, size, isInside, useTmp) {
     const thisFun = _tsEdge;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpTs.clear() : [];
 
     if(t == null) return arr;
     if(size == null) size = 1;
@@ -548,7 +548,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpTs: [],
   });
   exports._tsEdge = _tsEdge;
 
@@ -560,7 +560,7 @@
    * ---------------------------------------- */
   const _tsRect = function(t, r, size, useTmp) {
     const thisFun = _tsRect;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpTs.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
@@ -585,7 +585,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpTs: [],
   });
   exports._tsRect = _tsRect;
 
@@ -620,7 +620,7 @@
    * ---------------------------------------- */
   const _tsRectRot = function(t, r, rot, size, useTmp) {
     const thisFun = _tsRectRot;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpTs.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
@@ -647,7 +647,7 @@
     return ot == null ? arr : _tsRect(ot, r, size, useTmp);
   }
   .setProp({
-    "funArr": [],
+    tmpTs: [],
   });
   exports._tsRectRot = _tsRectRot;
 
@@ -659,7 +659,7 @@
    * ---------------------------------------- */
   const _tsCircle = function(t, r, size, useTmp) {
     const thisFun = _tsCircle;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpTs.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
@@ -688,7 +688,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpTs: [],
   });
   exports._tsCircle = _tsCircle;
 
@@ -700,7 +700,7 @@
    * ---------------------------------------- */
   const _tsTri = function(t, rad, ang, useTmp) {
     const thisFun = _tsTri;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpTs.clear() : [];
 
     if(t == null) return arr;
     if(rad == null) rad = 0.0;
@@ -728,7 +728,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpTs: [],
   });
   exports._tsTri = _tsTri;
 
@@ -740,7 +740,7 @@
    * ---------------------------------------- */
   const _tsDstManh = function(t, r, useTmp) {
     const thisFun = _tsDstManh;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpTs.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
@@ -760,7 +760,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpTs: [],
   });
   exports._tsDstManh = _tsDstManh;
 
@@ -840,7 +840,7 @@
    * ---------------------------------------- */
   const _bs = function(ts, useTmp) {
     const thisFun = _bs;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpBs.clear() : [];
 
     ts.forEachFast(ot => {
       if(ot.build != null && !arr.includes(ot.build)) arr.push(ot.build);
@@ -849,7 +849,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpBs: [],
   });
   exports._bs = _bs;
 
@@ -935,7 +935,7 @@
    * ---------------------------------------- */
   const _units = function(x, y, rad, caller, useTmp) {
     const thisFun = _units;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpUnits.clear() : [];
 
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return arr;
@@ -947,7 +947,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpUnits: [],
   });
   exports._units = _units;
 
@@ -1039,7 +1039,7 @@
    * ---------------------------------------- */
   const _loots = function(x, y, rad, caller, useTmp) {
     const thisFun = _loots;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpUnits.clear() : [];
 
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return arr;
@@ -1051,7 +1051,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpUnits: [],
   });
   exports._loots = _loots;
 
@@ -1074,18 +1074,18 @@
    * ---------------------------------------- */
   const _lootsTs = function(ts, caller, useTmp) {
     const thisFun = _lootsTs;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpUnits.clear() : [];
 
     if(ts == null) return arr;
 
     ts.forEachFast(ot => {
-      _loots(ot.worldx(), ot.worldy(), 6.0, caller, useTmp).forEach(loot => arr.pushUnique(loot));
+      _loots(ot.worldx(), ot.worldy(), 6.0, caller, useTmp).forEachFast(loot => arr.pushUnique(loot));
     });
 
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpUnits: [],
   });
   exports._lootsTs = _lootsTs;
 
@@ -1118,7 +1118,7 @@
    * ---------------------------------------- */
   const _es_tg = function(x, y, team, rad, size, useTmp) {
     const thisFun = _es_tg;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpEs.clear() : [];
 
     if(team == null) return arr;
     if(rad == null) rad = MATH_base.maxDst;
@@ -1131,7 +1131,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpEs: [],
   });
   exports._es_tg = _es_tg;
 
@@ -1145,7 +1145,7 @@
    * ---------------------------------------- */
   const _es_tgChain = function(x, y, team, rad, rad_chain, size, chainCap, chainRayBool, useTmp) {
     const thisFun = _es_tgChain;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpEs.clear() : [];
 
     if(team == null) return arr;
     if(rad == null) rad = MATH_base.maxDst;
@@ -1179,7 +1179,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpEs: [],
   });
   exports._es_tgChain = _es_tgChain;
 
@@ -1194,7 +1194,7 @@
    * ---------------------------------------- */
   const _buls = function(x, y, rad, caller, useTmp) {
     const thisFun = _buls;
-    const arr = useTmp ? thisFun.funArr.clear() : [];
+    const arr = useTmp ? thisFun.tmpBuls.clear() : [];
 
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return arr;
@@ -1208,7 +1208,7 @@
     return arr;
   }
   .setProp({
-    "funArr": [],
+    tmpBuls: [],
   });
   exports._buls = _buls;
 

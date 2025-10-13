@@ -112,20 +112,20 @@
 
     if(cts != null) {
       cts.forEachFast(ct => {
-        if(thisFun.funBoolF(ct, nmMod)) isUnlocking ? ct.unlock() : ct.clearUnlock();
+        if(thisFun.checkTg(ct, nmMod)) isUnlocking ? ct.unlock() : ct.clearUnlock();
       });
-      TechTree.all.each(node => cts.includes(node.content) && thisFun.funBoolF(node.content, nmMod), node => node.reset());
+      TechTree.all.each(node => cts.includes(node.content) && thisFun.checkTg(node.content, nmMod), node => node.reset());
     } else {
-      thisFun.funArr.forEachFast(seq => seq.each(
-        ct => thisFun.funBoolF(ct, nmMod),
+      thisFun.defSeqs.forEachFast(seq => seq.each(
+        ct => thisFun.checkTg(ct, nmMod),
         ct => {isUnlocking ? ct.unlock() : ct.clearUnlock(); Log.info("[LOVEC] Cleared unlock state for " + ct.name.color(Pal.accent) + ".")},
       ));
-      TechTree.all.each(node => thisFun.funBoolF(node.content, nmMod), node => node.reset());
+      TechTree.all.each(node => thisFun.checkTg(node.content, nmMod), node => node.reset());
     };
   }
   .setAnno(ANNO.__DEBUG__)
   .setProp({
-    "funArr": [
+    defSeqs: [
       Vars.content.items(),
       Vars.content.liquids(),
       Vars.content.blocks(),
@@ -133,7 +133,7 @@
       Vars.content.statusEffects(),
       Vars.content.sectors(),
     ],
-    "funBoolF": (ct, nmMod) => ct.minfo.mod != null && ct.minfo.mod.name === nmMod,
+    checkTg: (ct, nmMod) => ct.minfo.mod != null && ct.minfo.mod.name === nmMod,
   });
   exports.lockModContents = lockModContents;
 

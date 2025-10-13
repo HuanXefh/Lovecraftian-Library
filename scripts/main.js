@@ -5,6 +5,26 @@
 */
 
 
+  // Loads global scripts before everything
+  (function() {
+    let findGlbScr = mod => {
+      let dir = mod.root.child("scripts");
+      if(!dir.exists()) return null;
+      let fiSeq = dir.findAll(fi => fi.name() === "globalScript.js");
+      return fiSeq.size === 0 ? null : fiSeq.get(0);
+    };
+    Vars.mods.eachEnabled(mod => {
+      let fi = findGlbScr(mod);
+      if(fi == null) return;
+      try {
+        Vars.mods.scripts.context.evaluateString(Vars.mods.scripts.scope, fi.readString(), fi.name(), 0);
+      } catch(err) {
+        Log.err("[LOVEC] Error loading global script for " + mod.meta.name + ":\n" + err);
+      };
+    });
+  })();
+
+
   /* <---------- import ----------> */
 
 
@@ -35,6 +55,8 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_file = require("lovec/mdl/MDL_file");
+  const MDL_json = require("lovec/mdl/MDL_json");
+  const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
   const MDL_util = require("lovec/mdl/MDL_util");
@@ -68,7 +90,127 @@
   MDL_util.localizeModMeta("lovec");
 
 
+  MDL_event._c_onInit(() => {
+
+
+    // Set up ore dictionary
+    if(PARAM.modded && MDL_util._cfg("load-ore-dict")) (function() {
+      Log.info("[LOVEC] " + "Ore dictionary".color(Pal.accent) + " is enabled.");
+      if(!MDL_util._cfg("load-ore-dict-def")) Log.info("[LOVEC] Skipped default lists for ore dictionary.");
+
+      let dir = MDL_file.sharedData.child("ore-dict").child("default");
+      let verCur = MDL_util._loadedMod("lovec").meta.version;
+      let oreDict = global.lovecUtil.db.oreDict;
+      // Create default files
+      if(!dir.exists() || dir.list().length === 0 || (function() {
+        let fi = dir.child("meta.json");
+        if(!fi.exists()) return true;
+        let jsonVal = MDL_json.parse(fi);
+
+        return MDL_json.fetch(jsonVal, "version") !== verCur;
+      })()) {
+        DB_misc.db["recipe"]["oreDictDef"].forEachRow(2, (nmRs, arr) => {
+          let fi = dir.child(nmRs + ".csv");
+          MDL_file.__csv(fi, arr, 1);
+        });
+        MDL_json.write(dir.child("meta.json"), {
+          version: verCur,
+        });
+        MDL_file.__txt(dir.child("README.txt"), "Do not put files here, which may get overwritten!\nCustomized lists should be in ./saves/mods/data/sharedData/ore-dict!");
+      };
+
+      let fiSeq = dir.parent().findAll(fi => fi.extension() === "csv" && (MDL_util._cfg("load-ore-dict-def") ? true : fi.parent() !== dir));
+      fiSeq.each(fi => {
+        let ct = Vars.content.byName(fi.nameWithoutExtension());
+        if(ct == null) return;
+        let arr = MDL_file._csv(fi);
+        arr.forEachFast(nmRs => {
+          let rs = Vars.content.byName(nmRs);
+          if(rs == null) return;
+          oreDict.put(rs, ct);
+        });
+      });
+
+      Vars.content.items().each(itm => {
+        let itmRedir = oreDict.get(itm);
+        if(itmRedir == null) return;
+        itm.stats.add(TP_stat.spec_oreDict, extend(StatValue, {display(tb) {
+          tb.row();
+          MDL_table.setDisplay_ctRow(tb, itmRedir);
+        }}));
+        itmRedir.shownPlanets.addAll(itm.shownPlanets);
+        itmRedir.databaseTabs.addAll(itm.databaseTabs);
+      });
+      Vars.content.liquids().each(liq => {
+        let liqRedir = oreDict.get(liq);
+        if(liqRedir == null) return;
+        liq.stats.add(TP_stat.spec_oreDict, extend(StatValue, {display(tb) {
+          tb.row();
+          MDL_table.setDisplay_ctRow(tb, liqRedir);
+        }}));
+        liqRedir.shownPlanets.addAll(liq.shownPlanets);
+        liqRedir.databaseTabs.addAll(liq.databaseTabs);
+      });
+
+      Vars.content.blocks().each(blk => {
+        blk.requirements.forEachFast(itmStack => {
+          itmStack.item = oreDict.get(itmStack.item, itmStack.item);
+        });
+        Vars.content.planets().each(pla => pla.accessible && pla.isLandable(), pla => {
+          // No {every} here, or too many blocks hidden
+          if(blk.requirements.some(itmStack => itmStack.item.isOnPlanet(pla))) blk.shownPlanets.add(pla);
+        });
+        blk.databaseTabs.addAll(blk.shownPlanets);
+
+        if(blk.itemDrop != null) blk.itemDrop = oreDict.get(blk.itemDrop, blk.itemDrop);
+        if(blk.liquidDrop != null) blk.liquidDrop = oreDict.get(blk.liquidDrop, blk.liquidDrop);
+
+        blk.consumers.forEachFast(cons => {
+          let arr = DB_misc.db["recipe"]["oreDictConsSetter"];
+          let dictCaller = null;
+          let i = 0;
+          let iCap = arr.iCap();
+          while(i < iCap) {
+            let cls = arr[i];
+            if(cons instanceof cls) {
+              dictCaller = arr[i + 1];
+            };
+            i += 2;
+          };
+          if(dictCaller != null) {
+            dictCaller(blk, cons, oreDict);
+            cons.apply(blk);
+          };
+        });
+
+        (function() {
+          let arr = DB_misc.db["recipe"]["oreDictProdSetter"];
+          let dictCaller = null;
+          let i = 0;
+          let iCap = arr.iCap();
+          while(i < iCap) {
+            let cls = arr[i];
+            if(blk instanceof cls) {
+              dictCaller = arr[i + 1];
+            };
+            i += 2;
+          };
+          if(dictCaller != null) dictCaller(blk, oreDict);
+        })();
+      });
+    })();
+
+
+  }, 42110360);
+
+
   MDL_event._c_onLoad(() => {
+
+
+    // Something
+    if(PARAM.modded && !MDL_util._cfg("load-vanilla-flyer")) {
+      Reflect.set(MenuRenderer, Reflect.get(Vars.ui.menufrag, "renderer"), "flyerType", Vars.content.unit(DB_misc.db["mod"]["menuFlyer"].readRand()));
+    };
 
 
     // Load extra sounds
@@ -210,8 +352,13 @@
         tb.checkPref("lovec-test-draw", false);
         tb.checkPref("lovec-test-todo", false);
         tb.checkPref("lovec-test-memory", false);
+        tb.checkPref("lovec-test0error-shader", false);
+
+        tb.checkPref("lovec-load-ore-dict", false);
+        tb.checkPref("lovec-load-ore-dict-def", true);
       };
 
+      tb.checkPref("lovec-load-vanilla-flyer", false);
       tb.checkPref("lovec-load-colored-name", true);
       tb.checkPref("lovec-load-force-modded", false);
 
@@ -251,23 +398,12 @@
     new CLS_dragButton().add();
 
 
-    Core.app.post(() => {
-      Vars.mods.eachEnabled(mod => {
-        let fi = MDL_file._glbScr(mod.meta.name);
-        if(fi != null) try {
-          Vars.mods.scripts.context.evaluateString(Vars.mods.scripts.scope, fi.readString(), fi.name(), 0)
-        } catch(err) {
-          Log.err("[LOVEC] Error loading global script for " + mod.meta.name + ": \n" + err);
-        };
-      });
-    });
-
-
     if(!PARAM.modded && MDL_util._loadedMod("projreind") != null) {
       throw new Error("PARAM.modded is broken again, WTF D:");
     };
 
 
+    // In case that I forget to remove the outdated zip file
     if(MDL_file._root("lovec").parent().parent() == null) {
       Log.info("[LOVEC] Lovec is loaded from a " + "zip file".color(Pal.remove) + ".");
     };
