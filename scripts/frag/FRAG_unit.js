@@ -147,6 +147,6 @@
       let blk = t.overlay().itemDrop != null ? t.overlay() : (t.block() !== Blocks.air ? t.block() : t.floor());
       if(blk.playerUnmineable) return false;
     };
-    return unit.super$validMine(t, Object.val(checkDst, true));
+    return unit.super$validMine(t, tryVal(checkDst, true));
   };
   exports.comp_validMine_miner = comp_validMine_miner;

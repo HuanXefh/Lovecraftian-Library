@@ -118,14 +118,14 @@
 
     if(thisFun.tmpStr == null) {
       thisFun.tmpStr = "";
-      DB_misc.db["block"]["extraInfo"].forEachFast(strGetter => thisFun.tmpStr += Object.val(strGetter(t, t.build), ""));
+      DB_misc.db["block"]["extraInfo"].forEachFast(strGetter => thisFun.tmpStr += tryVal(strGetter(t, t.build), ""));
     };
 
     drawText(x + offX, y + offY, thisFun.tmpStr, 0.8, Color.white, Align.left, 0.0, 0.0, 10.0);
   }.setProp({
-    "tmpT": null,
-    "tmpCd": 0.0,
-    "tmpStr": null,
+    tmpT: null,
+    tmpCd: 0.0,
+    tmpStr: null,
   });
   exports.comp_drawSelect_extraInfo = comp_drawSelect_extraInfo;
 
@@ -207,7 +207,7 @@
     let prevZ = Draw.z();
     if(z != null) Draw.z(z);
     if(shouldMixcol) {
-      Draw.mixcol(MDL_color._color(color_gn), Object.val(mixcolA, 1.0));
+      Draw.mixcol(MDL_color._color(color_gn), tryVal(mixcolA, 1.0));
       Draw.color(Color.white);
     } else {
       Draw.color(MDL_color._color(color_gn));
@@ -408,7 +408,7 @@
       ang,
       regScl,
       color_gn,
-      Object.val(a, 1.0) * Math.abs(Math.sin(Time.time * 0.065 / Object.val(fadeScl, 1.0))),
+      tryVal(a, 1.0) * Math.abs(Math.sin(Time.time * 0.065 / tryVal(fadeScl, 1.0))),
       z,
     );
   };
@@ -432,7 +432,7 @@
       regScl,
       0.2,
       color_gn,
-      1.0 - Math.pow(Mathf.clamp(Object.val(frac, 0.0)) - 1.0, 2),
+      1.0 - Math.pow(Mathf.clamp(tryVal(frac, 0.0)) - 1.0, 2),
       z,
     );
   };
@@ -455,7 +455,7 @@
       ang,
       regScl,
       color_gn,
-      Object.val(a, 1.0) * Math.abs(Math.sin(fadeProg * 0.15 / Object.val(fadeScl, 1.0))),
+      tryVal(a, 1.0) * Math.abs(Math.sin(fadeProg * 0.15 / tryVal(fadeScl, 1.0))),
       z,
     );
   };
@@ -652,10 +652,10 @@
     drawRegion_glow(
       x,
       y,
-      Object.val(reg, VARGEN.blockHeatRegs[Object.val(size, 1)]),
+      tryVal(reg, VARGEN.blockHeatRegs[tryVal(size, 1)]),
       ang,
       null,
-      Mathf.clamp(Object.val(heatFrac, 1.0)),
+      Mathf.clamp(tryVal(heatFrac, 1.0)),
     );
   };
   exports.drawRegion_heat = drawRegion_heat;
@@ -782,7 +782,7 @@
 
 
   const _coord_p3d = function(coord, z3d, isY) {
-    return coord + (coord - (isY ? (Core.camera.position.y - 48.0) : Core.camera.position.x)) * Object.val(z3d, 0.0) * 0.06;
+    return coord + (coord - (isY ? (Core.camera.position.y - 48.0) : Core.camera.position.x)) * tryVal(z3d, 0.0) * 0.06;
   };
   exports._coord_p3d = _coord_p3d;
 
@@ -900,7 +900,7 @@
     var h = reg.height * 2.0 * regScl / Vars.tilesize;
 
     let prevZ = Draw.z();
-    drawP3d_room(x, y, z3d, w, h, color_gn, Object.val(z, Layer.power - 1.85));
+    drawP3d_room(x, y, z3d, w, h, color_gn, tryVal(z, Layer.power - 1.85));
     Draw.rect(reg, _coord_p3d(x, z3d, false), _coord_p3d(y, z3d, true), w * regFixScl, h * regFixScl);
     Draw.z(prevZ);
   };
@@ -1030,7 +1030,7 @@
    * Vanilla laser, no color change so it's always yellow.
    * ---------------------------------------- */
   const drawLine_laserV = function(x1, y1, x2, y2, strokeScl) {
-    Drawf.laser(VARGEN.laserRegs.lineReg, VARGEN.laserRegs.endReg, x1, y1, x2, y2, Object.val(strokeScl, 1.0));
+    Drawf.laser(VARGEN.laserRegs.lineReg, VARGEN.laserRegs.endReg, x1, y1, x2, y2, tryVal(strokeScl, 1.0));
   };
   exports.drawLine_laserV = drawLine_laserV;
 
@@ -1438,7 +1438,7 @@
     };
 
     if(bs_f != null) {
-      bs_f.forEach(ob => {
+      bs_f.forEachFast(ob => {
         Drawf.circles(ob.x, ob.y, param1 * Vars.tilesize + param - 2.0, Pal.place);
         Drawf.arrow(ob.x, ob.y, b.x, b.y, b.block.size * Vars.tilesize + param, param + 4.0, Pal.place);
       });
@@ -1452,7 +1452,7 @@
     };
 
     if(bs_t != null) {
-      bs_t.forEach(ob => {
+      bs_t.forEachFast(ob => {
         let param2 = ob.block.size === 1 ? 1.0 : ob.block.size * 0.5 + 1.0;
 
         Drawf.circles(ob.x, ob.y, param2 * Vars.tilesize + param - 2.0, Pal.place);
@@ -1521,7 +1521,7 @@
     var sideAmt = Lines.circleVertices(rad) * (noBot ? 2 : 1);
     var angSide = 360.0 / sideAmt * (rev ? -1.0 : 1.0);
     var iCap = Math.round(sideAmt * Mathf.clamp(frac));
-    var stroke = Object.val(stroke_ow, 5.0);
+    var stroke = tryVal(stroke_ow, 5.0);
     var radIn = rad - stroke * 0.5 * (noBot ? 1.0 : 0.6);
     var radOut = rad + stroke * 0.5 * (noBot ? 1.0 : 0.6);
 

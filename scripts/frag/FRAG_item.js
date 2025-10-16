@@ -246,7 +246,7 @@
     };
   }
   .setProp({
-    "modes": ["any", "all"],
+    modes: ["any", "all"],
   });
   exports.acceptItemBatch = acceptItemBatch;
 

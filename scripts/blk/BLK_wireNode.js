@@ -266,7 +266,7 @@
 
   TEMPLATE._std = function(wireMat, linkMode, minRadFrac) {
     return {
-      wireMat: Object.val(wireMat, "copper"), linkMode: Object.val(linkMode, "any"), minRadFrac: Object.val(minRadFrac, 0.0),
+      wireMat: tryVal(wireMat, "copper"), linkMode: tryVal(linkMode, "any"), minRadFrac: tryVal(minRadFrac, 0.0),
       linkFilterTup: null,
       init() {
         this.super$init();
@@ -305,7 +305,7 @@
 
   TEMPLATE._std_b = function(touchDmg, arcColor) {
     return {
-      touchDmg: Object.val(touchDmg, 0.0), arcColor: Object.val(arcColor, Pal.accent),
+      touchDmg: tryVal(touchDmg, 0.0), arcColor: tryVal(arcColor, Pal.accent),
       created() {
         this.super$created();
         TEMPLATE.created(this);

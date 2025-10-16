@@ -35,14 +35,14 @@ CLS_marketOrder.prototype.init = function(b, isSell, ct_gn, amt, price, lifetime
   this.id = (tmpId++).next();
 
   if(b == null) throw new Error("No building is assigned to the market order???");
-  if(b.ex_accMkOrds == null) throw new Error("Some methods are not defined for: " + b.block.name);
+  if(b.ex_accMkOrds == null) ERROR_HANDLER.noMethod(b.block, "ex_accMkOrds");
   this.owner = b;
 
-  this.isSell = Object.val(isSell, false);
-  this.ct = Object.val(MDL_content._ct(ct_gn, null, true), Items.copper);
-  this.amt = Object.val(amt, 1);
-  this.price = Object.val(price, 1000.0);
-  this.lifetime = Object.val(lifetime, 28800.0);
+  this.isSell = tryVal(isSell, false);
+  this.ct = tryVal(MDL_content._ct(ct_gn, null, true), Items.copper);
+  this.amt = tryVal(amt, 1);
+  this.price = tryVal(price, 1000.0);
+  this.lifetime = tryVal(lifetime, 28800.0);
 
   this.time = 0.0;
 };
@@ -68,6 +68,7 @@ CLS_marketOrder.update = function(b) {
 
 
 CLS_marketOrder.write = function(b, wr) {
+  processRevision(wr);
   let mkOrds = b.ex_accMkOrds("read", false);
   wr.i(mkOrd.length);
 
@@ -83,6 +84,7 @@ CLS_marketOrder.write = function(b, wr) {
 
 
 CLS_marketOrder.read = function(b, rd, revi) {
+  processRevision(rd);
   let i = 0;
   let iCap = rd.i();
   while(i < iCap) {

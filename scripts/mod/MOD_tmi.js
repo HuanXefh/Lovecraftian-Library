@@ -45,7 +45,7 @@
    * Gets the corresponding TMI recipe type.
    * ---------------------------------------- */
   const _tp = function(tpStr) {
-    return Object.val(RecipeType[tpStr], RecipeType.factory);
+    return tryVal(RecipeType[tpStr], RecipeType.factory);
   };
   exports._tp = _tp;
 
@@ -76,7 +76,7 @@
    * Creates a new empty recipe to be registered later.
    * ---------------------------------------- */
   const _rawRc = function(tpStr, ct_gn, time, reqBooster) {
-    let rawRc = new Recipe(_tp(tpStr), _ct(ct_gn), Object.val(time, 0.0));
+    let rawRc = new Recipe(_tp(tpStr), _ct(ct_gn), tryVal(time, 0.0));
     if(reqBooster) {
       rawRc.setEff(Recipe.getDefaultEff(0.0));
     };
@@ -135,8 +135,8 @@
    * ---------------------------------------- */
   const addAttr = function(rawRc, ct_gn, val, size, reqAttr, hideEffc) {
     let rcStack = rawRc.addMaterial(_ct(ct_gn), Math.pow(size, 2))
-    .setOptional(Object.val(!reqAttr, true))
-    .setEff(Object.val(val, 1.0))
+    .setOptional(tryVal(!reqAttr, true))
+    .setEff(tryVal(val, 1.0))
     .setAttribute(true);
 
     if(!hideEffc) rcStack.setFormat({format(f) {
@@ -239,7 +239,7 @@
         let rs = MDL_content._ct(nmRs, "rs");
         if(rs == null) return;
 
-        let rawRc = _rawRc(Object.val("factory"), blk, blk.ex_getCraftTime(), true);
+        let rawRc = _rawRc(tryVal("factory"), blk, blk.ex_getCraftTime(), true);
 
         baseParse(blk, rawRc);
         MDL_attr._blkAttrMap(nmAttr).forEachRow(3, (oblk, attrVal, nmAttr) => {

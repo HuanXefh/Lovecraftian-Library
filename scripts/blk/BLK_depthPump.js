@@ -110,7 +110,7 @@
     blk.removeBar("liquid");
     blk.addBar("liquid", b => new Bar(
       b.ex_getAttrRs() != null ? b.ex_getAttrRs().localizedName : Core.bundle.get("bar.liquid"),
-      b.ex_getAttrRs() != null ? Object.val(b.ex_getAttrRs().barColor, b.ex_getAttrRs().color) : Color.clear,
+      b.ex_getAttrRs() != null ? tryVal(b.ex_getAttrRs().barColor, b.ex_getAttrRs().color) : Color.clear,
       () => b.ex_getAttrRs() == null ? 0.0 : Mathf.clamp(b.liquids.get(b.ex_getAttrRs())),
     ));
   };
@@ -258,12 +258,14 @@
     write: function(b, wr) {
       PARENT_A.write(b, wr);
       PARENT_B.write(b, wr);
+      processRevision(wr);
     },
 
 
     read: function(b, rd, revi) {
       PARENT_A.read(b, rd, revi);
       PARENT_B.read(b, rd, revi);
+      processRevision(rd);
     },
 
 
@@ -382,10 +384,10 @@
 
   TEMPLATE._std = function(fluidType, presProd, pumpRate) {
     return {
-      fluidType: Object.val(fluidType, "liquid"),
-      presProd: Object.val(presProd, 0.0),
+      fluidType: tryVal(fluidType, "liquid"),
+      presProd: tryVal(presProd, 0.0),
       attrRsMap: DB_item.db["map"]["attr"]["dpliq"], attrMode: "ov",
-      pumpRate: Object.val(pumpRate, 0.0),
+      pumpRate: tryVal(pumpRate, 0.0),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -441,8 +443,8 @@
       liqEnd: null, pres: 0.0, presBase: 0.0, presTmp: 0.0,
       presRes: 0.0, vacRes: 0.0, corRes: 1.0, cloggable: false, fHeatCur: 0.0, fHeatTg: 0.0, heatRes: Infinity,
       heatReg: null,
-      useCep: Object.val(useCep, false), splitAmt: 1,
-      craftSound: Object.val(craftSe, Sounds.none),
+      useCep: tryVal(useCep, false), splitAmt: 1,
+      craftSound: tryVal(craftSe, Sounds.none),
       shouldScaleCons: false,
       attrSum: 0.0, attrRs: null, prog: 0.0,
       scannerTg: null,

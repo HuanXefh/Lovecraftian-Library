@@ -178,16 +178,16 @@
         return TEMPLATE.ex_getTags(this);
       },
       // @SPEC
-      drillEffect: Object.val(drillEff, Fx.none), drillEffectChance: Object.val(drillEffP, 1.0), drillEffectRnd: Object.val(drillEffRnd, 0.0),
-      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      drillEffect: tryVal(drillEff, Fx.none), drillEffectChance: tryVal(drillEffP, 1.0), drillEffectRnd: tryVal(drillEffRnd, 0.0),
+      updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(useCep, useAccel) {
     return {
-      useCep: Object.val(useCep, false),
-      useAccel: Object.val(useAccel, false), timeDrilledInc: 0.0,
+      useCep: tryVal(useCep, false),
+      useAccel: tryVal(useAccel, false), timeDrilledInc: 0.0,
       created() {
         this.super$created();
         TEMPLATE.created(this);

@@ -224,12 +224,14 @@
 
     write: function(b, wr) {
       PARENT.write(b, wr);
+      processRevision(wr);
       wr.f(b.dur);
     },
 
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
+      processRevision(rd);
       b.dur = rd.f();
     },
 
@@ -302,8 +304,8 @@
   TEMPLATE._std = function(presProd, clickTimeInc) {
     return {
       fluidType: "liquid",
-      presProd: Object.val(presProd, 0.0),
-      clickTimeInc: Object.val(clickTimeInc, 300.0),
+      presProd: tryVal(presProd, 0.0),
+      clickTimeInc: tryVal(clickTimeInc, 300.0),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -338,7 +340,7 @@
       liqEnd: null, pres: 0.0, presBase: 0.0, presTmp: 0.0,
       presRes: 0.0, vacRes: 0.0, corRes: 1.0, cloggable: false, fHeatCur: 0.0, fHeatTg: 0.0, heatRes: Infinity,
       heatReg: null,
-      useCep: Object.val(useCep, false), splitAmt: 1,
+      useCep: tryVal(useCep, false), splitAmt: 1,
       dur: 0.0, maxDur: 3600.0,
       created() {
         this.super$created();

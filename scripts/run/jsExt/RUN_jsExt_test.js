@@ -62,7 +62,7 @@
    * Simply {print} for each element.
    * ---------------------------------------- */
   ptp.printEach = function() {
-    this.forEach(i => print(i));
+    this.forEachFast(i => print(i));
   };
 
 
@@ -72,7 +72,7 @@
    * {print} used for formatted arrays.
    * ---------------------------------------- */
   ptp.printFormat = function(ord) {
-    this.forEachRow(Object.val(ord, 1), () => {
+    this.forEachRow(tryVal(ord, 1), () => {
       print(Array.from(arguments));
     });
   };

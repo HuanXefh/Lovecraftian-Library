@@ -54,7 +54,7 @@
     rcDictCons["item"][itm.id].push(
       blk,
       amt * p,
-      Object.val(data, Object.air),
+      tryVal(data, Object.air),
     );
   }
   .setAnno(ANNO.__ARGTYPE__, null, null, [[
@@ -79,7 +79,7 @@
     rcDictCons["fluid"][liq.id].push(
       blk,
       amt,
-      Object.val(data, Object.air),
+      tryVal(data, Object.air),
     );
   }
   .setAnno(ANNO.__ARGTYPE__, null, null, [[
@@ -106,7 +106,7 @@
     rcDictProd["item"][itm.id].push(
       blk,
       amt * p,
-      Object.val(data, Object.air),
+      tryVal(data, Object.air),
     );
   }
   .setAnno(ANNO.__ARGTYPE__, null, null, [[
@@ -131,7 +131,7 @@
     rcDictProd["fluid"][liq.id].push(
       blk,
       amt,
-      Object.val(data, Object.air),
+      tryVal(data, Object.air),
     );
   }
   .setAnno(ANNO.__ARGTYPE__, null, null, [[

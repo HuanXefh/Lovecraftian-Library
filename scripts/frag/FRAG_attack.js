@@ -83,10 +83,10 @@
 
     let dmg_fi = MDL_entity._dmgTake(e, dmg, pierceArmor);
     if(e instanceof Building) {
-      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, Object.val(mode_ow, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health"));
+      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, tryVal(mode_ow, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health"));
       MDL_effect.showAt_flash(e);
     } else {
-      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, Object.val(mode_ow, e.shield > dmg_fi ? "shield" : "health"));
+      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, tryVal(mode_ow, e.shield > dmg_fi ? "shield" : "health"));
     };
     pierceArmor ? e.damagePierce(dmg, true) : e.damage(dmg, true);
 

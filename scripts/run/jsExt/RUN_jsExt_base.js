@@ -21,17 +21,6 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Returns {val} if not {null}, or returns {def} instead.
-   * Don't use {val = val | def}, you know, double equality.
-   * ---------------------------------------- */
-  Object.val = function(val, def) {
-    return val == null ? def : val;
-  };
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Returns the last child object that is not {undefined} when searching with given keys.
    * If {def} is given, returns it instead if not found.
    * ---------------------------------------- */
@@ -62,10 +51,12 @@
    * {_it_xxx} means interation, I assume that you have seen it in {MDL_pos}.
    * ---------------------------------------- */
   Object._it = function(obj, scr, forceIns) {
-    for(let key in obj) {
-      if(!forceIns) {
+    if(!forceIns) {
+      for(let key in obj) {
         scr(key, obj[key]);
-      } else {
+      };
+    } else {
+      for(let key in obj) {
         if(obj[key] != null && typeof obj[key] === "object") scr(key, obj[key]);
       };
     };
@@ -78,13 +69,13 @@
    * @ARGS: obj, isWritable, nmProp1, val1, nmProp2, val2, nmProp3, val3, ...
    * Sets a lot of properties for {obj}.
    * ---------------------------------------- */
-  Object.prop = function(obj, isWritable) {
+  Object.prop = function(obj, isFinal) {
     let iCap = arguments.length;
     if(iCap <= 2) return obj;
-    if(isWritable == null) isWritable = false;
+    if(isFinal == null) isFinal = false;
 
     for(let i = 2; i < iCap; i += 2) {
-      Object.defineProperty(obj, arguments[i], {value: arguments[i + 1], writable: isWritable});
+      Object.defineProperty(obj, arguments[i], {value: arguments[i + 1], writable: !isFinal});
     };
 
     return obj;
@@ -98,46 +89,6 @@
    * ---------------------------------------- */
   Object.hasKey = function(obj, key) {
     return obj[key] !== undefined;
-  };
-
-
-  /* <---------- function ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Tries to call a function if it exists, or returns the default value if not defined.
-   * Usually {caller} is required for correct output, you can put more arguments after {caller}.
-   * Stop using {try} & {catch} it's too costy.
-   * ---------------------------------------- */
-  Function.tryFun = function(fun, def, caller) {
-    if(fun == null || typeof fun !== "function") {
-      return def;
-    } else {
-      if(arguments.length <= 3) {
-        return fun.call(caller);
-      } else {
-         return fun.apply(caller, Array.from(arguments).splice(0, 3));
-      };
-    };
-  };
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Used when there's a field and another method bearing the same name.
-   * There's barely any need to use more arguments, so only {call} is used.
-   *
-   * {b.warmup} and {b.warmup()}, in java it's fine, in javascript it's crash.
-   * ---------------------------------------- */
-  Function.tryProp = function(prop0fun, caller) {
-    if(prop0fun == null || typeof "prop0fun" !== "function") {
-      return prop0fun;
-    } else {
-      return prop0fun.call(caller);
-    };
   };
 
 
@@ -241,6 +192,26 @@
     if(iCap === 0) return;
     for(let i = 0; i < iCap; i++) {
       scr(this[i]);
+    };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {forEach} but the index is used instead of element.
+   * ---------------------------------------- */
+  ptp.forEachInd = function(gap, scr) {
+    if(gap == null) gap = 1;
+
+    gap = Math.round(gap);
+    if(gap < 1) return;
+
+    let i = 0;
+    let iCap = this.iCap();
+    while(i < iCap) {
+      scr(i);
+      i += gap;
     };
   };
 

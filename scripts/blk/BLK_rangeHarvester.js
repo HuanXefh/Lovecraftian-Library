@@ -175,11 +175,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.i(b.lootCharge);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.lootCharge = rd.i();
     },
 
@@ -229,7 +231,7 @@
 
   TEMPLATE._std = function(attrMode, attrR, craftEff, updateEff, updateEffP) {
     return {
-      attrMode: Object.val(attrMode, "flr"), attrR: Object.val(attrR, 0),
+      attrMode: tryVal(attrMode, "flr"), attrR: tryVal(attrR, 0),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -262,14 +264,14 @@
         return TEMPLATE.ex_getAttrR(this);
       },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(outputsLoot) {
     return {
-      outputsLoot: Object.val(outputsLoot, false),
+      outputsLoot: tryVal(outputsLoot, false),
       lootCharge: 0,
       created() {
         this.super$created();

@@ -76,10 +76,10 @@
 
     blk.stats.add(TP_stat.blk0min_drillTier, blk.tier);
 
-    if(blk.blockedItems != null) blk.stats.add(TP_stat.blk0min_blockedItms, extend(StatValue, {display(tb) {
+    if(blk.blockedItems != null) blk.stats.add(TP_stat.blk0min_blockedItms, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_ctLi(tb, blk.blockedItems.toArray());
-    }}));
+    }));
 
     FRAG_faci.comp_setStats_cep(blk);
   };

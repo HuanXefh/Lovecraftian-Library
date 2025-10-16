@@ -99,20 +99,38 @@
       ) return false;
       if(unit.type instanceof MissileUnitType && !PARAM.drawMissileStat) return false;
       // Very weird condition
-      if(!unit.type.logicControllable && !unit.type.playerControllable && unit.type.hidden && !unit.type.drawCell) return false;
+      if(!unit.type.logicControllable && !unit.type.playerControllable && unit.type.hidden && !unit.type.drawCell && !(unit.type instanceof MissileUnitType)) return false;
       return true;
     }, unit => {
       if(PARAM.drawUnitRange) {
         let z = Draw.z();
         Draw.z(VAR.lay_unitRange);
-        Draw.color(unit.team.color, 0.2);
         let wp, rot = unit.rotation - 90.0, mtX, mtY, mtRot, hasAnyMountShown = false;
-        unit.mounts.forEach(mt => {
+        unit.mounts.forEachFast(mt => {
           wp = mt.weapon;
+
           if(wp.shootCone > 0.0 && wp.shootCone < 179.99) {
+            // Regular weapons with shoot cone
             mtX = unit.x + Angles.trnsx(rot, wp.x, wp.y);
             mtY = unit.y + Angles.trnsy(rot, wp.x, wp.y);
+            Draw.color(
+              wp instanceof RepairBeamWeapon ?
+                Pal.heal :
+                wp instanceof PointDefenseWeapon || wp instanceof PointDefenseBulletWeapon ?
+                  Pal.techBlue :
+                  wp.noAttack ?
+                    Color.white :
+                    unit.team.color,
+              0.2,
+            );
             Fill.arc(mtX, mtY, wp.range(), wp.shootCone / 180.0, rot + mt.rotation + 90.0 - wp.shootCone);
+            hasAnyMountShown = true;
+          } else if(wp.bullet instanceof BombBulletType || (wp.bullet.speed < 2.0 && !wp.bullet.collides && wp.bullet.splashDamage > 0.0)) {
+            // Bomb weapons
+            Draw.color(unit.team.color, 0.1);
+            Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0);
+            Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0 + 180.0);
+            MDL_draw.drawCircle_normal(unit.x, unit.y, wp.bullet.splashDamageRadius, Pal.accent, 0.35, false, true);
             hasAnyMountShown = true;
           };
         });

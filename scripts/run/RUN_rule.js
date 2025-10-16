@@ -69,7 +69,7 @@
       Groups.weather.clear();
 
       let weaEnSeq = new Seq();
-      nmWeas.forEach(nmWea => {
+      nmWeas.forEachFast(nmWea => {
         let weaEn = VARGEN.weaEns[nmWea];
         if(weaEn == null) {
           Log.warn("[LOVEC] Invalid weather name: " + nmWea);

@@ -57,13 +57,12 @@
     blk.stats.remove(Stat.tiles);
     blk.stats.remove(Stat.affinities);
 
-    blk.stats.add(TP_stat.blk_attrReq, MDL_attr._attrB(blk.attribute));
     blk.stats.add(Stat.range, blk.attrR, StatUnit.blocks);
 
-    blk.stats.add(TP_stat.blk_attrReq, extend(StatValue, {display(tb) {
+    blk.stats.add(TP_stat.blk_attrReq, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_attr(tb, blk.attribute);
-    }}));
+    }));
   };
 
 

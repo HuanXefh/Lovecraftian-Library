@@ -437,8 +437,8 @@ const db = {
       },
 
       GenericCrafter, (blk, dictProdItm, dictProdFld) => {
-        if(blk.outputItems != null) blk.outputItems.forEach(itmStack => dictProdItm[itmStack.item.id].push(blk, itmStack.amount, {}));
-        if(blk.outputLiquids != null) blk.outputLiquids.forEach(liqStack => dictProdFld[liqStack.liquid.id].push(blk, liqStack.amount, {}));
+        if(blk.outputItems != null) blk.outputItems.forEachFast(itmStack => dictProdItm[itmStack.item.id].push(blk, itmStack.amount, {}));
+        if(blk.outputLiquids != null) blk.outputLiquids.forEachFast(liqStack => dictProdFld[liqStack.liquid.id].push(blk, liqStack.amount, {}));
       },
 
     ],
@@ -544,7 +544,7 @@ const db = {
 
       "dynamic-pollution", 0.0, null,
       "bits", [], "string",
-      "bit-hash", 48.0, null,
+      "bit-hash", [], "string",
 
     ],
 

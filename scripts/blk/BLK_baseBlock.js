@@ -77,7 +77,7 @@
      * I don't think dropping building materials as loot is a good idea.
      * When you destroy turrets and walls, there shouldn't be items everywhere.
      * ---------------------------------------- */
-    /*b.block.requirements.forEach(itmStack => {
+    /*b.block.requirements.forEachFast(itmStack => {
       let amt = itmStack.amount;
       if(amt >= 20) MDL_call.spawnLoot(b.x, b.y, itmStack.item, amt.randFreq(0.3), b.block.size * Vars.tilesize * 0.7);
     });*/
@@ -123,7 +123,7 @@
 
 
     created: function(b) {
-
+      
     },
 
 

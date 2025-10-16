@@ -40,63 +40,63 @@ var ptp = CLS_recipeBuilder.prototype;
 
 
 ptp.__ci = function(arr) {
-  this.builderObj["ci"] = Object.val(arr, Array.air);
+  this.builderObj["ci"] = tryVal(arr, Array.air);
 
   return this;
 };
 
 
 ptp.__bi = function(arr) {
-  this.builderObj["bi"] = Object.val(arr, Array.air);
+  this.builderObj["bi"] = tryVal(arr, Array.air);
 
   return this;
 };
 
 
 ptp.__aux = function(arr) {
-  this.builderObj["aux"] = Object.val(arr, Array.air);
+  this.builderObj["aux"] = tryVal(arr, Array.air);
 
   return this;
 };
 
 
 ptp.__reqOpt = function(bool) {
-  this.builderObj["reqOpt"] = Object.val(bool, false);
+  this.builderObj["reqOpt"] = tryVal(bool, false);
 
   return this;
 };
 
 
 ptp.__opt = function(arr) {
-  this.builderObj["opt"] = Object.val(arr, Array.air);
+  this.builderObj["opt"] = tryVal(arr, Array.air);
 
   return this;
 };
 
 
 ptp.__co = function(arr) {
-  this.builderObj["co"] = Object.val(arr, Array.air);
+  this.builderObj["co"] = tryVal(arr, Array.air);
 
   return this;
 };
 
 
 ptp.__bo = function(arr) {
-  this.builderObj["bo"] = Object.val(arr, Array.air);
+  this.builderObj["bo"] = tryVal(arr, Array.air);
 
   return this;
 };
 
 
 ptp.__failP = function(frac) {
-  this.builderObj["failP"] = Object.val(frac, 0.0);
+  this.builderObj["failP"] = tryVal(frac, 0.0);
 
   return this;
 };
 
 
 ptp.__fo = function(arr) {
-  this.builderObj["fo"] = Object.val(arr, Array.air);
+  this.builderObj["fo"] = tryVal(arr, Array.air);
 
   return this;
 };

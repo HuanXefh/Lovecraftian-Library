@@ -36,7 +36,7 @@
   exports.lay_buildingRemains = 27.07;
   exports.lay_onConveyor = 29.76;
   exports.lay_p3dRange = 34.52;
-  exports.lay_buildingRemainsDrown = 22.07;
+  exports.lay_unitRemainsDrown = 22.07;
   exports.lay_unitRemains = 58.11;
   exports.lay_dporeRevealed = 107.21;
   exports.lay_debugTop = 118.91;

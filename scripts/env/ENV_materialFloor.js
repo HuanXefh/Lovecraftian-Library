@@ -66,7 +66,7 @@
 
     // Generate random overlay regions
     const randRegs = [];
-    blk.randRegs.forEach(tag => {
+    blk.randRegs.forEachFast(tag => {
       let mapF = DB_env.db["map"]["randRegTag"].read(tag);
       if(mapF != null) randRegs.pushAll(mapF());
     });

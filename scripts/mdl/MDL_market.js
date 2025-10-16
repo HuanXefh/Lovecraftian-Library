@@ -37,7 +37,7 @@
 
     let raw = SAVE.get("bits").read(team.toString(), null);
     let amt = raw == null ? 0.0 : Number(raw);
-    let hash = SAVE.get("bit-hash");
+    let hash = Number(SAVE.get("bit-hash").read(team.toString(), 48.0));
 
     if(_bitHash(amt) === hash) {
       return amt;
@@ -47,7 +47,7 @@
       return 0.0;
     };
 
-    return raw == null ? 0.0 : Number(raw);
+    return amt;
   }
   .setAnno(ANNO.__NONCONSOLE__);
   exports._bitAmt = _bitAmt;
@@ -62,15 +62,16 @@
     if(team == null || amt == null) return;
     if(amt < 0.0) amt = 0.0;
 
-    let arr = SAVE.get("bits").slice().write(team.toString(), String(amt));
-    let hash = _bitHash(amt);
+    let arr1 = SAVE.get("bits").slice().write(team.toString(), String(amt));
+    let arr2 = SAVE.get("bit-hash").slice().write(team.toString(), _bitHash(amt));
+    printAll(arr1, arr2);
 
     if(!Vars.net.client()) {
-      SAVE.set("bits", arr);
-      SAVE.set("bit-hash", hash);
+      SAVE.set("bits", arr1);
+      SAVE.set("bit-hash", arr2);
     } else {
-      SAVE.requestSet("bits", arr);
-      SAVE.requestSet("bit-hash", hash);
+      SAVE.requestSet("bits", arr1);
+      SAVE.requestSet("bit-hash", arr2);
     };
 
     return amt;

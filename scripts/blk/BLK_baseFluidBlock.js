@@ -238,13 +238,15 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.f(b.presTmp);
       wr.f(b.fHeatCur);
     },
 
 
     read: function(b, rd, revi) {
-      var pres = rd.f();
+      processRevision(rd);
+      let pres = rd.f();
       b.pres = pres;
       b.presTmp = pres;
       b.fHeatCur = rd.f();

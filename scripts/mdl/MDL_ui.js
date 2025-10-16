@@ -186,7 +186,7 @@
     var done = false;
     tb.update(() => {
       if(!done) {
-        tb.setPosition(Object.val(x, _centerX()), Object.val(y, _centerY()), Object.val(align, Align.center));
+        tb.setPosition(tryVal(x, _centerX()), tryVal(y, _centerY()), tryVal(align, Align.center));
         done = true;
       };
     });
@@ -201,7 +201,7 @@
    * If {permanent} is {true}, the actor won't get removed finally.
    * ---------------------------------------- */
   const setActor_action = function(tb, delay, acts, permanent) {
-    let acts_fi = [Actions.fadeOut(0.0), Actions.delay(Object.val(delay, 0.0))].pushAll(acts);
+    let acts_fi = [Actions.fadeOut(0.0), Actions.delay(tryVal(delay, 0.0))].pushAll(acts);
     if(!permanent) acts_fi.push(Actions.remove());
     tb.actions.apply(tb, acts_fi);
     tb.pack();
@@ -364,7 +364,7 @@
     var done = false;
     tb.update(() => {
       if(!done) {
-        tb.setPosition(_screenW() * (Object.val(fracX, 0.5)), _screenH() * 0.4, Align.center);
+        tb.setPosition(_screenW() * (tryVal(fracX, 0.5)), _screenH() * 0.4, Align.center);
         done = true;
       };
     });
@@ -542,7 +542,7 @@
     flowIndMap: new ObjectMap(),
     callFlow: flowArr => {
       let ind = _d_flow.flowIndMap.get(flowArr, 0);
-      let obj = Object.val(flowArr[ind * 4 + 2], Object.air);
+      let obj = tryVal(flowArr[ind * 4 + 2], Object.air);
       let args = flowArr[ind * 4 + 3];
       let cond = false;
 

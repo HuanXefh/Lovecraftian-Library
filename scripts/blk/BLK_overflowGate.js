@@ -198,11 +198,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.bool(b.isInv);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.isInv = rd.bool();
     },
 

@@ -41,7 +41,7 @@ ptp.extend = function(obj) {
 
 
 ptp.build = function() {
-  return Object.val(this.builderObj, Object.air);
+  return tryVal(this.builderObj, Object.air);
 };
 
 

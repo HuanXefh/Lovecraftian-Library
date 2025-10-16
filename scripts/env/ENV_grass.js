@@ -112,7 +112,7 @@
 
   TEMPLATE._std = function(grassLay) {
     return {
-      layer: Object.val(grassLay, Layer.groundUnit - 1.2),
+      layer: tryVal(grassLay, Layer.groundUnit - 1.2),
       init() {
         this.super$init();
         TEMPLATE.init(this);

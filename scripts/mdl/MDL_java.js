@@ -76,6 +76,6 @@
   const invoke = function(javaCls, nmFun, caller, javaArgs) {
     let argTup = _argTup(javaArgs);
 
-    return Reflect.invoke(javaCls, Object.val(caller, null), nmFun, argTup[0], argTup[1]);
+    return Reflect.invoke(javaCls, tryVal(caller, null), nmFun, argTup[0], argTup[1]);
   };
   exports.invoke = invoke;

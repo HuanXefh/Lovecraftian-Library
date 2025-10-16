@@ -99,6 +99,20 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether this content is vanilla content.
+   * ---------------------------------------- */
+  const _isVanilla = function(ct_gn) {
+    let ct = MDL_content._ct(ct_gn, null, true);
+    if(ct == null) return false;
+
+    return ct.minfo.mod == null;
+  };
+  exports._isVanilla = _isVanilla;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether this resource is now available (unlocked and not hidden).
    * ---------------------------------------- */
   const _isRsAvailable = function(rs_gn) {
@@ -1302,7 +1316,7 @@
     let sta = MDL_content._ct(sta_gn, "sta");
     if(sta == null) return false;
 
-    var cond = Function.tryFun(sta.ex_isStackSta, false, sta);
+    var cond = tryFun(sta.ex_isStackSta, false, sta);
 
     return cond;
   };

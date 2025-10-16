@@ -261,11 +261,13 @@
 
     write: function(b, wr) {
       PARENT.write(b, wr);
+      processRevision(wr);
     },
 
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
+      processRevision(rd);
     },
 
 
@@ -318,7 +320,7 @@
 
   TEMPLATE._std = function(fluidType) {
     return {
-      fluidType: Object.val(fluidType, "both"),
+      fluidType: tryVal(fluidType, "both"),
       init() {
         this.super$init();
         TEMPLATE.init(this);

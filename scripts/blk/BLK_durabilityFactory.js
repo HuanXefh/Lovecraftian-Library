@@ -261,6 +261,7 @@
 
     write: function(b, wr) {
       PARENT.write(b, wr);
+      processRevision(wr);
       wr.f(b.durab);
       wr.str(b.durabMode);
     },
@@ -268,6 +269,7 @@
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
+      processRevision(rd);
       b.durab = rd.f();
       b.durabMode = rd.str();
     },
@@ -374,15 +376,15 @@
         return TEMPLATE.ex_getRcMdl(this);
       },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(craftSe, useCep, noDump) {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
-      useCep: Object.val(useCep, false), noDump: Object.val(noDump, false),
+      craftSound: tryVal(craftSe, Sounds.none),
+      useCep: tryVal(useCep, false), noDump: tryVal(noDump, false),
       rcHeader: "", validTup: null, timeScl: 1.0, ignoreItemFullness: false,
       ci: [], bi: [], aux: [], reqOpt: false, opt: [],
       co: [], bo: [], failP: 0.0, fo: [],

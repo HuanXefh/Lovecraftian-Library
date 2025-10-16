@@ -115,10 +115,10 @@
     let oreblks = MDL_content._oreBlks(liq);
     if(oreblks.length > 0) {
       liq.stats.add(TP_stat.rs_isOre, true);
-      liq.stats.add(TP_stat.rs_blockRelated, extend(StatValue, {display(tb) {
+      liq.stats.add(TP_stat.rs_blockRelated, newStatValue(tb => {
         tb.row();
         MDL_table.setDisplay_ctLi(tb, oreblks, 48.0);
-      }}));
+      }));
     };
 
     if(VARGEN.fuelLiqs.includes(liq) || VARGEN.fuelGases.includes(liq)) {

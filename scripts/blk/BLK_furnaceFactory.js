@@ -98,7 +98,7 @@
         };
         arr.pullAll(blk.blockedFuels.map(nmRs => MDL_content._ct(nmRs, "rs")));
         let fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk, 1.0);
-        arr.forEach(rs => {
+        arr.forEachFast(rs => {
           rs instanceof Item ?
             MDL_recipeDict.addItmConsTerm(blk, rs, 1, 1.0, {"icon": "lovec-icon-fuel", "time": FRAG_faci._fuelPon(rs) * 60.0 / fuelConsMtp}) :
             MDL_recipeDict.addFldConsTerm(blk, rs, FRAG_faci._fuelPon(rs) * fuelConsMtp, {"icon": "lovec-icon-fuel"});
@@ -109,7 +109,7 @@
 
 
   function comp_setStats(blk) {
-    blk.stats.add(TP_stat.blk0fac_fuel, extend(StatValue, {display(tb) {
+    blk.stats.add(TP_stat.blk0fac_fuel, newStatValue(tb => {
       tb.row();
       MDL_table.__btnSmallBase(tb, "?", () => {
         new CLS_window(
@@ -117,7 +117,7 @@
           tb1 => MDL_table.setDisplay_ctLi(tb1, FRAG_faci._fuelArr(blk), null, 7),
         ).add();
       }).left().padLeft(28.0).row();
-    }}));
+    }));
 
     let fuelConsMtp = DB_block.db["param"]["multiplier"]["fuelCons"].read(blk.name, 1.0);
     if(!fuelConsMtp.fEqual(1.0)) blk.stats.add(TP_stat.blk0fac_fuelConsMtp, fuelConsMtp.perc());
@@ -368,12 +368,14 @@
 
     write: function(b, wr) {
       PARENT.write(b, wr);
+      processRevision(wr);
       wr.f(b.tempCur);
     },
 
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
+      processRevision(rd);
       b.tempCur = rd.f();
     },
 
@@ -471,7 +473,7 @@
   TEMPLATE._std = function(nmBlk, fuelType, blockedFuels, craftEff, updateEff, updateEffP) {
     return {
       rcMdl: MDL_recipe._rcMdl("projreind", nmBlk),
-      fuelType: Object.val(fuelType, "item"), blockedFuels: Object.val(blockedFuels, []),
+      fuelType: tryVal(fuelType, "item"), blockedFuels: tryVal(blockedFuels, []),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -510,15 +512,15 @@
         return TEMPLATE.ex_getBlockedFuels(this);
       },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(craftSe, useCep, noDump, heatIncRate) {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
-      useCep: Object.val(useCep, false), noDump: Object.val(noDump, false), heatIncRate: Object.val(heatIncRate, 0.0001),
+      craftSound: tryVal(craftSe, Sounds.none),
+      useCep: tryVal(useCep, false), noDump: tryVal(noDump, false), heatIncRate: tryVal(heatIncRate, 0.0001),
       rcHeader: "", validTup: null, timeScl: 1.0, ignoreItemFullness: false,
       ci: [], bi: [], aux: [], reqOpt: false, opt: [],
       co: [], bo: [], failP: 0.0, fo: [],

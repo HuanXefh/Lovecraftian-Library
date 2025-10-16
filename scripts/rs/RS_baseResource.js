@@ -73,15 +73,15 @@
 
   function comp_createIcons(rs, packer) {
     // Still a string here
-    let parent = !rs.useParentRegion ? null : Object.val(rs.intmdParent, null);
+    let parent = !rs.useParentRegion ? null : tryVal(rs.intmdParent, null);
 
     // Have to put it here.
-    if(MDL_color._isSameColor(rs.color, Color.black)) rs.color = MDL_color._iconColor(Object.val(parent, rs));
+    if(MDL_color._isSameColor(rs.color, Color.black)) rs.color = MDL_color._iconColor(tryVal(parent, rs));
 
     const tags = MDL_content._intmdTags(rs);
     let iCap = tags.iCap();
     if(iCap !== 0) {
-      let pixBase = Core.atlas.getPixmap(Object.val(parent, rs.name));
+      let pixBase = Core.atlas.getPixmap(tryVal(parent, rs.name));
       let pix0 = MDL_texture._pix_stack(pixBase);
       packer.add(MultiPacker.PageType.main, rs.name + "-t0", pix0);
       pix0.dispose();

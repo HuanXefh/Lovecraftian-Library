@@ -54,7 +54,7 @@
   function comp_draw(sta, unit) {
     var cond = true;
     var isAfter = false;
-    VARGEN.fadeStas.forEach(osta => {
+    VARGEN.fadeStas.forEachFast(osta => {
       if(osta === sta) isAfter = true;
       if(!isAfter && unit.hasEffect(osta) && osta !== sta) cond = false;
     });
@@ -116,7 +116,7 @@
 
   TEMPLATE._std = function(nmReg, fadeColor) {
     return {
-      fadeReg: nmReg, fadeColor: Object.val(fadeColor, Color.white),
+      fadeReg: nmReg, fadeColor: tryVal(fadeColor, Color.white),
       init() {
         this.super$init();
         TEMPLATE.init(this);

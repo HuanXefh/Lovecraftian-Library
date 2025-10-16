@@ -178,7 +178,7 @@
     if(w == null) w = 32;
     let hw = w / 2;
     let ct = global.lovecUtil.fun._ct(ct_gn);
-    if(ct == null) throw new Error("Error when creating pixmap: content is not found for " + ct_gn + "!");
+    if(ct == null) ERROR_HANDLER.noCt(ct_gn);
     let reg = ct instanceof Block ? _regBlk(ct) : Core.atlas.find(ct.name);
     let pixCt = Core.atlas.getPixmap(reg);
     let wCt = pixCt.width;

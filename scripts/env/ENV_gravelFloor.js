@@ -101,7 +101,7 @@
 
   TEMPLATE._std = function(randRegs, randRegDenom, randRegOffs) {
     return {
-      randRegs: Object.val(randRegs, []), randRegDenom: Object.val(randRegDenom, 80), randRegOffs: Object.val(randRegOffs, [0, 0]),
+      randRegs: tryVal(randRegs, []), randRegDenom: tryVal(randRegDenom, 80), randRegOffs: tryVal(randRegOffs, [0, 0]),
       init() {
         this.super$init();
         TEMPLATE.init(this);

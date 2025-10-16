@@ -42,6 +42,7 @@
   const FRAG_faci = require("lovec/frag/FRAG_faci");
 
 
+  const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -58,10 +59,47 @@
   function comp_setStats(blk) {
     if(blk.itmWhitelist.length > 0) {
       blk.stats.remove(TP_stat.blk0min_blockedItms);
-      blk.stats.add(TP_stat.blk0min_allowedItms, extend(StatValue, {display(tb) {
+      blk.stats.add(TP_stat.blk0min_allowedItms, newStatValue(tb => {
         tb.row();
         MDL_table.setDisplay_ctLi(tb, blk.itmWhitelist);
-      }}));
+      }));
+    };
+    if(blk.terItmMapMap.size > 0) {
+      blk.stats.add(Stat.output, newStatValue(tb => {
+        tb.row();
+        let base = tb.table(Styles.none, tb1 => {}).growX().get();
+        blk.terItmMapMap.each((nmItm, terItmMap) => {
+          let itm = MDL_content._ct(nmItm, "rs");
+          if(itm == null) return;
+
+          base.table(Styles.none, tb1 => {
+            tb1.add(itm.localizedName).row();
+            tb1.table(Styles.none, tb2 => {
+              MDL_table.setTable_base(tb2, (function() {
+                let matArr = [
+                  [
+                    "",
+                    MDL_bundle._term("lovec", "resource"),
+                    TP_stat.blk_terReq.localized(),
+                  ],
+                  [
+                    itm,
+                    itm.localizedName,
+                    "-",
+                  ],
+                ];
+                terItmMap.each((ter, nmRs) => {
+                  let rs = MDL_content._ct(nmRs, "rs");
+                  if(rs == null) return;
+                  matArr.push([rs, rs.localizedName, FRAG_faci._terB(ter)]);
+                });
+
+                return matArr;
+              })());
+            }).growX().row();
+          }).growX().row();
+        });
+      }));
     };
   };
 
@@ -76,7 +114,7 @@
 
     let terItmMap = b.block.ex_getTerItmMapMap().get(b.dominantItem == null ? "null" : b.dominantItem.name);
     if(terItmMap == null) return;
-    let itm = MDL_content._ct(terItmMap.get(Object.val(b.terCur, "transition")), "rs");
+    let itm = MDL_content._ct(terItmMap.get(tryVal(b.terCur, "transition")), "rs");
     if(itm == null) return;
 
     b.dominantItem = itm;
@@ -197,7 +235,7 @@
 
   TEMPLATE._std = function(itmWhitelist, terItmMapMap, drillEff, drillEffP, drillEffRnd, updateEff, updateEffP) {
     return {
-      itmWhitelist: Object.val(itmWhitelist, Array.air), terItmMapMap: Object.val(terItmMapMap, new ObjectMap()),
+      itmWhitelist: tryVal(itmWhitelist, Array.air), terItmMapMap: tryVal(terItmMapMap, new ObjectMap()),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -222,15 +260,15 @@
         return TEMPLATE.ex_getTerItmMapMap(this);
       },
       // @SPEC
-      drillEffect: Object.val(drillEff, Fx.none), drillEffectChance: Object.val(drillEffP, 1.0), drillEffectRnd: Object.val(drillEffRnd, 0.0),
-      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      drillEffect: tryVal(drillEff, Fx.none), drillEffectChance: tryVal(drillEffP, 1.0), drillEffectRnd: tryVal(drillEffRnd, 0.0),
+      updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(useCep) {
     return {
-      useCep: Object.val(useCep, false),
+      useCep: tryVal(useCep, false),
       terCur: null,
       created() {
         this.super$created();

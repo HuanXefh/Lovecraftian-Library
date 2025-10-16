@@ -135,7 +135,7 @@
    * ---------------------------------------- */
   ptp.toJavaArr = function(javaClsObj) {
     let iCap = this.iCap();
-    const javaArr = java.lang.reflect.Array.newInstance(Object.val(javaClsObj, java.lang.Object), iCap);
+    const javaArr = java.lang.reflect.Array.newInstance(tryVal(javaClsObj, java.lang.Object), iCap);
     if(iCap === 0) return javaArr;
 
     for(let i = 0; i < iCap; i++) {

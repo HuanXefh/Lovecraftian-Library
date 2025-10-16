@@ -293,7 +293,7 @@
         case "gas" : return VARGEN.fuelGases;
         case "any" : return VARGEN.fuelItms.concat(VARGEN.fuelLiqs).concat(VARGEN.fuelGases);
       };
-    })().sort((ct1, ct2) => FRAG_faci._fuelLvl(ct1) - FRAG_faci._fuelLvl(ct2)).forEach(ct => {
+    })().sort((ct1, ct2) => FRAG_faci._fuelLvl(ct1) - FRAG_faci._fuelLvl(ct2)).forEachFast(ct => {
       let fuelPon = FRAG_faci._fuelPon(ct);
       let fuelLvl = FRAG_faci._fuelLvl(ct);
       if(fuelLvl * 100.0 > maxTemp || !boolF(ct)) return;
@@ -331,7 +331,7 @@
     });
   }
   .setProp({
-    "modes": ["item", "liquid", "gas", "any"],
+    modes: ["item", "liquid", "gas", "any"],
   });
   exports._gen_heater = _gen_heater;
 

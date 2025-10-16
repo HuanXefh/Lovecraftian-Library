@@ -84,28 +84,27 @@
     blk.stats.remove(Stat.tiles);
     blk.stats.remove(Stat.affinities);
 
-    blk.stats.add(TP_stat.blk_attrReq, extend(StatValue, {display(tb) {
+    blk.stats.add(TP_stat.blk_attrReq, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_attr(tb, MDL_attr._attrs_attrRsMap(blk.attrRsMap));
-    }}));
-    blk.stats.add(TP_stat.blk_attrOutput, extend(StatValue, {display(tb) {
+    }));
+    blk.stats.add(TP_stat.blk_attrOutput, newStatValue(tb => {
       tb.row();
       MDL_table.setTable_base(tb, (function() {
-        const matArr = [];
-
-        matArr.push(["", MDL_bundle._term("lovec", "resource"), TP_stat.blk_attrReq.localized()]);
+        let matArr = [[
+          "",
+          MDL_bundle._term("lovec", "resource"),
+          TP_stat.blk_attrReq.localized(),
+        ]];
         blk.attrRsMap.forEachRow(2, (nmAttr, nmRs) => {
           let rs = MDL_content._ct(nmRs, "rs");
           if(rs == null) return;
-
-          let rowArr = [];
-          rowArr.push(rs, rs.localizedName, MDL_attr._attrB(nmAttr));
-          matArr.push(rowArr);
+          matArr.push([rs, rs.localizedName, MDL_attr._attrB(nmAttr)]);
         });
 
         return matArr;
       })());
-    }}));
+    }));
   };
 
 
@@ -331,11 +330,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.f(b.prog);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.prog = rd.f();
     },
 

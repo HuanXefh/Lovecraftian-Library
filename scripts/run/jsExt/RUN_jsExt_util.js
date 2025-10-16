@@ -158,7 +158,7 @@
    * Converts a tile coordination to world coordination.
    * ---------------------------------------- */
   ptp.toFCoord = function(size) {
-    return this * Vars.tilesize + (Object.val(size, 1) % 2 === 0 ? 4.0 : 0.0);
+    return this * Vars.tilesize + (tryVal(size, 1) % 2 === 0 ? 4.0 : 0.0);
   };
 
 

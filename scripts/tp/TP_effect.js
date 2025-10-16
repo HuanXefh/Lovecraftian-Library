@@ -969,7 +969,7 @@
     if(scl == null) scl = 1.0;
 
     const eff = new Effect(40.0, eff => {
-      var rad_fi = Object.val(rad, eff.rotation);
+      var rad_fi = tryVal(rad, eff.rotation);
 
       eff.lifetime = 40.0 * scl * Math.pow(rad_fi * 0.025, 0.5);
 
@@ -991,8 +991,8 @@
     if(scl == null) scl = 1.0;
 
     const eff = new Effect(20.0 * scl, eff => {
-      var rad_fi = Object.val(r, eff.rotation) * Vars.tilesize * Interp.pow2Out.apply(eff.fin());
-      let color = MDL_color._color(Object.val(color_gn, eff.color));
+      var rad_fi = tryVal(r, eff.rotation) * Vars.tilesize * Interp.pow2Out.apply(eff.fin());
+      let color = MDL_color._color(tryVal(color_gn, eff.color));
 
       Draw.color(color);
       Lines.stroke(size_f - eff.fin() * (size_f - size_t));
@@ -1014,8 +1014,8 @@
     if(scl == null) scl = 1.0;
 
     const eff = new Effect(20.0 * scl, eff => {
-      var rad_fi = Object.val(rad, eff.rotation) * Interp.pow2Out.apply(eff.fin());
-      let color = MDL_color._color(Object.val(color_gn, eff.color));
+      var rad_fi = tryVal(rad, eff.rotation) * Interp.pow2Out.apply(eff.fin());
+      let color = MDL_color._color(tryVal(color_gn, eff.color));
 
       Draw.color(color);
       Lines.stroke(size_f - eff.fin() * (size_f - size_t));
@@ -1036,7 +1036,7 @@
     if(scl == null) scl = 1.0;
 
     const eff = new Effect(40.0 * scl, eff => {
-      let color = MDL_color._color(Object.val(color_gn, eff.color));
+      let color = MDL_color._color(tryVal(color_gn, eff.color));
 
       Draw.color(color);
       Draw.alpha(eff.fout());

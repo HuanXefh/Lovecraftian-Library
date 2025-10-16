@@ -268,7 +268,7 @@
 
   TEMPLATE._std_b = function(useCep) {
     return {
-      useCep: Object.val(useCep, false),
+      useCep: tryVal(useCep, false),
       sideReg1: null, sideReg2: null,
       created() {
         this.super$created();

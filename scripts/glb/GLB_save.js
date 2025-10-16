@@ -45,6 +45,7 @@
 
   let lsavJsonVal = null;
   let lsav = {};
+  let saveRevision = 0;
 
 
   /* ----------------------------------------
@@ -63,16 +64,15 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Loads the LSAV object from local file, delayed so world is completely loaded then.
+   * Loads the LSAV object, delayed so world is completely loaded then.
    * ---------------------------------------- */
   function loadLsav() {
-    Time.run(30.0, () => {
+    Time.run(6.0, () => {
       if(Vars.state.isEditor()) return;
       if(Vars.net.client()) {
         requestSync();
         return;
       };
-
       try {
         lsavJsonVal = MDL_json.parse(MDL_file._lsav());
       } catch(err) {
@@ -82,7 +82,7 @@
       if(lsavJsonVal == null) return;
 
       DB_misc.db["lsav"]["header"].forEachRow(3, (header, def, arrMode) => {
-        lsav[header] = Object.val(MDL_json.fetch(lsavJsonVal, header, false, arrMode), def);
+        lsav[header] = tryVal(MDL_json.fetch(lsavJsonVal, header, false, arrMode), def);
       });
 
       if(lsav["save-map"] !== "!UNDEF" && lsav["save-map"] !== global.lovecUtil.fun._mapCur()) {
@@ -146,11 +146,11 @@
       cond = true;
     } else {
       if(val === undefined) {
-        Log.warn("[LOVEC] Passing " + "undefined".color(Pal.remove) + " as LSAV value!");
+        Log.warn("[LOVEC] Passing " + "undefined".color(Pal.remove) + " as LSAV value to " + header.color(Pal.accent) + "!");
       } else if(lsav[header] === undefined) {
-        Log.warn("[LOVEC] The LSAV field is " + "undefined".color(Pal.remove) + "!");
+        Log.warn("[LOVEC] The LSAV field " + header.color(Pal.accent) + " is " + "undefined".color(Pal.remove) + "!");
       } else if(typeof val !== typeof lsav[header]) {
-        Log.warn("[LOVEC] LSAV value changed to a different type!");
+        Log.warn("[LOVEC] LSAV value for [$1] changed to a different type!".format(header.color(Pal.accent)));
       } else {
         cond = true;
       };

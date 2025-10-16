@@ -85,7 +85,7 @@
 
     this.isAbstrClass = Function.airTrue;
     this.prototype.init = function() {
-      throw new Error("Cannot create instances of an abstract class.");
+      ERROR_HANDLER.abstractInstance();
     };
 
     return this;
@@ -102,7 +102,7 @@
    * You can use {this.super(nmFun, ...args)} to call super methods later.
    * ---------------------------------------- */
   ptp.extendClass = function(cls) {
-    if(typeof cls !== "function" || !cls.isClass()) throw new Error("Parent class argument is not a function class: " + String(cls));
+    if(typeof cls !== "function" || !cls.isClass()) ERROR_HANDLER.notClass();
 
     Object.assign(this, cls);
     // A second abstract class??? {initAbstrClass} again
@@ -111,10 +111,10 @@
 
     this.super = function(nmFun) {
       let clsParent = this.getSuper();
-      if(clsParent === Function) throw new Error("Can't call super when there's no parent class!");
-      if(clsParent.isAbstrClass()) throw new Error("Calling super methods from an abstract class is not allowed.");
+      if(clsParent === Function) ERROR_HANDLER.noSuperClass();
+      if(clsParent.isAbstrClass()) ERROR_HANDLER.abstractSuper();
       let funParent = clsParent[nmFun];
-      if(funParent == null) throw new Error("Method is undefined in super class: " + String(nmFun));
+      if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
 
       return funParent.apply(this, Array.from(arguments).splice(0, 1));
     };
@@ -124,10 +124,10 @@
 
     this.prototype.super = function(nmFun) {
       let clsParent = this.getClass().getSuper();
-      if(clsParent === Function) throw new Error("Can't call super when there's no parent class!");
-      if(clsParent.isAbstrClass()) throw new Error("Calling super methods from an abstract class is not allowed.");
+      if(clsParent === Function) ERROR_HANDLER.noSuperClass();
+      if(clsParent.isAbstrClass()) ERROR_HANDLER.abstractSuper();
       let funParent = clsParent.prototype[nmFun];
-      if(funParent == null) throw new Error("Method is undefined in super class: " + String(nmFun));
+      if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
 
       return funParent.apply(new clsParent(), Array.from(arguments).splice(0, 1));
     };

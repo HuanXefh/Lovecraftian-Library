@@ -62,10 +62,10 @@
     if(!itm.sintTemp.fEqual(100.0)) itm.stats.add(TP_stat.rs_sintTemp, itm.sintTemp, TP_stat.rs_heatUnits);
 
     const oreblks = MDL_content._oreBlks(itm);
-    if(oreblks.length > 0) itm.stats.add(TP_stat.rs_blockRelated, extend(StatValue, {display(tb) {
+    if(oreblks.length > 0) itm.stats.add(TP_stat.rs_blockRelated, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_ctLi(tb, oreblks, 48.0);
-    }}));
+    }));
   };
 
 

@@ -114,7 +114,7 @@
 
     if(jsonVal.has("mesh")) {
       let mesh = jsonVal.get("mesh");
-      if(!mesh.isObject() && !mesh.isArray()) throw new Error("Error loading mesh for " + pla);
+      if(!mesh.isObject() && !mesh.isArray()) ERROR_HANDLER.plaMeshFail(pla);
       jsonVal.remove("mesh");
       pla.meshLoader = prov(() => {
         try {
@@ -128,7 +128,7 @@
 
     if(jsonVal.has("cloudMesh")) {
       let mesh = jsonVal.get("cloudMesh");
-      if(!mesh.isObject() && !mesh.isArray()) throw new Error("Error loading cloud mesh for " + pla);
+      if(!mesh.isObject() && !mesh.isArray()) ERROR_HANDLER.plaMeshFail(pla, "cloud");
       jsonVal.remove("cloudMesh");
       pla.cloudMeshLoader = prov(() => {
         try {

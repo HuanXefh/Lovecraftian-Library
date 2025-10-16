@@ -330,13 +330,13 @@
 
     if(Vars.state.isPaused()) return;
 
-    thisFun.effPack.forEach(eff => {
+    thisFun.effs.forEachFast(eff => {
       showAt(x, y, eff, rad);
     });
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "effPack": [
+    effs: [
       TP_effect._impactWave(6.0, 0.0, null, 1.0),
       TP_effect._impactWave(6.0, 0.0, null, 1.2),
       TP_effect._impactWave(6.0, 0.0, null, 1.5),
@@ -391,7 +391,7 @@
     if(liqColor == null) liqColor = Color.white;
 
     var rad = size * Vars.tilesize * 0.5;
-    showAround(x, y, thisFun.eff, rad, null, liqColor, Object.val(isClogging, false));
+    showAround(x, y, thisFun.eff, rad, null, liqColor, tryVal(isClogging, false));
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
@@ -536,7 +536,7 @@
 
     if(e instanceof Building) {
       let reg = e.block instanceof BaseTurret ?
-        Object.val(MDL_texture._regTurBase(e.block), e.block.region) :
+        tryVal(MDL_texture._regTurBase(e.block), e.block.region) :
         Core.atlas.find(e.block.name + "-icon", e.block.region);
       if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.eff, 0.0, MDL_color._color(color_gn), [reg, e]);
     } else {
@@ -629,7 +629,7 @@
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "modes": ["health", "shield", "heal", "heat"],
+    modes: ["health", "shield", "heal", "heat"],
     eff: new Effect(40.0, eff => {
       MDL_draw.drawText(
         eff.x,
@@ -742,7 +742,7 @@
     if(Vars.state.isPaused() || e == null) return;
     if(color_gn == null) color_gn = Pal.accent;
 
-    showAt(x, y, thisFun.eff, Object.val(strokeScl, 1.0), MDL_color._color(color_gn), [e0, e, hasLight]);
+    showAt(x, y, thisFun.eff, tryVal(strokeScl, 1.0), MDL_color._color(color_gn), [e0, e, hasLight]);
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
@@ -786,14 +786,14 @@
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    "eff1": new Effect(30.0, 300.0, eff => {
+    eff1: new Effect(30.0, 300.0, eff => {
       Draw.color(eff.color, eff.fout());
       Lines.stroke(2.0);
       Lines.line(eff.x, eff.y, eff.data[0], eff.data[1]);
       Drawf.light(eff.x, eff.y, eff.data[0], eff.data[1], 20.0, eff.color, 0.65 * eff.fout());
       Draw.reset();
     }),
-    "eff2": new Effect(30.0, eff => {
+    eff2: new Effect(30.0, eff => {
       Draw.color(eff.color, eff.fout());
       eff.data == null ?
         Fill.circle(eff.x, eff.y, 2.0 + eff.fout()) :

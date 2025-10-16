@@ -61,14 +61,11 @@ CLS_matrix.getUnitMat = function(n, def) {
  * Result is a column vector by default.
  * ---------------------------------------- */
 CLS_matrix.getVec = function(arr, isRowVec) {
-  let i = 0;
-  let iCap = arr.iCap();
-
   const matArr = [];
   if(isRowVec) {
     matArr.push(arr.slice());
   } else {
-    arr.forEach(num => matArr.push([num]));
+    arr.forEachFast(num => matArr.push([num]));
   };
 
   return new CLS_matrix(matArr);
@@ -83,7 +80,7 @@ CLS_matrix.getVec = function(arr, isRowVec) {
 CLS_matrix.pack = function(mat) {
   if(!(mat instanceof CLS_matrix)) return null;
 
-  var colAmt = mat.getColAmt();
+  let colAmt = mat.getColAmt();
   const mat0 = mat.toArray().flatten();
   mat0.unshift(colAmt);
 
@@ -100,9 +97,8 @@ CLS_matrix.unpack = function(matArrPack) {
   if(!(matArrPack instanceof Array)) return null;
 
   const mat = matArrPack.slice();
-  var colAmt = mat.shift();
 
-  return new CLS_matrix(mat.chunk(colAmt, 0));
+  return new CLS_matrix(mat.chunk(mat.shift(), 0));
 };
 
 
@@ -114,9 +110,11 @@ CLS_matrix.unpack = function(matArrPack) {
 CLS_matrix.fromArcVec = function(arcVec, isRowVec) {
   if(arcVec == null) return null;
 
-  if(arcVec instanceof Vec2) {return CLS_matrix.getVec([arcVec.x, arcVec.y], isRowVec)}
-  else if(arcVec instanceof Vec3) {return CLS_matrix.getVec([arcVec.x, arcVec.y, arcVec.z], isRowVec)}
-  else return null;
+  return arcVec instanceof Vec2 ?
+    CLS_matrix.getVec([arcVec.x, arcVec.y], isRowVec) :
+    arcVec instanceof Vec3 ?
+      CLS_matrix.getVec([arcVec.x, arcVec.y, arcVec.z], isRowVec) :
+      null;
 };
 
 
@@ -208,8 +206,7 @@ ptp.cpy = function() {
  * Iterates through every element in the matrix.
  * ---------------------------------------- */
 ptp.forEach = function(scr) {
-  var iCap = this.getRowAmt();
-  var jCap = this.getColAmt();
+  let iCap = this.getRowAmt(), jCap = this.getColAmt();
   for(let i = 0; i < iCap; i++) {
     for(let j = 0; j < jCap; j++) {
       scr(this.matArr[i][j]);
@@ -224,7 +221,7 @@ ptp.forEach = function(scr) {
  * Iterates through every row array in the matrix.
  * ---------------------------------------- */
 ptp.forEachRow = function(scr) {
-  var iCap = this.getRowAmt();
+  let iCap = this.getRowAmt();
   for(let i = 0; i < iCap; i++) {
     scr(this.matArr[i]);
   };
@@ -237,8 +234,7 @@ ptp.forEachRow = function(scr) {
  * Iterates through every column array in the matrix.
  * ---------------------------------------- */
 ptp.forEachCol = function(scr) {
-  var iCap = this.getColAmt();
-  var jCap = this.getRowAmt();
+  let iCap = this.getColAmt(), jCap = this.getRowAmt();
   for(let i = 0; i < iCap; i++) {
     let tmpArr = [];
     for(let j = 0; j < jCap; j++) {
@@ -274,13 +270,11 @@ ptp.set = function(row, col, ele) {
  * ---------------------------------------- */
 ptp.normalize = function(def) {
   if(!this.isVec()) return null;
-
   if(def == null) def = 1.0;
 
   let len = this.len();
   if(def.fEqual(0.0)) return this;                // Does nothing for zero vector
-  let i = 0;
-  let iCap = this.dimension();
+  let i = 0, iCap = this.dimension();
   while(i < iCap) {
     (this.isRowVec() ? this.matArr[0][i] /= len * def : this.matArr[i][0] /= len * def);
     i++;
@@ -389,8 +383,7 @@ ptp.dimension = function() {
  * Returns the transposed result as a new matrix.
  * ---------------------------------------- */
 ptp.transpose = function() {
-  var iCap = this.getRowAmt();
-  var jCap = this.getColAmt();
+  let iCap = this.getRowAmt(), jCap = this.getColAmt();
   const mat = CLS_matrix.getEmptyMat(jCap, iCap);
   for(let i = 0; i < iCap; i++) {
     for(let j = 0; j < jCap; j++) {
@@ -411,8 +404,7 @@ ptp.add = function(mat) {
   if(!this.sameSize(mat)) return null;
   if(this.getRowAmt() != mat.getRowAmt() || this.getColAmt() != mat.getColAmt()) return;
 
-  var iCap = this.getRowAmt();
-  var jCap = this.getColAmt();
+  let iCap = this.getRowAmt(), jCap = this.getColAmt();
   const mat0 = CLS_matrix.getEmptyMat(iCap, jCap);
   for(let i = 0; i < iCap; i++) {
     for(let j = 0; j < jCap; j++) {
@@ -444,11 +436,11 @@ ptp.minus = function(mat) {
 ptp.scl = function(scl) {
   var num = 0.0;
 
-  if(scl instanceof CLS_matrix && scl.isScl()) {num = scl.get(1, 1)}
-  else {num = scl};
+  num = scl instanceof CLS_matrix && scl.isScl() ?
+    scl.get(1, 1) :
+    scl;
 
-  var iCap = this.getRowAmt();
-  var jCap = this.getColAmt();
+  let iCap = this.getRowAmt(), jCap = this.getColAmt();
   const mat = CLS_matrix.getEmptyMat(iCap, jCap);
   for(let i = 0; i < iCap; i++) {
     for(let j = 0; j < jCap; j++) {
@@ -468,9 +460,7 @@ ptp.scl = function(scl) {
 ptp.mul = function(mat) {
   if(!this.canMul(mat)) return null;
 
-  var iCap = this.getRowAmt();
-  var jCap = mat.getColAmt();
-  var kCap = this.getColAmt();
+  let iCap = this.getRowAmt(), jCap = mat.getColAmt(), kCap = this.getColAmt();
   const mat0 = CLS_matrix.getEmptyMat(iCap, jCap);
   for(let i = 0; i < iCap; i++) {
     for(let j = 0; j < jCap; j++) {
@@ -492,8 +482,7 @@ ptp.mul = function(mat) {
  * Returns the submatrix at (row, col).
  * ---------------------------------------- */
 ptp.subMat = function(row, col) {
-  var iCap = this.getRowAmt() - 1;
-  var jCap = this.getColAmt() - 1;
+  let iCap = this.getRowAmt() - 1, jCap = this.getColAmt() - 1;
   const mat = CLS_matrix.getEmptyMat(iCap, jCap);
   for(let i = 0; i < iCap; i++) {
     for(let j = 0; j < jCap; j++) {
@@ -518,7 +507,7 @@ ptp.det = function() {
   if(!this.isSquare()) return null;
 
   const mat = this.cpy();
-  var iCap = mat.getRowAmt();
+  let iCap = mat.getRowAmt();
   for(let k = 0; k < iCap - 1; k++) {
     for(let i = k + 1; i < iCap; i++) {
       for(let j = k + 1; j < iCap; j++) {
@@ -563,7 +552,7 @@ ptp.cofactor = function(row, col) {
 ptp.adjugate = function() {
   if(!this.isSquare()) return;
 
-  var iCap = this.getRowAmt();
+  let iCap = this.getRowAmt();
   const mat = CLS_matrix.getEmptyMat(iCap, iCap);
   for(let i = 0; i < iCap; i++) {
     for(let j = 0; j < iCap; j++) {
@@ -582,7 +571,7 @@ ptp.adjugate = function() {
  * ---------------------------------------- */
 ptp.inverse = function() {
   if(!this.isSquare()) return null;
-  var det = this.det();
+  let det = this.det();
   if(Math.abs(det) < 0.000001) return null;
 
   return this.adjugate().scl(1.0 / det);
@@ -598,7 +587,7 @@ ptp.trace = function() {
   if(!this.isSquare()) return null;
 
   var sum = 0.0;
-  var iCap = this.getRowAmt();
+  let iCap = this.getRowAmt();
   for(let i = 0; i < iCap; i++) {
     sum += this.matArr[i][i];
   };

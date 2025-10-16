@@ -51,7 +51,7 @@
    * Returns an empty object if errored.
    * ---------------------------------------- */
   const _rcBase = function(rcMdl) {
-    return rcMdl == null ? Object.air : Object.val(rcMdl.rc["base"], Object.air);
+    return rcMdl == null ? Object.air : tryVal(rcMdl.rc["base"], Object.air);
   };
   exports._rcBase = _rcBase;
 
@@ -62,7 +62,7 @@
    * Fetches a key value in the recipe base.
    * ---------------------------------------- */
   const _rcBaseVal = function(rcMdl, key, def) {
-    return Object.val(_rcBase(rcMdl)[key], def);
+    return tryVal(_rcBase(rcMdl)[key], def);
   };
   exports._rcBaseVal= _rcBaseVal;
 
@@ -74,7 +74,7 @@
    * Returns an empty array if errored.
    * ---------------------------------------- */
   const _rcLi = function(rcMdl) {
-    return rcMdl == null ? Array.air : Object.val(rcMdl.rc["recipe"], Array.air);
+    return rcMdl == null ? Array.air : tryVal(rcMdl.rc["recipe"], Array.air);
   };
   exports._rcLi = _rcLi;
 
@@ -149,7 +149,7 @@
 
 
   const _firstHeader = function(rcMdl) {
-    return Object.val(_rcLi(rcMdl)[0], "");
+    return tryVal(_rcLi(rcMdl)[0], "");
   };
   exports._firstHeader = _firstHeader;
 
@@ -163,7 +163,7 @@
     let rcObj = _rcObj(rcMdl, rcHeader);
     if(rcObj == null) return def;
 
-    return Object.val(rcObj[key], def);
+    return tryVal(rcObj[key], def);
   };
   exports._rcVal = _rcVal;
 
@@ -548,14 +548,14 @@
               MDL_recipeDict.addItmConsTerm(
                 blkInit,
                 ct,
-                amt / Object.val(timeSclInit, 1.0),
+                amt / tryVal(timeSclInit, 1.0),
                 p,
                 {"ct": _iconNm(rcMdl, rcHeader)},
               ) :
               MDL_recipeDict.addFldConsTerm(
                 blkInit,
                 ct,
-                amt / blkInit.craftTime / Object.val(timeSclInit, 1.0),
+                amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
                 {"ct": _iconNm(rcMdl, rcHeader)},
               );
           };
@@ -575,14 +575,14 @@
                 MDL_recipeDict.addItmConsTerm(
                   blkInit,
                   ct,
-                  amt / Object.val(timeSclInit, 1.0),
+                  amt / tryVal(timeSclInit, 1.0),
                   p,
                   {"ct": _iconNm(rcMdl, rcHeader)},
                 ) :
                 MDL_recipeDict.addFldConsTerm(
                   blkInit,
                   ct,
-                  amt / blkInit.craftTime / Object.val(timeSclInit, 1.0),
+                  amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
                   {"ct": _iconNm(rcMdl, rcHeader)},
                 );
             };
@@ -664,7 +664,7 @@
           MDL_recipeDict.addItmConsTerm(
             blkInit,
             ct,
-            amt / Object.val(timeSclInit, 1.0),
+            amt / tryVal(timeSclInit, 1.0),
             p,
             {"ct": _iconNm(rcMdl, rcHeader), "icon": "lovec-icon-optional"},
           );
@@ -730,7 +730,7 @@
           MDL_recipeDict.addItmProdTerm(
             blkInit,
             ct,
-            amt / Object.val(timeSclInit, 1.0),
+            amt / tryVal(timeSclInit, 1.0),
             p * (failPInit == null ? 1.0 : (1.0 - failPInit)),
             {"ct": _iconNm(rcMdl, rcHeader)},
           );
@@ -776,7 +776,7 @@
           MDL_recipeDict.addItmProdTerm(
             blkInit,
             ct,
-            amt / Object.val(timeSclInit, 1.0),
+            amt / tryVal(timeSclInit, 1.0),
             p * (failPInit == null ? 0.0 : failPInit),
             {"ct": _iconNm(rcMdl, rcHeader)},
           );

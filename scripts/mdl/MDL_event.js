@@ -27,7 +27,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onInit = _c_onInit;
 
@@ -48,7 +48,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onLoad = _c_onLoad;
 
@@ -70,7 +70,7 @@
     });
   }.
   setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onWorldLoadStart = _c_onWorldLoadStart;
 
@@ -91,7 +91,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onWorldLoad = _c_onWorldLoad;
 
@@ -112,7 +112,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onWorldSave = _c_onWorldSave;
 
@@ -133,7 +133,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onUpdate = _c_onUpdate;
 
@@ -154,7 +154,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onDraw = _c_onDraw;
 
@@ -175,7 +175,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onBDamage = _c_onBDamage;
 
@@ -197,7 +197,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onBDestroy = _c_onBDestroy;
 
@@ -218,7 +218,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onUnitDamage = _c_onUnitDamage;
 
@@ -239,7 +239,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onUnitDestroy = _c_onUnitDestroy;
 
@@ -260,7 +260,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onUnitDrown = _c_onUnitDrown;
 
@@ -281,7 +281,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onTileChange = _c_onTileChange;
 
@@ -302,7 +302,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onTilePreChange = _c_onTilePreChange;
 
@@ -323,7 +323,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onTileFloorChange = _c_onTileFloorChange;
 
@@ -344,7 +344,7 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onTileOverlayChange = _c_onTileOverlayChange;
 
@@ -410,6 +410,6 @@
     });
   }
   .setProp({
-    "ids": [],
+    ids: [],
   });
   exports._c_onDrag = _c_onDrag;

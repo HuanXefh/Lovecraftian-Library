@@ -219,12 +219,14 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.f(b.rpmCur);
       wr.f(b.torCur);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.rpmCur = rd.f();
       b.torCur = rd.f();
     },

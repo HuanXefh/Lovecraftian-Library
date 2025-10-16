@@ -771,13 +771,15 @@
     while(i < iCap) {
       if(thisFun.checkTg(nms, this, i, jCap, unordered)) {
         this[i + jCap] = val;
-        return;
+        return this;
       };
       i += jCap + 1;
     };
 
     this.pushAll(nms);
     this.push(val);
+
+    return this;
   }
   .setProp({
     checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {

@@ -301,7 +301,7 @@
    *
    * Writes a .csv file with given n-array.
    * ---------------------------------------- */
-  const __csv = function(fi, arr, ord, bypassExt) {
+  const __csv = function(fi, arr, ord, shouldAppend, bypassExt) {
     if(fi == null || (!bypassExt && fi.extension() !== "csv") || arr == null) return;
     if(ord == null) ord = 2;
 
@@ -316,7 +316,7 @@
       i++;
     };
 
-    fi.writeString(str);
+    fi.writeString(str, Boolean(shouldAppend));
   };
   exports.__csv = __csv;
 

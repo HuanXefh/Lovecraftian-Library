@@ -125,7 +125,7 @@
         return TEMPLATE.ex_getTags(this);
       },
       // @SPEC
-      effect: Object.val(eff, Fx.none), effectChance: Object.val(effP, 0.02),
+      effect: tryVal(eff, Fx.none), effectChance: tryVal(effP, 0.02),
     };
   };
 

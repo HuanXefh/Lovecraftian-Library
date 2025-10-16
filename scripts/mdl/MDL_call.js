@@ -180,7 +180,7 @@
 
         init() {
           this.super$init();
-          DB_status.db["group"]["lootImmune"].forEach(sta_gn => {
+          DB_status.db["group"]["lootImmune"].forEachFast(sta_gn => {
             let sta = MDL_content._ct(sta_gn, "sta", true);
             if(sta != null) this.immunities.add(sta);
           });

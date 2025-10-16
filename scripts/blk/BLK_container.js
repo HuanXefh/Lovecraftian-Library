@@ -60,7 +60,7 @@
     blk.update = true;
 
     blk.configurable = true;
-    blk.saveConfig = true;
+    blk.saveConfig = false;
     blk.clearOnDoubleTap = false;
 
     blk.config(JAVA.STRING, (b, str) => {
@@ -127,7 +127,7 @@
 
     tb.row();
     MDL_table.__btnCfg_base(tb, b, b => {
-      Call.tileConfig(Vars.player, b, "clear");
+      b.configure("clear");
       b.deselect();
     }, VARGEN.icons.cross).tooltip(MDL_bundle._info("lovec", "tt-clear-selection"), true);
   };
@@ -233,11 +233,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       MDL_io._wr_cts(wr, b.dumpTgs);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       MDL_io._rd_cts(rd, b.dumpTgs);
     },
 
@@ -259,7 +261,7 @@
     // @NOSUPER
     ex_accDumpTgs: function(b, param, isAdd) {
       if(param === "read") return b.dumpTgs;
-      if(param === "clear") return b.dumpTgs.clear();
+      if(param === "clear") {b.block.lastConfig = "clear"; return b.dumpTgs.clear()};
       return isAdd ? b.dumpTgs.pushUnique(param) : b.dumpTgs.remove(param);
     },
 

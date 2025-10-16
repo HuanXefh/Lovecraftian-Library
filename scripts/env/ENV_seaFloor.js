@@ -116,7 +116,7 @@
 
   TEMPLATE._std = function(updateEff, updateEffP) {
     return {
-      updateEff: Object.val(updateEff, Fx.none), updateEffP: Object.val(updateEffP, 0.02),
+      updateEff: tryVal(updateEff, Fx.none), updateEffP: tryVal(updateEffP, 0.02),
       init() {
         this.super$init();
         TEMPLATE.init(this);

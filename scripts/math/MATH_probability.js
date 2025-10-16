@@ -140,6 +140,6 @@
     return arr;
   }
   .setProp({
-    "tmpVal": null,
+    tmpVal: null,
   });
   exports._dis_norm = _dis_norm;

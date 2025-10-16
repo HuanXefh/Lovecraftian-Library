@@ -220,8 +220,8 @@
 
   TEMPLATE._std = function(sta_gn, filterScr) {
     return {
-      staTg: Object.val(sta_gn, null),
-      filterScr: Object.val(filterScr, (b, unit) => true),
+      staTg: tryVal(sta_gn, null),
+      filterScr: tryVal(filterScr, (b, unit) => true),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -245,7 +245,7 @@
 
   TEMPLATE._std_b = function(useCep) {
     return {
-      useCep: Object.val(useCep, false),
+      useCep: tryVal(useCep, false),
       staDur: 0.0,
       created() {
         this.super$created();

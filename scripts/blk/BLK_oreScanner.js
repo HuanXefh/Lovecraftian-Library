@@ -235,11 +235,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       MDL_io._wr_ints(wr, b.revealedInts);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       MDL_io._rd_ints(rd, b.revealedInts);
     },
 
@@ -293,7 +295,7 @@
 
   TEMPLATE._std = function(r, craftEff, updateEff, updateEffP) {
     return {
-      scanR: Object.val(r, 0),
+      scanR: tryVal(r, 0),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -313,14 +315,14 @@
         return TEMPLATE.ex_getScanR(this);
       },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(craftSe) {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
+      craftSound: tryVal(craftSe, Sounds.none),
       revealedTgs: [], revealQueue: [], revealedInts: [], offConeAng: 0.0,
       created() {
         this.super$created();

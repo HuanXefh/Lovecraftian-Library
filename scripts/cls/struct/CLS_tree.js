@@ -44,7 +44,7 @@ CLS_tree.prototype.init = function(ele, propSetter) {
  * ---------------------------------------- */
 CLS_tree.newNodeObj = function(parent, propSetter) {
   let obj = {
-    parent: Object.val(parent, null),
+    parent: tryVal(parent, null),
     children: [],
   };
   if(propSetter != null) propSetter(obj);

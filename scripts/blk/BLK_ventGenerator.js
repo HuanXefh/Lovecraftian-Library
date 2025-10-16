@@ -9,7 +9,8 @@
    * NOTE:
    *
    * Generators built on vents. It checks vent size now since it's not strictly 3x3.
-   * You don't need to divide production by squared block size in .json files, it's done in {init}.
+   * Consumers are supported.
+   * You don't need to divide production by squared block size in .json files.
    * ---------------------------------------- */
 
 
@@ -38,10 +39,12 @@
 
 
   const PARENT = require("lovec/blk/BLK_baseGenerator");
+  const TIMER = require("lovec/glb/GLB_timer");
 
 
   const MDL_attr = require("lovec/mdl/MDL_attr");
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_table = require("lovec/mdl/MDL_table");
 
   const TP_stat = require("lovec/tp/TP_stat");
 
@@ -54,31 +57,59 @@
     blk.displayEfficiency = false;
     blk.displayEfficiencyScale = 1.0 / sizeSqr;
     blk.minEfficiency = sizeSqr - 0.0001;
-    blk.powerProduction /= sizeSqr;
-    blk.outputLiquid.amount /= sizeSqr;
   };
 
 
   function comp_setStats(blk) {
-    blk.stats.add(TP_stat.blk_attrReq, MDL_attr._attrB(blk.attribute));
+    blk.stats.remove(Stat.tiles);
+    blk.stats.remove(Stat.affinities);
+
+    if(blk.outputLiquid != null) {
+      blk.stats.remove(Stat.output);
+      blk.stats.add(Stat.output, StatValues.liquid(blk.outputLiquid.liquid, blk.outputLiquid.amount * 60.0, true));
+    };
+
+    blk.stats.add(TP_stat.blk_attrReq, newStatValue(tb => {
+      tb.row();
+      MDL_table.setDisplay_attr(tb, blk.attribute, oblk => MDL_cond._isVentBlock(oblk) && oblk.armor.fEqual(blk.size));
+    }));
+  };
+
+
+  function comp_updateTile(b) {
+    if(TIMER.timerState_effc) {
+      b.tmpEffc = (b.sum + b.block.attribute.env()) * b.efficiency / Math.pow(b.block.size, 2);
+    };
+
+    b.tmpWarmup = Mathf.approachDelta(b.tmpWarmup, b.tmpEffc > 0.0 ? 1.0 : 0.0, 0.008);
+    b.productionEfficiency = Mathf.approachDelta(b.productionEfficiency, b.tmpEffc, 0.008);
+    b.tProg += b.productionEfficiency * b.delta() * b.warmup();
+    if(Mathf.chanceDelta(b.block.effectChance * b.productionEfficiency)) {
+      b.block.generateEffect.at(b.x + Mathf.range(3.0), b.y + Mathf.range(3.0));
+    };
+
+    if(b.block.outputLiquid != null) {
+      b.liquids.add(b.block.outputLiquid.liquid, Math.min(b.productionEfficiency * b.delta() * b.block.outputLiquid.amount, b.block.liquidCapacity - b.liquids.get(b.block.outputLiquid.liquid)));
+      b.dumpLiquid(b.block.outputLiquid.liquid);
+    };
   };
 
 
   function comp_canPlaceOn(blk, t, team, rot) {
     let flr = t.floor();
 
-    return MDL_cond._isVentBlock(flr) && flr.armor === blk.size;
+    return MDL_cond._isVentBlock(flr) && flr.armor.fEqual(blk.size);
   };
 
 
   function comp_warmup(b) {
     // Shouldn't be over 1.0
-    return b.super$warmup() / Math.pow(b.block.size, 2);
+    return b.tmpWarmup;
   };
 
 
   function comp_totalProgress(b) {
-    return MDL_cond._canUpdate(b) && b.sum > 0.0 ? Time.time : 0.0;
+    return b.tProg;
   };
 
 
@@ -125,8 +156,10 @@
     },
 
 
+    // @NOSUPER
     updateTile: function(b) {
       PARENT.updateTile(b);
+      comp_updateTile(b);
     },
 
 
@@ -192,7 +225,7 @@
 
   TEMPLATE._std = function(shouldGenParam, genEff, genEffP, exploEff) {
     return {
-      shouldGenParam: Object.val(shouldGenParam, false),
+      shouldGenParam: tryVal(shouldGenParam, false),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -214,14 +247,15 @@
         return TEMPLATE.ex_getTags(this);
       },
       // @SPEC
-      generateEffect: Object.val(genEff, Fx.none), effectChance: Object.val(genEffP, 0.02),
-      explodeEffect: Object.val(exploEff, Fx.none),
+      generateEffect: tryVal(genEff, Fx.none), effectChance: tryVal(genEffP, 0.02),
+      explodeEffect: tryVal(exploEff, Fx.none),
     };
   };
 
 
   TEMPLATE._std_b = function() {
     return {
+      tProg: 0.0, tmpEffc: 0.0, tmpWarmup: 0.0,
       created() {
         this.super$created();
         TEMPLATE.created(this);
@@ -231,7 +265,6 @@
         TEMPLATE.onDestroyed(this);
       },
       updateTile() {
-        this.super$updateTile();
         TEMPLATE.updateTile(this);
       },
       onProximityUpdate() {

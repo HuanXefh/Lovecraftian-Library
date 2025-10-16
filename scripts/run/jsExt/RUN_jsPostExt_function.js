@@ -36,7 +36,7 @@
   ptp.setAnno = function(anno, annoArgs_p, annoLoadArgs_p, annoArgArgs_p) {
     const thisFun = this;
 
-    if(anno == null || !(anno instanceof CLS_annotation)) throw new Error("Found invalid or undefined annotation!");
+    if(anno == null || !(anno instanceof CLS_annotation)) ERROR_HANDLER.notAnno();
 
     if(annoArgs_p == null) annoArgs_p = [];
     if(annoLoadArgs_p == null) annoLoadArgs_p = [];
@@ -65,7 +65,7 @@
    * Gets a copy of the annotation list of this function.
    * ---------------------------------------- */
   ptp.getAnnos = function() {
-    return Object.val(this.annos, Array.air).slice();
+    return tryVal(this.annos, Array.air).slice();
   };
 
 

@@ -75,7 +75,7 @@ const BOX_comp = new CLS_objectBox({
     updateLife(mtp) {
       if(this.isDead) return;
 
-      this.time = Math.min(this.time + Time.delta * Object.val(mtp, 1.0), this.lifetime);
+      this.time = Math.min(this.time + Time.delta * tryVal(mtp, 1.0), this.lifetime);
       if(this.time >= this.lifetime) {
         this.isDead = true;
         this.onTimedDeath();

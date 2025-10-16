@@ -15,7 +15,7 @@
 
 
   const newIns_shader = function(shader, cacheLayFallback) {
-    if(shader == null) return Object.val(cacheLayFallback, CacheLayer.normal);
+    if(shader == null) return tryVal(cacheLayFallback, CacheLayer.normal);
     let cacheLay = new CacheLayer.ShaderLayer(shader);
     CacheLayer.add(cacheLay);
 

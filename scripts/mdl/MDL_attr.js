@@ -57,15 +57,18 @@
    *
    * Gets a 3-array containing blocks that are related to the inputted attributes.
    * Blocks with negative efficiency are also included.
+   * Optionally uses {boolF} to filter out valid blocks.
    * Format: {blk, attrVal, attr}.
    * ---------------------------------------- */
-  const _blkAttrMap = function(attrs_gn_p) {
+  const _blkAttrMap = function(attrs_gn_p, boolF) {
+    if(boolF == null) boolF = Function.airTrue;
+
     let attrs_gn = (attrs_gn_p instanceof Array) ? attrs_gn_p : [attrs_gn_p];
     let map = [];
 
     attrs_gn.forEachFast(attr_gn => {
       let nmAttr = _attr(attr_gn);
-      Vars.content.blocks().each(blk => {
+      Vars.content.blocks().each(blk => boolF(blk), blk => {
         let attrVal = blk.attributes.get(Attribute.get(nmAttr));
         if(Math.abs(attrVal) > 0.0) {
           map.push(blk, attrVal, nmAttr);
@@ -120,19 +123,15 @@
 
     let nmAttr = _attr(attr_gn);
     switch(mode) {
-
       case "flr" :
         ts.forEachFast(ot => attrSum += ot.floor().attributes.get(Attribute.get(nmAttr)));
         break;
-
       case "blk" :
         ts.forEachFast(ot => attrSum += ot.block().attributes.get(Attribute.get(nmAttr)));
         break;
-
       case "ov" :
         ts.forEachFast(ot => attrSum += ot.overlay().attributes.get(Attribute.get(nmAttr)));
         break;
-
       case "all" :
         ts.forEachFast(ot => {
           attrSum += ot.floor().attributes.get(Attribute.get(nmAttr));
@@ -140,13 +139,12 @@
           attrSum += ot.overlay().attributes.get(Attribute.get(nmAttr));
         });
         break;
-
     };
 
     return attrSum;
   }
   .setProp({
-    "modes": ["flr", "blk", "ov", "all"],
+    modes: ["flr", "blk", "ov", "all"],
   });
   exports._sum_ts = _sum_ts;
 

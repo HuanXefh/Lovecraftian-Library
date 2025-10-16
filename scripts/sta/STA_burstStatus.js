@@ -152,11 +152,11 @@
 
   TEMPLATE._std = function(eff, effP, burstTime, extendTimeGetter, burstDmg, burstDmgPerc, burstScr, burstEff, burstEffColor) {
     return {
-      justApplied: false, burstTime: Object.val(burstTime, 0.0),
-      extendTimeGetter: Object.val(extendTimeGetter, function(unit, time) {}),
-      burstDamage: Object.val(burstDmg, 0.0), burstDamagePerc: Object.val(burstDmgPerc, 0.0),
-      burstScr: Object.val(burstScr, function(unit) {}),
-      burstEff: Object.val(burstEff, Fx.none), burstEffColor: Object.val(burstEffColor, Color.white),
+      justApplied: false, burstTime: tryVal(burstTime, 0.0),
+      extendTimeGetter: tryVal(extendTimeGetter, function(unit, time) {}),
+      burstDamage: tryVal(burstDmg, 0.0), burstDamagePerc: tryVal(burstDmgPerc, 0.0),
+      burstScr: tryVal(burstScr, function(unit) {}),
+      burstEff: tryVal(burstEff, Fx.none), burstEffColor: tryVal(burstEffColor, Color.white),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -183,7 +183,7 @@
         return TEMPLATE.ex_getBurstTime(this);
       },
       // @SPEC
-      effect: Object.val(eff, Fx.none), effectChance: Object.val(effP, 0.02),
+      effect: tryVal(eff, Fx.none), effectChance: tryVal(effP, 0.02),
     };
   };
 

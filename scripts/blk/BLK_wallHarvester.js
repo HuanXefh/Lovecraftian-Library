@@ -46,6 +46,7 @@
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_pos = require("lovec/mdl/MDL_pos");
+  const MDL_table = require("lovec/mdl/MDL_table");
 
 
   const TP_stat = require("lovec/tp/TP_stat");
@@ -55,7 +56,13 @@
 
 
   function comp_setStats(blk) {
-    blk.stats.add(TP_stat.blk_attrReq, MDL_attr._attrB(blk.attribute));
+    blk.stats.remove(Stat.tiles);
+    blk.stats.remove(Stat.affinities);
+
+    blk.stats.add(TP_stat.blk_attrReq, newStatValue(tb => {
+      tb.row();
+      MDL_table.setDisplay_attr(tb, blk.attribute);
+    }));
   };
 
 
@@ -185,11 +192,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.i(b.lootCharge);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.lootCharge = rd.i();
     },
 
@@ -241,14 +250,14 @@
         return TEMPLATE.ex_getTags(this);
       },
       // @SPEC
-      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(outputsLoot) {
     return {
-      outputsLoot: Object.val(outputsLoot, false),
+      outputsLoot: tryVal(outputsLoot, false),
       lootCharge: 0,
       created() {
         this.super$created();

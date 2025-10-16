@@ -125,8 +125,8 @@
 
   TEMPLATE._std = function(blkBase, blkTint, seed, tintThr, amt, plaScl) {
     return {
-      blkBase: Object.val(blkBase, Blocks.stoneWall), blkTint: Object.val(blkTint, Blocks.iceWall), seed: Object.val(seed, -1),
-      tintThr: Object.val(tintThr, 0.5), amt: Object.val(amt, 12), plaScl: Object.val(plaScl, 1.0),
+      blkBase: tryVal(blkBase, Blocks.stoneWall), blkTint: tryVal(blkTint, Blocks.iceWall), seed: tryVal(seed, -1),
+      tintThr: tryVal(tintThr, 0.5), amt: tryVal(amt, 12), plaScl: tryVal(plaScl, 1.0),
       load() {
         this.super$load();
         TEMPLATE.load(this);

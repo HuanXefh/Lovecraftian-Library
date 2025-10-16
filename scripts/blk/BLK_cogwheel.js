@@ -62,7 +62,7 @@
 
 
   function comp_init(blk) {
-    if(blk.size % 2 === 0) throw new Error("Size of a cogwheel cannot be even!");
+    if(blk.size % 2 === 0) ERROR_HANDLER.evenCog(blk);
 
     blk.configurable = true;
 
@@ -94,7 +94,7 @@
 
   function comp_draw(b) {
     var ang = Mathf.mod(b.tProg, 90.0);
-    var invOffAng = 22.5 / (b.block.size + 1) * 2.0;
+    let invOffAng = 22.5 / (b.block.size + 1) * 2.0;
 
     Draw.z(Layer.block + b.block.size * 0.001 + 0.72);
     if(b.isInv) {
@@ -355,12 +355,14 @@
 
     write: function(b, wr) {
       PARENT.write(b, wr);
+      processRevision(wr);
       wr.bool(b.isInv);
     },
 
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
+      processRevision(rd);
       b.isInv = rd.bool();
     },
 

@@ -162,11 +162,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.bool(b.isOn);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.isOn = rd.bool();
     },
 

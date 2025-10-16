@@ -57,10 +57,13 @@
   function comp_init(blk) {
     blk.selectionColumns = 10;
 
+    blk.saveConfig = false;
+    blk.clearOnDoubleTap = false;
+
     blk.config(JAVA.STRING, (b, str) => {
       b.ex_accRsTgs(str, false);
       EFF.squareFadePack[b.block.size].at(b);
-      b.sortItem = Object.val(b.ex_accRsTgs("read", false)[0], null);
+      b.sortItem = tryVal(b.ex_accRsTgs("read", false)[0], null);
     });
 
     blk.config(JAVA.BOOLEAN, (b, bool) => {
@@ -80,7 +83,7 @@
           i++;
         };
         EFF.squareFadePack[b.block.size].at(b);
-        b.sortItem = Object.val(b.ex_accRsTgs("read", false)[0], null);
+        b.sortItem = tryVal(b.ex_accRsTgs("read", false)[0], null);
       };
 
       if(cfgArr[0] === "selector") {
@@ -88,7 +91,7 @@
         let isAdd = cfgArr[2];
         b.ex_accRsTgs(rs, isAdd);
         EFF.squareFadePack[b.block.size].at(b);
-        b.sortItem = Object.val(b.ex_accRsTgs("read", false)[0], null);
+        b.sortItem = tryVal(b.ex_accRsTgs("read", false)[0], null);
       };
 
     });
@@ -148,7 +151,7 @@
     tb.table(Styles.none, tb1 => {
       MDL_table.__btnCfg_toggle(tb1, b, VARGEN.icons.swap, VARGEN.icons.swap, b.isInv);
       MDL_table.__btnCfg_base(tb1, b, b => {
-        Call.tileConfig(Vars.player, b, "clear");
+        b.configure("clear");
         b.deselect();
       }, VARGEN.icons.cross).tooltip(MDL_bundle._info("lovec", "tt-clear-selection"), true);
     });
@@ -260,14 +263,16 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       MDL_io._wr_cts(wr, b.rsTgs);
       wr.bool(b.isInv);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       MDL_io._rd_cts(rd, b.rsTgs);
-      b.sortItem = Object.val(b.rsTgs[0], null);
+      b.sortItem = tryVal(b.rsTgs[0], null);
       b.isInv = rd.bool();
     },
 
@@ -289,7 +294,7 @@
     // @NOSUPER
     ex_accRsTgs: function(b, param, isAdd) {
       if(param === "read") return b.rsTgs;
-      if(param === "clear") return b.rsTgs.clear();
+      if(param === "clear") {b.block.lastConfig = "clear"; return b.rsTgs.clear()};
       return isAdd ? b.rsTgs.pushUnique(param) : b.rsTgs.remove(param);
     },
 
@@ -333,7 +338,7 @@
 
   TEMPLATE._std_b = function(filterScr) {
     return {
-      filterScr: Object.val(filterScr, function(b, b_f, itm) {return true}),
+      filterScr: tryVal(filterScr, function(b, b_f, itm) {return true}),
       rsTgs: [],
       invReg: null, isInv: false,
       created() {

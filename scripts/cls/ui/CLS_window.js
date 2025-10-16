@@ -26,8 +26,8 @@ const CLS_window = function() {
 
 
 CLS_window.prototype.init = function(title, tableF) {
-  this.title = Object.val(title, "").plain();
-  this.tableF = Object.val(tableF, Function.air);
+  this.title = tryVal(title, "").plain();
+  this.tableF = tryVal(tableF, Function.air);
 
   this.initParams();
 
@@ -57,25 +57,25 @@ let selectedWins = [];
  * Modified button styles used for window.
  * ---------------------------------------- */
 CLS_window.btnStyles = {
-  "close": extend(TextButton.TextButtonStyle, {
+  close: extend(TextButton.TextButtonStyle, {
     font: Fonts.outline,
     fontColor: Pal.remove,
     downFontColor: Pal.remove,
     overFontColor: Color.white,
   }),
-  "minimize": extend(TextButton.TextButtonStyle, {
+  minimize: extend(TextButton.TextButtonStyle, {
     font: Fonts.outline,
     fontColor: Pal.heal,
     downFontColor: Pal.heal,
     overFontColor: Color.white,
   }),
-  "restore": extend(TextButton.TextButtonStyle, {
+  restore: extend(TextButton.TextButtonStyle, {
     font: Fonts.outline,
     fontColor: Pal.accent,
     downFontColor: Pal.accent,
     overFontColor: Color.white,
   }),
-  "top": extend(TextButton.TextButtonStyle, {
+  top: extend(TextButton.TextButtonStyle, {
     font: Fonts.outline,
     fontColor: Pal.techBlue,
     downFontColor: Pal.techBlue,
@@ -195,13 +195,13 @@ ptp.rebuild = function() {
         MDL_table.__margin(tb2, 0.25);
         // Close
         tb2.table(Styles.none, tb3 => {}).width(8.0);
-        tb2.button("X", CLS_window.btnStyles["close"], () => selectedWins.forEachFast(win => win.close())).size(8.0).padRight(4.0).tooltip(MDL_bundle._term("lovec", "win-close"), true);
+        tb2.button("X", CLS_window.btnStyles.close, () => selectedWins.forEachFast(win => win.close())).size(8.0).padRight(4.0).tooltip(MDL_bundle._term("lovec", "win-close"), true);
         // Minimize & restore
         tb2.table(Styles.none, tb3 => {}).width(8.0);
         tb2.button(thisIns.isHidden ? "L" : "S", CLS_window.btnStyles[thisIns.isHidden ? "restore" : "minimize"], () => selectedWins.forEachFast(win => win.minimize())).size(8.0).padRight(4.0).tooltip(MDL_bundle._term("lovec", thisIns.isHidden ? "win-restore" : "win-minimize"), true);
         // Top
         tb2.table(Styles.none, tb3 => {}).width(8.0);
-        tb2.button("T", CLS_window.btnStyles["top"], () => selectedWins.forEachFast(win => win.top())).size(8.0).padRight(4.0).tooltip(MDL_bundle._term("lovec", "win-top"), true);
+        tb2.button("T", CLS_window.btnStyles.top, () => selectedWins.forEachFast(win => win.top())).size(8.0).padRight(4.0).tooltip(MDL_bundle._term("lovec", "win-top"), true);
         // Text
         tb2.table(Styles.none, tb3 => {}).width(16.0);
         tb2.table(Styles.none, tb3 => tb3.add(thisIns.title));

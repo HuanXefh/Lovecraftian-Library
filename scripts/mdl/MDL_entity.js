@@ -166,7 +166,7 @@
   const _bSpd = function(b) {
     if(b == null) return 0.0;
 
-    return b.efficiency * Function.tryProp(b.timeScale, b);
+    return b.efficiency * tryProp(b.timeScale, b);
   };
   exports._bSpd = _bSpd;
 
@@ -203,7 +203,7 @@
 
 
   const _ctrl = function(unit) {
-    return unit == null ? null : Function.tryProp(unit.controller, unit);
+    return unit == null ? null : tryProp(unit.controller, unit);
   };
   exports._ctrl = _ctrl;
 

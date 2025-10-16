@@ -133,7 +133,7 @@
   }
   .setProp({
     tmpInd: 0,
-    checkTg: ob => ob.ex_accPresBase != null && !MDL_cond._isPump(ob.block) && Function.tryFun(ob.block.ex_getFluidType, "", ob.block) === "liquid",
+    checkTg: ob => ob.ex_accPresBase != null && !MDL_cond._isPump(ob.block) && tryFun(ob.block.ex_getFluidType, "", ob.block) === "liquid",
   });
 
 
@@ -264,11 +264,13 @@
 
     write: function(b, wr) {
       PARENT.write(b, wr);
+      processRevision(wr);
     },
 
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
+      processRevision(rd);
     },
 
 
@@ -328,7 +330,7 @@
   TEMPLATE._std = function(presProd) {
     return {
       fluidType: "liquid",
-      presProd: Object.val(presProd, 0.0),
+      presProd: tryVal(presProd, 0.0),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -363,7 +365,7 @@
       liqEnd: null, pres: 0.0, presBase: 0.0, presTmp: 0.0,
       presRes: 0.0, vacRes: 0.0, corRes: 1.0, cloggable: false, fHeatCur: 0.0, fHeatTg: 0.0, heatRes: Infinity,
       heatReg: null,
-      useCep: Object.val(useCep, false), splitAmt: 1,
+      useCep: tryVal(useCep, false), splitAmt: 1,
       created() {
         this.super$created();
         TEMPLATE.created(this);

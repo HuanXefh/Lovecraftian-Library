@@ -361,7 +361,7 @@
     corMtp = matEleSclArr == null ? 1.0 : matEleSclArr.read(eleGrp, 1.0);
 
     var tagMtp;
-    _fTags(liq).forEach(tag => {
+    _fTags(liq).forEachFast(tag => {
       let matFTagSclArr = DB_fluid.db["grpParam"]["matFTagScl"][matGrp];
       tagMtp = matFTagSclArr == null ? 1.0 : matFTagSclArr.read(tag, 1.0);
       corMtp *= tagMtp;
@@ -471,7 +471,7 @@
    * Gets current fluid heat in a building.
    * ---------------------------------------- */
   const _fHeat_b = function(b, forceCalculation) {
-    let def = Object.val(PARAM.glbHeat, 26.0);
+    let def = tryVal(PARAM.glbHeat, 26.0);
     if(b == null) return def;
 
     if(!forceCalculation) {
@@ -500,7 +500,7 @@
   const _rHeat = function(t) {
     if(t == null) return 0.0;
 
-    var rHeat = t.build == null ? 0.0 : (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + Object.val(PARAM.glbHeat, 26.0));
+    var rHeat = t.build == null ? 0.0 : (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + tryVal(PARAM.glbHeat, 26.0));
     rHeat += t.floor().attributes.get(Attribute.get("lovec-attr0env-heat")) * 100.0;
     for(let i = 0; i < 4; i++) {
       let ot = t.nearby(i);

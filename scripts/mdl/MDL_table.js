@@ -524,68 +524,49 @@
   const setDisplay_ctRow = function(tb, cts_gn_p, showOrd) {
     let cts_gn;
     if(showOrd == null) showOrd = false;
-    if(cts_gn_p instanceof Array) {cts_gn = cts_gn_p} else {
+    if(cts_gn_p instanceof Array) {
+      cts_gn = cts_gn_p
+    } else {
       cts_gn = [cts_gn_p];
       showOrd = false;
     };
 
-    var ordCur = 0;
-
     __break(tb, 1);
 
-    cts_gn.forEach(ct_gn => {
+    let ordCur = 0;
+    cts_gn.forEachFast(ct_gn => {
       let ct = MDL_content._ct(ct_gn, null, true);
       if(ct != null) {
-
         tb.table(Tex.whiteui, tb1 => {
-
           tb1.left().setColor(Pal.darkestGray);
           __margin(tb1);
-
           // @TABLE: order
           if(showOrd) tb1.table(Styles.none, tb2 => {
-
             tb2.left();
-
             tb2.table(Styles.none, tb3 => {
-
               tb3.center();
-
               tb3.add("[" + Strings.fixed(ordCur + 1.0, 0) + "]").color(Pal.accent);
-
             }).width(48.0);
-
           }).marginRight(18.0).growY();
-
           // @TABLE: content icon
           tb1.table(Styles.none, tb2 => {
-
             tb2.left();
-
             tb2.image(ct.uiIcon).size(Vars.iconLarge).padRight(18.0);
             __barV(tb2).padRight(18.0);
             tb2.add(ct.localizedName);
-
           });
-
           // @TABLE: spacing
           tb1.table(Styles.none, tb2 => {}).width(80.0).growX().growY();
-
           // @TABLE: "?" button
           tb1.table(Styles.none, tb2 => {
-
             tb2.left();
-
             tb2.button("?", () => Vars.ui.content.show(ct)).size(VAR.rad_charBtnRad);
-
           });
-
         }).growX().row();
 
         __break(tb, 1);
 
         ordCur++;
-
       };
     });
   };
@@ -601,13 +582,9 @@
     if(iconW == null) iconW = 32.0;
     if(colAmt == null) colAmt = MDL_ui._colAmt(iconW, 0.0, 2);
 
-    let cts_gn;
-    if(cts_gn_p instanceof Array) {cts_gn = cts_gn_p} else {
-      cts_gn = [cts_gn_p];
-    };
+    let cts_gn = cts_gn_p instanceof Array ? cts_gn_p : [cts_gn_p];
 
     tb.table(Tex.whiteui, tb1 => {
-
       tb1.left().setColor(Pal.darkestGray);
       __margin(tb1, 0.5);
 
@@ -623,7 +600,6 @@
         if(j % colAmt === colAmt - 1) tb1.row();
         j++;
       };
-
     }).left().row();
   };
   exports.setDisplay_ctLi = setDisplay_ctLi;
@@ -659,7 +635,6 @@
       let iCap = arr.iCap();
       if(iCap > 0) {
         for(let i = 0, j = 0; i < iCap; i++) {
-
           j += (function(i) {
             let ct = arr[i];
             if(!MDL_cond._isRsAvailable(ct)) return 0;
@@ -679,22 +654,18 @@
             j = 0;
             countRow++;
           };
-
         };
       };
-
     };
     rebuild();
 
     const root = new Table().background(Styles.black6);
     if(countRow > rowAmt * 1.5) root.table(Styles.none, tb1 => {
-
       tb1.image(Icon.zoom).padLeft(4.0);
       search = tb1.field(null, text => {
         if(text.endsWith("=")) rebuild();
       }).padBottom(4.0).left().growX().get();
       search.setMessageText("@info.lovec-info-search.name");
-
     }).growX().row();
 
     const pn = new ScrollPane(cont, Styles.smallPane);
@@ -744,7 +715,6 @@
       let iCap = arr.iCap();
       if(iCap > 0) {
         for(let i = 0, j = 0; i < iCap; i++) {
-
           j += (function(i) {
             let ct = arr[i];
             if(!MDL_cond._isRsAvailable(ct)) return 0;
@@ -764,22 +734,18 @@
             j = 0;
             countRow++;
           };
-
         };
       };
-
     };
     rebuild();
 
     const root = new Table().background(Styles.black6);
     if(countRow > rowAmt * 1.5) root.table(Styles.none, tb1 => {
-
       tb1.image(Icon.zoom).padLeft(4.0);
       search = tb1.field(null, text => {
         if(text.endsWith("=")) rebuild();
       }).padBottom(4.0).left().growX().get();
       search.setMessageText("@info.lovec-info-search.name");
-
     }).growX().row();
 
     const pn = new ScrollPane(cont, Styles.smallPane);
@@ -807,14 +773,13 @@
    *
    * Sets attribute display that supports multiple attributes.
    * ---------------------------------------- */
-  const setDisplay_attr = function(tb, attrs_gn_p, iconW, colAmt, dial) {
+  const setDisplay_attr = function(tb, attrs_gn_p, boolF, iconW, colAmt, dial) {
     if(iconW == null) iconW = 64.0;
     if(colAmt == null) colAmt = MDL_ui._colAmt(iconW, 0.0, 2);
 
-    let map = MDL_attr._blkAttrMap(attrs_gn_p);
+    let map = MDL_attr._blkAttrMap(attrs_gn_p, boolF);
 
     tb.table(Styles.none, tb1 => {
-
       tb1.left();
       __margin(tb1, 0.5);
 
@@ -831,7 +796,6 @@
         if(j % colAmt === colAmt - 1) tb1.row();
         j++;
       };
-
     }).left().row();
   };
   exports.setDisplay_attr = setDisplay_attr;
@@ -850,7 +814,6 @@
     let factionColor = MDL_content._factionColor(faction);
 
     tb.table(Tex.whiteui, tb1 => {
-
       tb1.center().setColor(Pal.darkestGray);
       __margin(tb1);
 
@@ -876,7 +839,6 @@
       btnStyle.over = Styles.flatOver;
 
       tb1.add(factionB).fontScale(1.1).color(factionColor);
-
     }).padTop(8.0).padBottom(8.0).growX().row();
   };
   exports.setDisplay_faction = setDisplay_faction;
@@ -888,26 +850,20 @@
     tb.left().add(root).row();
     __break(tb, 1);
 
-    MDL_content._facFamis(blk).forEach(fami => {
+    MDL_content._facFamis(blk).forEachFast(fami => {
       let cont = new Table();
       root.left().add(cont).width(420.0).growX().row();
-
+      // @TABLE: title
       cont.table(Tex.whiteui, tb1 =>{
-
         tb1.center().setColor(Color.darkGray);
         __margin(tb1, 0.5);
-
         tb1.add(MDL_content._facFamiB(fami)).pad(4.0);
-
       }).left().growX().row();
-
+      // @TABLE: contents
       cont.table(Tex.whiteui, tb1 => {
-
         tb1.left().setColor(Pal.darkestGray);
         __margin(tb1, 0.5);
-
         setDisplay_ctLi(tb1, VARGEN.facFamis[fami], 48.0);
-
       }).left().growX().row();
     });
   };
@@ -932,7 +888,6 @@
     const categHeaderObj = MDL_recipe._categHeaderObj(rcMdl);
     let i = 1;
     for(let categ in categHeaderObj) {
-
       let chunk = new Table();
       cont.left().add(chunk).growX().row();
 
@@ -940,15 +895,13 @@
       let coll = new Collapser(rcRoot, false);
       coll.setDuration(0.5);
       Core.app.post(() => {
-        coll.setCollapsed(Object.val(isCollapsed, false), false);
+        coll.setCollapsed(tryVal(isCollapsed, false), false);
       });
 
       // @TABLE: category title
       chunk.table(Tex.whiteui, tb1 => {
-
         tb1.center().setColor(Color.darkGray);
         __margin(tb1, 0.5);
-
         tb1.table(Styles.none, tb2 => {
           tb2.add(MDL_recipe._categB(categ)).pad(4.0);
           tb2.button(isCollapsed ? Icon.downOpen : Icon.upOpen, Styles.emptyi, () => coll.toggle(true))
@@ -957,15 +910,12 @@
           .padLeft(72.0)
           .expandX();
         });
-
         tb1.row();
         tb1.add(coll).growX();
-
       }).left().growX().row();
       __break(chunk, 1);
 
       categHeaderObj[categ].forEachFast(rcHeader => {
-
         let timeScl = MDL_recipe._timeScl(rcMdl, rcHeader);
         let isGen = MDL_recipe._isGen(rcMdl, rcHeader);
 
@@ -987,41 +937,26 @@
 
         // @TABLE: recipe root
         rcRoot.table(Tex.whiteui, tb1 => {
-
           tb1.left().setColor(Pal.darkestGray);
-
           // @TABLE: order
           tb1.table(Styles.none, tb2 => {
-
             tb2.left();
-
             tb2.table(Styles.none, tb3 => {
-
               tb3.center();
-
               tb3.add("[" + Strings.fixed(i, 0) + "]").color(Pal.accent);
-
             }).width(72.0);
-
             __barV(tb2, Pal.accent);
-
           }).left().growY();
-
           // @TABLE: spacing
           tb1.table(Styles.none, tb2 => {}).left().width(36.0).growY();
-
           // @TABLE: input root
           tb1.table(Styles.none, tb2 => {
-
             tb2.left();
-
             // @TABLE: BI
             if(bi.length > 0) {
               tb2.table(Styles.none, tb3 => {
-
                 tb3.left();
                 __margin(tb3);
-
                 tb3.add("BI:").left().tooltip(MDL_bundle._term("lovec", "bi"), true).row();
                 tb3.table(Styles.none, tb4 => {
                   let i = 0;
@@ -1049,17 +984,13 @@
                     i += 3;
                   };
                 }).left().marginRight(24.0);
-
               });
             };
-
             // @TABLE: CI
             if(ci.length > 0) {
               tb2.table(Styles.none, tb3 => {
-
                 tb3.left();
                 __margin(tb3);
-
                 tb3.add("CI:").left().tooltip(MDL_bundle._term("lovec", "ci"), true).row();
                 tb3.table(Styles.none, tb4 => {
                   let i = 0;
@@ -1071,17 +1002,13 @@
                     i += 2;
                   };
                 });
-
               }).left().marginRight(24.0);
             };
-
             // @TABLE: AUX
             if(aux.length > 0) {
               tb2.table(Styles.none, tb3 => {
-
                 tb3.left();
                 __margin(tb3);
-
                 tb3.add("AUX:").left().tooltip(MDL_bundle._term("lovec", "aux"), true).row();
                 tb3.table(Styles.none, tb4 => {
                   let i = 0;
@@ -1093,43 +1020,30 @@
                     i += 2;
                   };
                 });
-
               }).left().marginRight(24.0);
             };
-
             // @TABLE: OPT
             if(opt.length > 0) {
               tb2.table(Styles.none, tb3 => {
-
                 tb3.left();
                 __margin(tb3);
-
                 tb3.add("OPT:").left().tooltip(MDL_bundle._term("lovec", "opt"), true).row();
                 tb3.button("?", () => TP_dial.rcOpt.ex_show(MDL_bundle._term("lovec", "opt"), opt)).size(34.0).pad(3.0);
-
               }).left().marginRight(24.0);
             };
-
             // @TABLE: spacing
             tb2.table(Styles.none, tb3 => {}).left().width(24.0).growX().growY();
-
           }).left().growX().growY();
-
           // @TABLE: spacing
           tb1.table(Styles.none, tb2 => {}).width(48.0).growX().growY();
-
           // @TABLE: output base
           tb1.table(Styles.none, tb2 => {
-
             tb2.left();
-
             // @TABLE: BO
             if(bo.length > 0) {
               tb2.table(Styles.none, tb3 => {
-
                 tb3.left();
                 __margin(tb3);
-
                 tb3.add("BO:").left().tooltip(MDL_bundle._term("lovec", "bo"), true).row();
                 tb3.table(Styles.none, tb4 => {
                   let i = 0;
@@ -1142,17 +1056,13 @@
                     i += 3;
                   };
                 });
-
               }).left().marginRight(24.0);
             };
-
             // @TABLE: CO
             if(co.length > 0) {
               tb2.table(Styles.none, tb3 => {
-
                 tb3.left();
                 __margin(tb3);
-
                 tb3.add("CO:").left().tooltip(MDL_bundle._term("lovec", "co"), true).row();
                 tb3.table(Styles.none, tb4 => {
                   let i = 0;
@@ -1164,17 +1074,13 @@
                     i += 2;
                   };
                 });
-
               }).left().marginRight(24.0);
             };
-
             // @TABLE: FO
             if(fo.length > 0) {
               tb2.table(Styles.none, tb3 => {
-
                 tb3.left();
                 __margin(tb3);
-
                 tb3.add("FO:").left().tooltip(MDL_bundle._term("lovec", "fo"), true).row();
                 tb3.table(Styles.none, tb4 => {
                   let i = 0;
@@ -1187,83 +1093,58 @@
                     i += 3;
                   };
                 });
-
               }).left().marginRight(24.0);
             };
-
           }).left().growY();
-
           // @TABLE: recipe stats
           tb1.table(Styles.none, tb2 => {
-
             __barV(tb2, Pal.accent);
-
             // @TABLE: spacing
             tb2.table(Styles.none, tb3 => {}).width(24.0);
-
             tb2.table(Styles.none, tb3 => {
-
               tb3.left();
-
               if(isGen) tb3.add(MDL_bundle._term("lovec", "generated-recipe").color(Color.gray)).left().row();
-
               if(!timeScl.fEqual(1.0)) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "time-required"),
                 Strings.fixed(timeScl, 1) + "x (" + Strings.autoFixed(blk.craftTime * timeScl / 60.0, 2) + "s)",
               )).left().row();
-
               if(reqOpt) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "require-optional"),
                 MDL_bundle._base("yes"),
               )).left().row();
-
               if(failP > 0.0) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "chance-to-fail"),
                 failP.perc(1),
               )).left().row();
-
               if(tempReq > 0.0) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "temperature-required"),
                 Strings.fixed(tempReq, 2),
                 TP_stat.rs_heatUnits.localized(),
               )).left().row();
-
               if(tempAllowed < Infinity) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "temperature-allowed"),
                 Strings.fixed(tempAllowed, 2),
                 TP_stat.rs_heatUnits.localized(),
               )).left().row();
-
               if(!durabDecMtp.fEqual(1.0)) tb3.add(MDL_text._statText(
                 MDL_bundle._term("lovec", "abrasion-multiplier"),
                 durabDecMtp.perc(),
               )).left().row();
-
               if(lockedByCts.length > 0) {
                 tb3.table(Styles.none, tb4 => {
-
                   tb4.left();
-
                   tb4.add(MDL_text._statText(MDL_bundle._term("lovec", "require-unlocking"), "")).left();
-                  lockedByCts.forEach(ct => __ct(tb4, ct, 28.0, 0.0));
-
+                  lockedByCts.forEachFast(ct => __ct(tb4, ct, 28.0, 0.0));
                 }).left().row();
               };
-
             }).left().width(360.0).growX();
-
             // @TABLE: spacing
             tb2.table(Styles.none, tb3 => {}).width(20.0);
-
           }).growY();
-
         }).left().growX().row();
-
         __bar(rcRoot, Color.valueOf("303030"), null, 1.0);
         i++;
-
       });
-
     };
   };
   exports.setDisplay_recipe = setDisplay_recipe;
@@ -1290,13 +1171,11 @@
       root.clearChildren();
 
       for(let categ in categHeaderObj) {
-
         root.add(MDL_recipe._categB(categ)).left().pad(4.0).row();
 
         let i = 0;
         let chunk = new Table();
-        categHeaderObj[categ].forEach(rcHeader => {
-
+        categHeaderObj[categ].forEachFast(rcHeader => {
           let ct = MDL_content._ct(MDL_recipe._iconNm(rcMdl, rcHeader), null, true);
           let icon = MDL_recipe._icon(rcMdl, rcHeader);
           let validGetter = MDL_recipe._validGetter_fi(rcMdl, rcHeader);
@@ -1319,11 +1198,9 @@
             chunk.row();
             i = 0;
           };
-
         });
 
         root.add(chunk).left().row();
-
       };
     };
     rebuild();

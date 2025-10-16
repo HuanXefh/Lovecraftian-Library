@@ -294,7 +294,7 @@
 
   TEMPLATE._std = function(r, mtp, drillEff, drillEffP) {
     return {
-      impactR: Object.val(r, 5), depthMtp: Object.val(mtp, 1.0),
+      impactR: tryVal(r, 5), depthMtp: tryVal(mtp, 1.0),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -321,14 +321,14 @@
         return TEMPLATE.ex_isMiningDpore(this, tx, ty, itm);
       },
       // @SPEC
-      drillEffect: Object.val(drillEff, Fx.none), drillEffectChance: Object.val(drillEffP, 1.0),
+      drillEffect: tryVal(drillEff, Fx.none), drillEffectChance: tryVal(drillEffP, 1.0),
     };
   };
 
 
   TEMPLATE._std_b = function(useCep) {
     return {
-      useCep: Object.val(useCep, false),
+      useCep: tryVal(useCep, false),
       isMiningDpore: false, scannerTg: null,
       created() {
         this.super$created();

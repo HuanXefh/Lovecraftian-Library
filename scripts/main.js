@@ -134,20 +134,20 @@
       Vars.content.items().each(itm => {
         let itmRedir = oreDict.get(itm);
         if(itmRedir == null) return;
-        itm.stats.add(TP_stat.spec_oreDict, extend(StatValue, {display(tb) {
+        itm.stats.add(TP_stat.spec_oreDict, newStatValue(tb => {
           tb.row();
           MDL_table.setDisplay_ctRow(tb, itmRedir);
-        }}));
+        }));
         itmRedir.shownPlanets.addAll(itm.shownPlanets);
         itmRedir.databaseTabs.addAll(itm.databaseTabs);
       });
       Vars.content.liquids().each(liq => {
         let liqRedir = oreDict.get(liq);
         if(liqRedir == null) return;
-        liq.stats.add(TP_stat.spec_oreDict, extend(StatValue, {display(tb) {
+        liq.stats.add(TP_stat.spec_oreDict, newStatValue(tb => {
           tb.row();
           MDL_table.setDisplay_ctRow(tb, liqRedir);
-        }}));
+        }));
         liqRedir.shownPlanets.addAll(liq.shownPlanets);
         liqRedir.databaseTabs.addAll(liq.databaseTabs);
       });
@@ -234,7 +234,7 @@
         });
         let factions = VARGEN.factions;
         for(let faction in factions) {
-          factions[faction].forEach(ct => {
+          factions[faction].forEachFast(ct => {
             ct.localizedName = String(ct.localizedName).color(Tmp.c1.set(MDL_content._factionColor(faction)));
           });
         };
@@ -244,16 +244,16 @@
 
     // Set recipe dictionary stat
     Vars.content.items().each(itm => {
-      itm.stats.add(TP_stat.spec_fromTo, extend(StatValue, {display(tb) {
+      itm.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
         tb.row();
         MDL_table.__btnSmallBase(tb, "?", () => TP_dial.rcDict.ex_show(itm.localizedName, itm)).left().padLeft(28.0).row();
-      }}));
+      }));
     });
     Vars.content.liquids().each(liq => {
-      liq.stats.add(TP_stat.spec_fromTo, extend(StatValue, {display(tb) {
+      liq.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
         tb.row();
         MDL_table.__btnSmallBase(tb, "?", () => TP_dial.rcDict.ex_show(liq.localizedName, liq)).left().padLeft(28.0).row();
-      }}));
+      }));
     });
 
 
@@ -270,42 +270,42 @@
 
 
     // Set robot only status
-    DB_status.db["group"]["robotOnly"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEach(sta => {
+    DB_status.db["group"]["robotOnly"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEachFast(sta => {
       if(sta != null) {
         sta.stats.add(TP_stat.sta_robotOnly, true);
-        VARGEN.bioticUtps.forEach(utp => utp.immunities.add(sta));
+        VARGEN.bioticUtps.forEachFast(utp => utp.immunities.add(sta));
       };
     });
 
 
     // Set oceanic status
-    DB_status.db["group"]["oceanic"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEach(sta => {
+    DB_status.db["group"]["oceanic"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEachFast(sta => {
       if(sta != null) {
-        VARGEN.navalUtps.forEach(utp => utp.immunities.add(sta));
+        VARGEN.navalUtps.forEachFast(utp => utp.immunities.add(sta));
       };
     });
 
 
     // Set missile immunities
-    DB_status.db["group"]["missileImmune"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).concat(VARGEN.deathStas).forEach(sta => {
+    DB_status.db["group"]["missileImmune"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).concat(VARGEN.deathStas).forEachFast(sta => {
       if(sta != null) {
-        VARGEN.missileUtps.forEach(utp => utp.immunities.add(sta))
+        VARGEN.missileUtps.forEachFast(utp => utp.immunities.add(sta))
       };
     });
 
 
     // Set faction and factory family
     Vars.content.blocks().each(blk => {
-      if(MDL_content._faction(blk) !== "none") blk.stats.add(TP_stat.spec_faction, extend(StatValue, {display(tb) {
+      if(MDL_content._faction(blk) !== "none") blk.stats.add(TP_stat.spec_faction, newStatValue(tb => {
         tb.row();
         MDL_table.setDisplay_faction(tb, blk);
-      }}));
+      }));
     });
     Vars.content.units().each(utp => {
-      if(MDL_content._faction(utp) !== "none") utp.stats.add(TP_stat.spec_faction, extend(StatValue, {display(tb) {
+      if(MDL_content._faction(utp) !== "none") utp.stats.add(TP_stat.spec_faction, newStatValue(tb => {
         tb.row();
         MDL_table.setDisplay_faction(tb, utp);
-      }}));
+      }));
     });
 
 

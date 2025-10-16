@@ -46,6 +46,7 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_texture = require("lovec/mdl/MDL_texture");
 
@@ -54,7 +55,7 @@
 
 
   function comp_init(blk) {
-    if(blk.ovSize % 2 === 0) throw new Error("Size of a cogwheel cannot be even!");
+    if(blk.ovSize % 2 === 0) ERROR_HANDLER.evenCog(blk);
 
     MDL_event._c_onLoad(() => {
       blk.region = Core.atlas.find(blk.botParent);
@@ -81,8 +82,8 @@
 
   function comp_draw(b) {
     var ang = Mathf.mod(b.tProg, 90.0);
-    var invOffAng = 22.5 / (b.block.size + 1) * 2.0;
-    var ovInvOffAng = 22.5 / (b.block.ex_getOvSize() + 1) * 2.0;
+    let invOffAng = 22.5 / (b.block.size + 1) * 2.0;
+    let ovInvOffAng = 22.5 / (b.block.ex_getOvSize() + 1) * 2.0;
 
     Draw.z(Layer.block + b.block.size * 0.001 + 0.72);
     if(b.isInv) {
@@ -321,11 +322,13 @@
 
     write: function(b, wr) {
       PARENT.write(b, wr);
+      processRevision(wr);
     },
 
 
     read: function(b, rd, revi) {
       PARENT.read(b, rd, revi);
+      processRevision(rd);
     },
 
 
@@ -426,7 +429,7 @@
 
   TEMPLATE._std = function(ovSize, botParent, ovParent) {
     return {
-      ovSize: Object.val(ovSize, 3), botParent: botParent, ovParent: ovParent,
+      ovSize: tryVal(ovSize, 3), botParent: botParent, ovParent: ovParent,
       init() {
         this.super$init();
         TEMPLATE.init(this);

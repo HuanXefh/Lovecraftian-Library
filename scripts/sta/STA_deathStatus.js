@@ -89,7 +89,7 @@
 
   TEMPLATE._std = function(killedScr) {
     return {
-      killedScr: Object.val(killedScr, function(unit) {}),
+      killedScr: tryVal(killedScr, function(unit) {}),
       init() {
         this.super$init();
         TEMPLATE.init(this);

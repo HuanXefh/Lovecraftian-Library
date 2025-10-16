@@ -33,7 +33,7 @@
    * Float equality.
    * ---------------------------------------- */
   ptp.fEqual = function(num, tol) {
-    return Math.abs(this - num) < Object.val(tol, 0.0001);
+    return Math.abs(this - num) < tryVal(tol, 0.0001);
   };
 
 
@@ -66,7 +66,7 @@
    * Rounds the number for some digits.
    * ---------------------------------------- */
   ptp.roundFixed = function(deciAmt) {
-    let mtp = Math.pow(10.0, Object.val(deciAmt, 2));
+    let mtp = Math.pow(10.0, tryVal(deciAmt, 2));
 
     return Math.round(this * mtp) / mtp;
   };
@@ -190,7 +190,7 @@
    * ---------------------------------------- */
   ptp.operWith = function(arr, scr) {
     let iCap = this.iCap();
-    if(iCap !== arr.length) throw new Error("Cannot perform operation on arrays with different length!");
+    if(iCap !== arr.length) ERROR_HANDLER.arrLenMismatch(this, arr);
 
     let i = 0;
     while(i < iCap) {

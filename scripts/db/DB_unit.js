@@ -44,12 +44,67 @@ const db = {
         "new-horizon-laugra", [4],
         "new-horizon-pester", [6],
 
+        "asthosus-14n-01-shiv", [2],
+        "asthosus-14n-04-apex", [0, 1],
+        "asthosus-14n-05-crest", [2],
+        "asthosus-15o-02-trigon", [0],
+        "asthosus-15o-03-aprotodon", [0],
+        "asthosus-15o-04-aphelops", [4],
+        "asthosus-15o-05-annectodon", [0],
+        "asthosus-16a-04-tequant", [0],
+        "asthosus-16p-03-illuminate", [2],
+        "asthosus-16p-04-elucidate", [2],
+        "asthosus-16p-05-expound", [2, 3],
+        "asthosus-17q-06-clitelle", [0],
+        "asthosus-barite-elder", [0],
+        "asthosus-barite-stalker", [0],
+
+        "aquarion-cyprin", [0, 1],
+        "aquarion-bulwark", [0],
+        "aquarion-weld", [0],
+        "aquarion-pugnate", [0],
+        "aquarion-reave", [0],
+        "aquarion-soar", [0, 1],
+        "aquarion-shatter", [0],
+        "aquarion-retaliate", [0],
+        "aquarion-castellan", [0],
+        "aquarion-parasphendale", [0],
+        "aquarion-verglas", [0],
+
+        "sfire-mod-knocker", [0],
+        "sfire-mod-partiality-B", [0],
+        "sfire-mod-blade", [0, 1],
+        "sfire-mod-vast", [0],
+        "sfire-mod-libra", [2],
+        "sfire-mod-agelenid", [0, 1],
+        "sfire-mod-sundown", [6, 7],
+        "sfire-mod-dorudon", [4],
+        "sfire-mod-striker", [0],
+        "sfire-mod-skyfire", [0],
+        "sfire-mod-flanker", [0],
+        "sfire-mod-executioner", [1],
+        "sfire-mod-enforcer", [0],
+        "sfire-mod-cirrus", [3],
+        "sfire-mod-stratosphere", [0, 1, 2, 3],
+        "sfire-mod-alnitak", [2],
+        "sfire-mod-regulus", [7],
+        "sfire-mod-alioth", [6],
+        "sfire-mod-farmer", [0],
+        "sfire-mod-thunder", [1],
+        "sfire-mod-banisher", [4],
+        "sfire-mod-hammer", [0],
+        "sfire-mod-UTV-Artillery", [0],
+
       ],
 
 
       "off1": [
 
         "new-horizon-macrophage", [3],
+
+        "asthosus-16p-05-expound", [4],
+
+        "aquarion-reave", [1],
 
       ],
 
@@ -193,6 +248,8 @@ const db = {
 
       "new-horizon-nucleoid",
       "new-horizon-guardian",
+
+      "sfire-mod-knocker"
 
     ],
 

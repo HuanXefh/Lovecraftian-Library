@@ -20,7 +20,7 @@
     const thisFun = __packetHandler;
 
     if(header == null) return;
-    if(thisFun.headers.includes(header)) throw new Error("A header name conflicts with existing headers: " + header);
+    if(thisFun.headers.includes(header)) ERROR_HANDLER.headerConfict(header, "packet");
     if(mode == null) mode = "client";
     if(!mode.equalsAny(thisFun.modes)) return;
     if(payloadCaller == null) payloadCaller = Function.air;
@@ -31,8 +31,8 @@
     thisFun.headers.push(header);
   }
   .setProp({
-    "modes": ["client", "server", "both"],
-    "headers": [],
+    modes: ["client", "server", "both"],
+    headers: [],
   });
   exports.__packetHandler = __packetHandler;
 
@@ -60,7 +60,7 @@
     };
   }
   .setProp({
-    "modes": ["client", "server", "both"],
+    modes: ["client", "server", "both"],
   });
   exports.sendPacket = sendPacket;
 

@@ -224,7 +224,7 @@
 
   TEMPLATE._std = function(wireMat) {
     return {
-      wireMat: Object.val(wireMat, "copper"),
+      wireMat: tryVal(wireMat, "copper"),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -254,7 +254,7 @@
 
   TEMPLATE._std_b = function(touchDmg, arcColor) {
     return {
-      touchDmg: Object.val(touchDmg, 0.0), arcColor: Object.val(arcColor, Pal.accent),
+      touchDmg: tryVal(touchDmg, 0.0), arcColor: tryVal(arcColor, Pal.accent),
       created() {
         this.super$created();
         TEMPLATE.created(this);

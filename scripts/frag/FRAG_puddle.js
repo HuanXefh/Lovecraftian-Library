@@ -50,7 +50,7 @@
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return;
 
-    let amt = puddle.amount * Object.val(mtp, 1.0);
+    let amt = puddle.amount * tryVal(mtp, 1.0);
     let t = puddle.tile;
 
     puddle.remove();

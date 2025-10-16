@@ -234,12 +234,14 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       MDL_io._wr_ct(wr, b.sortItem);
       wr.bool(b.isInv);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.sortItem = MDL_io._rd_ct(rd);
       b.isInv = rd.bool();
     },
@@ -298,8 +300,8 @@
 
   TEMPLATE._std_b = function(filterScr, noSelect) {
     return {
-      filterScr: Object.val(filterScr, function(b, b_f, itm) {return true}),
-      noSelect: Object.val(noSelect, false),
+      filterScr: tryVal(filterScr, function(b, b_f, itm) {return true}),
+      noSelect: tryVal(noSelect, false),
       invReg: null, isInv: false,
       created() {
         this.super$created();

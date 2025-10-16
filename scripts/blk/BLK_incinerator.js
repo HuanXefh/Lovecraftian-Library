@@ -59,7 +59,7 @@
     blk.selectionColumns = 10;
 
     blk.configurable = true;
-    blk.saveConfig = true;
+    blk.saveConfig = false;
     blk.clearOnDoubleTap = false;
 
     blk.config(JAVA.STRING, (b, str) => {
@@ -136,7 +136,7 @@
 
     tb.row();
     MDL_table.__btnCfg_base(tb, b, b => {
-      Call.tileConfig(Vars.player, b, "clear");
+      b.configure("clear");
       b.deselect();
     }, VARGEN.icons.cross).tooltip(MDL_bundle._info("lovec", "tt-clear-selection"), true);
   };
@@ -245,11 +245,13 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       MDL_io._wr_cts(wr, b.rsTgs);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       MDL_io._rd_cts(rd, b.rsTgs);
     },
 
@@ -271,7 +273,7 @@
     // @NOSUPER
     ex_accRsTgs: function(b, param, isAdd) {
       if(param === "read") return b.rsTgs;
-      if(param === "clear") return b.rsTgs.clear();
+      if(param === "clear") {b.block.lastConfig = "clear"; return b.rsTgs.clear()};
       return isAdd ? b.rsTgs.pushUnique(param) : b.rsTgs.remove(param);
     },
 
@@ -304,14 +306,14 @@
         return TEMPLATE.ex_getTags(this);
       },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(craftSe) {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
+      craftSound: tryVal(craftSe, Sounds.none),
       rsTgs: [],
       created() {
         this.super$created();

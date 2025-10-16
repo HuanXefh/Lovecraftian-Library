@@ -61,10 +61,10 @@
 
   function comp_setStats(itm) {
     itm.stats.add(TP_stat.rs_isIntermediate, true);
-    if(itm.intmdParent != null) itm.stats.add(TP_stat.rs0int_parent, extend(StatValue, {display(tb) {
+    if(itm.intmdParent != null) itm.stats.add(TP_stat.rs0int_parent, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_ctRow(tb, itm.intmdParent);
-    }}));
+    }));
   };
 
 

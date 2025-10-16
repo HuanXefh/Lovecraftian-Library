@@ -65,10 +65,10 @@
 
 
   function comp_setStats(blk) {
-    if(DB_block.db["map"]["facFami"].includes(blk.name)) blk.stats.add(TP_stat.spec_facFami, extend(StatValue, {display(tb) {
+    if(DB_block.db["map"]["facFami"].includes(blk.name)) blk.stats.add(TP_stat.spec_facFami, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_facFami(tb, blk);
-    }}));
+    }));
   };
 
 
@@ -194,14 +194,14 @@
         return TEMPLATE.ex_getTags(this);
       },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(craftSe) {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
+      craftSound: tryVal(craftSe, Sounds.none),
       created() {
         this.super$created();
         TEMPLATE.created(this);

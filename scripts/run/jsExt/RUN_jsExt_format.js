@@ -27,7 +27,7 @@
    * To percentage string.
    * ---------------------------------------- */
   ptp.perc = function(deciAmt) {
-    return Strings.fixed(this * 100.0, Object.val(deciAmt, 2)) + "%";
+    return Strings.fixed(this * 100.0, tryVal(deciAmt, 2)) + "%";
   };
 
 
@@ -37,7 +37,7 @@
    * To scientific notation string.
    * ---------------------------------------- */
   ptp.sci = function(pow, deciAmt) {
-    return Strings.fixed(this * Math.pow(10, -pow), Object.val(deciAmt, 2)) + " × 10^" + pow;
+    return Strings.fixed(this * Math.pow(10, -pow), tryVal(deciAmt, 2)) + " × 10^" + pow;
   };
 
 
@@ -160,6 +160,17 @@
     };
 
     return str;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Example:
+   * "string".firstUpperCase()    // Returns "String"
+   * ---------------------------------------- */
+  ptp.firstUpperCase = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
   };
 
 

@@ -232,7 +232,7 @@
     let fuelLvlSpare = 0.0;
 
     if(b.items != null && fuelType.equalsAny(["item", "any"])) {
-      VARGEN.fuelItms.forEach(itm => {
+      VARGEN.fuelItms.forEachFast(itm => {
         if(!b.items.has(itm) || blockedFuels.includes(itm.name)) return;
 
         let tmpLvl = _fuelLvl(itm);
@@ -246,7 +246,7 @@
     };
 
     if(b.liquids != null && fuelType.equalsAny(["liquid", "any"])) {
-      VARGEN.fuelLiqs.forEach(liq => {
+      VARGEN.fuelLiqs.forEachFast(liq => {
         if(b.liquids.get(liq) < 0.01 || blockedFuels.includes(liq.name)) return;
 
         let tmpLvl = _fuelLvl(liq);
@@ -260,7 +260,7 @@
     };
 
     if(b.liquids != null && fuelType.equalsAny(["gas", "any"])) {
-      VARGEN.fuelGases.forEach(gas => {
+      VARGEN.fuelGases.forEachFast(gas => {
         if(b.liquids.get(gas) < 0.01 || blockedFuels.includes(gas.name)) return;
 
         let tmpLvl = _fuelLvl(gas);
@@ -321,7 +321,7 @@
       i += 2;
     };
 
-    return getter == null ? 0.0 : getter(blk, Object.val(boosted, false));
+    return getter == null ? 0.0 : getter(blk, tryVal(boosted, false));
   };
   exports._drillSpd = _drillSpd;
 
@@ -442,7 +442,7 @@
    * Increase (or decrease if negative) the dynamic pollution point.
    * ---------------------------------------- */
   const addDynaPol = function(amt) {
-    return dynaPol = Mathf.maxZero(dynaPol + Object.val(amt, 0.0));
+    return dynaPol = Mathf.maxZero(dynaPol + tryVal(amt, 0.0));
   };
   exports.addDynaPol = addDynaPol;
 
@@ -528,7 +528,7 @@
     let countObj = {};
     ters.forEachFast(ter => countObj[ter] = 0);
     ts.forEachFast(ot => {
-      let ter = Function.tryFun(ot.floor().ex_getMatGrp, null, ot.floor());
+      let ter = tryFun(ot.floor().ex_getMatGrp, null, ot.floor());
       if(ter != null) countObj[ter] += 1;
     });
 
@@ -558,7 +558,7 @@
    * Gets the name for terrain from the bundle.
    * ---------------------------------------- */
   const _terB = function(ter) {
-    return Vars.headless ? "" : MDL_bundle._term("lovec", "ter-" + (Object.val(ter, "transition")));
+    return Vars.headless ? "" : MDL_bundle._term("lovec", "ter-" + (tryVal(ter, "transition")));
   };
   exports._terB = _terB;
 
@@ -578,7 +578,7 @@
     );
   }
   .setProp({
-    "modes": ["enable", "disable"],
+    modes: ["enable", "disable"],
   });
   exports.comp_setStats_ter = comp_setStats_ter;
 
@@ -737,7 +737,7 @@
       blkPol = 0.0;
 
 
-      VARGEN.mainTeams.forEach(team => {
+      VARGEN.mainTeams.forEachFast(team => {
 
 
         // Team cores

@@ -136,7 +136,7 @@
     blk.stats.remove(Stat.productionTime);
     blk.stats.add(Stat.productionTime, blk.craftTime / 60.0, StatUnit.seconds);
 
-    blk.stats.add(TP_stat.blk0fac_recipes, extend(StatValue, {display(tb) {
+    blk.stats.add(TP_stat.blk0fac_recipes, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_recipe(tb, blk.rcMdl, blk);
       MDL_table.__btnBase(tb, MDL_bundle._term("lovec", "new-window"), () => {
@@ -145,7 +145,7 @@
           tb1 => MDL_table.setDisplay_recipe(tb1, blk.rcMdl, blk, true),
         ).add();
       }).row();
-    }}));
+    }));
 
     FRAG_faci.comp_setStats_cep(blk);
   };
@@ -297,10 +297,10 @@
 
 
   function comp_displayBars(b, tb) {
-    FRAG_recipe._inputLiqs(b.ci, b.bi, b.aux).concat(FRAG_recipe._outputLiqs(b.co, b.bo)).forEach(liq => {
+    FRAG_recipe._inputLiqs(b.ci, b.bi, b.aux).concat(FRAG_recipe._outputLiqs(b.co, b.bo)).forEachFast(liq => {
       tb.add(new Bar(
         liq.localizedName,
-        Object.val(liq.barColor, liq.color),
+        tryVal(liq.barColor, liq.color),
         () => MDL_cond._isAux(liq) && !MDL_cond._isNoCapAux(liq) ? Mathf.clamp(b.liquids.get(liq) / VAR.ct_auxCap) : (b.liquids.get(liq) / b.block.liquidCapacity),
       )).growX();
       tb.row();
@@ -540,12 +540,14 @@
 
 
     write: function(b, wr) {
+      processRevision(wr);
       wr.str(b.rcHeader);
       wr.bool(b.isStopped);
     },
 
 
     read: function(b, rd, revi) {
+      processRevision(rd);
       b.rcHeader = rd.str();
       b.isStopped = rd.bool();
     },
@@ -645,15 +647,15 @@
         return TEMPLATE.ex_getRcMdl(this);
       },
       // @SPEC
-      craftEffect: Object.val(craftEff, Fx.none), updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(craftSe, useCep, noDump) {
     return {
-      craftSound: Object.val(craftSe, Sounds.none),
-      useCep: Object.val(useCep, false), noDump: Object.val(noDump, false),
+      craftSound: tryVal(craftSe, Sounds.none),
+      useCep: tryVal(useCep, false), noDump: tryVal(noDump, false),
       rcHeader: "", validTup: null, timeScl: 1.0, ignoreItemFullness: false,
       ci: [], bi: [], aux: [], reqOpt: false, opt: [],
       co: [], bo: [], failP: 0.0, fo: [],

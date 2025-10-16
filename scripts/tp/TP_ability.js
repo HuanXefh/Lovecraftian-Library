@@ -41,7 +41,7 @@
 
 
   const _abiDmg = function(dmg, e, bDmgMtp) {
-    return dmg * (e instanceof Building ? Object.val(bDmgMtp, 1.0) : e.damageMultiplier);
+    return dmg * (e instanceof Building ? tryVal(bDmgMtp, 1.0) : e.damageMultiplier);
   };
   exports._abiDmg = _abiDmg;
 

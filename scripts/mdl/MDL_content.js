@@ -144,7 +144,7 @@
   const _hasTag = function(ct, tag) {
     if(ct == null) return false;
 
-    return Function.tryFun(ct.ex_getTags, Array.air, ct).includes(tag);
+    return tryFun(ct.ex_getTags, Array.air, ct).includes(tag);
   };
   exports._hasTag = _hasTag;
 
@@ -160,7 +160,7 @@
 
     let arr = Array.from(arguments).splice(1);
 
-    return arr.some(tag => Function.tryFun(arguments[0].ex_getTags, Array.air, arguments[0]).includes(tag));
+    return arr.some(tag => tryFun(arguments[0].ex_getTags, Array.air, arguments[0]).includes(tag));
   };
   exports._hasAnyTag = _hasAnyTag;
 
@@ -179,7 +179,7 @@
     if(rs == null || !(rs instanceof Item)) return arr;
 
     Vars.content.blocks().each(blk => blk.placeablePlayer, blk => {
-      blk.requirements.forEach(itmStack => {
+      blk.requirements.forEachFast(itmStack => {
         if(itmStack.item === rs && itmStack.amount > 0) !appendAmt ? arr.push(blk) : arr.push(blk, itmStack.amount);
       });
     });
@@ -200,8 +200,8 @@
     if(rs == null) return arr;
 
     let li = Vars.content.blocks();
-    if(rs instanceof Item) li.each(blk => {if(blk.itemDrop === rs || Function.tryFun(blk.ex_getRsDrop, null, blk) === rs) arr.push(blk)});
-    if(rs instanceof Liquid) li.each(blk => {if(blk.liquidDrop === rs || Function.tryFun(blk.ex_getRsDrop, null, blk) === rs) arr.push(blk)});
+    if(rs instanceof Item) li.each(blk => {if(blk.itemDrop === rs || tryFun(blk.ex_getRsDrop, null, blk) === rs) arr.push(blk)});
+    if(rs instanceof Liquid) li.each(blk => {if(blk.liquidDrop === rs || tryFun(blk.ex_getRsDrop, null, blk) === rs) arr.push(blk)});
 
     return arr;
   };
@@ -237,12 +237,12 @@
     if(!mode.equalsAny(thisFun.modes)) return 100.0;
 
     const temps = [];
-    rss_gn.forEach(rs_gn => temps.push(_sintTemp(rs_gn)));
+    rss_gn.forEachFast(rs_gn => temps.push(_sintTemp(rs_gn)));
 
     return (mode === "max" ? Math.max : Math.min).apply(null, temps);
   }
   .setProp({
-    "modes": ["max", "min"],
+    modes: ["max", "min"],
   });
   exports._exSintTemp = _exSintTemp;
 
@@ -254,7 +254,7 @@
    * Intermediate tags are listed in DB_item.db["intmdTag"].
    * ---------------------------------------- */
   const _intmdTags = function(rs) {
-    let tags = Function.tryFun(rs.ex_getTags, null, rs);
+    let tags = tryFun(rs.ex_getTags, null, rs);
     return tags == null ? [] : tags.filter(tag => DB_item.db["intmdTag"].includes(tag));
   };
   exports._intmdTags = _intmdTags;

@@ -202,11 +202,13 @@
 
     write: function(b, wr) {
       PARENT_A.write(b, wr);
+      processRevision(wr);
     },
 
 
     read: function(b, rd, revi) {
       PARENT_A.read(b, rd, revi);
+      processRevision(rd);
     },
 
 
@@ -289,9 +291,9 @@
 
   TEMPLATE._std = function(attrRsMap, craftTime, prodAmt, isLiqBlk, updateEff, updateEffP) {
     return {
-      attrRsMap: Object.val(attrRsMap, Array.air), attrMode: "blk",
-      craftTime: Object.val(craftTime, 60.0), prodAmt: Object.val(prodAmt, 1.0),
-      isLiqBlk: Object.val(isLiqBlk, false),
+      attrRsMap: tryVal(attrRsMap, Array.air), attrMode: "blk",
+      craftTime: tryVal(craftTime, 60.0), prodAmt: tryVal(prodAmt, 1.0),
+      isLiqBlk: tryVal(isLiqBlk, false),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -333,15 +335,15 @@
         return TEMPLATE.ex_getAttrSum(this, tx, ty, rot);
       },
       // @SPEC
-      updateEffect: Object.val(updateEff, Fx.none), updateEffectChance: Object.val(updateEffP, 0.02),
+      updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),
     };
   };
 
 
   TEMPLATE._std_b = function(craftSound, shouldScaleCons) {
     return {
-      craftSound: Object.val(craftSound, Sounds.none),
-      shouldScaleCons: Object.val(shouldScaleCons, false),
+      craftSound: tryVal(craftSound, Sounds.none),
+      shouldScaleCons: tryVal(shouldScaleCons, false),
       attrSum: 0.0, attrRs: null, prog: 0.0,
       created() {
         this.super$created();

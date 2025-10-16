@@ -62,10 +62,10 @@
 
   function comp_setStats(liq) {
     liq.stats.add(TP_stat.rs_isIntermediate, true);
-    if(liq.intmdParent != null) liq.stats.add(TP_stat.rs0int_parent, extend(StatValue, {display(tb) {
+    if(liq.intmdParent != null) liq.stats.add(TP_stat.rs0int_parent, newStatValue(tb => {
       tb.row();
       MDL_table.setDisplay_ctRow(tb, liq.intmdParent);
-    }}));
+    }));
   };
 
 
