@@ -141,8 +141,8 @@
       MDL_table.setDisplay_recipe(tb, blk.rcMdl, blk);
       MDL_table.__btnBase(tb, MDL_bundle._term("lovec", "new-window"), () => {
         new CLS_window(
-          TP_stat.blk0fac_recipes.localized() + " (" + blk.localizedName + ")",
-          tb1 => MDL_table.setDisplay_recipe(tb1, blk.rcMdl, blk, true),
+          "[$1] ([$2])".format(TP_stat.blk0fac_recipes.localized(), blk.localizedName),
+          tb1 => MDL_table.setDisplay_recipe(tb1, blk.rcMdl, blk, true, true),
         ).add();
       }).row();
     }));

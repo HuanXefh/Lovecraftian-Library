@@ -13,7 +13,7 @@
       let fiSeq = dir.findAll(fi => fi.name() === "globalScript.js");
       return fiSeq.size === 0 ? null : fiSeq.get(0);
     };
-    Vars.mods.eachEnabled(mod => {
+    let runGlbScr = mod => {
       let fi = findGlbScr(mod);
       if(fi == null) return;
       try {
@@ -21,6 +21,13 @@
       } catch(err) {
         Log.err("[LOVEC] Error loading global script for " + mod.meta.name + ":\n" + err);
       };
+    };
+
+    // Lovec globalScript.js should always get loaded first
+    runGlbScr(Vars.mods.locateMod("lovec"));
+    Vars.mods.eachEnabled(mod => {
+      if(mod.meta.name === "lovec") return;
+      runGlbScr(mod);
     });
   })();
 
@@ -215,9 +222,22 @@
 
     // Load extra sounds
     DB_misc.db["mod"]["extraSound"].forEachFast(seStr => Vars.tree.loadSound(seStr));
+    Time.run(3.0, () => {
+      if(PARAM.secret_fireInTheHole) {
+        let pitchBase;
+        let fireInTheHole = wp => {
+          wp.shootSound = Vars.tree.loadSound("se-meme-fith");
+          pitchBase = Mathf.lerp(1.8, 0.5, Interp.pow2Out.apply(Mathf.clamp(wp.reload / 100.0)));
+          wp.soundPitchMin = pitchBase - 0.1;
+          wp.soundPitchMax = pitchBase + 0.1;
+        };
+        Vars.content.units().each(utp => utp.weapons.each(wp => !wp.noAttack, wp => fireInTheHole(wp)));
+        Vars.content.blocks().each(blk => blk instanceof Turret, blk => fireInTheHole(blk));
+      };
+    });
 
 
-    // Set name colors
+    // Set up name colors
     if(!Vars.headless && MDL_util._cfg("load-colored-name")) {
       Core.app.post(() => {
         let fetchColor = rs => {
@@ -226,38 +246,23 @@
             Tmp.c1.set(Color.white) :
             Tmp.c1.set(rs.color).mul(tmp < 0.45 ? VAR.ct_colorMtpHigh : VAR.ct_colorMtp);
         };
-        Vars.content.items().each(itm => {
-          itm.localizedName = String(itm.localizedName).color(fetchColor(itm));
-        });
-        Vars.content.liquids().each(liq => {
-          liq.localizedName = String(liq.localizedName).color(fetchColor(liq));
-        });
-        let factions = VARGEN.factions;
-        for(let faction in factions) {
-          factions[faction].forEachFast(ct => {
-            ct.localizedName = String(ct.localizedName).color(Tmp.c1.set(MDL_content._factionColor(faction)));
-          });
-        };
+
+        VARGEN.rss.forEachFast(rs => rs.localizedName = rs.localizedName.color(fetchColor(rs)));
+        Object._it(VARGEN.factions, (faction, cts) => cts.forEachFast(ct => ct.localizedName = ct.localizedName.color(MDL_content._factionColor(faction))));
       });
     };
 
 
-    // Set recipe dictionary stat
-    Vars.content.items().each(itm => {
-      itm.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
+    // Set up recipe dictionary stat
+    VARGEN.rss.forEachFast(rs => {
+      rs.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
         tb.row();
-        MDL_table.__btnSmallBase(tb, "?", () => TP_dial.rcDict.ex_show(itm.localizedName, itm)).left().padLeft(28.0).row();
-      }));
-    });
-    Vars.content.liquids().each(liq => {
-      liq.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
-        tb.row();
-        MDL_table.__btnSmallBase(tb, "?", () => TP_dial.rcDict.ex_show(liq.localizedName, liq)).left().padLeft(28.0).row();
+        MDL_table.__btnSmallBase(tb, "?", () => TP_dial.rcDict.ex_show(rs.localizedName, rs)).left().padLeft(28.0).row();
       }));
     });
 
 
-    // Set node root names
+    // Set up node root names
     if(!Vars.headless) {
       TechTree.roots.each(rt => {
         let nmCt = DB_env.db["nodeRootNameMap"].read(rt.name);
@@ -269,47 +274,38 @@
     };
 
 
-    // Set robot only status
-    DB_status.db["group"]["robotOnly"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEachFast(sta => {
-      if(sta != null) {
+    // Set up status effects
+    (function() {
+      // Robot-only status
+      DB_status.db["group"]["robotOnly"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEachCond(sta => sta != null, sta => {
         sta.stats.add(TP_stat.sta_robotOnly, true);
         VARGEN.bioticUtps.forEachFast(utp => utp.immunities.add(sta));
-      };
-    });
-
-
-    // Set oceanic status
-    DB_status.db["group"]["oceanic"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEachFast(sta => {
-      if(sta != null) {
+      });
+      // Oceanic status
+      DB_status.db["group"]["oceanic"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).forEachCond(sta => sta != null, sta => {
         VARGEN.navalUtps.forEachFast(utp => utp.immunities.add(sta));
+      });
+      // Missile immunities
+      DB_status.db["group"]["missileImmune"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).concat(VARGEN.deathStas).forEachCond(sta => sta != null, sta => {
+        VARGEN.missileUtps.forEachFast(utp => utp.immunities.add(sta));
+      });
+    })();
+
+
+    // Set up faction
+    (function() {
+      let setFaction = ct => {
+        if(MDL_content._faction(ct) !== "none") ct.stats.add(TP_stat.spec_faction, newStatValue(tb => {
+          tb.row();
+          MDL_table.setDisplay_faction(tb, ct);
+        }));
       };
-    });
+      Vars.content.blocks().each(blk => setFaction(blk));
+      Vars.content.units().each(utp => setFaction(utp));
+    })();
 
 
-    // Set missile immunities
-    DB_status.db["group"]["missileImmune"].map(nmSta => MDL_content._ct(nmSta, "sta", true)).concat(VARGEN.deathStas).forEachFast(sta => {
-      if(sta != null) {
-        VARGEN.missileUtps.forEachFast(utp => utp.immunities.add(sta))
-      };
-    });
-
-
-    // Set faction and factory family
-    Vars.content.blocks().each(blk => {
-      if(MDL_content._faction(blk) !== "none") blk.stats.add(TP_stat.spec_faction, newStatValue(tb => {
-        tb.row();
-        MDL_table.setDisplay_faction(tb, blk);
-      }));
-    });
-    Vars.content.units().each(utp => {
-      if(MDL_content._faction(utp) !== "none") utp.stats.add(TP_stat.spec_faction, newStatValue(tb => {
-        tb.row();
-        MDL_table.setDisplay_faction(tb, utp);
-      }));
-    });
-
-
-    // Set up abilities/ai controllers assigned in {DB_unit.db["map"]["ability"]}
+    // Set up abilities/ai controllers
     DB_unit.db["map"]["ability"].forEachRow(3, (nmUtp, nmAbi, args) => {
       let utp = MDL_content._ct(nmUtp, "utp");
       if(utp == null) return;
@@ -344,11 +340,13 @@
 
 
     // Set up settings
-    Core.settings.put("lovec-window-show", true);
-    // I don't think there's need to create a module for this, Just check {MDL_util._cfg}
-    Vars.ui.settings.addCategory(MDL_bundle._term("lovec", "settings"), tb => {
+    (function() {
+      Core.settings.put("lovec-window-show", true);
 
-      if(PARAM.debug) {
+      let settings = Vars.ui.settings;
+
+      // Debug settings
+      if(PARAM.debug) settings.addCategory(MDL_bundle._term("lovec", "settings-debug"), tb => {
         tb.checkPref("lovec-test-draw", false);
         tb.checkPref("lovec-test-todo", false);
         tb.checkPref("lovec-test-memory", false);
@@ -356,43 +354,49 @@
 
         tb.checkPref("lovec-load-ore-dict", false);
         tb.checkPref("lovec-load-ore-dict-def", true);
-      };
+      });
+      // Visual settings
+      settings.addCategory(MDL_bundle._term("lovec", "settings-visual"), tb => {
+        tb.checkPref("lovec-load-colored-name", true);
 
-      tb.checkPref("lovec-load-vanilla-flyer", false);
-      tb.checkPref("lovec-load-colored-name", true);
-      tb.checkPref("lovec-load-force-modded", false);
+        tb.checkPref("lovec-draw-wobble", false);
+        tb.checkPref("lovec-draw0loot-static", true);
+        tb.checkPref("lovec-draw0loot-amount", true);
+        tb.sliderPref("lovec-draw0tree-alpha", 10, 0, 10, val => Strings.fixed(val * 10.0, 0) + "%");
+        tb.checkPref("lovec-draw0tree-player", true);
+        tb.checkPref("lovec-draw0aux-bridge", true);
+        tb.checkPref("lovec-draw0aux-router", true);
+        tb.checkPref("lovec-draw0aux-fluid-heat", true);
+      });
+      // Misc settings
+      settings.addCategory(MDL_bundle._term("lovec", "settings-misc"), tb => {
+        tb.checkPref("lovec-load-vanilla-flyer", false);
+        tb.checkPref("lovec-load-force-modded", false);
 
-      tb.sliderPref("lovec-interval-efficiency", 5, 1, 15, val => Strings.fixed(val * 0.1, 2) + "s");
+        tb.sliderPref("lovec-interval-efficiency", 5, 1, 15, val => Strings.fixed(val * 0.1, 2) + "s");
 
-      tb.checkPref("lovec-draw-wobble", false);
-      tb.checkPref("lovec-draw0loot-static", true);
-      tb.checkPref("lovec-draw0loot-amount", true);
-      tb.sliderPref("lovec-draw0tree-alpha", 10, 0, 10, val => Strings.fixed(val * 10.0, 0) + "%");
-      tb.checkPref("lovec-draw0tree-player", true);
-      tb.checkPref("lovec-draw0aux-extra-info", true);
-      tb.checkPref("lovec-draw0aux-bridge", true);
-      tb.checkPref("lovec-draw0aux-router", true);
-      tb.checkPref("lovec-draw0aux-fluid-heat", true);
+        tb.checkPref("lovec-draw0aux-extra-info", true);
 
-      tb.checkPref("lovec-icontag-flicker", true);
-      tb.sliderPref("lovec-icontag-interval", 4, 1, 12, val => Strings.fixed(val * 0.33333333, 2) + "s");
+        tb.checkPref("lovec-icontag-flicker", true);
+        tb.sliderPref("lovec-icontag-interval", 4, 1, 12, val => Strings.fixed(val * 0.33333333, 2) + "s");
 
-      tb.checkPref("lovec-damagedisplay-show", true);
-      tb.sliderPref("lovec-damagedisplay-min", 0, 0, 50, val => Strings.fixed(val * 20.0, 0));
-      tb.checkPref("lovec-unit0stat-show", true);
-      tb.checkPref("lovec-unit0stat-range", true);
-      tb.checkPref("lovec-unit0stat-player", true);
-      tb.checkPref("lovec-unit0stat-reload", true);
-      tb.checkPref("lovec-unit0stat-missile", false);
-      tb.checkPref("lovec-unit0stat-build", true);
-      tb.checkPref("lovec-unit0stat-mouse", true);
-      tb.checkPref("lovec-unit0stat-minimalistic", false);
-      tb.sliderPref("lovec-unit0remains-lifetime", 36, 0, 120, val => Strings.fixed(val * 5.0, 0) + "s");
-      tb.checkPref("lovec-unit0remains-building", true);
+        tb.checkPref("lovec-damagedisplay-show", true);
+        tb.sliderPref("lovec-damagedisplay-min", 0, 0, 50, val => Strings.fixed(val * 20.0, 0));
 
-      tb.areaTextPref("lovec-misc-secret-code", "");
+        tb.checkPref("lovec-unit0stat-show", true);
+        tb.checkPref("lovec-unit0stat-range", true);
+        tb.checkPref("lovec-unit0stat-player", true);
+        tb.checkPref("lovec-unit0stat-reload", true);
+        tb.checkPref("lovec-unit0stat-missile", false);
+        tb.checkPref("lovec-unit0stat-build", true);
+        tb.checkPref("lovec-unit0stat-mouse", true);
+        tb.checkPref("lovec-unit0stat-minimalistic", false);
+        tb.sliderPref("lovec-unit0remains-lifetime", 36, 0, 120, val => Strings.fixed(val * 5.0, 0) + "s");
+        tb.checkPref("lovec-unit0remains-building", true);
 
-    });
+        tb.areaTextPref("lovec-misc-secret-code", "");
+      });
+    })();
 
 
     new CLS_dragButton().add();

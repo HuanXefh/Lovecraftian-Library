@@ -47,14 +47,11 @@
    * Whether the string contains any piece from {strs}.
    * ---------------------------------------- */
   ptp.includesAny = function(strs) {
-    let i = 0;
-    let iCap = strs.iCap();
-    while(i < iCap) {
-      if(this.includes(strs[i])) return true;
-      i++;
-    };
+    const thisStr = this;
 
-    return false;
+    return strs instanceof Array ?
+      strs.some(str => thisStr.includes(str)) :
+      Array.from(arguments).some(str => thisStr.includes(str));
   };
 
 
@@ -64,14 +61,11 @@
    * Whether the string contains all the pieces from {strs}.
    * ---------------------------------------- */
   ptp.includesAll = function(strs) {
-    let i = 0;
-    let iCap = strs.iCap();
-    while(i < iCap) {
-      if(this.includes(strs[i])) return false;
-      i++;
-    };
+    const thisStr = this;
 
-    return true;
+    return strs instanceof Array ?
+      strs.every(str => thisStr.includes(str)) :
+      Array.from(arguments).every(str => thisStr.includes(str));
   };
 
 
@@ -82,12 +76,9 @@
    * No triple equality here!
    * ---------------------------------------- */
   ptp.equalsAny = function(strs) {
-    let i = 0;
-    let iCap = strs.iCap();
-    while(i < iCap) {
-      if(this == strs[i]) return true;
-      i++;
-    };
+    const thisStr = this;
 
-    return false;
+    return strs instanceof Array ?
+      strs.some(str => thisStr == str) :
+      Array.from(arguments).some(str => thisStr == str);
   };

@@ -75,7 +75,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A modified {DrawLiquid} where the liquid with largest amount is used.
+   * A modified {DrawLiquidRegion} where the liquid with largest amount is used.
    * ---------------------------------------- */
   const _dynamicLiquid = function(suffix) {
     return extend(DrawBlock, {

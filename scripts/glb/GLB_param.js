@@ -164,10 +164,12 @@
 
       secretCode = MDL_util._cfg("misc-secret-code");
       if(secretCode.includes("<crash>")) {
-        Core.settings.put("lovec-misc-secret-code", "");
+        Core.settings.put("lovec-misc-secret-code", secretCode.replace("<crash>", ""));
         throw new Error("You definitely know what <crash> means don't you?");
       };
-      exports.secret_steelPipe = secretCode.includes("<steel-pipe>");
+      exports.secret_fireInTheHole = secretCode.includesAny("<fire-in-the-hole>", "<fire-in-da-hole>", "<fith>");
+      exports.secret_steelPipe = secretCode.includes("<steel-pipe>", "<metal-pipe>");
+      exports.secret_revisionFix = secretCode.includes("<revision-fix>");
 
 
       shouldLoadParam = false;

@@ -59,10 +59,6 @@
   function comp_setStats(blk) {
     if(blk.itmWhitelist.length > 0) {
       blk.stats.remove(TP_stat.blk0min_blockedItms);
-      blk.stats.add(TP_stat.blk0min_allowedItms, newStatValue(tb => {
-        tb.row();
-        MDL_table.setDisplay_ctLi(tb, blk.itmWhitelist);
-      }));
     };
     if(blk.terItmMapMap.size > 0) {
       blk.stats.add(Stat.output, newStatValue(tb => {

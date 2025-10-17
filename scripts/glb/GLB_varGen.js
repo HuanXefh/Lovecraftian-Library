@@ -161,6 +161,9 @@
     })();
 
 
+    exports.rss = Vars.content.items().toArray().concat(Vars.content.liquids().toArray());
+
+
     exports.sandItms = (function() {
       const arr = [];
       DB_item.db["group"]["sand"].forEachFast(nm => {

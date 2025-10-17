@@ -113,8 +113,8 @@
       tb.row();
       MDL_table.__btnSmallBase(tb, "?", () => {
         new CLS_window(
-          MDL_bundle._term("lovec", "fuel") + " (" + blk.localizedName + ")",
-          tb1 => MDL_table.setDisplay_ctLi(tb1, FRAG_faci._fuelArr(blk), null, 7),
+          "[$1] ([$2])".format(MDL_bundle._term("lovec", "fuel"), blk.localizedName),
+          tb1 => MDL_table.setDisplay_ctLi(tb1, FRAG_faci._fuelArr(blk), null, 10),
         ).add();
       }).left().padLeft(28.0).row();
     }));

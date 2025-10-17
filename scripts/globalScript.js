@@ -1,10 +1,18 @@
-/* ----------------------------------------
- * NOTE:
- *
- * globalScript.js is run BEFORE Lovec is loaded, and NOT in STRICT MODE. Don't explicitly {require} anything!
- * This is mostly intended for console and some generic methods.
- * Beware of naming conflict!
- * ---------------------------------------- */
+/*
+  ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * globalScript.js is run BEFORE Lovec is loaded, and NOT in STRICT MODE. Don't explicitly {require} anything!
+   * This is mostly intended for console and some generic methods.
+   * For your own mod, simply create another globalScript.js in your "scripts" folder, it will be automatically loaded.
+   * Beware of naming conflict!
+   * ---------------------------------------- */
 
 
 /*
@@ -49,7 +57,7 @@
     if(wr0rd instanceof Writes) {
       wr0rd.s(LOVEC_REVISION);
     } else {
-      return wr0rd.s();
+      return global.lovec.param.secret_revisionFix ? 0 : wr0rd.s();
     };
   };
 

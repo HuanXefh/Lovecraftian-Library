@@ -95,6 +95,49 @@ const db = {
         "sfire-mod-hammer", [0],
         "sfire-mod-UTV-Artillery", [0],
 
+        "sapphirium-snowstorm", [0, 1],
+        "sapphirium-cold-blood", [2],
+        "sapphirium-shadow", [0],
+        "sapphirium-void", [0],
+        "sapphirium-nihil", [5],
+        "sapphirium-prophecy", [0],
+        "sapphirium-shriek", [1, 2],
+        "sapphirium-whirlpool", [2],
+        "sapphirium-tornado", [3],
+        "sapphirium-war", [0],
+        "sapphirium-hunt", [0],
+        "sapphirium-raptor", [1],
+        "sapphirium-maw", [5],
+        "sapphirium-penance", [2],
+        "sapphirium-milestone", [4],
+        "sapphirium-ooze", [0, 1],
+        "sapphirium-gaze", [5, 6],
+        "sapphirium-epitaph", [0],
+        "sapphirium-fatum", [1],
+
+        "exogenesis-T-atlas", [1, 2],
+        "exogenesis-T-nemesis", [0, 1],
+        "exogenesis-T-prometheus", [0],
+        "exogenesis-apotheosis", [12, 13],
+        "exogenesis-assault", [0],
+        "exogenesis-b03-kentaurus", [0],
+        "exogenesis-b04-oort", [4],
+        "exogenesis-b06-eros", [4],
+        "exogenesis-b07-universalis", [6, 7, 8, 9],
+        "exogenesis-balaenoptera", [6],
+        "exogenesis-battle", [3, 4],
+        "exogenesis-collapse", [1, 2],
+        "exogenesis-eruption", [0],
+        "exogenesis-lava", [0],
+        "exogenesis-magnapinna", [0, 1],
+        "exogenesis-nadir", [9],
+        "exogenesis-orca", [4],
+        "exogenesis-overgrowth-sentinel", [2, 3],
+        "exogenesis-sagittarius", [16],
+        "exogenesis-toxicity", [0],
+        "exogenesis-war", [0],
+        "exogenesis-xenoct", [4, 5],
+
       ],
 
 
@@ -106,10 +149,33 @@ const db = {
 
         "aquarion-reave", [1],
 
+        "sapphirium-snowstorm", [2],
+        "sapphirium-shriek", [0],
+        "sapphirium-tornado", [0],
+        "sapphirium-raptor", [2],
+        "sapphirium-maw", [2],
+        "sapphirium-ooze", [4],
+        "sapphirium-gaze", [2],
+        "sapphirium-fatum", [0],
+
+        "exogenesis-T-atlas", [0],
+        "exogenesis-apotheosis", [10],
+        "exogenesis-b06-eros", [2, 3],
+        "exogenesis-battle", [5],
+        "exogenesis-collapse", [0],
+        "exogenesis-magnapinna", [2, 3],
+        "exogenesis-xenoct", [6, 7],
+
       ],
 
 
-      "off2": [],
+      "off2": [
+
+        "sapphirium-raptor", [0],
+
+        "exogenesis-apotheosis", [11],
+
+      ],
 
 
 
@@ -249,7 +315,23 @@ const db = {
       "new-horizon-nucleoid",
       "new-horizon-guardian",
 
-      "sfire-mod-knocker"
+      "sfire-mod-knocker",
+
+      "sapphirium-shielder",
+      "sapphirium-jerk",
+      "sapphirium-glaive",
+      "sapphirium-absorption",
+      "sapphirium-abyss-spawn",
+      "sapphirium-diamond-drone",
+      "sapphirium-ice-bomb",
+      "sapphirium-fight",
+      "sapphirium-second-chance",
+      "sapphirium-curbing-phase1",
+      "sapphirium-curbing-phase2",
+      "sapphirium-obedience-phase1",
+      "sapphirium-obedience-phase2",
+      "sapphirium-subordination-phase1",
+      "sapphirium-subordination-phase2",
 
     ],
 

@@ -873,16 +873,22 @@
   /* <---------- recipe ----------> */
 
 
-  const setDisplay_recipe = function(tb, rcMdl, blk, isCollapsed) {
+  const setDisplay_recipe = function(tb, rcMdl, blk, isCollapsed, noInnerPane) {
     if(MDL_recipe._rcSize(rcMdl) === 0) {
       __textNothing(tb);
       return;
     };
 
     const cont = new Table();
+    const contPn = new ScrollPane(cont);
+    contPn.setScrollingDisabled(false, false);
+    contPn.setOverscroll(false, false);
+
     tb.left();
     __break(tb, 1);
-    tb.add(cont).row();
+    noInnerPane ?
+      tb.add(cont).row() :
+      tb.add(contPn).maxHeight(720.0).row();
     __break(tb, 1);
 
     const categHeaderObj = MDL_recipe._categHeaderObj(rcMdl);
