@@ -43,7 +43,7 @@
   const VAR = require("lovec/glb/GLB_var");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
+  const MATH_interp = require("lovec/math/MATH_interp");
 
 
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
@@ -66,7 +66,7 @@
     blk.isLiquid = true;
     if(blk.speedMultiplier.fEqual(1.0)) {
       blk.speedMultiplier = blk.shallow ? 0.8 : 0.5;
-      if(liq != null) blk.speedMultiplier *= MATH_base.applyInterp(1.0, 0.2, liq.viscosity, Interp.linear, 0.5, 1.0);
+      if(liq != null) blk.speedMultiplier *= MATH_interp.applyInterp(1.0, 0.2, liq.viscosity, Interp.linear, 0.5, 1.0);
     };
     if(blk.drownTime.fEqual(0.0)) blk.drownTime = blk.shallow ? 0.0 : VAR.time_drownDef;
     if(blk.status !== StatusEffects.none) blk.statusDuration = VAR.time_liqStaDef * (blk.shallow ? 1.0 : 2.0);

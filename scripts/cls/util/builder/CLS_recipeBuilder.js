@@ -21,9 +21,7 @@ const CLS_recipeBuilder = function() {
 
 
 CLS_recipeBuilder.prototype.init = function() {
-
   this.builderObj = {};
-
 };
 
 

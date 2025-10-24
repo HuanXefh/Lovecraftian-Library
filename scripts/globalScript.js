@@ -112,6 +112,7 @@
     ERROR_HANDLER.interfaceMethodConflict = nmFun => {throw new Error("Can't implement interface on a class due to name conflict: " + nmFun)};
     ERROR_HANDLER.headerConfict = (header, tp) => {throw new Error("A header name [$1]conflicts with existing headers: ".format(tp == null ? "" : "(type: [$1]) ".format(tp)) + header)};
 
+    ERROR_HANDLER.noNm = info => {throw new Error("A unique name must be assigned to [$1]!".format(info))};
     ERROR_HANDLER.noCt = nm => {throw new Error("Content is not found for [$1]!".format(nm))};
     ERROR_HANDLER.noItm = blk => {throw new Error(blk.name + " has no item module!")};
     ERROR_HANDLER.noLiq = blk => {throw new Error(blk.name + " has no liquid module!")};
@@ -122,6 +123,47 @@
 
 
   /* <---------- modification ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Used for function overloading (definition of one function with different sets of arguments).
+   * Mostly for class or instance methods, as {obj} is required.
+   * ---------------------------------------- */
+  addMethod = function(obj, nmFun, arrowFun) {
+    let lastFun = obj[nmFun];
+
+    obj[nmFun] = function() {
+      if(arrowFun.length === arguments.length) {
+        return arrowFun.apply(this, arguments);
+      } else if(typeof lastFun === "function") {
+        return lastFun.apply(this, arguments);
+      };
+    };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: obj1, obj2, obj3, ...
+   * Simply merges a series of objects.
+   * Properties defined later will overwrite the ones defined before.
+   * Mostly used in CT files to further modify the template.
+   *
+   * This method is different from {Object.mergeObj} which is used for layered objects.
+   * ---------------------------------------- */
+  mergeObj = function() {
+    let obj0 = {};
+    for(let obj of arguments) {
+      for(let key in obj) {
+        obj0[key] = obj[key];
+      };
+    };
+
+    return obj0;
+  };
 
 
   /* ----------------------------------------
@@ -154,28 +196,6 @@
         blk.drawer = new DrawMulti(drawers.toSeq());
       };
     });
-  };
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * @ARGS: obj1, obj2, obj3, ...
-   * Simply merges a series of objects.
-   * Properties defined later will overwrite the ones defined before.
-   * Mostly used in CT files to further modify the template.
-   *
-   * This method is different from {Object.mergeObj} which is used for layered objects.
-   * ---------------------------------------- */
-  mergeObj = function() {
-    let obj0 = {};
-    for(let obj of arguments) {
-      for(let key in obj) {
-        obj0[key] = obj[key];
-      };
-    };
-
-    return obj0;
   };
 
 
@@ -229,7 +249,7 @@
    * Will return {null} if not found.
    * Do not include this in main loops!
    * ---------------------------------------- */
-  fetchClass = function(nmCls) {
+  fetchClass = function(nmCls, suppressWarning) {
     let cls;
     try {
       cls = Packages.rhino.NativeJavaClass(
@@ -241,7 +261,7 @@
       );
     } catch(err) {
       cls = null;
-      Log.warn("[LOVEC] Failed to fetch class:\n" + err);
+      if(!suppressWarning) Log.warn("[LOVEC] Failed to fetch class:\n" + err);
     };
 
     return cls;
@@ -281,6 +301,12 @@
   unpackPayload = function(payload) {
     return Object.objToArr(JSON.parse(payload));
   };
+
+
+  /* <---------- class ----------> */
+
+
+  SDL = fetchClass("arc.backend.sdl.jni.SDL");
 
 
 /*

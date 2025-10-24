@@ -68,6 +68,11 @@
   });
 
 
+  function comp_icons(blk) {
+    return Core.atlas.has(blk.name + "-full") ? [Core.atlas.find(blk.name + "-full")] : blk.super$icons();
+  };
+
+
   function comp_onDestroyed(b) {
     if(DB_block.db["group"]["noLoot"].includes(b.block.name)) return;
 
@@ -114,6 +119,12 @@
     },
 
 
+    // @NOSUPER
+    icons: function(blk) {
+      return comp_icons(blk);
+    },
+
+
     drawPlace: function(blk, tx, ty, rot, valid) {
 
     },
@@ -123,7 +134,7 @@
 
 
     created: function(b) {
-      
+
     },
 
 

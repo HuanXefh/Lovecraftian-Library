@@ -116,7 +116,7 @@
       let funParent = clsParent[nmFun];
       if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
 
-      return funParent.apply(this, Array.from(arguments).splice(0, 1));
+      return funParent.apply(this, Array.from(arguments).splice(1));
     };
 
     this.prototype = Object.create(cls.prototype);
@@ -129,7 +129,7 @@
       let funParent = clsParent.prototype[nmFun];
       if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
 
-      return funParent.apply(new clsParent(), Array.from(arguments).splice(0, 1));
+      return funParent.apply(this, Array.from(arguments).splice(1));
     };
 
     return this;

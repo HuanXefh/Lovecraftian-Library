@@ -123,7 +123,7 @@
 
     return true;
   };
-  exports.comp_updateMovement_circleAttack = comp_updateMovement_circleAttack;
+  exports.comp_updateMovement_attack = comp_updateMovement_attack;
 
 
   /* ----------------------------------------

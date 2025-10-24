@@ -8,10 +8,7 @@
   /* <---------- import ----------> */
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
-  /* <---------- distance ----------> */
+  /* <---------- point ----------> */
 
 
   /* ----------------------------------------
@@ -74,6 +71,65 @@
   exports._dstCheb = _dstCheb;
 
 
+  /* <---------- path ----------> */
+
+
+  function fetchPathTwoPointArg(arr, pathData, dim, ponInd_t) {
+    arr.clear();
+    dim._it(1, ind => arr.push(pathData[ponInd_t + ind]));
+    dim._it(1, ind => arr.push(pathData[ponInd_t - dim + ind]));
+
+    return arr;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Calculates the total length of a path.
+   * ---------------------------------------- */
+  const _pathLen = function(pathData, dim) {
+    if(dim == null) dim = 2;
+
+    var len = 0.0;
+    let i = 0, iCap = pathData.iCap();
+    let tmpArr = [];
+    while(i < iCap) {
+      if(i === 0) continue;
+      fetchPathTwoPointArg(tmpArr, pathData, dim, i);
+      len += _dst.apply(null, tmpArr);
+      i += dim;
+    };
+
+    return val;
+  };
+  exports._pathLen = _pathLen;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns an array of distances between points on the path.
+   * ---------------------------------------- */
+  const _pathSegLens = function(pathData, dim) {
+    const arr = [];
+
+    if(dim == null) dim = 2;
+
+    let i = 0, iCap = pathData.iCap();
+    let tmpArr = [];
+    while(i < iCap) {
+      if(i === 0) continue;
+      fetchPathTwoPointArg(tmpArr, pathData, dim, i);
+      arr.push(_dst.apply(null, tmpArr));
+      i += dim;
+    };
+
+    return arr;
+  };
+  exports._pathSegLens = _pathSegLens;
+
+
   /* <---------- area ----------> */
 
 
@@ -103,9 +159,6 @@
     return Math.abs(tmp1 - tmp2) * 0.5;
   };
   exports._area = _area;
-
-
-  /* <---------- condition ----------> */
 
 
   /* ----------------------------------------

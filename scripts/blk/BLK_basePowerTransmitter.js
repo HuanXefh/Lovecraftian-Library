@@ -88,6 +88,12 @@
     },
 
 
+    // @NOSUPER
+    icons: function(blk) {
+      return PARENT.icons(blk);
+    },
+
+
     drawPlace: function(blk, tx, ty, rot, valid) {
       PARENT.drawPlace(blk, tx, ty, rot, valid);
     },

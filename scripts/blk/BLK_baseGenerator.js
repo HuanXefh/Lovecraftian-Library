@@ -83,6 +83,8 @@
 
   function comp_updateTile(b) {
     FRAG_fluid.comp_updateTile_capAux(b);
+    FRAG_fluid.comp_updateTile_flammable(b);
+    FRAG_fluid.comp_updateTile_pressuredBuilding(b);
   };
 
 
@@ -118,6 +120,12 @@
     setStats: function(blk) {
       PARENT.setStats(blk);
       comp_setStats(blk);
+    },
+
+
+    // @NOSUPER
+    icons: function(blk) {
+      return PARENT.icons(blk);
     },
 
 

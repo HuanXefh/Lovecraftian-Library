@@ -8,8 +8,8 @@
 /* <---------- import ----------> */
 
 
-const CLS_interface = require("lovec/cls/struct/CLS_interface");
 const CLS_objectBox = require("lovec/cls/struct/CLS_objectBox");
+const CLS_interface = require("lovec/cls/struct/CLS_interface");
 
 
 /* <---------- meta ----------> */

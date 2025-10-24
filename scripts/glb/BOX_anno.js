@@ -11,8 +11,8 @@
 /* <---------- import ----------> */
 
 
-const CLS_annotation = require("lovec/cls/struct/CLS_annotation");
 const CLS_objectBox = require("lovec/cls/struct/CLS_objectBox");
+const CLS_annotation = require("lovec/cls/struct/CLS_annotation");
 
 
 const MDL_event = require("lovec/mdl/MDL_event");
@@ -198,6 +198,18 @@ const BOX_annotation = new CLS_objectBox({
   "__NONHEADLESS__": new CLS_annotation("non-headless", function() {
 
     return Vars.headless;
+
+  }),
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Method won't be called on mobile end.
+   * ---------------------------------------- */
+  "__NONMOBILE__": new CLS_annotation("non-mobile", function() {
+
+    return Core.app.isMobile();
 
   }),
 

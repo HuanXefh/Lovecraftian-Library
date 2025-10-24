@@ -35,24 +35,19 @@
    * NOTE:
    *
    * Gets the default complete region for a block.
-   * -icon sprite should always be created.
    * ---------------------------------------- */
   const _regBlk = function(blk_gn, shouldReturnName) {
+    if(Vars.headless) return shouldReturnName ? "" : null;
+
     let blk = global.lovecUtil.fun._ct(blk_gn, "block");
     if(blk == null) return null;
 
     if(!shouldReturnName) {
-
-      return Core.atlas.find(blk.name + "-icon", blk.fullIcon);
-
+      return Core.atlas.find(blk.name + "-full", blk.fullIcon);
     } else {
-
-      let nm = blk.name + "-icon";
-      return Core.atlas.has(nm) ? nm : blk.name + "-full";
-
+      return blk.name + "-full";
     };
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
+  };
   exports._regBlk = _regBlk;
 
 
@@ -143,30 +138,37 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Draws pixels from {pix2} on top of {pix1}.
+   * Draws pixels from {pix2} on top of {pix1}, ignores transparent pixels.
    * ---------------------------------------- */
-  const _pix_stack = function(pix1, pix2) {
-    var w = pix1.width;
-    var h = pix1.height;
-    let pix = new Pixmap(w, h);
-
-    for(let x = 0; x < w; x++) {
-      for(let y = 0; y < h; y++) {
-        let rawColor;
-        let rawColor1 = pix1.getRaw(x, y);
-        let rawColor2;
-        if(pix2 == null) {rawColor = Tmp.c1.set(rawColor1).rgba()} else {
-          rawColor2 = pix2.getRaw(x, y);
-          rawColor = (pix2.getA(x, y) < 36) ? Tmp.c1.set(rawColor1).rgba() : Tmp.c1.set(rawColor2).rgba();
-        };
-
-        pix.setRaw(x, y, rawColor);
-      };
-    };
+  const _pix_stack = function(pix1, pix2, aThr) {
+    let pix = new Pixmap(pix1.width, pix1.height);
+    let thr = Math.round(tryVal(aThr, 0.14) * 255);
+    pix.each((x, y) => {
+      pix.setRaw(x, y, pix2 == null || pix2.getA(x, y) < thr ? pix1.getRaw(x, y) : pix2.getRaw(x, y));
+    });
 
     return pix;
   };
   exports._pix_stack = _pix_stack;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a smaller icon of {ct_gn} on top of {pix0}.
+   * ---------------------------------------- */
+  const _pix_ctStack = function(pix0, ct_gn) {
+    let ct = global.lovecUtil.fun._ct(ct_gn);
+    if(ct == null) ERROR_HANDLER.noCt(ct_gn);
+    let pixCt = Core.atlas.getPixmap(ct instanceof Block ? _regBlk(ct) : ct.fullIcon);
+    let pixCtStack = new Pixmap(pix0.width, pix0.height);
+    pixCtStack.draw(pixCt, pixCtStack.width * 0.5, pixCtStack.height * 0.5, pixCtStack.width * 0.5, pixCtStack.height * 0.5);
+    let pix = _pix_stack(pix0, pixCtStack);
+    pixCtStack.dispose();
+
+    return pix;
+  };
+  exports._pix_ctStack = _pix_ctStack;
 
 
   /* ----------------------------------------
@@ -201,11 +203,8 @@
 
 
   const comp_createIcons_ctTag = function(ct, packer, nmCtBot, nmCtOv, suffix) {
-    let pixBase = Core.atlas.getPixmap(nmCtBot);
-    let pixOv = _pix_ctTag(nmCtOv, pixBase.width);
-    let pix = _pix_stack(pixBase, pixOv);
+    let pix = _pix_ctStack(Core.atlas.getPixmap(nmCtBot), nmCtOv);
     packer.add(MultiPacker.PageType.main, ct.name + suffix, pix);
-    pixOv.dispose();
     pix.dispose();
   };
   exports.comp_createIcons_ctTag = comp_createIcons_ctTag;

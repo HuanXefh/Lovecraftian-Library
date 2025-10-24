@@ -271,15 +271,23 @@
    * NOTE:
    *
    * Sets array length and fills it with {val}.
+   * If {val} here is an object (like array), use a getter function to avoid filling with the same object.
    * ---------------------------------------- */
-  ptp.setVal = function(val, len) {
+  ptp.setVal = function(val0valGetter, len) {
     if(len == null) len = this.length;
 
     this.clear();
     let i = 0;
-    while(i < len) {
-      this[i] = val;
-      i++;
+    if(typeof val0valGetter !== "function") {
+      while(i < len) {
+        this[i] = val0valGetter;
+        i++;
+      };
+    } else {
+      while(i < len) {
+        this[i] = val0valGetter();
+        i++;
+      };
     };
 
     return this;

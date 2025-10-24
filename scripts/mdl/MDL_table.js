@@ -247,15 +247,11 @@
     if(blk == null) return;
     if(w == null) w = 64.0;
 
-    var str = (Math.abs(mtp) < 0.0001) ? "" : (Strings.autoFixed(mtp * 100.0, 2) + "%");
+    let str = (Math.abs(mtp) < 0.0001) ? "" : (Strings.autoFixed(mtp * 100.0, 2) + "%");
     return tb.table(Styles.none, tb1 => {
-
       tb.left();
-
       tb1.table(Styles.none, tb2 => {
-
         tb2.left();
-
         let btn = tb2.button(new TextureRegionDrawable(blk.uiIcon), w, () => {
           Vars.ui.content.show(blk);
           if(dial != null) dial.hide();
@@ -264,27 +260,20 @@
         .padRight(-18.0)
         .get();
         tb2.table(Styles.none, tb3 => {
-
           tb3.left();
-
           __break(tb3);
-
           tb3.add(str)
           .fontScale(0.85)
           .left()
           .style(Styles.outlineLabel)
           .color(mtp < 0.0 ? Pal.remove : Pal.accent);
-
         });
-
         btn.margin(0.0);
         let btnStyle = btn.getStyle();
         btnStyle.up = Styles.none;
         btnStyle.down = Styles.none;
         btnStyle.over = Styles.flatOver;
-
       }).padRight(4.0);
-
     }).left().padRight(8.0).padTop(4.0).padBottom(4.0);
   };
   exports.__blkEffc = __blkEffc;
@@ -370,13 +359,9 @@
     var str = (amt < 0) ? " ": ((ct instanceof Liquid && !cancelLiq) ? Strings.autoFixed(amt * 60.0, 2) + "/s" : Strings.autoFixed(amt, 0));
 
     return tb.table(Styles.none, tb1 => {
-
       tb1.left();
-
       tb1.table(Styles.none, tb2 => {
-
         tb2.left();
-
         let btn = tb2.button(new TextureRegionDrawable(ct.uiIcon), w, () => {
           if(dial != null) dial.hide();
           Vars.ui.content.show(ct);
@@ -385,31 +370,24 @@
         .padRight(-4.0)
         .get();
         tb2.table(Styles.none, tb3 => {
-
           tb3.left();
-
           tb3.add((Math.abs(p - 1.0) > 0.0001) ? (Strings.autoFixed(p * 100.0, 2) + "%") : "")
           .left()
           .fontScale(0.85)
           .style(Styles.outlineLabel)
           .color(Color.gray)
           .row();
-
           tb3.add(str)
           .left()
           .fontScale(0.85)
           .style(Styles.outlineLabel);
-
         });
-
         btn.margin(0.0);
         let btnStyle = btn.getStyle();
         btnStyle.up = Styles.none;
         btnStyle.down = Styles.none;
         btnStyle.over = Styles.flatOver;
-
       }).padRight(6.0);
-
     }).left().padRight(12.0).padTop(4.0).padBottom(4.0);
   };
   exports.__rcCt = __rcCt;
@@ -429,12 +407,9 @@
     if(padLeft == null) padLeft = 0.0;
 
     let cell = tb.table(Tex.whiteui, tb1 => {
-
       tb1.center().setColor(Pal.darkestGray);
       __margin(tb1, 1.5);
-
       __wrapLine(tb1, str.color(Color.gray), Align.left, ord, padLeft);
-
     }).padTop(8.0).padBottom(8.0);
     if(!noGrow) cell.growX();
     cell.row();
@@ -899,7 +874,7 @@
 
       let rcRoot = new Table();
       let coll = new Collapser(rcRoot, false);
-      coll.setDuration(0.5);
+      coll.setDuration(0.3);
       Core.app.post(() => {
         coll.setCollapsed(tryVal(isCollapsed, false), false);
       });

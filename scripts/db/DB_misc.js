@@ -1,5 +1,5 @@
 // NOTE: Be careful with any module here to avoid looped reference! Better use {global}.
-const PINYIN = require("lovec/lib/pinyin");
+const LIB_pinyin = require("lovec/lib/pinyin");
 const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_cond = require("lovec/mdl/MDL_cond");
 const DB_item = require("lovec/db/DB_item");
@@ -10,6 +10,15 @@ const db = {
 
 
   "block": {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Maps a block name before change to the changed name.
+     * Used when internal name of some block is changed.
+     * ---------------------------------------- */
+    "migration": [],
 
 
     /* ----------------------------------------
@@ -266,6 +275,8 @@ const db = {
 
     "window-show", useScl => Core.settings.getBool("lovec-window-show", true),
 
+    "misc-title-name", useScl => Core.settings.getString("lovec-misc-title-name", "Mindustry"),
+    "misc-title-map", useScl => Core.settings.getBool("lovec-misc-title-map", true),
     "misc-secret-code", useScl => Core.settings.getString("lovec-misc-secret-code", ""),
 
   ],
@@ -281,7 +292,7 @@ const db = {
      * ---------------------------------------- */
     "tag": [
 
-      "no:", (ct, str) => !ct.name.toLowerCase().includes(str) && !Strings.stripColors(ct.localizedName).toLowerCase().includes(str) && (!Core.settings.getString("locale") === "zh_CN" || !PINYIN.get(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str)),
+      "no:", (ct, str) => !ct.name.toLowerCase().includes(str) && !Strings.stripColors(ct.localizedName).toLowerCase().includes(str) && (!Core.settings.getString("locale") === "zh_CN" || !LIB_pinyin.fetchPinyin(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str)),
 
       "mod:", (ct, str) => ct.minfo.mod !== null && ct.minfo.mod.name === str,
 

@@ -136,6 +136,12 @@
     },
 
 
+    // @NOSUPER
+    icons: function(blk) {
+      return PARENT.icons(blk);
+    },
+
+
     drawPlace: function(blk, tx, ty, rot, valid) {
       PARENT.drawPlace(blk, tx, ty, rot, valid);
     },
@@ -313,6 +319,9 @@
       setStats() {
         this.super$setStats();
         TEMPLATE.setStats(this);
+      },
+      icons() {
+        return TEMPLATE.icons(this);
       },
       drawPlace(tx, ty, rot, valid) {
         this.super$drawPlace(tx, ty, rot, valid);

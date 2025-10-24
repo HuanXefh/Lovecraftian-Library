@@ -23,9 +23,7 @@ const CLS_bulletBuilder = function() {
 
 
 CLS_bulletBuilder.prototype.init = function() {
-
   this.builderObj = {};
-
 };
 
 

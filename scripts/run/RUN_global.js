@@ -24,10 +24,14 @@
 
 
   const ANNO = require("lovec/glb/BOX_anno");
+  const COMP = require("lovec/glb/BOX_comp");
+  const NOISE = require("lovec/glb/BOX_noise");
+  const TRIGGER = require("lovec/glb/BOX_trigger");
   const EFF = require("lovec/glb/GLB_eff");
   const JAVA = require("lovec/glb/GLB_java");
   const PARAM = require("lovec/glb/GLB_param");
   const SAVE = require("lovec/glb/GLB_save");
+  const TIMER = require("lovec/glb/GLB_timer");
   const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
@@ -37,8 +41,9 @@
   const CLS_window = require("lovec/cls/ui/CLS_window");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
+  const MATH_function = require("lovec/math/MATH_function");
   const MATH_geometry = require("lovec/math/MATH_geometry");
+  const MATH_interp = require("lovec/math/MATH_interp");
   const MATH_probability = require("lovec/math/MATH_probability");
   const MATH_statistics = require("lovec/math/MATH_statistics");
 
@@ -50,6 +55,7 @@
   const FRAG_unit = require("lovec/frag/FRAG_unit");
 
 
+  const MDL_backend = require("lovec/mdl/MDL_backend");
   const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
@@ -71,8 +77,17 @@
   const MDL_util = require("lovec/mdl/MDL_util");
 
 
+  const TP_ability = require("lovec/tp/TP_ability");
+  const TP_ai = require("lovec/tp/TP_ai");
+  const TP_attr = require("lovec/tp/TP_attr");
+  const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
+  const TP_cons = require("lovec/tp/TP_cons");
   const TP_dial = require("lovec/tp/TP_dial");
+  const TP_drawer = require("lovec/tp/TP_drawer");
   const TP_effect = require("lovec/tp/TP_effect");
+  const TP_shader = require("lovec/tp/TP_shader");
+  const TP_sortF = require("lovec/tp/TP_sortF");
+  const TP_stat = require("lovec/tp/TP_stat");
 
 
   const DB_block = require("lovec/db/DB_block");
@@ -101,10 +116,14 @@
 
 
       anno: ANNO,
+      comp: COMP,
+      noise: NOISE,
+      trigger: TRIGGER,
       eff: EFF,
       java: JAVA,
       param: PARAM,
       save: SAVE,
+      timer: TIMER,
       var: VAR,
       varGen: VARGEN,
 
@@ -114,8 +133,9 @@
       cls_window: CLS_window,
 
 
-      math_base: MATH_base,
+      math_function: MATH_function,
       math_geometry: MATH_geometry,
+      math_interp: MATH_interp,
       math_probability: MATH_probability,
       math_statistics: MATH_statistics,
 
@@ -127,6 +147,7 @@
       frag_unit: FRAG_unit,
 
 
+      mdl_backend: MDL_backend,
       mdl_call: MDL_call,
       mdl_cond: MDL_cond,
       mdl_content: MDL_content,
@@ -147,8 +168,17 @@
       mdl_util: MDL_util,
 
 
+      tp_ability: TP_ability,
+      tp_ai: TP_ai,
+      tp_attr: TP_attr,
+      tp_cacheLayer: TP_cacheLayer,
+      tp_cons: TP_cons,
       tp_dial: TP_dial,
+      tp_drawer: TP_drawer,
       tp_effect: TP_effect,
+      tp_shader: TP_shader,
+      tp_sortF: TP_sortF,
+      tp_stat: TP_stat,
 
 
       db_block: DB_block,

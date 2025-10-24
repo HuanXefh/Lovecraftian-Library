@@ -25,7 +25,7 @@
 
 
   function _noiseArgs() {
-    return DB_env.db["param"]["map"]["noise"].read(Vars.state.map.plainName(), null);
+    return DB_env.db["param"]["map"]["noise"].read(PARAM.mapCur, null);
   };
 
 

@@ -27,22 +27,23 @@ const CLS_annotation = function() {
 
 
 CLS_annotation.prototype.init = function(nm, funCaller, loadScr, funArgCaller) {
-
+  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.noNm("annotation");
+  insNms.push(nm);
   this.name = nm;
 
   this.onCall = function(fun, annoArgs) {
     return funCaller == null ? false : funCaller.apply(fun, annoArgs);
   };
-
   this.onLoad = function(fun, annoLoadArgs) {
     if(loadScr != null) loadScr.apply(fun, annoLoadArgs);
   };
-
   this.onArgCall = function(funArgs, annoArgArgs) {
     return funArgCaller == null ? false : funArgCaller.apply(funArgs, annoArgArgs);
   };
-
 };
+
+
+const insNms = [];
 
 
 /* <---------- static method ----------> */

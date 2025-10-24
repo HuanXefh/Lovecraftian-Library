@@ -9,6 +9,7 @@
 
 
   const ANNO = require("lovec/glb/BOX_anno");
+  const TRIGGER = require("lovec/glb/BOX_trigger");
   const EFF = require("lovec/glb/GLB_eff");
   const PARAM = require("lovec/glb/GLB_param");
   const TIMER = require("lovec/glb/GLB_timer");
@@ -157,6 +158,7 @@
       unit.addItem(itm, amt);
       MDL_effect.showAt_global(unit.x, unit.y, EFF.circlePulseDynamic, 5.0, Pal.accent);
       MDL_effect.showBetween_line(x, y, null, unit, Pal.accent);
+      Core.app.post(() => TRIGGER.lootSpawn.fire(unit.x, unit.y, unit.item(), unit));
     });
   }
   .setAnno(ANNO.__SERVER__)

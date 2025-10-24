@@ -15,7 +15,7 @@
     return extend(Units.Sortf, {
       cost(unit, x, y) {
         return costGetter(unit, x, y);
-      };
+      },
     });
   };
   exports.newIns_sortF = newIns_sortF
@@ -33,7 +33,7 @@
     return extend(Units.Sortf, {
       cost(unit, x, y) {
         return sortFs.sum(sortF => sortF.cost(unit, x, y));
-      };
+      },
     });
   };
   exports.newIns_sortF_mix = newIns_sortF_mix;

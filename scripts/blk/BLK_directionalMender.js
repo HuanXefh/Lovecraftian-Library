@@ -163,6 +163,12 @@
 
 
     // @NOSUPER
+    icons: function(blk) {
+      return PARENT.icons(blk);
+    },
+
+
+    // @NOSUPER
     drawPlace: function(blk, tx, ty, rot, valid) {
       PARENT.drawPlace(blk, tx, ty, rot, valid);
       comp_drawPlace(blk, tx, ty, rot, valid);
@@ -212,12 +218,6 @@
     /* <---------- block (specific) ----------> */
 
 
-    // @NOSUPER
-    icons: function(blk) {
-      return [MDL_texture._reg(blk, "-icon")];
-    },
-
-
     /* <---------- build (specific) ----------> */
 
 
@@ -253,11 +253,11 @@
         this.super$setStats();
         TEMPLATE.setStats(this);
       },
-      drawPlace(tx, ty, rot, valid) {
-        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
-      },
       icons() {
         return TEMPLATE.icons(this);
+      },
+      drawPlace(tx, ty, rot, valid) {
+        TEMPLATE.drawPlace(this, tx, ty, rot, valid);
       },
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);

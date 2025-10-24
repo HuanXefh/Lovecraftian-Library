@@ -119,6 +119,12 @@
 
 
     // @NOSUPER
+    icons: function(blk) {
+      return PARENT.icons(blk);
+    },
+
+
+    // @NOSUPER
     drawPlace: function(blk, tx, ty, rot, valid) {
       PARENT_A.drawPlace(blk, tx, ty, rot, valid);
     },
@@ -301,6 +307,9 @@
       setStats() {
         this.super$setStats();
         TEMPLATE.setStats(this);
+      },
+      icons() {
+        return TEMPLATE.icons(this);
       },
       drawPlace(tx, ty, rot, valid) {
         TEMPLATE.drawPlace(this, tx, ty, rot, valid);

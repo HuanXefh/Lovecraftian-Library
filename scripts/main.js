@@ -58,6 +58,7 @@
   const CLS_dragButton = require("lovec/cls/ui/CLS_dragButton");
 
 
+  const MDL_backend = require("lovec/mdl/MDL_backend");
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
@@ -98,6 +99,14 @@
 
 
   MDL_event._c_onInit(() => {
+
+
+    // Initialize game window title
+    MDL_backend.setWinTitle(null, "[$1][$2]".format(MDL_util._cfg("misc-title-name"), !MDL_util._cfg("misc-title-map") ? "" : ": menu"));
+
+
+    // Map reading fallback addition
+    DB_misc.db["block"]["migration"].forEachRow(2, (nm_f, nm_t) => SaveVersion.fallback.put(nm_f, nm_t));
 
 
     // Set up ore dictionary
@@ -394,6 +403,8 @@
         tb.sliderPref("lovec-unit0remains-lifetime", 36, 0, 120, val => Strings.fixed(val * 5.0, 0) + "s");
         tb.checkPref("lovec-unit0remains-building", true);
 
+        tb.textPref("lovec-misc-title-name", "Mindustry");
+        tb.checkPref("lovec-misc-title-map", true);
         tb.areaTextPref("lovec-misc-secret-code", "");
       });
     })();

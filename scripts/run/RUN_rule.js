@@ -26,7 +26,9 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const MDL_backend = require("lovec/mdl/MDL_backend");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_util = require("lovec/mdl/MDL_util");
 
 
   const DB_env = require("lovec/db/DB_env");
@@ -50,11 +52,13 @@
 
 
   function comp_updateBase() {
-    let nmMap = PARAM.mapCur;
-
-    if(nmMap !== nmMapCur) {
+    if(nmMapCur !== PARAM.mapCur) {
+      nmMapCur = PARAM.mapCur;
       hasInit = false;
-      nmMapCur = nmMap;
+      PARAM.forceLoadParam();
+      Time.run(3.0, () => {
+        MDL_backend.setWinTitle(null, "[$1][$2]".format(MDL_util._cfg("misc-title-name"), !MDL_util._cfg("misc-title-map") ? "" : ": [$1]".format(PARAM.mapCur === "" ? "menu" : PARAM.mapCur)));
+      });
     };
 
     if(!hasInit) comp_init();

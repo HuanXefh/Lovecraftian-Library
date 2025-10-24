@@ -22,6 +22,9 @@
   Number.intMin = java.lang.Integer.MIN_VALUE;
   Number.fMax = java.lang.Float.MAX_VALUE;
   Number.fMin = java.lang.Float.MIN_VALUE;
+  Number.n4 = 9999.0;
+  Number.n6 = 999999.0;
+  Number.n8 = 99999999.0;
 
 
   var ptp = Number.prototype;

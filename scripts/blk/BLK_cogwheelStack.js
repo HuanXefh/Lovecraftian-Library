@@ -60,7 +60,7 @@
     MDL_event._c_onLoad(() => {
       blk.region = Core.atlas.find(blk.botParent);
       blk.customShadowRegion = Core.atlas.find(blk.botParent + "-shadow");
-      blk.fullIcon = blk.uiIcon = Core.atlas.find(blk.name + "-icon");
+      blk.fullIcon = blk.uiIcon = Core.atlas.find(blk.name + "-full1");
     });
   };
 
@@ -115,7 +115,7 @@
 
 
   function comp_createIcons(blk, packer) {
-    MDL_texture.comp_createIcons_ctTag(blk, packer, blk.botParent, blk.ovParent, "-icon");
+    MDL_texture.comp_createIcons_ctTag(blk, packer, blk.botParent, blk.ovParent, "-full1");
   };
 
 
@@ -242,6 +242,12 @@
 
     setStats: function(blk) {
       PARENT.setStats(blk);
+    },
+
+
+    // @NOSUPER
+    icons: function(blk) {
+      return PARENT.icons(blk);
     },
 
 
@@ -437,6 +443,9 @@
       setStats() {
         this.super$setStats();
         TEMPLATE.setStats(this);
+      },
+      icons() {
+        return TEMPLATE.icons(this);
       },
       drawPlace(tx, ty, rot, valid) {
         this.super$drawPlace(tx, ty, rot, valid);

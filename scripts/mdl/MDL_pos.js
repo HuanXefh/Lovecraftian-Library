@@ -8,7 +8,6 @@
   /* <---------- import ----------> */
 
 
-  const MATH_base = require("lovec/math/MATH_base");
   const MATH_geometry = require("lovec/math/MATH_geometry");
 
 
@@ -94,7 +93,7 @@
    * Distance calculation for tile coordinates.
    * ---------------------------------------- */
   const _dstT = function(tx1, ty1, tx2, ty2) {
-    if(tx1 == null || ty1 == null || tx2 == null || ty2 == null) return MATH_base.maxDst;
+    if(tx1 == null || ty1 == null || tx2 == null || ty2 == null) return Number.n8;
 
     return Mathf.dst(tx1, ty1, tx2, ty2) * Vars.tilesize;
   };
@@ -879,7 +878,7 @@
    * ---------------------------------------- */
   const _b_base = function(x, y, team, rad, boolF) {
     if(team == null) return null;
-    if(rad == null) rad = MATH_base.maxDst;
+    if(rad == null) rad = Number.n8;
     if(rad < 0.0001) return null;
 
     return Vars.indexer.findTile(team, x, y, rad, boolF);
@@ -982,7 +981,7 @@
   const _unit_pl = function(x, y, team, rad) {
     let unit_pl = null;
 
-    if(rad == null) rad = MATH_base.maxDst;
+    if(rad == null) rad = Number.n8;
     if(rad < 0.0001) return unit_pl;
 
     let tmpRad = rad;
@@ -1100,7 +1099,7 @@
    * ---------------------------------------- */
   const _e_tg = function(x, y, team, rad, targetAir, targetGround, boolF) {
     if(team == null) return;
-    if(rad == null) rad = MATH_base.maxDst;
+    if(rad == null) rad = Number.n8;
     if(rad < 0.0001) return;
     if(targetAir == null) targetAir = true;
     if(targetGround == null) targetGround = true;
@@ -1121,7 +1120,7 @@
     const arr = useTmp ? thisFun.tmpEs.clear() : [];
 
     if(team == null) return arr;
-    if(rad == null) rad = MATH_base.maxDst;
+    if(rad == null) rad = Number.n8;
     if(rad < 0.0001) return arr;
     if(size == null) size = 1;
 
@@ -1148,7 +1147,7 @@
     const arr = useTmp ? thisFun.tmpEs.clear() : [];
 
     if(team == null) return arr;
-    if(rad == null) rad = MATH_base.maxDst;
+    if(rad == null) rad = Number.n8;
     if(rad < 0.0001) return arr;
     if(rad_chain == null) rad_chain = 0.0;
     if(size == null) size = 1;
@@ -1241,7 +1240,7 @@
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return null;
 
-    let tmpDst = MATH_base.maxDst;
+    let tmpDst = Number.n8;
     let bulTg = null, dst;
     Groups.bullet
     .intersect(x - rad, y - rad, rad * 2.0, rad * 2.0)

@@ -561,49 +561,46 @@
   };
 
 
+  function checkArrayRow(nms, arr, rowInd, isUnordered) {
+    let i = 0, iCap = nms.iCap();
+    if(!isUnordered) {
+      while(i < iCap) {
+        if(arr[rowInd + i] !== nms[i]) return false;
+        i++;
+      };
+      return true;
+    } else {
+      let tmpArr = [];
+      while(i < iCap) {
+        tmpArr.push(arr[rowInd + i]);
+        i++;
+      };
+      return nms.looseEquals(tmpArr);
+    };
+  };
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Reads data from a formatted array.
    * Use {def} for default value.
-   * Use {unordered} to ignore order of the elements.
+   * Use {isUnordered} to ignore order of the elements.
    * If there are multiple matching results, this only returns the first one.
    *
    * Given a target row of {0, 1, 2, 3}, then {nms_p} should be {[0, 1, 2]}.
    * ---------------------------------------- */
-  ptp.read = function(nms_p, def, unordered) {
-    const thisFun = Array.prototype.read;
-
-    let i = 0;
-    let iCap = this.iCap();
+  ptp.read = function(nms_p, def, isUnordered) {
+    let i = 0, iCap = this.iCap();
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.checkTg(nms, this, i, jCap, unordered)) return this[i + jCap];
+      if(checkArrayRow(nms, this, i, isUnordered)) return this[i + jCap];
       i += jCap + 1;
     };
 
     return def;
-  }
-  .setProp({
-    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
-      let i = 0;
-      if(!unordered) {
-        while(i < fieldAmt) {
-          if(arr[rowCur + i] !== nms[i]) return false;
-          i++;
-        };
-        return true;
-      } else {
-        let tmpArr = [];
-        while(i < fieldAmt) {
-          tmpArr.push(arr[rowCur + i]);
-          i++;
-        };
-        return nms.looseEquals(tmpArr);
-      };
-    },
-  });
+  };
 
 
   /* ----------------------------------------
@@ -612,39 +609,17 @@
    * Like {read} but returns the row index.
    * Will return {-1} if not found.
    * ---------------------------------------- */
-  ptp.readRowInd = function(nms_p, unordered) {
-    const thisFun = Array.prototype.readRowInd;
-
-    let i = 0;
-    let iCap = this.iCap();
+  ptp.readRowInd = function(nms_p, isUnordered) {
+    let i = 0, iCap = this.iCap();
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.checkTg(nms, this, i, jCap, unordered)) return Math.round(i / (jCap + 1));
+      if(checkArrayRow(nms, this, i, isUnordered)) return Math.round(i / (jCap + 1));
       i += jCap + 1;
     };
 
     return -1;
-  }
-  .setProp({
-    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
-      let i = 0;
-      if(!unordered) {
-        while(i < fieldAmt) {
-          if(arr[rowCur + i] !== nms[i]) return false;
-          i++;
-        };
-        return true;
-      } else {
-        let tmpArr = [];
-        while(i < fieldAmt) {
-          tmpArr.push(arr[rowCur + i]);
-          i++;
-        };
-        return nms.looseEquals(tmpArr);
-      };
-    },
-  });
+  };
 
 
   /* ----------------------------------------
@@ -714,46 +689,28 @@
   };
 
 
+
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Reads data from a formatted array, and returns the results as an array.
    * Mostly useful when there are multiple matching results.
    * ---------------------------------------- */
-  ptp.readList = function(nms_p, unordered) {
-    const thisFun = Array.prototype.readList;
+  ptp.readList = function(nms_p, isUnordered) {
     const arr = [];
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.checkTg(nms, this, i, jCap, unordered)) arr.push(this[i + jCap]);
+      if(checkArrayRow(nms, this, i, isUnordered)) arr.push(this[i + jCap]);
       i += jCap + 1;
     };
 
     return arr;
-  }
-  .setProp({
-    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
-      let i = 0;
-      if(!unordered) {
-        while(i < fieldAmt) {
-          if(arr[rowCur + i] !== nms[i]) return false;
-          i++;
-        };
-        return true;
-      } else {
-        let tmpArr = [];
-        while(i < fieldAmt) {
-          tmpArr.push(arr[rowCur + i]);
-          i++;
-        };
-        return nms.looseEquals(tmpArr);
-      };
-    },
-  });
+  };
 
 
   /* ----------------------------------------
@@ -761,15 +718,12 @@
    *
    * The other side of {read}, pretty much obvious.
    * ---------------------------------------- */
-  ptp.write = function(nms_p, val, unordered) {
-    const thisFun = Array.prototype.write;
-
-    let i = 0;
-    let iCap = this.iCap();
+  ptp.write = function(nms_p, val, isUnordered) {
+    let i = 0, iCap = this.iCap();
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();
     while(i < iCap) {
-      if(thisFun.checkTg(nms, this, i, jCap, unordered)) {
+      if(checkArrayRow(nms, this, i, isUnordered)) {
         this[i + jCap] = val;
         return this;
       };
@@ -780,23 +734,27 @@
     this.push(val);
 
     return this;
-  }
-  .setProp({
-    checkTg: (nms, arr, rowCur, fieldAmt, unordered) => {
-      let i = 0;
-      if(!unordered) {
-        while(i < fieldAmt) {
-          if(arr[rowCur + i] !== nms[i]) return false;
-          i++;
-        };
-        return true;
-      } else {
-        let tmpArr = [];
-        while(i < fieldAmt) {
-          tmpArr.push(arr[rowCur + i]);
-          i++;
-        };
-        return nms.looseEquals(tmpArr);
-      };
-    },
-  });
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Removes the first matching row in a formatted array.
+   * ---------------------------------------- */
+  ptp.removeRow = function(nms_p, isUnordered) {
+    let i = 0, iCap = this.iCap();
+    let nms = nms_p instanceof Array ? nms_p : [nms_p];
+    let jCap = nms.iCap();
+    let ind = null;
+    while(i < iCap) {
+      if(checkArrayRow(nms, this, i, isUnordered)) ind = i;
+      i += jCap + 1;
+    };
+
+    if(ind != null) {
+      this.splice(ind, jCap + 1);
+    };
+
+    return this;
+  };

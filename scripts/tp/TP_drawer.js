@@ -77,11 +77,12 @@
    *
    * A modified {DrawLiquidRegion} where the liquid with largest amount is used.
    * ---------------------------------------- */
-  const _dynamicLiquid = function(suffix) {
+  const _dynamicLiquid = function(suffix, canRotate) {
     return extend(DrawBlock, {
 
 
       suffix: tryVal(suffix, "-liquid"),
+      canRotate: tryVal(canRotate, false),
       liqReg: null,
       tmpLiq: null, timerCheckMap: new ObjectMap(),
 
@@ -107,7 +108,9 @@
         };
 
         if(this.tmpLiq != null) {
-          Drawf.liquid(this.liqReg, b.x, b.y, b.liquids.get(this.tmpLiq) / b.block.liquidCapacity, this.tmpLiq.color);
+          Draw.color(this.tmpLiq.color, b.liquids.get(this.tmpLiq) / b.block.liquidCapacity);
+          Draw.rect(this.liqReg, b.x, b.y, this.canRotate ? b.drawrot() : 0.0);
+          Draw.color();
         };
       },
 

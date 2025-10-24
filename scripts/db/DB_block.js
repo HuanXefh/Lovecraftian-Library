@@ -398,8 +398,6 @@ const db = {
      * ---------------------------------------- */
     "showReload": [
 
-      /* vanilla */
-
       "mass-driver",
       "payload-mass-driver",
       "large-payload-mass-driver",
@@ -412,6 +410,37 @@ const db = {
       "titan",
       "afflict",
       "scathe",
+
+      "new-horizon-hive",
+      "new-horizon-ancient-artillery",
+      "new-horizon-prism",
+      "new-horizon-interferon",
+      "new-horizon-eternity",
+      "new-horizon-atom-separator",
+      "new-horizon-blood-star",
+      "new-horizon-multiple-launcher",
+      "new-horizon-rail-gun",
+      "new-horizon-end-of-era",
+      "new-horizon-thermo-turret",
+      "new-horizon-pulse",
+      "new-horizon-bombard",
+      "new-horizon-electro",
+
+      "sfire-mod-gaosi",
+      "sfire-mod-liebao",
+      "sfire-mod-longjuan",
+      "sfire-mod-qingning",
+      "sfire-mod-chongchao",
+      "sfire-mod-relang",
+      "sfire-mod-sizhao",
+      "sfire-mod-liemei",
+      "sfire-mod-kuosan",
+      "sfire-mod-poxiao",
+      "sfire-mod-fenqing",
+      "sfire-mod-zhulin",
+      "sfire-mod-luolong",
+      "sfire-mod-defense-platform-nuke",
+      "sfire-mod-defense-platform-plasma",
 
     ],
 

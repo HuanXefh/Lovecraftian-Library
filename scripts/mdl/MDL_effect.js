@@ -14,9 +14,6 @@
   const VAR = require("lovec/glb/GLB_var");
 
 
-  const MATH_base = require("lovec/math/MATH_base");
-
-
   const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -453,11 +450,11 @@
     const remains = extend(Decal, {
 
 
-      lifetime: isPermanent ? MATH_base.maxTime : PARAM.unitRemainsLifetime, offTime: Mathf.random(1200.0),
+      lifetime: isPermanent ? Number.n8 : PARAM.unitRemainsLifetime, offTime: Mathf.random(1200.0),
       x: x, y: y, rotation: etp instanceof Block ? (Mathf.random(90.0) - 45.0) : Mathf.random(360.0), team: team,
       color: Color.valueOf("606060"), tint: tint, a: a, z: z, off: Mathf.random(VAR.blk_remainsOffCap),
-      region: etp instanceof Block ? MDL_texture._regBlk(etp) : Core.atlas.find(etp.name + "-icon", etp.region),
-      cellRegion: etp instanceof Block ? null : Core.atlas.find(etp.name + "-cell-icon", etp.cellRegion), softShadowRegion: etp instanceof Block ? null : etp.softShadowRegion,
+      region: etp instanceof Block ? MDL_texture._regBlk(etp) : Core.atlas.find(etp.name + "-full", etp.region),
+      cellRegion: etp instanceof Block ? null : Core.atlas.find(etp.name + "-cell-full", etp.cellRegion), softShadowRegion: etp instanceof Block ? null : etp.softShadowRegion,
       shouldFloat: shouldFloat,
       isHot: forceHot ? true : MDL_cond._isHot(e, t), shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
 
@@ -537,7 +534,7 @@
     if(e instanceof Building) {
       let reg = e.block instanceof BaseTurret ?
         tryVal(MDL_texture._regTurBase(e.block), e.block.region) :
-        Core.atlas.find(e.block.name + "-icon", e.block.region);
+        e.block.fullIcon;
       if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.eff, 0.0, MDL_color._color(color_gn), [reg, e]);
     } else {
       if(MDL_color._isSameColor(color, Pal.heal)) {

@@ -20,9 +20,7 @@ const CLS_weaponBuilder = function() {
 
 
 CLS_weaponBuilder.prototype.init = function() {
-
   this.builderObj = {};
-
 };
 
 
