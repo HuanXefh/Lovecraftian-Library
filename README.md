@@ -5,5 +5,3 @@ Lovec is a JavaScript library mod that I made mostly for my other mods, it alone
 The mod is based on my previous mod [Reindustrialization](https://github.com/HuanXefh/Reindustrialization), which has been separated into several mods now. See [LovecLab](https://github.com/HuanXefh/Lovecraftian-Laboratory) and [ProjReind](https://github.com/HuanXefh/Project-Reindustrialization).
 
 If you have any ideas for new mechanics or want to report bugs, you can submit an issue here or DM me on Discord (maboroshix). Forum on Discord [here](https://discord.com/channels/391020510269669376/1346118807734845440).
-
-Note on Jul 28, 2025: LovecLab and ProjReind are **UNFINISHED** and the repos are **NOT** created yet.
