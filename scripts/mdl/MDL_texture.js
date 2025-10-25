@@ -19,7 +19,7 @@
    *
    * Gets a region matching the suffix, that's it.
    * ---------------------------------------- */
-  const _reg = function(ct_gn, suffix, suffixFallback) {
+  const _reg = function(ct_gn, suffix, suffixFallback, isNullFallback) {
     let ct = global.lovecUtil.fun._ct(ct_gn);
     if(ct == null) return null;
     if(suffix == null) suffix = "";

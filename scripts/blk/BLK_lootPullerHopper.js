@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A storage block that collects loots on top of it.
+   * A loot hopper that actively pulls nearby loots to it.
    * ---------------------------------------- */
 
 
@@ -37,32 +37,72 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseLootBlock");
+  const PARENT = require("lovec/blk/BLK_lootHopper");
+  const VAR = require("lovec/glb/GLB_var");
 
 
-  const FRAG_item = require("lovec/frag/FRAG_item");
-
-
-  const MDL_effect = require("lovec/mdl/MDL_effect");
+  const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_pos = require("lovec/mdl/MDL_pos");
-
-
-  const DB_block = require("lovec/db/DB_block");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
   /* <---------- component ----------> */
 
 
-  function comp_init(blk) {
-    blk.solid = false;
-    blk.underBullets = true;
+  function comp_setStats(blk) {
+    blk.stats.add(Stat.range, blk.rPull, StatUnit.blocks);
   };
 
 
-  function comp_ex_lootCall(b) {
-    let loot = MDL_pos._lootTs(b.ts);
-    if(loot != null) {
-      if(FRAG_item.takeLoot(b, loot, b.amtRun, true)) MDL_effect.showBetween_itemTransfer(loot.x, loot.y, b);
+  function comp_drawPlace(blk, tx, ty, rot, valid) {
+    MDL_draw.drawP3d_cylinderFade(tx.toFCoord(blk.size), ty.toFCoord(blk.size), 1.0, blk.rPull * Vars.tilesize, valid ? Pal.accent : Pal.remove);
+  };
+
+
+  function comp_created(b) {
+    b.glowReg = MDL_texture._reg(b.block, "-glow");
+  };
+
+
+  function comp_updateTile(b) {
+    if(!b.isPulling) {
+      b.progWait += b.edelta();
+      if(b.progWait > b.intvPull) {
+        b.progWait %= b.intvPull;
+        b.pullTgs.clear().pushAll(MDL_pos._loots(b.x, b.y, b.block.ex_getRPull() * Vars.tilesize).filter(loot => Mathf.dst(loot.x, loot.y, b.x, b.y) > b.block.size * 0.5 * Vars.tilesize));
+        b.isPulling = b.pullTgs.length > 0;
+      };
+    } else {
+      b.progPull += Time.delta;
+      if(b.progPull > b.timePull) {
+        b.progPull %= b.timePull;
+        b.isPulling = false;
+      } else {
+        b.pullTgs.forEachFast(loot => {
+          loot.impulse(Tmp.v2.set(loot).sub(b.x, b.y).nor().scl(-b.powPull * b.glowHeat));
+        });
+      };
+    };
+
+    b.glowHeat = Mathf.approachDelta(b.glowHeat, b.isPulling ? 1.0 : 0.0, b.isPulling ? 0.006 : 0.02);
+  };
+
+
+  function comp_draw(b) {
+    MDL_draw.drawRegion_glow(b.x, b.y, b.glowReg, 0.0, Color.white, b.glowHeat * 0.7);
+
+    if(b.glowHeat > 0.01) {
+      Lines.stroke(2.0, Color.white);
+      Draw.alpha(0.3 * b.glowHeat);
+      b.pullTgs.forEachFast(loot => {
+        Lines.line(loot.x, loot.y, b.x, b.y);
+      });
+      Draw.reset();
+    };
+
+    if(MDL_cond._posHoveredRect(b.x, b.y, 0, b.block.size)) {
+      MDL_draw.drawP3d_cylinderFade(b.x, b.y, 1.0, b.block.ex_getRPull() * Vars.tilesize, Pal.accent, VAR.lay_p3dRange);
     };
   };
 
@@ -82,12 +122,12 @@
 
     init: function(blk) {
       PARENT.init(blk);
-      comp_init(blk);
     },
 
 
     setStats: function(blk) {
       PARENT.setStats(blk);
+      comp_setStats(blk);
     },
 
 
@@ -99,6 +139,7 @@
 
     drawPlace: function(blk, tx, ty, rot, valid) {
       PARENT.drawPlace(blk, tx, ty, rot, valid);
+      comp_drawPlace(blk, tx, ty, rot, valid);
     },
 
 
@@ -107,6 +148,7 @@
 
     created: function(b) {
       PARENT.created(b);
+      comp_created(b);
     },
 
 
@@ -117,6 +159,7 @@
 
     updateTile: function(b) {
       PARENT.updateTile(b);
+      comp_updateTile(b);
     },
 
 
@@ -127,6 +170,7 @@
 
     draw: function(b) {
       PARENT.draw(b);
+      comp_draw(b);
     },
 
 
@@ -140,7 +184,7 @@
 
     // @NOSUPER
     outputsItems: function(blk) {
-      return true;
+      return PARENT.outputsItems(blk);
     },
 
 
@@ -149,19 +193,19 @@
 
     // @NOSUPER
     acceptItem: function(b, b_f, itm) {
-      return false;
+      return PARENT.acceptItem(b, b_f, itm);
     },
 
 
     // @NOSUPER
     shouldAmbientSound: function(b) {
-      return false;
+      return b.isPulling;
     },
 
 
     // @NOSUPER
     ambientVolume: function(b) {
-      return 1.0;
+      return PARENT.ambientVolume(b);
     },
 
 
@@ -178,7 +222,13 @@
 
     // @NOSUPER
     ex_getTs: function(blk, tx, ty, rot) {
-      return MDL_pos._tsBuild(Vars.world.build(tx, ty));
+      return PARENT.ex_getTs(blk, tx, ty, rot);
+    },
+
+
+    // @NOSUPER
+    ex_getRPull: function(blk) {
+      return blk.rPull;
     },
 
 
@@ -188,15 +238,15 @@
     // @NOSUPER
     ex_lootCall: function(b) {
       PARENT.ex_lootCall(b);
-      comp_ex_lootCall(b);
     },
 
 
   };
 
 
-  TEMPLATE._std = function() {
+  TEMPLATE._std = function(rPull) {
     return {
+      rPull: tryVal(rPull, 5),
       init() {
         this.super$init();
         TEMPLATE.init(this);
@@ -221,14 +271,20 @@
       ex_getTs(tx, ty, rot) {
         return TEMPLATE.ex_getTs(this, tx, ty, rot);
       },
+      ex_getRPull() {
+        return TEMPLATE.ex_getRPull(this);
+      },
     };
   };
 
 
-  TEMPLATE._std_b = function() {
+  TEMPLATE._std_b = function(powPull, timePull, intvPull) {
     return {
       ts: [],
       timerCall: new Interval(1), amtRun: 0, intvRun: Infinity,
+      powPull: tryVal(powPull, 8.0), timePull: tryVal(timePull, 240.0), intvPull: tryVal(intvPull, 240.0),
+      pullTgs: [], isPulling: false, progPull: 0.0, progWait: 0.0,
+      glowReg: null, glowHeat: 0.0,
       created() {
         this.super$created();
         TEMPLATE.created(this);

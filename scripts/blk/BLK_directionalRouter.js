@@ -8,22 +8,21 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A storage block that collects loots on top of it.
+   * Nothing different from vanilla directional router.
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * BASE:
    *
-   * StorageBlock
+   * DuctRouter
    * ---------------------------------------- */
 
 
   /* ----------------------------------------
    * PARAM:
    *
-   * DB_block.db["param"]["amount"]["base"]    // @PARAM
-   * DB_block.db["param"]["time"]["base"]    // @PARAM
+   * !NOTHING
    * ---------------------------------------- */
 
 
@@ -37,34 +36,10 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseLootBlock");
-
-
-  const FRAG_item = require("lovec/frag/FRAG_item");
-
-
-  const MDL_effect = require("lovec/mdl/MDL_effect");
-  const MDL_pos = require("lovec/mdl/MDL_pos");
-
-
-  const DB_block = require("lovec/db/DB_block");
+  const PARENT = require("lovec/blk/BLK_baseItemGate");
 
 
   /* <---------- component ----------> */
-
-
-  function comp_init(blk) {
-    blk.solid = false;
-    blk.underBullets = true;
-  };
-
-
-  function comp_ex_lootCall(b) {
-    let loot = MDL_pos._lootTs(b.ts);
-    if(loot != null) {
-      if(FRAG_item.takeLoot(b, loot, b.amtRun, true)) MDL_effect.showBetween_itemTransfer(loot.x, loot.y, b);
-    };
-  };
 
 
 /*
@@ -82,7 +57,6 @@
 
     init: function(blk) {
       PARENT.init(blk);
-      comp_init(blk);
     },
 
 
@@ -138,30 +112,11 @@
     /* <---------- block (specific) ----------> */
 
 
-    // @NOSUPER
-    outputsItems: function(blk) {
-      return true;
-    },
-
-
     /* <---------- build (specific) ----------> */
 
 
-    // @NOSUPER
     acceptItem: function(b, b_f, itm) {
-      return false;
-    },
-
-
-    // @NOSUPER
-    shouldAmbientSound: function(b) {
-      return false;
-    },
-
-
-    // @NOSUPER
-    ambientVolume: function(b) {
-      return 1.0;
+      return PARENT.acceptItem(b, b_f, itm);
     },
 
 
@@ -172,24 +127,11 @@
     ex_getTags: function(blk) {
       return TEMPLATE.ex_getTags.tempTags;
     }.setProp({
-      tempTags: [],
+      tempTags: ["blk-dis"],
     }),
 
 
-    // @NOSUPER
-    ex_getTs: function(blk, tx, ty, rot) {
-      return MDL_pos._tsBuild(Vars.world.build(tx, ty));
-    },
-
-
     /* <---------- build (extended) ----------> */
-
-
-    // @NOSUPER
-    ex_lootCall: function(b) {
-      PARENT.ex_lootCall(b);
-      comp_ex_lootCall(b);
-    },
 
 
   };
@@ -212,14 +154,8 @@
         this.super$drawPlace(tx, ty, rot, valid);
         TEMPLATE.drawPlace(this, tx, ty, rot, valid);
       },
-      outputsItems() {
-        return TEMPLATE.outputsItems(this);
-      },
       ex_getTags() {
         return TEMPLATE.ex_getTags(this);
-      },
-      ex_getTs(tx, ty, rot) {
-        return TEMPLATE.ex_getTs(this, tx, ty, rot);
       },
     };
   };
@@ -227,8 +163,6 @@
 
   TEMPLATE._std_b = function() {
     return {
-      ts: [],
-      timerCall: new Interval(1), amtRun: 0, intvRun: Infinity,
       created() {
         this.super$created();
         TEMPLATE.created(this);
@@ -254,16 +188,9 @@
         TEMPLATE.drawSelect(this);
       },
       acceptItem(b_f, itm) {
-        return TEMPLATE.acceptItem(this, b_f, itm);
-      },
-      shouldAmbientSound() {
-        return TEMPLATE.shouldAmbientSound(this);
-      },
-      ambientVolume() {
-        return TEMPLATE.ambientVolume(this);
-      },
-      ex_lootCall() {
-        TEMPLATE.ex_lootCall(this);
+        if(!this.super$acceptItem(b_f, itm)) return false;
+        if(!TEMPLATE.acceptItem(this, b_f, itm)) return false;
+        return true;
       },
     };
   };

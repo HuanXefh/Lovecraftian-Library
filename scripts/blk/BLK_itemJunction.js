@@ -36,7 +36,7 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/blk/BLK_baseItemDistributor");
+  const PARENT = require("lovec/blk/BLK_baseItemGate");
 
 
   /* <---------- component ----------> */

@@ -71,7 +71,7 @@
   function comp_updateTile(b) {
     b.dump();
 
-    if(b.timerCall.get(b.intvRun)) b.ex_lootCall();
+    if(b.timerCall.get(b.intvRun / Math.max(b.edelta(), 0.000001))) b.ex_lootCall();
   };
 
 
