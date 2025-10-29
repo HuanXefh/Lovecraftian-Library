@@ -20,8 +20,7 @@
    * Writes an array of integers.
    * ---------------------------------------- */
   const _wr_ints = function(wr, ints) {
-    let i = 0;
-    let iCap = ints.iCap();
+    let i = 0, iCap = ints.iCap();
     wr.i(iCap);
     while(i < iCap) {
       wr.i(ints[i]);
@@ -37,8 +36,7 @@
    * Reads an array of integers.
    * ---------------------------------------- */
   const _rd_ints = function(rd, ints) {
-    let i = 0;
-    let iCap = rd.i();
+    let i = 0, iCap = rd.i();
     while(i < iCap) {
       ints[i] = rd.i();
       i++;
@@ -50,7 +48,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Writes an arc color.
+   * Writes an Arc color.
    * ---------------------------------------- */
   const _wr_color = function(wr, color) {
     wr.i(color.rgba8888());
@@ -61,7 +59,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Reads an arc color.
+   * Reads an Arc color.
    * ---------------------------------------- */
   const _rd_color = function(rd) {
     return new Color(rd.i());
@@ -72,7 +70,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Writes an arc 2D point.
+   * Writes an Arc 2D point.
    * ---------------------------------------- */
   const _wr_pon2 = function(wr, pon2) {
     wr.i(pon2.pack());
@@ -83,7 +81,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Reads an arc 2D point.
+   * Reads an Arc 2D point.
    * ---------------------------------------- */
   const _rd_pon2 = function(rd) {
     return Point2.unpack(rd.i());
@@ -94,11 +92,10 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Writes a list of arc 2D points.
+   * Writes a list of Arc 2D points.
    * ---------------------------------------- */
   const _wr_pon2s = function(wr, pon2s) {
-    let i = 0;
-    let iCap = pon2s.iCap();
+    let i = 0, iCap = pon2s.iCap();
     wr.i(iCap);
     while(i < iCap) {
       _wr_pon2(wr, pon2s[i]);
@@ -111,11 +108,10 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Reads a list of arc 2D points.
+   * Reads a list of Arc 2D points.
    * ---------------------------------------- */
   const _rd_pon2s = function(rd, pon2s) {
-    let i = 0;
-    let iCap = rd.i();
+    let i = 0, iCap = rd.i();
     while(i < iCap) {
       pon2s.push(_rd_pon2(rd));
       i++;
@@ -127,7 +123,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Writes an arc 2D vector.
+   * Writes an Arc 2D vector.
    * ---------------------------------------- */
   const _wr_vec2 = function(wr, vec2) {
     wr.f(vec2.x);
@@ -139,12 +135,36 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Reads an arc 2D vector.
+   * Reads an Arc 2D vector.
    * ---------------------------------------- */
   const _rd_vec2 = function(rd) {
     return new Vec2(rd.f(), rd.f());
   };
   exports._rd_vec2 = _rd_vec2;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes an Arc 3D vector.
+   * ---------------------------------------- */
+  const _wr_vec3 = function(wr, vec3) {
+    wr.f(vec2.x);
+    wr.f(vec2.y);
+    wr.f(vec2.z);
+  };
+  exports._wr_vec3 = _wr_vec3;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an Arc 3D vector.
+   * ---------------------------------------- */
+  const _rd_vec3 = function(rd) {
+    return new Vec3(rd.f(), rd.f(), rd.f());
+  };
+  exports._rd_vec3 = _rd_vec3;
 
 
   /* <---------- content ----------> */
@@ -178,12 +198,10 @@
    * Writes an array of contents.
    * ---------------------------------------- */
   const _wr_cts = function(wr, cts) {
-    let i = 0;
-    let iCap = cts.iCap();
+    let i = 0, iCap = cts.iCap();
     wr.i(iCap);
     while(i < iCap) {
-      let ct = cts[i];
-      wr.str(ct == null ? "null" : ct.name);
+      wr.str(cts[i] == null ? "null" : cts[i].name);
       i++;
     };
   };
@@ -196,8 +214,7 @@
    * Reads an array of contents.
    * ---------------------------------------- */
   const _rd_cts = function(rd, cts) {
-    let i = 0;
-    let iCap = rd.i();
+    let i = 0, iCap = rd.i();
     while(i < iCap) {
       let ct = MDL_content._ct(rd.str(), null, true);
       if(ct != null) cts.pushUnique(ct);

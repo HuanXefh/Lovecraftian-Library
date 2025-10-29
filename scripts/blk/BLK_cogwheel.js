@@ -51,9 +51,9 @@
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
 
 
+  const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_effect = require("lovec/mdl/MDL_effect");
-  const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_texture = require("lovec/mdl/MDL_texture");
 
@@ -114,7 +114,7 @@
     let dst = Mathf.dst(b.x, b.y, unit.x, unit.y);
     (dst > 3.0 || unit.hitSize > (b.block.size + 0.5) * Vars.tilesize) ?
       unit.impulse(Tmp.v1.set(unit).sub(b).rotate90(Mathf.sign(!b.isInv)).nor().scl(b.rpmCur * 3.0 * b.block.size / Math.max(dst * 0.7, 1.0))) :
-      MDL_entity.rotateUnit(unit, b.rpmCur * 0.2 * Mathf.sign(!b.isInv));
+      MDL_call.rotateUnit(unit, b.rpmCur * 0.2 * Mathf.sign(!b.isInv));
   };
 
 

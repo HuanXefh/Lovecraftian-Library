@@ -13,6 +13,7 @@
 
 
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
   const DB_env = require("lovec/db/DB_env");
@@ -53,10 +54,19 @@
 */
 
 
+  MDL_event._c_onWorldLoadStart(() => {
+
+
+    MDL_ui._d_fade(0.0, Color.black, 0.0, 2.0, 0.5);
+
+
+  }, 49221025);
+
+
   MDL_event._c_onWorldLoad(() => {
 
 
-    Time.run(10.0, () => {
+    Time.run(60.0, () => {
       noiseArgs = _noiseArgs();
     });
 

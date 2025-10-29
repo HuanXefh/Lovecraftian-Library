@@ -141,49 +141,12 @@ const BOX_annotation = new CLS_objectBox({
    * If argument is not {null} and not instance of the given class, throw type error.
    * {argument} here can be several class lists.
    * If any one of them matches the input, no error is thrown.
-   *
-   * For something like {Number}, use {"number"} instead.
    * ---------------------------------------- */
   "__ARGTYPE__": new CLS_annotation("arg-type", null, null, function() {
 
-    let args = Array.from(this);
-    let conds = [];
-    let arg, cls;
-    let i = 0;
-    let iCap = arguments.length;
-    let j = 0;
-    let jCap;
-    while(i < iCap) {
-      let clss = arguments[i];
-      jCap = clss.iCap();
-      while(j < jCap) {
-        arg = args[j];
-        cls = clss[j];
-        if(arg != null && cls != null) {
-          if(typeof cls === "string") {
-            if(typeof arg !== cls) {
-              conds.push(false);
-              break;
-            };
-          } else {
-            if(!(arg instanceof cls)) {
-              conds.push(false);
-              break;
-            };
-          };
-        };
-        j++;
-      };
-      if(conds[i] == null) conds[i] = true;
-      j = 0;
-      i++;
-    };
-
-    if(conds.some(cond => cond)) {
-      // Types of arguments match some class list
+    if(Array.from(arguments).some(tps => checkArgType(this, tps))) {
       return false;
     } else {
-      // Illegal arguments
       throw new Error("Mismatched argument types for a type-restricted method!");
     };
 

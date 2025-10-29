@@ -79,7 +79,7 @@
 
     MDL_net.sendPacket("both", "lovec-both-puddle-change", payload, false, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("both", "lovec-both-puddle-change", payload => {
       let args = unpackPayload(payload);
       changePuddle(Groups.puddle.getById(args[0], args[1], args[2]));

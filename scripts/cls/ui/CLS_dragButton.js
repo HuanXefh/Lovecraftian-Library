@@ -9,6 +9,7 @@
 /* <---------- import ----------> */
 
 
+const TRIGGER = require("lovec/glb/BOX_trigger");
 const PARAM = require("lovec/glb/GLB_param");
 
 
@@ -52,7 +53,6 @@ CLS_dragButton.prototype.init = function() {
   ];
 
   this.timeScl = 1.0;
-  this.mapCur = "";
 
   this.root = (function() {
     let tb = new Table();
@@ -61,6 +61,12 @@ CLS_dragButton.prototype.init = function() {
   })();
 
   this.load();
+
+  TRIGGER.mapChange.addListener(nmMap => {
+    this.timeScl = 1.0;
+    Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0);
+    this.rebuild();
+  });
 };
 
 
@@ -171,7 +177,6 @@ ptp.rebuild = function() {
       MDL_table.__slider(tb, val => {
         if(Groups.player.size() < 2) Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0 * val);
         thisIns.timeScl = val;
-        thisIns.mapCur = PARAM.mapCur;
       }, 0.25, 3.0, 0.25, thisIns.timeScl, thisIns.prefW);
     }).left().row();
   };
@@ -186,13 +191,6 @@ ptp.rebuild = function() {
  * Updates some parameters.
  * ---------------------------------------- */
 ptp.update = function() {
-  // Reset time control if map changed
-  if(this.mapCur !== PARAM.mapCur) {
-    this.timeScl = 1.0;
-    this.mapCur = PARAM.mapCur;
-    Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0);
-    this.rebuild();
-  };
   // Forced to 1.0x when multi-player
   if(Groups.player.size() > 1) {
     Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0);

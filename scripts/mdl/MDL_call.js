@@ -23,11 +23,39 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_effect = require("lovec/mdl/MDL_effect");
+  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_net = require("lovec/mdl/MDL_net");
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
   const DB_status = require("lovec/db/DB_status");
+
+
+  /* <---------- base ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Script called by this will be called only once in each round of update.
+   * ---------------------------------------- */
+  const callOnce = function(id, scr) {
+    const thisFun = callOnce;
+
+    if(Vars.state.updateId !== thisFun.idCurMap.get(id, 0)) {
+      thisFun.idCurMap.put(id, Vars.state.updateId);
+      scr();
+    };
+  }
+  .setAnno(ANNO.__INIT__, function() {
+    MDL_event._c_onLoad(() => {
+      TRIGGER.mapChange.addListener(nmMap => callOnce.idCurMap.clear());
+    }, 10777892);
+  })
+  .setProp({
+    idCurMap: new ObjectMap(),
+  });
+  exports.callOnce = callOnce;
 
 
   /* <---------- unit ----------> */
@@ -89,7 +117,7 @@
 
     MDL_net.sendPacket("client", "lovec-client-unit-spawn", payload, true, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("server", "lovec-client-unit-spawn", payload => {
       spawnUnit.apply(this, unpackPayload(payload));
     });
@@ -111,6 +139,18 @@
   }
   .setAnno(ANNO.__SERVER__);
   exports.despawnUnit = despawnUnit;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Rotates the unit by some angle.
+   * ---------------------------------------- */
+  const rotateUnit = function(unit, ang) {
+    unit.rotation += ang;
+    if(unit.baseRotation != null) unit.baseRotation += ang;
+  };
+  exports.rotateUnit = rotateUnit;
 
 
   /* ----------------------------------------
@@ -298,7 +338,7 @@
 
     MDL_net.sendPacket("client", "lovec-client-loot-spawn", payload, true, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("server", "lovec-client-loot-spawn", payload => {
       spawnLoot.apply(this, unpackPayload(payload));
     });

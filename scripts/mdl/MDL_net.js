@@ -63,36 +63,3 @@
     modes: ["client", "server", "both"],
   });
   exports.sendPacket = sendPacket;
-
-
-  /* <---------- http ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Opens an HTTP GET request, result is called as string (empty if errored).
-   * ---------------------------------------- */
-  const _h_str = function(url, caller) {
-    Http.get(url, res => {
-      caller(res.getResultAsString());
-    }, err => {
-      caller("");
-    });
-  };
-  exports._h_str = _h_str;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Opens an HTTP GET request, result is called as Json object.
-   * ---------------------------------------- */
-  const _h_obj = function(url, caller) {
-    Http.get(url, res => {
-      caller(JSON.parse(res.getResultAsString()));
-    }, err => {
-      caller({});
-    });
-  };
-  exports._h_obj = _h_obj;

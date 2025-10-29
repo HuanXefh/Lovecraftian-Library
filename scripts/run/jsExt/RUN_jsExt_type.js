@@ -15,7 +15,7 @@
 */
 
 
-  /* <---------- object ----------> */
+  /* <---------- number ----------> */
 
 
   var ptp = Number.prototype;
@@ -104,7 +104,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts a string of bits to arc bits.
+   * Converts a string of bits to Arc bits.
    * ---------------------------------------- */
   ptp.toBitset = function() {
     const bitset = new Bits();
@@ -149,7 +149,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript array to arc seq.
+   * Converts javascript array to Arc seq.
    * ---------------------------------------- */
   ptp.toSeq = function() {
     return new Seq(this);
@@ -159,7 +159,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript array to arc object set.
+   * Converts javascript array to Arc object set.
    * ---------------------------------------- */
   ptp.toObjSet = function() {
     return ObjectSet.with(this);
@@ -169,7 +169,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts a 2-array to arc object map.
+   * Converts a 2-array to Arc object map.
    * ---------------------------------------- */
   ptp.toObjMap = function() {
     let objMap = new ObjectMap();

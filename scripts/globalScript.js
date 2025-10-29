@@ -101,7 +101,7 @@
     ERROR_HANDLER.debug = info => {throw new Error("[$1] sucks.").format(tryVal(info, "JavaScript").firstUpperCase())};
 
     ERROR_HANDLER.arrLenMismatch = (arr1, arr2) => {throw new Error("Array arguments are expected to have same length!\n[$1]\n[$2]".format(JSON.stringify(arr1), JSON.stringify(arr2)))};
-    ERROR_HANDLER.notClass = () => {throw new Error("Parent class argument is not a function class!")};
+    ERROR_HANDLER.notClass = arg => {throw new Error("[$1] is not a function class!".format(arg))};
     ERROR_HANDLER.noSuperClass = () => {throw new Error("Can't call super when there's no parent class!")};
     ERROR_HANDLER.noSuperMethod = nmFun => {throw new Error("Method [$1] is not defined in super class!".format(nmFun))};
     ERROR_HANDLER.abstractInstance = () => {throw new Error("Cannot create instances of an abstract class.")};
@@ -111,6 +111,13 @@
     ERROR_HANDLER.duplicateInterface = () => {throw new Error("Don't implement the same interface twice!")};
     ERROR_HANDLER.interfaceMethodConflict = nmFun => {throw new Error("Can't implement interface on a class due to name conflict: " + nmFun)};
     ERROR_HANDLER.headerConfict = (header, tp) => {throw new Error("A header name [$1]conflicts with existing headers: ".format(tp == null ? "" : "(type: [$1]) ".format(tp)) + header)};
+
+    ERROR_HANDLER.notVec = arg => {throw new Error("[$1] is not a vector!".format(arg))};
+    ERROR_HANDLER.notSquareMat = arg => {throw new Error("[$1] is not a square matrix!").format(arg)};
+    ERROR_HANDLER.matSizeMismatch = () => {throw new Error("Operation is invalid for matrices with different sizes!")};
+    ERROR_HANDLER.matNotMultipliable = () => {throw new Error("The given matrices cannot multiply with each other!")};
+    ERROR_HANDLER.vecNot3d = () => {throw new Error("Operation is valid only for 3-dimensional vectors!")};
+    ERROR_HANDLER.arcVecExc = arg => {throw new Error("Cannot handle [$1], Arc vectors should be 2D or 3D only!").format(arg)};
 
     ERROR_HANDLER.noNm = info => {throw new Error("A unique name must be assigned to [$1]!".format(info))};
     ERROR_HANDLER.noCt = nm => {throw new Error("Content is not found for [$1]!".format(nm))};
@@ -130,17 +137,63 @@
    *
    * Used for function overloading (definition of one function with different sets of arguments).
    * Mostly for class or instance methods, as {obj} is required.
+   * If {tps} is used the method also checks types.
    * ---------------------------------------- */
-  addMethod = function(obj, nmFun, arrowFun) {
+  addMethod = function(obj, nmFun, tps, arrowFun) {
     let lastFun = obj[nmFun];
 
     obj[nmFun] = function() {
-      if(arrowFun.length === arguments.length) {
+      if(arrowFun.length === arguments.length && (tps == null ? true : checkArgType(arguments, tps))) {
         return arrowFun.apply(this, arguments);
       } else if(typeof lastFun === "function") {
         return lastFun.apply(this, arguments);
       };
     };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: arrowFun1, arrowFun2, arrowFun3, ...
+   * @ARGS: tps1, arrowFun1, tps2, arrowFun2, tps3, arrowFun3, ...
+   * Used to define a function that behaves differently for varied argument length or types of arguments.
+   * This is betrayal to the Lord of JavaScript, use with care.
+   *
+   * Example:
+   * let fun = newMultiFunction(
+   *   ["number"], num => print("number"),
+   *   ["string"], str => print("string"),
+   *   ["boolean"], bool => print("boolean"),
+   *   [Array], arr => print("array"),
+   *   ["number", "number"], (num1, num2) => print("number & number"),
+   *   ["number", Array], (num, arr) => print("number & array"),
+   * );
+   *
+   * fun(1.0)          // Prints "number"
+   * fun("ohno")          // Prints "string"
+   * fun(true)          // Prints "boolean"
+   * fun([])          // Prints "array"
+   * fun(0.0, 0.0)          // Prints "number & number"
+   * fun(0.0, [])          // Prints "number & array"
+   * ---------------------------------------- */
+  newMultiFunction = function() {
+    let fun = function() {
+      return fun.__OVERLOADING_CONTAINER__[""].apply(this, arguments);
+    };
+    fun.__OVERLOADING_CONTAINER__ = {};
+
+    if(arguments[0] instanceof Array && typeof arguments[1] === "function") {
+      arguments.length._it(2, i => {
+        addMethod(fun.__OVERLOADING_CONTAINER__, "", arguments[i], arguments[i + 1]);
+      });
+    } else {
+      arguments.length._it(1, i => {
+        addMethod(fun.__OVERLOADING_CONTAINER__, "", null, arguments[i]);
+      });
+    };
+
+    return fun;
   };
 
 
@@ -205,6 +258,32 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * For argument type check.
+   * For JavaScript data types, use string instead (e.g. "number" for {Number}).
+   * Definitely not TypeScript reference.
+   * ---------------------------------------- */
+  checkArgType = function(args, tps) {
+    if(!(args instanceof Array)) args = Array.from(args);
+
+    let i = 0, iCap = args.iCap();
+    while(i < iCap) {
+      if(tps[i] == null || args[i] == null) {
+        // Do nothing
+      } else if(typeof tps[i] !== "string") {
+        if(!(args[i] instanceof tps[i])) return false;
+      } else {
+        if(typeof args[i] !== tps[i]) return false;
+      };
+      i++;
+    };
+
+    return true;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * If {val} is {null}, returns default value.
    * Don't use {return val | def}, you know, double equality.
    * ---------------------------------------- */
@@ -220,7 +299,7 @@
    * Tries to call a function, returns the default value if not found or not function.
    * Don't use {try} & {catch}, it's costy.
    * ---------------------------------------- */
-  tryFun = function(fun, def, caller) {
+  tryFun = function(fun, caller, def) {
     if(fun == null || typeof fun !== "function") return def;
 
     return arguments.length <= 3 ?
@@ -271,6 +350,20 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Used to read any 2-array of classes and functions.
+   * ---------------------------------------- */
+  readClassFunMap = function(arr, ins, def) {
+    let fun = def;
+    arr.forEachRow(2, (cls, ofun) => {
+      if(ins instanceof cls) fun = ofun;
+    });
+    return fun;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Used for stat value, where JavaScript arrow functions won't work.
    * ---------------------------------------- */
   newStatValue = function(tableF) {
@@ -280,6 +373,9 @@
       },
     };
   };
+
+
+  /* <---------- net ----------> */
 
 
   /* ----------------------------------------
@@ -300,6 +396,21 @@
    * ---------------------------------------- */
   unpackPayload = function(payload) {
     return Object.objToArr(JSON.parse(payload));
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Performs an HTTP GET request, the fetched resource is by default treated as Json object.
+   * If {errCaller} is not given, this will use an empty object or string instead.
+   * ---------------------------------------- */
+  httpGet = function(url, caller, errCaller, useStr) {
+    Http.get(url, res => {
+      caller(useStr ? res.getResultAsString() : JSON.parse(res.getResultAsString()));
+    }, err => {
+      errCaller == null ? caller(useStr ? "" : {}) : errCaller(err);
+    });
   };
 
 

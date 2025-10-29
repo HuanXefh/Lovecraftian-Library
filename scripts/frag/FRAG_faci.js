@@ -528,7 +528,7 @@
     let countObj = {};
     ters.forEachFast(ter => countObj[ter] = 0);
     ts.forEachFast(ot => {
-      let ter = tryFun(ot.floor().ex_getMatGrp, null, ot.floor());
+      let ter = tryFun(ot.floor().ex_getMatGrp, ot.floor(), null);
       if(ter != null) countObj[ter] += 1;
     });
 

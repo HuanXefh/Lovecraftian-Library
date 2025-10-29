@@ -134,7 +134,7 @@
 
     MDL_net.sendPacket("client", "lovec-client-reaction", payload, true, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("server", "lovec-client-reaction", payload => {
       let args = unpackPayload(payload);
       applyReaction(args[0], args[1], args[2], args[3], Vars.world.build(args[4]), args[5]);

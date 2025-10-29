@@ -57,6 +57,7 @@
 
   const MDL_backend = require("lovec/mdl/MDL_backend");
   const MDL_call = require("lovec/mdl/MDL_call");
+  const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
@@ -73,6 +74,7 @@
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_test = require("lovec/mdl/MDL_test");
   const MDL_text = require("lovec/mdl/MDL_text");
+  const MDL_texture = require("lovec/mdl/MDL_texture");
   const MDL_ui = require("lovec/mdl/MDL_ui");
   const MDL_util = require("lovec/mdl/MDL_util");
 
@@ -149,6 +151,7 @@
 
       mdl_backend: MDL_backend,
       mdl_call: MDL_call,
+      mdl_color: MDL_color,
       mdl_cond: MDL_cond,
       mdl_content: MDL_content,
       mdl_draw: MDL_draw,
@@ -164,6 +167,7 @@
       mdl_recipeDict: MDL_recipeDict,
       mdl_test: MDL_test,
       mdl_text: MDL_text,
+      mdl_texture: MDL_texture,
       mdl_ui: MDL_ui,
       mdl_util: MDL_util,
 

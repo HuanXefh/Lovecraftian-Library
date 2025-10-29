@@ -22,6 +22,7 @@
   /* <---------- import ----------> */
 
 
+  const TRIGGER = require("lovec/glb/BOX_trigger");
   const PARAM = require("lovec/glb/GLB_param");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
@@ -38,53 +39,43 @@
 
 
   let rules = null;
-  let nmMapCur = "";
   let hasInit = false;
   let hasWea = false;
 
 
-  function comp_init() {
+  function evComp_updateBase() {
+    if(!hasInit) evComp_init();
+    evComp_updateWeather();
+  };
+
+
+  function evComp_init() {
     rules = Vars.state.rules;
     hasWea = false;
-
     hasInit = true;
   };
 
 
-  function comp_updateBase() {
-    if(nmMapCur !== PARAM.mapCur) {
-      nmMapCur = PARAM.mapCur;
-      hasInit = false;
-      PARAM.forceLoadParam();
-      Time.run(3.0, () => {
-        MDL_backend.setWinTitle(null, "[$1][$2]".format(MDL_util._cfg("misc-title-name"), !MDL_util._cfg("misc-title-map") ? "" : ": [$1]".format(PARAM.mapCur === "" ? "menu" : PARAM.mapCur)));
-      });
-    };
-
-    if(!hasInit) comp_init();
-  };
-
-
-  function comp_updateWeather() {
+  function evComp_updateWeather() {
     if(hasWea || !Vars.state.isGame() || Vars.state.isEditor()) return;
 
-    let nmWeas = DB_env.db["param"]["map"]["weaEn"].read(PARAM.mapCur, Array.air);
-    if(nmWeas.length > 0) {
-      Groups.weather.clear();
-
-      let weaEnSeq = new Seq();
-      nmWeas.forEachFast(nmWea => {
-        let weaEn = VARGEN.weaEns[nmWea];
-        if(weaEn == null) {
-          Log.warn("[LOVEC] Invalid weather name: " + nmWea);
-        } else {
-          weaEnSeq.add(weaEn);
-        };
-      });
-      rules.weather = weaEnSeq;
-    };
-
     hasWea = true;
+    Time.run(60.0, () => {
+      let nmWeas = DB_env.db["param"]["map"]["weaEn"].read(PARAM.mapCur, Array.air);
+      printAll(PARAM.mapCur, nmWeas);
+      if(nmWeas.length > 0) {
+        Groups.weather.clear();
+
+        let weaEnSeq = new Seq();
+        nmWeas.forEachFast(nmWea => {
+          let weaEn = VARGEN.weaEns[nmWea];
+          weaEn == null ?
+            Log.warn("[LOVEC] Invalid weather name: " + nmWea.color(Pal.remove)) :
+            weaEnSeq.add(weaEn);
+        });
+        rules.weather = weaEnSeq;
+      };
+    });
   };
 
 
@@ -95,9 +86,21 @@
 */
 
 
+  TRIGGER.mapChange.addListener(nmMap => {
+    hasInit = false;
+    PARAM.forceLoadParam();
+    MDL_backend.setWinTitle(
+      null,
+      "[$1][$2]".format(
+        MDL_util._cfg("misc-title-name"),
+        !MDL_util._cfg("misc-title-map") ? "" : ": [$1]".format(nmMap === "" ? "menu" : nmMap),
+      ),
+    );
+  });
+
+
   MDL_event._c_onUpdate(() => {
 
-    comp_updateBase();
-    comp_updateWeather();
+    evComp_updateBase();
 
   }, 72663182);

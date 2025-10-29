@@ -248,8 +248,8 @@
 
     let iCap = this.iCap();
     if(iCap === 0) return this;
-    for(let i = iCap - ord; i > -1; i -= ord) {
-      let j = Math.round(Mathf.random(i / ord)) * ord;
+    for(let i = iCap - ord, j; i > -1; i -= ord) {
+      j = Math.round(Mathf.random(i / ord)) * ord;
       for(let k = 0; k < ord; k++) {
         let tmp = this[i + k];
         this[i + k] = this[j + k];
@@ -268,7 +268,7 @@
    * Will modify this array.
    * Can be used for a formatted array.
    *
-   * I won't call this REPLACE cauz {replace} returns a new object for string.
+   * I won't call this REPLACE cauz it returns a new object for string.
    * ---------------------------------------- */
   ptp.substitute = function(mapF, ord, off) {
     if(ord == null) ord = 1;
@@ -428,14 +428,28 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Returns an array of random elements in the array.
+   * ---------------------------------------- */
+  ptp.sample = function(amt) {
+    if(amt == null) amt = this.iCap();
+
+    let tmpArr = this.slice().randomize();
+    return amt >= tmpArr.length ?
+      tmpArr :
+      tmpArr.slice(0, amt);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Example:
    * [0, 1, 2, 3, 4].intersect([2, 3, 4, 5, 6]);    // Returns [2, 3, 4]
    * ---------------------------------------- */
   ptp.intersect = function(eles_p, mapF) {
     const arr = [];
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     if(mapF == null) {
       while(i < iCap) {
         if(!(eles_p instanceof Array) ? this[i] === eles_p : eles_p.includes(this[i])) {
@@ -444,11 +458,45 @@
         i++;
       };
     } else {
-      let tmpArr = [];
+      let tmpArr = [], tmp;
       if(eles_p instanceof Array) eles_p.forEachFast(ele => tmpArr.push(mapF(ele)));
       while(i < iCap) {
-        let tmp = mapF(this[i]);
+        tmp = mapF(this[i]);
         if(!(eles_p instanceof Array) ? tmp === mapF(eles_p) : tmpArr.includes(tmp)) {
+          arr.push(ele);
+        };
+        i++;
+      };
+      tmpArr.clear();
+    };
+
+    return arr;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Example:
+   * [0, 1, 2, 3, 4].differ([2, 3, 4, 5, 6]);    // Returns [0, 1]
+   * ---------------------------------------- */
+  ptp.differ = function(eles_p, mapF) {
+    const arr = [];
+
+    let i = 0, iCap = this.iCap();
+    if(mapF == null) {
+      while(i < iCap) {
+        if(!(eles_p instanceof Array) ? this[i] !== eles_p : !eles_p.includes(this[i])) {
+          arr.push(ele);
+        };
+        i++;
+      };
+    } else {
+      let tmpArr = [], tmp;
+      if(eles_p instanceof Array) eles_p.forEachFast(ele => tmpArr.push(mapF(ele)));
+      while(i < iCap) {
+        tmp = mapF(this[i]);
+        if(!(eles_p instanceof Array) ? tmp !== mapF(eles_p) : !tmpArr.includes(tmp)) {
           arr.push(ele);
         };
         i++;
@@ -548,6 +596,24 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Returns an object of categories and lists of elements, whose category is determined in {categGetter}.
+   * If the category returned in {categGetter} is {null} for some element, it will be skipped.
+   * ---------------------------------------- */
+  ptp.categorize = function(categGetter) {
+    let key;
+    return this.reduce((obj, ele) => {
+      key = categGetter(ele);
+      if(key == null) return obj;
+      if(obj[key] === undefined) obj[key] = [];
+      obj[key].push(ele);
+      return obj;
+    }, {});
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * How many rows (or lines) this formatted array has.
    *
    * Example:
@@ -561,6 +627,7 @@
   };
 
 
+  // Condition checking for read & write methods
   function checkArrayRow(nms, arr, rowInd, isUnordered) {
     let i = 0, iCap = nms.iCap();
     if(!isUnordered) {
@@ -687,9 +754,6 @@
 
     return tmp === "!PENDING" ? null : tmp;
   };
-
-
-
 
 
   /* ----------------------------------------

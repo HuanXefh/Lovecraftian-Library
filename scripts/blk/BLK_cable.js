@@ -72,60 +72,23 @@
   };
 
 
-  function comp_blends() {
-    let blk, t, rot, dir, bPlan, cond;
-    let oblk, ob, otx, oty, orot;
-
-    switch(arguments.length) {
-
-
-      // ARGS: blk, t, rot, dir
-      case 4 :
-        blk = arguments[0];
-        t = arguments[1];
-        rot = arguments[2];
-        dir = arguments[3];
-
-        ob = t.nearbyBuild(Mathf.mod(rot - dir, 4));
-        return ob != null && ob.team == t.team() && blk.blends(t, rot, ob.tileX(), ob.tileY(), ob.rotation, ob.block);
-
-
-      // ARGS: blk, t, rot, bPlan, dir, shouldCheckWorld
-      case 6 :
-        blk = arguments[0];
-        t = arguments[1];
-        rot = arguments[2];
-        bPlan = arguments[3];
-        dir = arguments[4];
-        cond = arguments[5];
-
-        if(bPlan != null) {
-          let bPlanReq = bPlan[Mathf.mod(rot - dir, 4)];
-          if(bPlanReq != null && blk.blends(t, rot, bPlanReq.x, bPlanReq.y, bPlanReq.rotation, bPlanReq.block)) return true;
-        };
-        return cond && blk.blends(t, rot, dir);
-
-
-      // @ARGS: blk, t, rot, otx, oty, orot, oblk
-      case 7 :
-        blk = arguments[0];
-        t = arguments[1];
-        rot = arguments[2];
-        otx = arguments[3];
-        oty = arguments[4];
-        orot = arguments[5];
-        oblk = arguments[6];
-
-        return (oblk.consPower != null || oblk.outputsPower)
-          || (blk.lookingAt(t, rot, otx, oty, oblk) && oblk.hasPower);
-
-
-      default :
-        return false;
-
-
-    };
-  };
+  const comp_blends = newMultiFunction(
+    (blk, t, rot, dir) => {
+      let ob = t.nearbyBuild(Mathf.mod(rot - dir, 4));
+      return ob != null && ob.team == t.team() && blk.blends(t, rot, ob.tileX(), ob.tileY(), ob.rotation, ob.block);
+    },
+    (blk, t, rot, bPlan, dir, shouldCheckWorld) => {
+      if(bPlan != null) {
+        let bPlanReq = bPlan[Mathf.mod(rot - dir, 4)];
+        if(bPlanReq != null && blk.blends(t, rot, bPlanReq.x, bPlanReq.y, bPlanReq.rotation, bPlanReq.block)) return true;
+      };
+      return shouldCheckWorld && blk.blends(t, rot, dir);
+    },
+    (blk, t, rot, otx, oty, orot, oblk) => {
+      return (oblk.consPower != null || oblk.outputsPower)
+        || (blk.lookingAt(t, rot, otx, oty, oblk) && oblk.hasPower);
+    },
+  );
 
 
   function comp_unitOn(b, unit) {

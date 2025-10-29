@@ -29,22 +29,27 @@
    * NOTE:
    *
    * Generalized color thing.
-   * If given {color}, this will try overwriting it instead of using default temporary color object.
-   * If {color} is {"new"}, this will create new color.
+   * If given {colorMod}, this will try overwriting it instead of using default temporary color object.
+   * If {colorMod} is {"new"}, this will create a new color object.
    * ---------------------------------------- */
-  const _color = function(color_gn, color) {
-    if(color == null) color = tmpColors[9];
+  const _color = function(color_gn, colorMod) {
+    if(colorMod == null) colorMod = tmpColors[9];
+    if(color_gn == null) return colorMod === "new" ? Color.white.cpy() : Color.white;
 
-    if(color_gn == null) return color === "new" ? Color.white.cpy() : Color.white;
-    if(color_gn instanceof Color) return color === "new" ? color_gn.cpy() : color_gn;
-    if(typeof color_gn == "boolean") return color === "new" ? (color_gn ? Pal.accent : Pal.remove).cpy() : (color_gn ? Pal.accent : Pal.remove);
-    if(typeof color_gn == "string") return color === "new" ? Color.valueOf(color_gn) : Color.valueOf(color, color_gn);
-    if(typeof color_gn == "number") return color === "new" ? new Color(Math.round(color_gn)) : color.set(Math.round(color_gn));
-    if(color_gn instanceof Tile) return color === "new" ? new Color(color_gn.floor().mapColor) : color_gn.floor().mapColor;
-    if((color_gn instanceof Item) || (color_gn instanceof Liquid) || (color_gn instanceof Team)) return color === "new" ? color_gn.color.cpy() : color_gn.color;
-
-    return color === "new" ? Color.white.cpy() : Color.white;
-  };
+    return _color.tmpGetter(color_gn, colorMod);
+  }
+  .setProp({
+    tmpGetter: newMultiFunction(
+      [Tile, null], (t, colorMod) => colorMod === "new" ? new Color(t.floor().mapColor) : t.floor().mapColor,
+      [Item, null], (itm, colorMod) => colorMod === "new" ? itm.color.cpy() : itm.color,
+      [Liquid, null], (liq, colorMod) => colorMod === "new" ? liq.color.cpy() : liq.color,
+      [Team, null], (team, colorMod) => colorMod === "new" ? team.color.cpy() : team.color,
+      ["number", null], (num, colorMod) => colorMod === "new" ? new Color(Math.round(num)) : colorMod.set(Math.round(num)),
+      ["boolean", null], (bool, colorMod) => colorMod === "new" ? (bool ? Pal.accent : Pal.remove).cpy() : (bool ? Pal.accent : Pal.remove),
+      ["string", null], (str, colorMod) => colorMod === "new" ? Color.valueOf(str) : Color.valueOf(colorMod, str),
+      [Color, null], (color, colorMod) => colorMod === "new" ? color.cpy() : color,
+    ),
+  });
   exports._color = _color;
 
 
@@ -54,12 +59,7 @@
    * Checks if two colors are the same in RGBA.
    * ---------------------------------------- */
   const _isSameColor = function(color1_gn, color2_gn) {
-    if(color1_gn == null || color2_gn == null) return;
-
-    let rawColor1 = _color(color1_gn, tmpColors[0]).rgba();
-    let rawColor2 = _color(color2_gn, tmpColors[1]).rgba();
-
-    return rawColor1 === rawColor2;
+    return _color(color1_gn, tmpColors[0]).rgba() === _color(color2_gn, tmpColors[1]).rgba();;
   };
   exports._isSameColor = _isSameColor;
 
@@ -73,7 +73,6 @@
   const _iconColor = function(ct_gn, useTmp) {
     let color = useTmp ? tmpColors[2].set(0, 0, 0, 1) : new Color(0, 0, 0, 1);
     if(Vars.headless) return color;
-
     let ct = global.lovecUtil.fun._ct(ct_gn);
     if(ct == null) return color;
     let pix = Core.atlas.getPixmap(ct.fullIcon);
@@ -89,6 +88,9 @@
    * Gets the color for some character.
    * ---------------------------------------- */
   const _charaColor = function(nmMod, nmChara) {
-    return _color(global.lovec.db_misc.db["drama"]["chara"]["color"].read([nmMod, nmChara]));
-  };
+    return _color(global.lovec.db_misc.db["drama"]["chara"]["color"].read(_charaColor.tmpArgs.clear().push(nmMod, nmChara)));
+  }
+  .setProp({
+    tmpArgs: [],
+  });
   exports._charaColor = _charaColor;

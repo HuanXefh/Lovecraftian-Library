@@ -201,7 +201,7 @@
     let payload = JSON.stringify(lsav);
     MDL_net.sendPacket("server", "lovec-server-lsav-sync", payload, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("client", "lovec-server-lsav-sync", payload => {
       __lsav(JSON.parse(payload));
     });
@@ -218,7 +218,7 @@
   const requestSync = function() {
     MDL_net.sendPacket("client", "lovec-client-lsav-sync-request", "", true, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("server", "lovec-client-lsav-sync-request", payload => {
       sync();
     });
@@ -239,7 +239,7 @@
 
     MDL_net.sendPacket("client", "lovec-client-lsav-set-request", payload, true, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("server", "lovec-client-lsav-set-request", payload => {
       setSafe.apply(this, unpackPayload(payload));
     });

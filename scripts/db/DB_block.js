@@ -627,6 +627,20 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
+     * Used to read shield amount.
+     * ---------------------------------------- */
+    "shield": [
+
+      ShieldWall, (b, isSelfShield) => b.shield,
+      ForceProjector, (b, isSelfShield) => isSelfShield ? 0.0 : (b.block.shieldHealth + b.block.phaseShieldBoost * b.phaseHeat - b.buildup),
+      DirectionalForceProjector, (b, isSelfShield) => isSelfShield ? 0.0 : (b.block.shieldHealth - b.buildup),
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * Used to read drill speed for display.
      * ---------------------------------------- */
     "drillSpd": [

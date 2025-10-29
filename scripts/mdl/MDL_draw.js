@@ -1222,6 +1222,7 @@
    * Used as tile indicator.
    * ---------------------------------------- */
   const drawArea_tShrink = function(t, size, color_gn, a, z) {
+    if(t == null) return;
     if(size == null) size = 1;
     var off = size % 2 === 0 ? 4.0 : 0.0;
     var size_fi = (0.75 + Math.sin(Time.time * 0.065) * 0.15) * size;

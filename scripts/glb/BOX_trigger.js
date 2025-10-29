@@ -25,6 +25,15 @@ const BOX_trigger = new CLS_objectBox({
   /* ----------------------------------------
    * NOTE:
    *
+   * @ARGS: nmMap
+   * Triggered when map is changed.
+   * ---------------------------------------- */
+  mapChange: new CLS_eventTrigger("lovec-map-change"),
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * @ARGS: x, y, team, unit
    * Triggered whenever a unit is destroyed.
    * ---------------------------------------- */

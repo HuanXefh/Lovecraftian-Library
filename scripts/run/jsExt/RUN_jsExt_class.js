@@ -102,7 +102,7 @@
    * You can use {this.super(nmFun, ...args)} to call super methods later.
    * ---------------------------------------- */
   ptp.extendClass = function(cls) {
-    if(typeof cls !== "function" || !cls.isClass()) ERROR_HANDLER.notClass();
+    if(typeof cls !== "function" || !cls.isClass()) ERROR_HANDLER.notClass(cls);
 
     Object.assign(this, cls);
     // A second abstract class??? {initAbstrClass} again

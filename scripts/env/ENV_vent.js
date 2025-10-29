@@ -223,7 +223,7 @@
 
     // @NOSUPER
     ex_getMatGrp: function(blk) {
-      return tryVal(tryFun(blk.parent.ex_getMatGrp, null, blk.parent), "");
+      return tryFun(blk.parent.ex_getMatGrp, blk.parent, "");
     },
 
 

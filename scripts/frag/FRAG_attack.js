@@ -148,7 +148,7 @@
 
     MDL_net.sendPacket("both", "lovec-both-attack-explosion", payload, true, true);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("both", "lovec-both-attack-explosion", payload => {
       apply_explosion.apply(this, unpackPayload(payload));
     });

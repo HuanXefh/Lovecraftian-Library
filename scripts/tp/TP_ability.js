@@ -120,7 +120,7 @@
 
     });
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     regisAbiSetter("explosion", this);
   });
   exports._explosion = _explosion;
@@ -180,7 +180,7 @@
 
     });
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     regisAbiSetter("shield-core", this);
   });
   exports._shieldCore = _shieldCore;
@@ -276,7 +276,7 @@
 
     });
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     regisAbiSetter("laser-defense", this);
   });
   exports._explosion = _explosion;
@@ -346,7 +346,7 @@
 
     });
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     regisAbiSetter("building-repairer-module", this);
   });
   exports._buildingRepairerModule = _buildingRepairerModule;

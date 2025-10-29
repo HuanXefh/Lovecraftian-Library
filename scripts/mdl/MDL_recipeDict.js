@@ -57,7 +57,7 @@
       tryVal(data, Object.air),
     );
   }
-  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+  .setAnno(ANNO.__ARGTYPE__, [[
     null, null, "number", "number", null,
   ]]);
   exports.addItmConsTerm = addItmConsTerm;
@@ -82,7 +82,7 @@
       tryVal(data, Object.air),
     );
   }
-  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+  .setAnno(ANNO.__ARGTYPE__, [[
     null, null, "number", null,
   ]]);
   exports.addFldConsTerm = addFldConsTerm;
@@ -109,7 +109,7 @@
       tryVal(data, Object.air),
     );
   }
-  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+  .setAnno(ANNO.__ARGTYPE__, [[
     null, null, "number", "number", null,
   ]]);
   exports.addItmProdTerm = addItmProdTerm;
@@ -134,7 +134,7 @@
       tryVal(data, Object.air),
     );
   }
-  .setAnno(ANNO.__ARGTYPE__, null, null, [[
+  .setAnno(ANNO.__ARGTYPE__, [[
     null, null, "number", null,
   ]]);
   exports.addFldProdTerm = addFldProdTerm;

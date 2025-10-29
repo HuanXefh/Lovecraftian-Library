@@ -96,7 +96,7 @@
       Lines.stroke(2.0, Color.white);
       Draw.alpha(0.3 * b.glowHeat);
       b.pullTgs.forEachFast(loot => {
-        Lines.line(loot.x, loot.y, b.x, b.y);
+        if(loot.added) Lines.line(loot.x, loot.y, b.x, b.y);
       });
       Draw.reset();
     };

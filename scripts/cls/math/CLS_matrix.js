@@ -41,6 +41,16 @@ CLS_matrix.getEmptyMat = function(m, n, def) {
 /* ----------------------------------------
  * NOTE:
  *
+ * Returns an empty matrix based on the size of {mat}.
+ * ---------------------------------------- */
+CLS_matrix.getEmptyMat_mat = function(mat, def) {
+  return CLS_matrix.getEmptyMat(mat.getColAmt(), mat.getRowAmt(), def);
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
  * Returns an n-unit matrix, by default using 1.
  * ---------------------------------------- */
 CLS_matrix.getUnitMat = function(n, def) {
@@ -105,16 +115,16 @@ CLS_matrix.unpack = function(matArrPack) {
 /* ----------------------------------------
  * NOTE:
  *
- * Converts an arc vector to matrix vector.
+ * Converts an Arc vector to matrix vector.
  * ---------------------------------------- */
 CLS_matrix.fromArcVec = function(arcVec, isRowVec) {
-  if(arcVec == null) return null;
-
-  return arcVec instanceof Vec2 ?
-    CLS_matrix.getVec([arcVec.x, arcVec.y], isRowVec) :
-    arcVec instanceof Vec3 ?
-      CLS_matrix.getVec([arcVec.x, arcVec.y, arcVec.z], isRowVec) :
-      null;
+  if(arcVec instanceof Vec2) {
+    return CLS_matrix.getVec([arcVec.x, arcVec.y], isRowVec);
+  } else if(arcVec instanceof Vec3) {
+    return CLS_matrix.getVec([arcVec.x, arcVec.y, arcVec.z], isRowVec);
+  } else {
+    ERROR_HANDLER.arcVecExc(arcVec);
+  };
 };
 
 
@@ -251,10 +261,11 @@ ptp.forEachCol = function(scr) {
 /* ----------------------------------------
  * NOTE:
  *
- * Sets the element at (row, col).
+ * Sets the element at (colInd, rowInd).
+ * Note that the index here starts at 1.
  * ---------------------------------------- */
-ptp.set = function(row, col, ele) {
-  this.matArr[row - 1][col - 1] = ele;
+ptp.set = function(colInd, rowInd, ele) {
+  this.matArr[rowInd - 1][colInd - 1] = ele;
   return this;
 };
 
@@ -268,8 +279,8 @@ ptp.set = function(row, col, ele) {
  * Normalizes the vector.
  * {def} is the target length.
  * ---------------------------------------- */
-ptp.normalize = function(def) {
-  if(!this.isVec()) return null;
+ptp.nor = function(def) {
+  if(!this.isVec()) ERROR_HANDLER.notVec(this);
   if(def == null) def = 1.0;
 
   let len = this.len();
@@ -303,8 +314,6 @@ ptp.isSquare = function() {
  * Whether two matrices are of the same size.
  * ---------------------------------------- */
 ptp.sameSize = function(mat) {
-  if(mat == null || !(mat instanceof CLS_matrix)) return false;
-
   return this.getRowAmt() === mat.getRowAmt() && this.getColAmt() === mat.getColAmt();
 };
 
@@ -315,8 +324,6 @@ ptp.sameSize = function(mat) {
  * Whether this matrix can multiply {mat}.
  * ---------------------------------------- */
 ptp.canMul = function(mat) {
-  if(mat == null || !(mat instanceof CLS_matrix)) return false;
-
   return this.getColAmt() === mat.getRowAmt();
 };
 
@@ -383,13 +390,13 @@ ptp.dimension = function() {
  * Returns the transposed result as a new matrix.
  * ---------------------------------------- */
 ptp.transpose = function() {
-  let iCap = this.getRowAmt(), jCap = this.getColAmt();
-  const mat = CLS_matrix.getEmptyMat(jCap, iCap);
-  for(let i = 0; i < iCap; i++) {
-    for(let j = 0; j < jCap; j++) {
-      mat.set(j + 1, i + 1, this.matArr[i][j]);
-    };
-  };
+  const mat = CLS_matrix.getEmptyMat_mat(this);
+
+  this.getRowAmt()._it(1, j => {
+    this.getColAmt()._it(1, i => {
+      mat.set(i + 1, j + 1, this.matArr[j][i]);
+    });
+  });
 
   return mat;
 };
@@ -401,16 +408,14 @@ ptp.transpose = function() {
  * Lets a matrix adds another one, returns the result as a new matrix.
  * ---------------------------------------- */
 ptp.add = function(mat) {
-  if(!this.sameSize(mat)) return null;
-  if(this.getRowAmt() != mat.getRowAmt() || this.getColAmt() != mat.getColAmt()) return;
+  if(!this.sameSize(mat)) ERROR_HANDLER.matSizeMismatch();
+  const mat0 = CLS_matrix.getEmptyMat_mat(this);
 
-  let iCap = this.getRowAmt(), jCap = this.getColAmt();
-  const mat0 = CLS_matrix.getEmptyMat(iCap, jCap);
-  for(let i = 0; i < iCap; i++) {
-    for(let j = 0; j < jCap; j++) {
-      mat0.set(i + 1, j + 1, this.matArr[i][j] + mat.matArr[i][j]);
-    };
-  };
+  this.getRowAmt()._it(1, j => {
+    this.getColAmt()._it(1, i => {
+      mat0.set(i + 1, j + 1, this.matArr[j][i] + mat.matArr[j][i]);
+    });
+  });
 
   return mat0;
 };
@@ -422,8 +427,6 @@ ptp.add = function(mat) {
  * Lets a matrix substracts another one, returns the result as a new matrix.
  * ---------------------------------------- */
 ptp.minus = function(mat) {
-  if(!this.sameSize(mat)) return null;
-
   return this.add(mat.scl(-1.0));
 };
 
@@ -434,19 +437,21 @@ ptp.minus = function(mat) {
  * Lets a matrix multiplies a scalar, returns the result as a new matrix.
  * ---------------------------------------- */
 ptp.scl = function(scl) {
-  var num = 0.0;
+  const mat = CLS_matrix.getEmptyMat_mat(this);
 
-  num = scl instanceof CLS_matrix && scl.isScl() ?
-    scl.get(1, 1) :
-    scl;
-
-  let iCap = this.getRowAmt(), jCap = this.getColAmt();
-  const mat = CLS_matrix.getEmptyMat(iCap, jCap);
-  for(let i = 0; i < iCap; i++) {
-    for(let j = 0; j < jCap; j++) {
-      mat.set(i + 1, j + 1, this.matArr[i][j] * num);
-    };
+  var num;
+  if(scl instanceof CLS_matrix) {
+    num = scl.isScl() ? scl.get(1, 1) : NaN;
+  } else {
+    num = Number(scl);
   };
+  if(isNaN(num)) num = 1.0;
+
+  this.getRowAmt()._it(1, j => {
+    this.getColAmt()._it(1, i => {
+      mat.set(i + 1, j + 1, this.matArr[j][i] * num);
+    });
+  });
 
   return mat;
 };
@@ -458,19 +463,18 @@ ptp.scl = function(scl) {
  * Lets a matrix multiplies another one, returns the result as a new matrix.
  * ---------------------------------------- */
 ptp.mul = function(mat) {
-  if(!this.canMul(mat)) return null;
+  if(!this.canMul(mat)) ERROR_HANDLER.matNotMultipliable();
+  const mat0 = CLS_matrix.getEmptyMat_mat(this);
 
-  let iCap = this.getRowAmt(), jCap = mat.getColAmt(), kCap = this.getColAmt();
-  const mat0 = CLS_matrix.getEmptyMat(iCap, jCap);
-  for(let i = 0; i < iCap; i++) {
-    for(let j = 0; j < jCap; j++) {
+  this.getRowAmt()._it(1, j => {
+    this.getColAmt()._it(1, i => {
       let sum = 0.0;
-      for(let k = 0; k < kCap; k++) {
-        sum += this.matArr[i][k] * mat.matArr[k][j];
-      };
+      this.getColAmt()._it(1, k => {
+        sum += this.matArr[j][k] * mat.matArr[k][i];
+      });
       mat0.set(i + 1, j + 1, sum);
-    };
-  };
+    });
+  });
 
   return mat0;
 };
@@ -479,16 +483,16 @@ ptp.mul = function(mat) {
 /* ----------------------------------------
  * NOTE:
  *
- * Returns the submatrix at (row, col).
+ * Returns the submatrix at (colInd, rowInd).
  * ---------------------------------------- */
-ptp.subMat = function(row, col) {
-  let iCap = this.getRowAmt() - 1, jCap = this.getColAmt() - 1;
-  const mat = CLS_matrix.getEmptyMat(iCap, jCap);
-  for(let i = 0; i < iCap; i++) {
-    for(let j = 0; j < jCap; j++) {
-      mat.set(i + 1, j + 1, this.matArr[i + 1 >= row ? i + 1 : i][j + 1 >= col ? j + 1 : j]);
-    };
-  };
+ptp.submat = function(colInd, RowInd) {
+  const mat = CLS_matrix.getEmptyMat_mat(this);
+
+  (this.getRowAmt() - 1)._it(1, j => {
+    (this.getColAmt() - 1)._it(1, i => {
+      mat.set(i + 1, j + 1, this.matArr[j + 1 >= rowInd ? j + 1 : j][i + 1 >= colInd ? i + 1 : i]);
+    });
+  });
 
   return mat;
 };
@@ -504,19 +508,19 @@ ptp.subMat = function(row, col) {
  * <Bareiss algorithm>
  * ---------------------------------------- */
 ptp.det = function() {
-  if(!this.isSquare()) return null;
+  if(!this.isSquare()) ERROR_HANDLER.notSquareMat(this);
 
   const mat = this.cpy();
-  let iCap = mat.getRowAmt();
-  for(let k = 0; k < iCap - 1; k++) {
-    for(let i = k + 1; i < iCap; i++) {
-      for(let j = k + 1; j < iCap; j++) {
-        mat.set(i + 1, j + 1, (mat.matArr[i][j] * mat.matArr[k][k] - mat.matArr[i][k] * mat.matArr[k][j]) / (k === 0 ? 1.0 : mat.matArr[k - 1][k - 1]));
-      };
-    };
-  };
+  let cap = mat.getRowAmt();
+  cap._it(1, k => {
+    cap._it(1, j => {
+      cap._it(1, i => {
+        mat.set(i + 1, j + 1, (mat.matArr[j][i] * mat.matArr[k][k] - mat.matArr[j][k] * mat.matArr[k][i]) / (k === 0 ? 1.0 : mat.matArr[k - 1][k - 1]));
+      });
+    });
+  });
 
-  return mat.matArr[iCap - 1][iCap - 1];
+  return mat.matArr[cap - 1][cap - 1];
 };
 
 
@@ -525,10 +529,10 @@ ptp.det = function() {
  *
  * Returns minor of the matrix at (row, col).
  * ---------------------------------------- */
-ptp.minor = function(row, col) {
-  if(!this.isSquare()) return null;
+ptp.minor = function(colInd, rowInd) {
+  if(!this.isSquare()) ERROR_HANDLER.notSquareMat(this);
 
-  return this.subMat(row, col).det();
+  return this.submat(colInd, rowInd).det();
 };
 
 
@@ -537,10 +541,10 @@ ptp.minor = function(row, col) {
  *
  * Returns cofactor of the matrix at (row, col).
  * ---------------------------------------- */
-ptp.cofactor = function(row, col) {
-  if(!this.isSquare()) return null;
+ptp.cofactor = function(colInd, rowInd) {
+  if(!this.isSquare()) ERROR_HANDLER.notSquareMat(this);
 
-  return Math.pow(-1, row + col) * this.minor(row, col);
+  return Math.pow(-1, colInd + rowInd) * this.minor(colInd, rowInd);
 };
 
 
@@ -550,15 +554,14 @@ ptp.cofactor = function(row, col) {
  * Returns adjugate of the matrix.
  * ---------------------------------------- */
 ptp.adjugate = function() {
-  if(!this.isSquare()) return;
+  if(!this.isSquare()) ERROR_HANDLER.notSquareMat(this);
+  const mat = CLS_matrix.getEmptyMat_mat(this);
 
-  let iCap = this.getRowAmt();
-  const mat = CLS_matrix.getEmptyMat(iCap, iCap);
-  for(let i = 0; i < iCap; i++) {
-    for(let j = 0; j < iCap; j++) {
+  this.getRowAmt()._it(1, j => {
+    this.getColAmt()._it(1, i => {
       mat.set(i + 1, j + 1, this.cofactor(i + 1, j + 1));
-    };
-  };
+    });
+  });
 
   return mat.transpose();
 };
@@ -568,9 +571,10 @@ ptp.adjugate = function() {
  * NOTE:
  *
  * Returns inverse of the matrix by using adjugate.
+ * This method is nullable, as not every matrix has inverse.
  * ---------------------------------------- */
 ptp.inverse = function() {
-  if(!this.isSquare()) return null;
+  if(!this.isSquare()) ERROR_HANDLER.notSquareMat(this);
   let det = this.det();
   if(Math.abs(det) < 0.000001) return null;
 
@@ -584,13 +588,12 @@ ptp.inverse = function() {
  * Returns trace of the matrix.
  * ---------------------------------------- */
 ptp.trace = function() {
-  if(!this.isSquare()) return null;
+  if(!this.isSquare()) ERROR_HANDLER.notSquareMat(this);
 
   var sum = 0.0;
-  let iCap = this.getRowAmt();
-  for(let i = 0; i < iCap; i++) {
+  this.getRowAmt()._it(1, i => {
     sum += this.matArr[i][i];
-  };
+  });
 
   return sum;
 };
@@ -605,8 +608,8 @@ ptp.trace = function() {
  * Returns length of the vector.
  * ---------------------------------------- */
 ptp.len = function() {
+  if(!this.isVec()) ERROR_HANDLER.notVec(this);
   var val = 0.0;
-  if(!this.isVec()) return val;
 
   this.forEach(num => val += Math.pow(num, 2));
   val = Math.sqrt(val);
@@ -619,15 +622,16 @@ ptp.len = function() {
  * NOTE:
  *
  * Returns dot product of two vectors.
- * Result is always a MATRIX, not number!
- * Sometimes can be called on matrices...
  * ---------------------------------------- */
 ptp.dotMul = function(vec) {
-  if(!vec.isColVec()) return null;
-  let hvec = this.transpose();
-  if(!hvec.canMul(vec)) return null;
+  if(!this.isVec()) ERROR_HANDLER.notVec(this);
+  if(!vec.isVec()) ERROR_HANDLER.notVec(vec);
 
-  return hvec.mul(vec);
+  let vec_l = this.isRowVec() ? this : this.transpose();
+  let vec_r = vec.isColVec() ? vec : vec.transpose();
+  if(!vec_l.canMul(vec_r)) ERROR_HANDLER.matNotMultipliable();
+
+  return vec_l.mul(vec_r);
 };
 
 
@@ -637,15 +641,15 @@ ptp.dotMul = function(vec) {
  * Returns cross product of two vectors.
  * ---------------------------------------- */
 ptp.crossMul = function(vec) {
-  if(vec == null || !(vec instanceof CLS_matrix)) return null;
-  if(!this.isColVec() || !vec.isColVec()) return null;
-  if(this.dimension() !== 3 || vec.dimension() !== 3) return null;
+  let vec_l = this.isColVec() ? this : this.transpose();
+  let vec_r = vec.isColVec() ? vec : vec.transpose();
+  if(vec_l.dimension() !== 3 || vec_r.dimension() !== 3) ERROR_HANDLER.vecNot3d();
 
   return new CLS_matrix([
-    [0, -this[2][0], this[1][0]],
-    [this[2][0], 0, -this[0][0]],
-    [-this[1][0], this[0][0], 0],
-  ]).mul(vec);
+    [0, -vec_l[2][0], vec_l[1][0]],
+    [vec_l[2][0], 0, -vec_l[0][0]],
+    [-vec_l[1][0], vec_l[0][0], 0],
+  ]).mul(vec_r);
 };
 
 
@@ -655,15 +659,17 @@ ptp.crossMul = function(vec) {
 /* ----------------------------------------
  * NOTE:
  *
- * Converts the vector to an arc vector.
+ * Converts the vector to an Arc vector.
  * ---------------------------------------- */
-ptp.toArcVec = function(vec) {
-  if(!this.isColVec() && !this.isRowVec()) return null;
+ptp.toArcVec = function() {
+  if(!this.isVec()) ERROR_HANDLER.notVec(this);
 
-  const arr = this.toArray().flatten();
-  if(arr.length === 2) {return new Vec2(arr[0], arr[1])}
-  else if(arr.length === 3) {return new Vec3(arr[0], arr[1], arr[2])}
-  else return null;
+  let arr = this.toArray().flatten();
+  switch(arr.length) {
+    case 2 : return new Vec2(arr[0], arr[1]);
+    case 3 : return new Vec3(arr[0], arr[1], arr[2]);
+    default : ERROR_HANDLER.arcVecExc(this);
+  };
 };
 
 

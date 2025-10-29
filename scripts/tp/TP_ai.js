@@ -63,7 +63,7 @@
 
     });
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     regisAiSetter("missile-interceptor", this);
   });
   exports._missileInterceptor = _missileInterceptor;
@@ -100,7 +100,7 @@
 
     });
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     regisAiSetter("drone-miner", this);
   });
   exports._droneMiner = _droneMiner;

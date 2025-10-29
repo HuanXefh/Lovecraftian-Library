@@ -56,6 +56,9 @@
   function comp_init(blk) {
     blk.configurable = true;
 
+    // Picking this up will break something
+    blk.canPickup = false;
+
     blk.config(JAVA.BOOLEAN, (b, bool) => {
       if(b.team === Vars.player.team()) {
         Core.settings.put("lovec-draw0aux-scanner", bool);
@@ -76,9 +79,9 @@
 
 
   function comp_created(b) {
-    b.revealTgs = MDL_pos._tsCircle(b.tile, b.block.ex_getScanR(), b.block.size).filter(ot => MDL_cond._isScannerTarget(ot.overlay()));
+    b.revealedTgs.pushAll(b.block.ex_getRevealedTgs(b.tileX(), b.tileY(), b.rotation));
     Time.run(1.0, () => {
-      b.revealQueue = b.revealTgs.slice().pullAll(b.revealedInts.map(int => Vars.world.tile(int)));
+      b.revealQueue = b.revealedTgs.slice().pullAll(b.revealedInts.map(int => Vars.world.tile(int)));
       b.ex_setRevealed(true);
     });
     b.offConeAng = Mathf.range(180.0);
@@ -130,8 +133,13 @@
   };
 
 
+  function comp_ex_getRevealedTgs(blk, tx, ty, rot) {
+    return MDL_pos._tsCircle(Vars.world.tile(tx, ty), blk.scanR, blk.size).filter(ot => MDL_cond._isScannerTarget(ot.overlay()));
+  };
+
+
   function comp_ex_getScanFrac(b) {
-    return (b.revealQueue.length === 0 ? 1.0 : (b.revealedInts.length / b.revealTgs.length)) * b.efficiency;
+    return (b.revealQueue.length === 0 ? 1.0 : (b.revealedInts.length / b.revealedTgs.length)) * b.efficiency;
   };
 
 
@@ -229,6 +237,11 @@
     },
 
 
+    pickedUp: function(b) {
+      comp_pickedUp(b);
+    },
+
+
     craft: function(b) {
       comp_craft(b);
     },
@@ -266,6 +279,12 @@
     // @NOSUPER
     ex_getScanR: function(blk) {
       return blk.scanR;
+    },
+
+
+    // @NOSUPER
+    ex_getRevealedTgs: function(blk, tx, ty, rot) {
+      return comp_ex_getRevealedTgs(blk, tx, ty, rot);
     },
 
 
@@ -322,6 +341,9 @@
       },
       ex_getScanR() {
         return TEMPLATE.ex_getScanR(this);
+      },
+      ex_getRevealedTgs(tx, ty, rot) {
+        return TEMPLATE.ex_getRevealedTgs(this, tx, ty, rot);
       },
       // @SPEC
       craftEffect: tryVal(craftEff, Fx.none), updateEffect: tryVal(updateEff, Fx.none), updateEffectChance: tryVal(updateEffP, 0.02),

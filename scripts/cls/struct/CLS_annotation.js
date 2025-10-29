@@ -31,14 +31,30 @@ CLS_annotation.prototype.init = function(nm, funCaller, loadScr, funArgCaller) {
   insNms.push(nm);
   this.name = nm;
 
-  this.onCall = function(fun, annoArgs) {
-    return funCaller == null ? false : funCaller.apply(fun, annoArgs);
+  this.onCall = Function.airFalse;
+  if(funCaller != null) {
+    this.type = "on-call";
+    this.onCall = function(fun, annoArgs) {
+      return funCaller.apply(fun, annoArgs);
+    };
   };
-  this.onLoad = function(fun, annoLoadArgs) {
-    if(loadScr != null) loadScr.apply(fun, annoLoadArgs);
+  this.onLoad = Function.air;
+  if(loadScr != null) {
+    this.type = "on-load";
+    this.onLoad = function(fun, annoLoadArgs) {
+      loadScr.apply(fun, annoLoadArgs);
+    };
   };
-  this.onArgCall = function(funArgs, annoArgArgs) {
-    return funArgCaller == null ? false : funArgCaller.apply(funArgs, annoArgArgs);
+  this.onArgCall = Function.airFalse;
+  if(funArgCaller != null) {
+    this.type = "argument";
+    this.onArgCall = function(funArgs, annoArgArgs) {
+      return funArgCaller.apply(funArgs, annoArgArgs);
+    };
+  };
+  if(this.type == null) {
+    this.type = "undefined";
+    Log.warn("[LOVEC] Annotation [$1] has undefined type!".format(nm.color(Pal.accent)));
   };
 };
 

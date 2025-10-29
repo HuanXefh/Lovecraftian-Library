@@ -1316,8 +1316,6 @@
     let sta = MDL_content._ct(sta_gn, "sta");
     if(sta == null) return false;
 
-    var cond = tryFun(sta.ex_isStackSta, false, sta);
-
-    return cond;
+    return tryFun(sta.ex_isStackSta, sta, false);
   };
   exports._isStackSta = _isStackSta;

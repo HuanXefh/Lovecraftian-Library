@@ -199,7 +199,7 @@ ptp.finish_global = function() {
 
   MDL_net.sendPacket("both", "lovec-both-market-order-finish", payload, true, true);
 }
-.setAnno(ANNO.__INIT__, null, function() {
+.setAnno(ANNO.__INIT__, function() {
   MDL_net.__packetHandler("both", "lovec-both-market-order-finish", payload => {
     let args = unpackPayload(payload);
     let b = Vars.world.build(args[0]);

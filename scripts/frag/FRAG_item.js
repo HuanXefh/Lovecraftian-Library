@@ -63,14 +63,14 @@
 
     return offload(b, b_f, itm, amt, checkAccept);
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("client", "lovec-server-item-offload", payload => {
       let args = unpackPayload(payload);
 
       offload(Vars.world.build(args[0]), Vars.world.build(args[1]), Vars.content.item(args[2]), args[3], args[4]);
     });
   })
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.__SERVER__, null, false);
   exports.offload_server = offload_server;
 
 
@@ -415,14 +415,14 @@
 
     return true;
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("server", "lovec-client-destroy-loot", payload => {
       let arr = unpackPayload(payload);
       destroyLoot(Groups.unit.getById(arr[0]));
     });
   })
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.__CLIENT__, null, false)
+  .setAnno(ANNO.__NONCONSOLE__, null, false);
   exports.destroyLoot_client = destroyLoot_client;
 
 
@@ -574,14 +574,14 @@
 
     return true;
   }
-  .setAnno(ANNO.__INIT__, null, function() {
+  .setAnno(ANNO.__INIT__, function() {
     MDL_net.__packetHandler("server", "lovec-client-unit-take-loot", payload => {
       let arr = unpackPayload(payload);
       takeUnitLoot(Groups.unit.getById(arr[0]), Groups.unit.getById(arr[1]), arr[2]);
     });
   })
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.__CLIENT__, null, false)
+  .setAnno(ANNO.__NONCONSOLE__, null, false);
   exports.takeUnitLoot_client = takeUnitLoot_client;
 
 

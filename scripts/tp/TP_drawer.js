@@ -46,7 +46,7 @@
 
 
       draw(b) {
-        let ang_fi = Mathf.mod(tryFun(b.ex_getTProg, tryProp(b.totalProgress, b), b) * this.spd + this.ang, 90.0);
+        let ang_fi = Mathf.mod(tryFun(b.ex_getTProg, b, tryProp(b.totalProgress, b)) * this.spd + this.ang, 90.0);
         if(!this.shouldFade) {
           Draw.rect(this.rotReg, b.x + this.offX, b.y + this.offY, ang_fi);
         } else {

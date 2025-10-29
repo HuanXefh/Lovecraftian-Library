@@ -23,7 +23,7 @@
   const _bitHash = function(amt) {
     return String(amt + amt % 2 + amt % 3 + amt % 5 + amt % 7 + amt % 11).toHash() % 1000000.0;
   }
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.__NONCONSOLE__, null, 1145141919810);
   exports._bitHash = _bitHash;
 
 
@@ -49,7 +49,7 @@
 
     return amt;
   }
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.__NONCONSOLE__, null, 0.0);
   exports._bitAmt = _bitAmt;
 
 

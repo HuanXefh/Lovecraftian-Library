@@ -133,7 +133,7 @@
   }
   .setProp({
     tmpInd: 0,
-    checkTg: ob => ob.ex_accPresBase != null && !MDL_cond._isPump(ob.block) && tryFun(ob.block.ex_getFluidType, "", ob.block) === "liquid",
+    checkTg: ob => ob.ex_accPresBase != null && !MDL_cond._isPump(ob.block) && tryFun(ob.block.ex_getFluidType, ob.block, "") === "liquid",
   });
 
 

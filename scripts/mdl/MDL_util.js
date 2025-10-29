@@ -77,7 +77,7 @@
    * If errored, the version will be {undefined}.
    * ---------------------------------------- */
   const _latestVer = function(owner, repo, caller) {
-    MDL_net._h_obj("https://api.github.com/repos/" + owner + "/" + repo + "/releases/latest", obj => {
+    httpGet("https://api.github.com/repos/" + owner + "/" + repo + "/releases/latest", obj => {
       caller(obj.tag_name);
     });
   };

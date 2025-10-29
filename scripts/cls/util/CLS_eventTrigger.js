@@ -8,9 +8,6 @@
 /* <---------- import ----------> */
 
 
-const PARAM = require("lovec/glb/GLB_param");
-
-
 const MDL_event = require("lovec/mdl/MDL_event");
 
 
@@ -34,13 +31,13 @@ CLS_eventTrigger.prototype.init = function(nm, scr) {
 
   this.tmpMap = "";
   this.clearOnMapChange = false;
+  this.clearOnFire = false;
 
   MDL_event._c_onUpdate(() => {
-    if(this.tmpMap !== PARAM.mapCur) {
-      this.tmpMap = PARAM.mapCur;
-      if(this.clearOnMapChange) {
-        this.clearListener();
-      };
+    if(this.tmpMap !== global.lovecUtil.fun._mapCur()) {
+      this.tmpMap = global.lovecUtil.fun._mapCur();
+      if(this.clearOnMapChange) this.clearListener();
+      global.lovec.trigger.mapChange.fire(this.tmpMap);
     };
 
     if(this.updateScr != null) this.updateScr();
@@ -113,10 +110,22 @@ ptp.clearListener = function() {
 /* ----------------------------------------
  * NOTE:
  *
- * If {true}, the trigger will automatically clear its listeners when map is changed.
+ * If {true}, listeners will be cleared when map is changed.
  * ---------------------------------------- */
 ptp.setClearOnMapChange = function(bool) {
   this.clearOnMapChange = bool;
+
+  return this;
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * If {true}, listeners will be cleared when the trigger is fired.
+ * ---------------------------------------- */
+ptp.setClearOnFire = function(bool) {
+  this.clearOnFire = bool;
 
   return this;
 };
@@ -129,6 +138,8 @@ ptp.setClearOnMapChange = function(bool) {
  * ---------------------------------------- */
 ptp.fire = function() {
   this.idListenerArr.forEachRow(2, (id, listener) => listener.apply(null, arguments));
+
+  if(this.clearOnFire) this.clearListener();
 };
 
 

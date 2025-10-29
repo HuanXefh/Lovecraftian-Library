@@ -279,24 +279,15 @@
    * NOTE:
    *
    * Creates a ripple effect on liquid floors.
-   * Ignore {liqColor} for dynamic color selection.
    * ---------------------------------------- */
-  const showAt_ripple = function(x, y, rad, liqColor) {
+  const showAt_ripple = function(x, y, rad, color_gn) {
     const thisFun = showAt_ripple;
 
     if(Vars.state.isPaused()) return;
     if(rad == null) rad = 18.0;
+    if(color_gn == null) color_gn = Vars.world.tile(x, y);
 
-    if(liqColor == null) {
-      let t = Vars.world.tileWorld(x, y);
-      if(t != null) {
-        let liq = t.floor().liquidDrop;
-        if(liq != null) liqColor = liq.color;
-      };
-    };
-    if(liqColor == null) return;
-
-    showAt(x, y, thisFun.eff, rad, liqColor);
+    showAt(x, y, thisFun.eff, rad, MDL_color._color(color_gn));
   }
   .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
@@ -450,27 +441,36 @@
     const remains = extend(Decal, {
 
 
-      lifetime: isPermanent ? Number.n8 : PARAM.unitRemainsLifetime, offTime: Mathf.random(1200.0),
-      x: x, y: y, rotation: etp instanceof Block ? (Mathf.random(90.0) - 45.0) : Mathf.random(360.0), team: team,
-      color: Color.valueOf("606060"), tint: tint, a: a, z: z, off: Mathf.random(VAR.blk_remainsOffCap),
+      lifetime: isPermanent ? Number.n8 : PARAM.unitRemainsLifetime,
+      offTime: Mathf.random(1200.0),
+      x: x, y: y,
+      hitSize: MDL_entity._hitSize(etp),
+      rotation: etp instanceof Block ? (Mathf.random(90.0) - 45.0) : Mathf.random(360.0),
+      team: team,
+      color: Color.valueOf("606060"),
+      tint: tint,
+      a: a,
+      aSha: etp instanceof Block ? 0.3 : 0.5,
+      z: z,
+      off: Mathf.random(VAR.blk_remainsOffCap),
       region: etp instanceof Block ? MDL_texture._regBlk(etp) : Core.atlas.find(etp.name + "-full", etp.region),
-      cellRegion: etp instanceof Block ? null : Core.atlas.find(etp.name + "-cell-full", etp.cellRegion), softShadowRegion: etp instanceof Block ? null : etp.softShadowRegion,
+      cellRegion: etp instanceof Block ? null : Core.atlas.find(etp.name + "-cell-full", etp.cellRegion),
+      softShadowRegion: etp instanceof Block ? null : etp.softShadowRegion,
       shouldFloat: shouldFloat,
-      isHot: forceHot ? true : MDL_cond._isHot(e, t), shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
+      isHot: forceHot ? true : MDL_cond._isHot(e, t),
+      shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
 
 
       draw() {
         var x = this.x + (!this.shouldFloat ? 0.0 : Math.sin((Time.time + this.offTime) * 0.01) * 0.35 * Vars.tilesize);
         var y = this.y + (!this.shouldFloat ? 0.0 : Math.cos((Time.time + this.offTime) * 0.05 + 32.0) * 0.15 * Vars.tilesize);
-        if(this.shouldFloat && Mathf.chanceDelta(0.01)) showAt_ripple(x, y, MDL_entity._hitSize(etp) * 1.2);
+        if(this.shouldFloat && Mathf.chanceDelta(0.01)) showAt_ripple(x, y, this.hitSize * 1.2);
 
         Draw.z(this.z - 1.0);
-        Draw.color(Color.black, etp instanceof Block ? 0.3 : 0.5);
-        if(this.softShadowRegion == null) {
-          Draw.rect("square-shadow", x, y, MDL_entity._hitSize(etp) * 2.1, MDL_entity._hitSize(etp) * 2.1, this.rotation);
-        } else {
+        Draw.color(Color.black, this.aSha);
+        this.softShadowRegion == null ?
+          Draw.rect("square-shadow", x, y, this.hitSize * 2.1, this.hitSize * 2.1, this.rotation) :
           Draw.rect(this.softShadowRegion, x, y, this.region.width * 0.4, this.region.width * 0.4, this.rotation);
-        };
         if(etp instanceof Block) {
           Draw.draw(this.z, () => {
             // Use a shader to create incomplete debris
@@ -486,11 +486,11 @@
           });
         } else {
           Draw.z(this.z);
-          if(this.tint != null) {Draw.tint(this.color, this.tint, 0.5)} else {
-            if(!this.isHot) {Draw.color(this.color)} else {
+          this.tint != null ?
+            Draw.tint(this.color, this.tint, 0.5) :
+            !this.isHot ?
+              Draw.color(this.color) :
               Draw.color(Tmp.c1.set(Color.valueOf("ea8878")).lerp(this.color, Interp.pow2Out.apply(this.fin())), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
-            };
-          };
           Draw.rect(this.region, x, y, this.rotation);
           if(this.cellRegion != null) {
             Draw.color(Tmp.c2.set(this.color).mul(this.team.color), this.a - Mathf.curve(this.fin(), 0.98) * this.a);

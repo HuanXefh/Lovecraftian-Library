@@ -121,7 +121,7 @@
                   wp.noAttack ?
                     Color.white :
                     unit.team.color,
-              0.2,
+              0.15,
             );
             Fill.arc(mtX, mtY, wp.range(), wp.shootCone / 180.0, rot + mt.rotation + 90.0 - wp.shootCone);
             hasAnyMountShown = true;
@@ -149,6 +149,21 @@
           ids = DB_unit.db["param"]["reloadBarIds"]["off" + i].read(unit.type.name);
           if(ids != null) MDL_draw.drawUnit_reload(unit, ids, Pal.techBlue, 1.0, 0.0, i, null);
         });
+        MDL_draw.drawUnit_reload(unit, null, Pal.items, 1.0, 0.0, -1, MDL_entity._payFrac(unit, true));
+      };
+      if(unit.payloads != null) {
+        let pay = unit.payloads.size === 0 ? null : unit.payloads.peek();
+        if(pay != null && pay instanceof BuildPayload) {
+          let z = Draw.z();
+          let ot = Vars.world.tileWorld(unit.x - pay.block().offset, unit.y - pay.block().offset);
+          if(ot != null) {
+            Draw.z(VAR.lay_effHigh + 1.5);
+            Draw.color(Build.validPlace(pay.block(), unit.team, ot.x, ot.y, pay.build.rotation, false) ? Pal.items : Pal.remove, 0.5);
+            Fill.rect(ot.worldx() + pay.block().offset, ot.worldy() + pay.block().offset, pay.block().size * Vars.tilesize, pay.block().size * Vars.tilesize);
+            Draw.color();
+            Draw.z(z);
+          };
+        };
       };
     });
   };
@@ -185,7 +200,7 @@
     drawBaseBuildStats: b => {
       if(PARAM.drawUnitRange && b.block instanceof Turret && b.block.shootCone > 0.0 && b.block.shootCone < 179.99) {
         let z = Draw.z();
-        Draw.color(b.team.color, 0.2);
+        Draw.color(b.team.color, 0.15);
         Draw.z(VAR.lay_unitRange);
         Fill.arc(b.x, b.y, b.range() + b.block.shootY, b.block.shootCone / 180.0, b.rotation - b.block.shootCone);
         Draw.reset();
