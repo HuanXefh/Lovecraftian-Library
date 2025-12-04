@@ -18,9 +18,20 @@
   /* <---------- object ----------> */
 
 
-  Object.printKeys = function(obj) {
+  var cls = Object;
+
+
+  cls.printKeys = function(obj) {
     if(typeof obj !== "object" && typeof obj !== "function") return;
     Object.keys(obj).printEach();
+  };
+
+
+  cls.printObj = function(obj) {
+    if(typeof obj !== "object" && typeof obj !== "function") return;
+    Object._it(obj, (key, val) => {
+      print([key, val]);
+    });
   };
 
 
@@ -59,7 +70,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Simply {print} for each element.
+   * Multiline version of {print}.
    * ---------------------------------------- */
   ptp.printEach = function() {
     this.forEachFast(i => print(i));

@@ -14,13 +14,11 @@ const MDL_event = require("lovec/mdl/MDL_event");
 /* <---------- meta ----------> */
 
 
-const CLS_eventTrigger = function() {
-  this.init.apply(this, arguments);
-}.initClass();
+const CLS_eventTrigger = newClass().initClass();
 
 
 CLS_eventTrigger.prototype.init = function(nm, scr) {
-  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.noNm("event trigger");
+  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.notUniqueName("event trigger");
   insNms.push(nm);
   this.name = nm;
 
@@ -28,6 +26,7 @@ CLS_eventTrigger.prototype.init = function(nm, scr) {
 
   this.idListenerArr = [];
   this.listenerIds = [];
+  this.glbListeners = [];
 
   this.tmpMap = "";
   this.clearOnMapChange = false;
@@ -57,9 +56,6 @@ const insNms = [];
 var ptp = CLS_eventTrigger.prototype;
 
 
-/* util */
-
-
 /* ----------------------------------------
  * NOTE:
  *
@@ -82,12 +78,24 @@ ptp.addListener = function(listener, id) {
 /* ----------------------------------------
  * NOTE:
  *
- * Removes a listener from the trigger, which should be added with id given beforehead.
+ * Adds a global listener which cannot be removed.
+ * ---------------------------------------- */
+ptp.addGlobalListener = function(listener) {
+  this.glbListeners.push(listener);
+
+  return this;
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Removes a listener from the trigger, which should be added with id given beforehand.
  * ---------------------------------------- */
 ptp.removeListener = function(id) {
   if(id == null) return this;
 
-  this.idListenerArr.removeRow(id);
+  this.idListenerArr.removeFormatRow(id);
   this.listenerIds.remove(id);
 
   return this;
@@ -138,6 +146,7 @@ ptp.setClearOnFire = function(bool) {
  * ---------------------------------------- */
 ptp.fire = function() {
   this.idListenerArr.forEachRow(2, (id, listener) => listener.apply(null, arguments));
+  this.glbListeners.forEachFast(listener => listener.apply(null, arguments));
 
   if(this.clearOnFire) this.clearListener();
 };

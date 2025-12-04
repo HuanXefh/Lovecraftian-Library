@@ -18,13 +18,16 @@
   /* <---------- number ----------> */
 
 
-  Number.intMax = java.lang.Integer.MAX_VALUE;
-  Number.intMin = java.lang.Integer.MIN_VALUE;
-  Number.fMax = java.lang.Float.MAX_VALUE;
-  Number.fMin = java.lang.Float.MIN_VALUE;
-  Number.n4 = 9999.0;
-  Number.n6 = 999999.0;
-  Number.n8 = 99999999.0;
+  var cls = Number;
+
+
+  cls.intMax = java.lang.Integer.MAX_VALUE;
+  cls.intMin = java.lang.Integer.MIN_VALUE;
+  cls.fMax = java.lang.Float.MAX_VALUE;
+  cls.fMin = java.lang.Float.MIN_VALUE;
+  cls.n4 = 9999.0;
+  cls.n6 = 999999.0;
+  cls.n8 = 99999999.0;
 
 
   var ptp = Number.prototype;
@@ -52,7 +55,7 @@
     // No negative value
     if(iCap < 1) return NaN;
 
-    var val = 1.0;
+    let val = 1.0;
     let i = 1;
     while(i < iCap) {
       val *= i;
@@ -121,8 +124,7 @@
   ptp.sum = function(mapF) {
     var val = 0.0;
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     if(mapF == null) {
       while(i < iCap) {
         val += this[i];
@@ -147,8 +149,7 @@
   ptp.prod = function(mapF) {
     var val = 0.0;
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     if(mapF == null) {
       while(i < iCap) {
         val *= this[i];
@@ -193,7 +194,7 @@
    * ---------------------------------------- */
   ptp.operWith = function(arr, scr) {
     let iCap = this.iCap();
-    if(iCap !== arr.length) ERROR_HANDLER.arrLenMismatch(this, arr);
+    if(iCap !== arr.length) ERROR_HANDLER.arrayLengthMismatch(this, arr);
 
     let i = 0;
     while(i < iCap) {
@@ -228,8 +229,7 @@
     const arr = [];
 
     let tmp = 0.0;
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     while(i < iCap) {
       let val = scr(tmp, this[i]);
       arr.push(val);
@@ -259,9 +259,7 @@
    * [0, 5, 12, 18, 12].diff();    // Returns [5, 7, 6, -6]
    * [0, 5, 12, 16, 12].diff(2);    // Returns [2, -1, -12]
    * ---------------------------------------- */
-  ptp.diff = function(repeat) {
-    const thisFun = Array.prototype.diff;
-
+  ptp.diff = function thisFun(repeat) {
     if(repeat == null) repeat = 1;
 
     let arr0 = this;
@@ -277,8 +275,7 @@
     applyDiff: arr => {
       const arr0 = [];
 
-      let i = 0;
-      let iCap = arr.iCap() - 1;
+      let i = 0, iCap = arr.iCap() - 1;
       while(i < iCap) {
         arr0.push(arr[i + 1] - arr[i]);
         i++;
@@ -292,13 +289,16 @@
   /* <---------- math ----------> */
 
 
+  var cls = Math;
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * @ARGS: num1, num2, num3, ...
    * Mean value.
    * ---------------------------------------- */
-  Math.mean = function() {
+  cls.mean = function() {
     return Array.from(arguments).mean();
   };
 
@@ -309,8 +309,8 @@
    * @ARGS: pow, num1, num2, num3, ...
    * Power mean.
    * ---------------------------------------- */
-  Math.meanPow = function(pow) {
-    return Array.from(arguments).splice(0, 1).meanPow(pow);
+  cls.meanPow = function(pow) {
+    return Array.from(arguments).splice(1).meanPow(pow);
   };
 
 
@@ -319,7 +319,7 @@
    *
    * Returns P(cap, amt).
    * ---------------------------------------- */
-  Math.permutation = function(cap, amt) {
+  cls.permutation = function(cap, amt) {
     return cap.fac() / (cap - amt).fac();
   };
 
@@ -329,7 +329,7 @@
    *
    * Returns C(cap, amt).
    * ---------------------------------------- */
-  Math.combination = function(cap, amt) {
+  cls.combination = function(cap, amt) {
     return cap.fac() / ((cap - amt).fac() * amt.fac());
   };
 
@@ -339,7 +339,7 @@
    *
    * Greatest common divisor.
    * ---------------------------------------- */
-  Math.gcd = function(a, b) {
+  cls.gcd = function(a, b) {
     return b === 0 ? a : Math.gcd(b, a % b);
   };
 
@@ -349,6 +349,6 @@
    *
    * Lowest common multiplier.
    * ---------------------------------------- */
-  Math.lcm = function(a, b) {
+  cls.lcm = function(a, b) {
     return a * b / Math.gcd(a, b);
   };

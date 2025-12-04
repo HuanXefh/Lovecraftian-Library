@@ -18,7 +18,7 @@
   /* <---------- meta ----------> */
 
 
-  const sizeOffsetPons2 = [
+  const sizeOffsetPon2s = [
 
     [],
 
@@ -53,21 +53,10 @@
     ],
 
   ];
-  exports.sizeOffsetPons2 = sizeOffsetPons2;
+  exports.sizeOffsetPon2s = sizeOffsetPon2s;
 
 
   /* <---------- base ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Converts a coordinate float to tile integer.
-   * ---------------------------------------- */
-  const _tCoord = function(coord) {
-    return Math.round(coord / Vars.tilesize);
-  };
-  exports._tCoord = _tCoord;
 
 
   const _playerX = function() {
@@ -106,26 +95,30 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Diverted rotation.
+   * Gets relative rotation from {t_f} to {t_t}.
    * ---------------------------------------- */
-  const _rotDiv = function(rot, offRot, ord) {
-    if(offRot == null) offRot = 0;
-    if(ord == null) ord = 4;
+  const _rotTs = function(t_f, t_t) {
+    let
+      cond1 = t_t.x >= t_f.x,
+      cond2 = t_t.y >= t_f.y,
+      cond3 = Math.abs(t_t.x - t_f.x) >= Math.abs(t_t.y - t_f.y);
 
-    return Mathf.mod(rot + offRot, ord);
+    return cond1 ?
+      (cond3 ? 0 : (cond2 ? 1 : 3)) :
+      (cond3 ? 2 : (cond2 ? 1 : 3));
   };
-  exports._rotDiv = _rotDiv;
+  exports._rotTs = _rotTs;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Conjugated rotation, or the opposite side.
+   * A variant of {_rotTs} for buildings.
    * ---------------------------------------- */
-  const _rotConj = function(rot, ord) {
-    return _rotDiv(rot, ord * 0.5, ord);
+  const _rotBs = function(b_f, b_t) {
+    return _rotTs(b_f.tile, b_t.tile);
   };
-  exports._rotConj = _rotConj;
+  exports._rotBs = _rotBs;
 
 
   /* <---------- raycast ----------> */
@@ -141,7 +134,7 @@
    * Filter is given as {boolF}.
    * ---------------------------------------- */
   const _rayBool_base = function(x1, y1, x2, y2, boolF) {
-    return World.raycast(_tCoord(x1), _tCoord(y1), _tCoord(x2), _tCoord(y2), boolF);
+    return World.raycast(x1.toIntCoord(), y1.toIntCoord(), x2.toIntCoord(), y2.toIntCoord(), boolF);
   };
   exports._rayBool_base = _rayBool_base;
 
@@ -454,9 +447,8 @@
    * Gets the tiles on a specific edge, according to {rot}.
    * Imagine a large WallCrafter.
    * ---------------------------------------- */
-  const _tsRot = function(t, rot, size, useTmp) {
-    const thisFun = _tsRot;
-    const arr = useTmp ? thisFun.tmpTs.clear() : [];
+  const _tsRot = function(t, rot, size, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(t == null) return arr;
     if(rot == null) rot = 0;
@@ -518,10 +510,7 @@
     };
 
     return arr;
-  }
-  .setProp({
-    tmpTs: [],
-  });
+  };
   exports._tsRot = _tsRot;
 
 
@@ -530,9 +519,8 @@
    *
    * Gets all tiles on the edges, use {isInside} to get inner edges instead.
    * ---------------------------------------- */
-  const _tsEdge = function(t, size, isInside, useTmp) {
-    const thisFun = _tsEdge;
-    const arr = useTmp ? thisFun.tmpTs.clear() : [];
+  const _tsEdge = function(t, size, isInside, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(t == null) return arr;
     if(size == null) size = 1;
@@ -545,10 +533,7 @@
     };
 
     return arr;
-  }
-  .setProp({
-    tmpTs: [],
-  });
+  };
   exports._tsEdge = _tsEdge;
 
 
@@ -557,9 +542,8 @@
    *
    * Gets tiles in a rectangular range, which is a very common idea.
    * ---------------------------------------- */
-  const _tsRect = function(t, r, size, useTmp) {
-    const thisFun = _tsRect;
-    const arr = useTmp ? thisFun.tmpTs.clear() : [];
+  const _tsRect = function(t, r, size, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
@@ -582,10 +566,7 @@
     };
 
     return arr;
-  }
-  .setProp({
-    tmpTs: [],
-  });
+  };
   exports._tsRect = _tsRect;
 
 
@@ -594,8 +575,8 @@
    *
    * Gets tiles the block will occupy.
    * ---------------------------------------- */
-  const _tsBlock = function(blk, tx, ty, useTmp) {
-    return _tsRect(Vars.world.tile(tx, ty), 0, blk.size, useTmp);
+  const _tsBlock = function(blk, tx, ty, contArr) {
+    return _tsRect(Vars.world.tile(tx, ty), 0, blk.size, contArr);
   };
   exports._tsBlock = _tsBlock;
 
@@ -605,8 +586,8 @@
    *
    * Gets tiles the building occupies.
    * ---------------------------------------- */
-  const _tsBuild = function(b, useTmp) {
-    return _tsRect(b.tile, 0, b.block.size, useTmp);
+  const _tsBuild = function(b, contArr) {
+    return _tsRect(b.tile, 0, b.block.size, contArr);
   };
   exports._tsBuild = _tsBuild;
 
@@ -617,9 +598,8 @@
    * Like {_tsRect}, but rotation is included.
    * Image a UnitAssemblier.
    * ---------------------------------------- */
-  const _tsRectRot = function(t, r, rot, size, useTmp) {
-    const thisFun = _tsRectRot;
-    const arr = useTmp ? thisFun.tmpTs.clear() : [];
+  const _tsRectRot = function(t, r, rot, size, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
@@ -644,10 +624,7 @@
     let ot = t.nearby(px, py);
 
     return ot == null ? arr : _tsRect(ot, r, size, useTmp);
-  }
-  .setProp({
-    tmpTs: [],
-  });
+  };
   exports._tsRectRot = _tsRectRot;
 
 
@@ -656,16 +633,15 @@
    *
    * Gets tiles in a circular range, like what's done for a Mender.
    * ---------------------------------------- */
-  const _tsCircle = function(t, r, size, useTmp) {
-    const thisFun = _tsCircle;
-    const arr = useTmp ? thisFun.tmpTs.clear() : [];
+  const _tsCircle = function(t, r, size, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
     if(size == null) size = 1;
 
-    var w = Vars.world.width();
-    var h = Vars.world.height();
+    let w = Vars.world.width();
+    let h = Vars.world.height();
 
     if(size % 2 !== 0) {
       Geometry.circle(t.x, t.y, w, h, r, (tx, ty) => {
@@ -673,9 +649,9 @@
         if(ot != null) arr.push(ot);
       });
     } else {
-      var ot0;
+      let ot0;
       for(let i = 0; i < 4; i++) {
-        ot0 = t.nearby(sizeOffsetPons2[2][i]);
+        ot0 = t.nearby(sizeOffsetPon2s[2][i]);
         if(ot0 == null) continue;
         Geometry.circle(ot0.x, ot0.y, w, h, r, (tx, ty) => {
           let ot = Vars.world.tile(tx, ty);
@@ -685,10 +661,7 @@
     };
 
     return arr;
-  }
-  .setProp({
-    tmpTs: [],
-  });
+  };
   exports._tsCircle = _tsCircle;
 
 
@@ -697,26 +670,25 @@
    *
    * Gets tiles in a quilateral triangular range... weird.
    * ---------------------------------------- */
-  const _tsTri = function(t, rad, ang, useTmp) {
-    const thisFun = _tsTri;
-    const arr = useTmp ? thisFun.tmpTs.clear() : [];
+  const _tsTri = function(t, rad, ang, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(t == null) return arr;
     if(rad == null) rad = 0.0;
     if(ang == null) ang = 0.0;
 
-    let x = t.worldx();
-    let y = t.worldy();
-    let x1 = x + rad * Mathf.cosDeg(ang + 90.0);
-    let y1 = y + rad * Mathf.sinDeg(ang + 90.0);
-    let x2 = x + rad * Mathf.cosDeg(ang + 210.0);
-    let y2 = y + rad * Mathf.sinDeg(ang + 210.0);
-    let x3 = x + rad * Mathf.cosDeg(ang + 330.0);
-    let y3 = y + rad * Mathf.sinDeg(ang + 330.0);
-    let r = Math.ceil(Math.abs(Mathf.dst(x1, y1, x2, y2) * Mathf.sinDeg(120.0 - ang) * 0.5) / Vars.tilesize);
+    let
+      x = t.worldx(),
+      y = t.worldy(),
+      x1 = x + rad * Mathf.cosDeg(ang + 90.0),
+      y1 = y + rad * Mathf.sinDeg(ang + 90.0),
+      x2 = x + rad * Mathf.cosDeg(ang + 210.0),
+      y2 = y + rad * Mathf.sinDeg(ang + 210.0),
+      x3 = x + rad * Mathf.cosDeg(ang + 330.0),
+      y3 = y + rad * Mathf.sinDeg(ang + 330.0),
+      r = Math.ceil(Math.abs(Mathf.dst(x1, y1, x2, y2) * Mathf.sinDeg(120.0 - ang) * 0.5) / Vars.tilesize);
 
-    let iBase = -r;
-    let iCap = r + 1;
+    let iBase = -r, iCap = r + 1;
     for(let i = iBase; i < iCap; i++) {
       for(let j = iBase; j < iCap; j++) {
         let ot = t.nearby(i, j);
@@ -725,10 +697,7 @@
     };
 
     return arr;
-  }
-  .setProp({
-    tmpTs: [],
-  });
+  };
   exports._tsTri = _tsTri;
 
 
@@ -737,9 +706,8 @@
    *
    * Gets tiles with Manhattan distance less than or equal to {r}.
    * ---------------------------------------- */
-  const _tsDstManh = function(t, r, useTmp) {
-    const thisFun = _tsDstManh;
-    const arr = useTmp ? thisFun.tmpTs.clear() : [];
+  const _tsDstManh = function(t, r, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(t == null) return arr;
     if(r == null) r = 0;
@@ -757,11 +725,25 @@
     };
 
     return arr;
-  }
-  .setProp({
-    tmpTs: [],
-  });
+  };
   exports._tsDstManh = _tsDstManh;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets linked tiles of {t}.
+   * ---------------------------------------- */
+  const _tsLinked = function(t, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
+
+    if(t == null) return arr;
+
+    t.getLinkedTiles(ot => arr.push(ot));
+
+    return arr;
+  };
+  exports._tsLinked = _tsLinked;
 
 
   /* ----------------------------------------
@@ -835,22 +817,36 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Gets all buildings in a circular range.
+   * ---------------------------------------- */
+  const _bs = function(x, y, rad, caller, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
+
+    if(rad == null) rad = 0.0;
+    if(rad < 0.0001) return arr;
+
+    Vars.indexer.eachBlock(null, x, y, rad, ob => ob !== caller, ob => arr.push(ob));
+
+    return arr;
+  };
+  exports._bs = _bs;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Gets all buildings in {ts}, no duplicates.
    * ---------------------------------------- */
-  const _bs = function(ts, useTmp) {
-    const thisFun = _bs;
-    const arr = useTmp ? thisFun.tmpBs.clear() : [];
+  const _bsTs = function(ts, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     ts.forEachFast(ot => {
       if(ot.build != null && !arr.includes(ot.build)) arr.push(ot.build);
     });
 
     return arr;
-  }
-  .setProp({
-    tmpBs: [],
-  });
-  exports._bs = _bs;
+  };
+  exports._bsTs = _bsTs;
 
 
   /* ----------------------------------------
@@ -896,7 +892,7 @@
     if(amt == null) amt = 0;
     if(amt < 1) return null;
 
-    return _b_base(x, y, team, rad, b => MDL_cond._isCont(b.block) && b.acceptStack(itm, amt) >= amt);
+    return _b_base(x, y, team, rad, b => MDL_cond._isContainer(b.block) && b.acceptStack(itm, amt) >= amt);
   };
   exports._b_cont = _b_cont;
 
@@ -907,7 +903,7 @@
    * Gets an active ore scanner in range.
    * ---------------------------------------- */
   const _b_scan = function(x, y, team, rad) {
-    return _b_base(x, y, team, rad, b => MDL_cond._isOreScanner(b.block) && b.efficiency > 0.0 && Mathf.dst(x, y, b.x, b.y) < b.block.ex_getScanR() * Vars.tilesize);
+    return _b_base(x, y, team, rad, b => MDL_cond._isOreScanner(b.block) && b.efficiency > 0.0 && Mathf.dst(x, y, b.x, b.y) < b.block.ex_getBlkRad());
   };
   exports._b_scan = _b_scan;
 
@@ -920,9 +916,12 @@
    *
    * Gets a random non-loot unit near (x, y), return {null} if not found.
    * ---------------------------------------- */
-  const _unit = function(x, y, rad, caller) {
-    return _units(x, y, rad, caller, true).readRand();
-  };
+  const _unit = function thisFun(x, y, rad, caller) {
+    return _units(x, y, rad, caller, thisFun.tmpUnits).readRand();
+  }
+  .setProp({
+    tmpUnits: [],
+  });
   exports._unit = _unit;
 
 
@@ -932,22 +931,18 @@
    * Gets all units in a circular range.
    * This will filter out loot units.
    * ---------------------------------------- */
-  const _units = function(x, y, rad, caller, useTmp) {
-    const thisFun = _units;
-    const arr = useTmp ? thisFun.tmpUnits.clear() : [];
+  const _units = function(x, y, rad, caller, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return arr;
 
     Units.nearby(null, x, y, rad, unit => {
-      if(unit !== caller && !MDL_cond._isLoot(unit)) arr.push(unit);
+      if(unit !== caller && !MDL_cond._isIrregularUnit(unit)) arr.push(unit);
     });
 
     return arr;
-  }
-  .setProp({
-    tmpUnits: [],
-  });
+  };
   exports._units = _units;
 
 
@@ -960,14 +955,53 @@
   const _it_units = function(x, y, rad, team, boolF, scr) {
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return;
-    if(team == null) team = null;
+    if(team == null) team = null;                // {undefined} will cause an error here
     if(boolF == null) boolF = Function.airTrue;
 
     Units.nearby(team, x, y, rad, unit => {
-      if(!MDL_cond._isLoot(unit) && boolF(unit)) scr(unit);
+      if(!MDL_cond._isIrregularUnit(unit) && boolF(unit)) scr(unit);
     });
   };
   exports._it_units = _it_units;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {_units} for rectangular range.
+   * ---------------------------------------- */
+  const _unitsRect = function(x, y, r, size, caller, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
+
+    if(r == null) r = 0;
+    if(size == null) size = 1;
+    let hw = (r + size * 0.5) * Vars.tilesize;
+
+    Groups.unit.intersect(x - hw, y - hw, hw * 2.0, hw * 2.0, unit => {
+      if(unit !== caller && !MDL_cond._isIrregularUnit(unit)) arr.push(unit);
+    });
+
+    return arr;
+  };
+  exports._unitsRect = _unitsRect;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {_it_units} for rectangular range.
+   * ---------------------------------------- */
+  const _it_unitsRect = function(x, y, r, size, team, boolF, scr) {
+    if(r == null) r = 0;
+    if(size == null) size = 1;
+    if(boolF == null) boolF = Function.airTrue;
+    let hw = (r + size * 0.5) * Vars.tilesize;
+
+    Groups.unit.intersect(x - hw, y - hw, hw * 2.0, hw * 2.0, unit => {
+      if(!MDL_cond._isIrregularUnit(unit) && (team == null ? true : unit.team === team) && boolF(unit)) scr(unit);
+    });
+  };
+  exports._it_unitsRect = _it_unitsRect;
 
 
   /* ----------------------------------------
@@ -1025,9 +1059,12 @@
    *
    * Gets a random loot unit near (x, y), return {null} if not found.
    * ---------------------------------------- */
-  const _loot = function(x, y, rad, caller) {
-    return _loots(x, y, rad, caller, true).readRand();
-  };
+  const _loot = function thisFun(x, y, rad, caller) {
+    return _loots(x, y, rad, caller, thisFun.tmpLoots).readRand();
+  }
+  .setProp({
+    tmpLoots: [],
+  });
   exports._loot = _loot;
 
 
@@ -1036,9 +1073,8 @@
    *
    * {_units} but for loot unit.
    * ---------------------------------------- */
-  const _loots = function(x, y, rad, caller, useTmp) {
-    const thisFun = _loots;
-    const arr = useTmp ? thisFun.tmpUnits.clear() : [];
+  const _loots = function(x, y, rad, caller, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return arr;
@@ -1048,10 +1084,7 @@
     });
 
     return arr;
-  }
-  .setProp({
-    tmpUnits: [],
-  });
+  };
   exports._loots = _loots;
 
 
@@ -1060,9 +1093,12 @@
    *
    * Gets a random loot unit in {ts}.
    * ---------------------------------------- */
-  const _lootTs = function(ts, caller) {
-    return _lootsTs(ts, caller, true).readRand();
-  };
+  const _lootTs = function thisFun(ts, caller) {
+    return _lootsTs(ts, caller, thisFun.tmpLoots).readRand();
+  }
+  .setProp({
+    tmpLoots: [],
+  });
   exports._lootTs = _lootTs;
 
 
@@ -1071,14 +1107,13 @@
    *
    * A variant of {_loots} that uses {ts} instead.
    * ---------------------------------------- */
-  const _lootsTs = function(ts, caller, useTmp) {
-    const thisFun = _lootsTs;
-    const arr = useTmp ? thisFun.tmpUnits.clear() : [];
+  const _lootsTs = function thisFun(ts, caller, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(ts == null) return arr;
 
     ts.forEachFast(ot => {
-      _loots(ot.worldx(), ot.worldy(), 6.0, caller, useTmp).forEachFast(loot => arr.pushUnique(loot));
+      _loots(ot.worldx(), ot.worldy(), 6.0, caller, thisFun.tmpUnits).forEachFast(loot => arr.pushUnique(loot));
     });
 
     return arr;
@@ -1115,22 +1150,21 @@
    *
    * Gets all units and buildings that are valid targets.
    * ---------------------------------------- */
-  const _es_tg = function(x, y, team, rad, size, useTmp) {
-    const thisFun = _es_tg;
-    const arr = useTmp ? thisFun.tmpEs.clear() : [];
+  const _es_tg = function thisFun(x, y, team, rad, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(team == null) return arr;
     if(rad == null) rad = Number.n8;
     if(rad < 0.0001) return arr;
-    if(size == null) size = 1;
 
-    arr.pushAll(_f_enemy(_units(x, y, rad, null, useTmp), team));
-    arr.pushAll(_f_enemy(_bs(_tsCircle(_tPos(x, y), rad / Vars.tilesize, size, useTmp), useTmp), team));
+    arr.pushAll(_f_enemy(_units(x, y, rad, null, thisFun.tmpUnits), team));
+    arr.pushAll(_f_enemy(_bs(x, y, rad, null, thisFun.tmpBs), team));
 
     return arr;
   }
   .setProp({
-    tmpEs: [],
+    tmpBs: [],
+    tmpUnits: [],
   });
   exports._es_tg = _es_tg;
 
@@ -1142,19 +1176,17 @@
    * {chainRayBool} is a raycast boolean function used to determine whether the chain is blocked.
    * By default you may want {_rayBool_insulated} which is used for lightnings.
    * ---------------------------------------- */
-  const _es_tgChain = function(x, y, team, rad, rad_chain, size, chainCap, chainRayBool, useTmp) {
-    const thisFun = _es_tgChain;
-    const arr = useTmp ? thisFun.tmpEs.clear() : [];
+  const _es_tgChain = function thisFun(x, y, team, rad, rad_chain, chainCap, chainRayBool, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(team == null) return arr;
     if(rad == null) rad = Number.n8;
     if(rad < 0.0001) return arr;
     if(rad_chain == null) rad_chain = 0.0;
-    if(size == null) size = 1;
     if(chainCap == null) chainCap = -1;
     if(chainRayBool == null) chainRayBool = Function.airFalse;
 
-    let es = _es_tg(x, y, team, rad * 2.0, size, useTmp);
+    let es = _es_tg(x, y, team, rad * 2.0, thisFun.tmpEs);
     let tmpTg;
     let tmpX = x;
     let tmpY = y;
@@ -1191,24 +1223,20 @@
    *
    * Gets all bullets in a circular range.
    * ---------------------------------------- */
-  const _buls = function(x, y, rad, caller, useTmp) {
-    const thisFun = _buls;
-    const arr = useTmp ? thisFun.tmpBuls.clear() : [];
+  const _buls = function thisFun(x, y, rad, caller, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
 
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return arr;
 
     Groups.bullet
     .intersect(x - rad, y - rad, rad * 2.0, rad * 2.0)
-    .each(bul => {
-      if(bul !== caller) arr.push(bul);
-    });
-
+    .each(
+      bul => bul != caller && bul.within(x, y, rad + bul.hitSize * 0.5),
+      bul => arr.push(bul),
+    );
     return arr;
-  }
-  .setProp({
-    tmpBuls: [],
-  });
+  };
   exports._buls = _buls;
 
 
@@ -1224,8 +1252,10 @@
 
     Groups.bullet
     .intersect(x - rad, y - rad, rad * 2.0, rad * 2.0)
-    .select(bul => bul.team !== Team.derelict && (team == null ? true : bul.team !== team) && boolF(bul))
-    .each(bul => scr(bul));
+    .each(
+      bul => bul.team !== Team.derelict && (team == null ? true : bul.team !== team) && bul.within(x, y, rad + bul.hitSize * 0.5) && boolF(bul),
+      bul => scr(bul),
+    );
   };
   exports._it_buls = _it_buls;
 
@@ -1242,16 +1272,16 @@
 
     let tmpDst = Number.n8;
     let bulTg = null, dst;
-    Groups.bullet
-    .intersect(x - rad, y - rad, rad * 2.0, rad * 2.0)
-    .select(bul => bul.team !== Team.derelict && bul.team !== team && (ignoreHittable ? true : bul.type.hittable) && bul !== caller)
-    .each(bul => {
-      dst = Mathf.dst(x, y, bul.x, bul.y);
-      if(dst < tmpDst) {
+    _it_buls(
+      x, y, rad, team,
+      bul => bul !== caller && (ignoreHittable ? true : bul.type.hittable),
+      bul => {
+        dst = Mathf.dst(x, y, bul.x, bul.y);
+        if(dst >= tmpDst) return;
         tmpDst = dst;
         bulTg = bul;
-      };
-    });
+      },
+    );
 
     return bulTg;
   };

@@ -5,7 +5,11 @@
 */
 
 
-  // Loads global scripts before everything
+  // Enable console
+  Core.settings.put("console", true);
+
+
+  // Load global scripts before everything
   (function() {
     let findGlbScr = mod => {
       let dir = mod.root.child("scripts");
@@ -35,17 +39,17 @@
   /* <---------- import ----------> */
 
 
-  // NOTE: Keep these at top!
+  // NOTE: Keep these at top! The order matters!
   const RUN_methodExt = require("lovec/run/RUN_methodExt");
   const CLS_annotation = require("lovec/cls/struct/CLS_annotation");
   const RUN_methodPostExt = require("lovec/run/RUN_methodPostExt");
   const RUN_globalInternal = require("lovec/run/RUN_globalInternal");
-  const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
   const PARAM = require("lovec/glb/GLB_param");
   const SAVE = require("lovec/glb/GLB_save");
+  const VAR = require("lovec/glb/GLB_var");
 
 
   const RUN_event = require("lovec/run/RUN_event");
@@ -71,7 +75,11 @@
 
 
   const TP_ability = require("lovec/tp/TP_ability");
+  const TP_ai = require("lovec/tp/TP_ai");
+  const TP_cons = require("lovec/tp/TP_cons");
   const TP_dial = require("lovec/tp/TP_dial");
+  const TP_drawer = require("lovec/tp/TP_drawer");
+  const TP_keyBind = require("lovec/tp/TP_keyBind");
   const TP_stat = require("lovec/tp/TP_stat");
 
 
@@ -95,7 +103,11 @@
 */
 
 
+
+
   MDL_util.localizeModMeta("lovec");
+
+
 
 
   MDL_event._c_onInit(() => {
@@ -109,13 +121,13 @@
     DB_misc.db["block"]["migration"].forEachRow(2, (nm_f, nm_t) => SaveVersion.fallback.put(nm_f, nm_t));
 
 
-    // Set up ore dictionary
+    // Set up ore dictionary, EXPERIMENTAL!
     if(PARAM.modded && MDL_util._cfg("load-ore-dict")) (function() {
       Log.info("[LOVEC] " + "Ore dictionary".color(Pal.accent) + " is enabled.");
       if(!MDL_util._cfg("load-ore-dict-def")) Log.info("[LOVEC] Skipped default lists for ore dictionary.");
 
       let dir = MDL_file.sharedData.child("ore-dict").child("default");
-      let verCur = MDL_util._loadedMod("lovec").meta.version;
+      let verCur = fetchMod("lovec").meta.version;
       let oreDict = global.lovecUtil.db.oreDict;
       // Create default files
       if(!dir.exists() || dir.list().length === 0 || (function() {
@@ -127,19 +139,19 @@
       })()) {
         DB_misc.db["recipe"]["oreDictDef"].forEachRow(2, (nmRs, arr) => {
           let fi = dir.child(nmRs + ".csv");
-          MDL_file.__csv(fi, arr, 1);
+          MDL_file._w_csv(fi, arr, 1);
         });
         MDL_json.write(dir.child("meta.json"), {
           version: verCur,
         });
-        MDL_file.__txt(dir.child("README.txt"), "Do not put files here, which may get overwritten!\nCustomized lists should be in ./saves/mods/data/sharedData/ore-dict!");
+        MDL_file._w_txt(dir.child("README.txt"), "Do not put files here, which may get overwritten!\nCustomized lists should be in ./saves/mods/data/sharedData/ore-dict!");
       };
 
       let fiSeq = dir.parent().findAll(fi => fi.extension() === "csv" && (MDL_util._cfg("load-ore-dict-def") ? true : fi.parent() !== dir));
       fiSeq.each(fi => {
         let ct = Vars.content.byName(fi.nameWithoutExtension());
         if(ct == null) return;
-        let arr = MDL_file._csv(fi);
+        let arr = MDL_file._r_csv(fi);
         arr.forEachFast(nmRs => {
           let rs = Vars.content.byName(nmRs);
           if(rs == null) return;
@@ -184,8 +196,7 @@
         blk.consumers.forEachFast(cons => {
           let arr = DB_misc.db["recipe"]["oreDictConsSetter"];
           let dictCaller = null;
-          let i = 0;
-          let iCap = arr.iCap();
+          let i = 0, iCap = arr.iCap();
           while(i < iCap) {
             let cls = arr[i];
             if(cons instanceof cls) {
@@ -202,8 +213,7 @@
         (function() {
           let arr = DB_misc.db["recipe"]["oreDictProdSetter"];
           let dictCaller = null;
-          let i = 0;
-          let iCap = arr.iCap();
+          let i = 0, iCap = arr.iCap();
           while(i < iCap) {
             let cls = arr[i];
             if(blk instanceof cls) {
@@ -220,30 +230,53 @@
   }, 42110360);
 
 
+
+
   MDL_event._c_onLoad(() => {
 
 
     // Something
-    if(PARAM.modded && !MDL_util._cfg("load-vanilla-flyer")) {
+    if(!Vars.headless && PARAM.modded && !MDL_util._cfg("load-vanilla-flyer")) {
       Reflect.set(MenuRenderer, Reflect.get(Vars.ui.menufrag, "renderer"), "flyerType", Vars.content.unit(DB_misc.db["mod"]["menuFlyer"].readRand()));
     };
 
 
     // Load extra sounds
-    DB_misc.db["mod"]["extraSound"].forEachFast(seStr => Vars.tree.loadSound(seStr));
-    Time.run(3.0, () => {
-      if(PARAM.secret_fireInTheHole) {
-        let pitchBase;
-        let fireInTheHole = wp => {
-          wp.shootSound = Vars.tree.loadSound("se-meme-fith");
-          pitchBase = Mathf.lerp(1.8, 0.5, Interp.pow2Out.apply(Mathf.clamp(wp.reload / 100.0)));
-          wp.soundPitchMin = pitchBase - 0.1;
-          wp.soundPitchMax = pitchBase + 0.1;
+    if(!Vars.headless) {
+      DB_misc.db["mod"]["extraSound"].forEachFast(seStr => Vars.tree.loadSound(seStr));
+      Time.run(3.0, () => {
+        if(PARAM.secret_fireInTheHole) {
+          let pitchBase;
+          let fireInTheHole = wp => {
+            wp.shootSound = fetchSound("se-meme-fith");
+            pitchBase = Mathf.lerp(1.8, 0.5, Interp.pow2Out.apply(Mathf.clamp(wp.reload / 100.0)));
+            wp.soundPitchMin = pitchBase - 0.1;
+            wp.soundPitchMax = pitchBase + 0.1;
+          };
+          Vars.content.units().each(utp => {
+            utp.deathSound = fetchSound("se-meme-fith");
+            utp.weapons.each(wp => !wp.noAttack, wp => fireInTheHole(wp));
+          });
+          Vars.content.blocks().each(blk => {
+            blk.destroySound = fetchSound("se-meme-fith");
+            if(blk instanceof Turret) {
+              fireInTheHole(blk);
+            };
+          });
         };
-        Vars.content.units().each(utp => utp.weapons.each(wp => !wp.noAttack, wp => fireInTheHole(wp)));
-        Vars.content.blocks().each(blk => blk instanceof Turret, blk => fireInTheHole(blk));
-      };
-    });
+        Core.settings.put("lovec-misc-fire-in-the-hole", PARAM.secret_fireInTheHole);
+      });
+    };
+
+
+    // Load sector icons
+    if(!Vars.headless) {
+      Vars.content.sectors().each(sec => {
+        let reg = Core.atlas.find(sec.name + "-full", Core.atlas.find(sec.name + "-icon", Core.atlas.find(sec.name)));
+        if(!reg.found()) return;
+        sec.uiIcon = sec.fullIcon = reg;
+      });
+    };
 
 
     // Set up name colors
@@ -266,7 +299,7 @@
     VARGEN.rss.forEachFast(rs => {
       rs.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
         tb.row();
-        MDL_table.__btnSmallBase(tb, "?", () => TP_dial.rcDict.ex_show(rs.localizedName, rs)).left().padLeft(28.0).row();
+        MDL_table.__btnSmall(tb, "?", () => fetchDial("rcDict").ex_show(rs.localizedName, rs)).left().padLeft(28.0).row();
       }));
     });
 
@@ -312,25 +345,6 @@
       Vars.content.blocks().each(blk => setFaction(blk));
       Vars.content.units().each(utp => setFaction(utp));
     })();
-
-
-    // Set up abilities/ai controllers
-    DB_unit.db["map"]["ability"].forEachRow(3, (nmUtp, nmAbi, args) => {
-      let utp = MDL_content._ct(nmUtp, "utp");
-      if(utp == null) return;
-      let abiSetter = global.lovecUtil.db.abilitySetter.read(nmAbi);
-      if(abiSetter == null) return;
-
-      utp.abilities.add(abiSetter.apply(null, args));
-    });
-    DB_unit.db["map"]["ai"].forEachRow(3, (nmUtp, nmAi, args) => {
-      let utp = MDL_content._ct(nmUtp, "utp");
-      if(utp == null) return;
-      let aiSetter = global.lovecUtil.db.aiSetter.read(nmAi);
-      if(aiSetter == null) return;
-
-      utp.controller = aiSetter.apply(null, args);
-    });
 
 
     // Set up planet rules
@@ -410,18 +424,37 @@
     })();
 
 
-    new CLS_dragButton().add();
+    // Add draggable button to the scene
+    if(!Vars.headless) {
+      new CLS_dragButton().add();
+    };
 
 
-    if(!PARAM.modded && MDL_util._loadedMod("projreind") != null) {
+    // Screw it
+    if(!PARAM.modded && fetchMod("projreind") != null) {
       throw new Error("PARAM.modded is broken again, WTF D:");
     };
 
 
-    // In case that I forget to remove the outdated zip file
+    // In case that I forget to remove the outdated zip file during test
     if(MDL_file._root("lovec").parent().parent() == null) {
       Log.info("[LOVEC] Lovec is loaded from a " + "zip file".color(Pal.remove) + ".");
     };
 
 
   }, 12563333);
+
+
+
+
+  MDL_event._c_onWorldLoad(() => {
+
+
+    Time.run(240.0, () => {
+      if(Core.settings.getBool("lovec-misc-secret-code-crashed", false)) {
+        global.lovec.trigger.secretCodeCrash.fire();
+      };
+    });
+
+
+  }, 20119980);

@@ -11,18 +11,15 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const FRAG_faci = require("lovec/frag/FRAG_faci");
-
-
   const MDL_attr = require("lovec/mdl/MDL_attr");
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_fuel = require("lovec/mdl/MDL_fuel");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
   const MDL_table = require("lovec/mdl/MDL_table");
   const MDL_text = require("lovec/mdl/MDL_text");
-  const MDL_util = require("lovec/mdl/MDL_util");
 
 
   const TP_stat = require("lovec/tp/TP_stat");
@@ -31,12 +28,8 @@
   /* <---------- base ----------> */
 
 
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether TMI is enabled.
-   * ---------------------------------------- */
-  const hasTmi = MDL_util._loadedMod("tmi") != null;
+  const ENABLED = fetchMod("tmi") != null;
+  exports.ENABLED = ENABLED;
 
 
   /* ----------------------------------------
@@ -232,7 +225,7 @@
    * Register recipes for the dynamic attribute factory (or miner).
    * ---------------------------------------- */
   const _r_dynaAttr = function(blk, attrRsMap, tpStr_ow) {
-    if(!hasTmi) return;
+    if(!ENABLED) return;
 
     MDL_event._c_onLoad(() => {
       attrRsMap.forEachRow(2, (nmAttr, nmRs) => {
@@ -245,7 +238,7 @@
         MDL_attr._blkAttrMap(nmAttr).forEachRow(3, (oblk, attrVal, nmAttr) => {
           addAttr(rawRc, oblk, attrVal, blk.size, true);
         });
-        addProd(rawRc, rs, blk.ex_getProdAmt(), rs instanceof Liquid);
+        addProd(rawRc, rs, blk.ex_getDynaAttrProdAmt(rs), rs instanceof Liquid);
 
         rawRc.complete();
         regisRc(rawRc);
@@ -261,7 +254,7 @@
    * Register pressure/vacuum output for the pressure pump.
    * ---------------------------------------- */
   const _r_presPump = function(blk, prodAmt, isVac) {
-    if(!hasTmi) return;
+    if(!ENABLED) return;
     if(prodAmt < 0.0001) return;
 
     MDL_event._c_onLoad(() => {
@@ -313,10 +306,8 @@
    *
    * Register recipes for the recipe factory.
    * ---------------------------------------- */
-  const _r_recipe = function(blk, rcMdl) {
-    const thisFun = _r_recipe;
-
-    if(!hasTmi) return;
+  const _r_recipe = function thisFun(blk, rcMdl) {
+    if(!ENABLED) return;
 
     if(thisFun.tmpSeq.size === 0) {
       Vars.content.items().each(itm => thisFun.tmpSeq.add(itm));
@@ -402,7 +393,7 @@
         if(MDL_cond._isFurnace(blk)) {
           let tempReq = MDL_recipe._tempReq(rcMdl, rcHeader);
           let tempAllowed = MDL_recipe._tempAllowed(rcMdl, rcHeader);
-          let fuelArr = FRAG_faci._fuelArr(blk);
+          let fuelArr = MDL_fuel._fuelArr(blk);
 
           if(tempReq > 0.0) addSubInfo(rawRc, MDL_text._statText(MDL_bundle._term("lovec", "temperature-required"), Strings.fixed(tempReq, 2), TP_stat.rs_heatUnits.localized()));
           if(isFinite(tempAllowed)) addSubInfo(rawRc, MDL_text._statText(MDL_bundle._term("lovec", "temperature-allowed"), Strings.fixed(tempAllowed, 2), TP_stat.rs_heatUnits.localized()));

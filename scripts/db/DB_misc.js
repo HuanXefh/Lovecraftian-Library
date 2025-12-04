@@ -1,5 +1,5 @@
 // NOTE: Be careful with any module here to avoid looped reference! Better use {global}.
-const LIB_pinyin = require("lovec/lib/pinyin");
+const LIB_pinyin = require("lovec/lib/LIB_pinyin");
 const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_cond = require("lovec/mdl/MDL_cond");
 const DB_item = require("lovec/db/DB_item");
@@ -9,7 +9,10 @@ const DB_fluid = require("lovec/db/DB_fluid");
 const db = {
 
 
-  "block": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  block: {
 
 
     /* ----------------------------------------
@@ -18,7 +21,7 @@ const db = {
      * Maps a block name before change to the changed name.
      * Used when internal name of some block is changed.
      * ---------------------------------------- */
-    "migration": [],
+    migration: [],
 
 
     /* ----------------------------------------
@@ -29,7 +32,7 @@ const db = {
      * Tile won't be {null} here. It's safe to return {undefined} or {null}.
      * Format: {(t, b) => str}.
      * ---------------------------------------- */
-    "extraInfo": [
+    extraInfo: [
 
       // Ore item info
       (t, b) => {
@@ -67,21 +70,26 @@ const db = {
     ],
 
 
-    "nodeLinkFilter": [
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Filters for {BLK_wireNode}.
+     * ---------------------------------------- */
+    nodeLinkFilter: [
 
       "any", (b, b_t) => true,
 
-      "cons", (b, b_t) => MDL_cond._isPowTrans(b.block) && !MDL_cond._isPowTrans(b_t.block),
+      "cons", (b, b_t) => MDL_cond._isPowerTransmitter(b.block) && !MDL_cond._isPowerTransmitter(b_t.block),
 
-      "trans", (b, b_t) => MDL_cond._isPowTrans(b.block) && MDL_cond._isPowTrans(b_t.block),
+      "trans", (b, b_t) => MDL_cond._isPowerTransmitter(b.block) && MDL_cond._isPowerTransmitter(b_t.block),
 
       "self", (b, b_t) => b.block === b_t.block,
 
-      "node", (b, b_t) => MDL_cond._isPowNode(b.block) && MDL_cond._isPowNode(b_t.block),
+      "node", (b, b_t) => MDL_cond._isPowerNode(b.block) && MDL_cond._isPowerNode(b_t.block),
 
-      "relay", (b, b_t) => MDL_cond._isPowRelay(b_t.block),
+      "relay", (b, b_t) => MDL_cond._isPowerRelay(b_t.block),
 
-      "remote-node", (b, b_t) => MDL_cond._isPowRelay(b_t.block) || b.block === b_t.block,
+      "remote-node", (b, b_t) => MDL_cond._isPowerRelay(b_t.block) || b.block === b_t.block,
 
     ],
 
@@ -89,7 +97,10 @@ const db = {
   },
 
 
-  "mod": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  mod: {
 
 
     /* ----------------------------------------
@@ -100,7 +111,7 @@ const db = {
      * {PARAM.modded} will be {true} if any of these exists, which enables extra mechanics.
      * You don't need put your mod name here, just use write {dependencies} or {softDependencies} in your mod.json.
      * ---------------------------------------- */
-    "lovecMod": [],
+    lovecMod: [],
 
 
     /* ----------------------------------------
@@ -108,7 +119,7 @@ const db = {
      *
      * Overwrites the vanilla list of menu flyers.
      * ---------------------------------------- */
-    "menuFlyer": [
+    menuFlyer: [
 
       "crawler",
       "oct",
@@ -120,31 +131,11 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Sounds listed here will be loaded beforehead, or it takes time to be loaded in game.
+     * Sounds listed here will be loaded beforehand, or it takes time to be loaded in game.
      * ---------------------------------------- */
-    "extraSound": [
-
-      "se-craft-ore-scanner",
+    extraSound: [
 
       "se-meme-steel-pipe",
-
-    ],
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Used to generate new key bindings.
-     * Format: {nm, keyCodeDef, categ}.
-     * ---------------------------------------- */
-    "keyBind": [
-
-      "lovec-setting-toggle-win", KeyCode.semicolon, "lovec",
-      "lovec-setting-toggle-unit-stat", KeyCode.unset, "lovec",
-      "lovec-setting-toggle-damage-display", KeyCode.unset, "lovec",
-
-      "lovec-player-drop-loot", KeyCode.l, "lovec",
-      "lovec-player-take-loot", KeyCode.k, "lovec",
 
     ],
 
@@ -157,24 +148,54 @@ const db = {
      *
      * {this} in {updateScr} is the button.
      * ---------------------------------------- */
-    "dragButton": {
+    dragButton: {
 
 
-      "base": [
+      base: [
 
-        "lovec-player-detach-camera", [0, "lovec-icon-detach-camera", true, function() {}, function() {
-          Core.settings.put("detach-camera", this.isChecked());
-          if(this.isChecked() && Vars.player.unit() != null) Vars.player.unit().apply(StatusEffects.unmoving, 5.0);
-        }],
+        "lovec-player-detach-camera", {
+          rowInd: 0,
+          icon: "lovec-icon-detach-camera",
+          isToggle: true,
+          updateScr: function() {
+            Core.settings.put("detach-camera", this.isChecked());
+            if(this.isChecked() && Vars.player.unit() != null) Vars.player.unit().apply(StatusEffects.unmoving, 5.0);
+          },
+        },
 
-        "lovec-setting-unit-range", [0, "lovec-icon-range", false, function() {
-          Core.settings.put("lovec-unit0stat-range", !global.lovec.mdl_util._cfg("unit0stat-range"));
-          global.lovec.param.forceLoadParam();
-        }, null],
+        "lovec-setting-unit-health", {
+          rowInd: 0,
+          icon: "lovec-icon-health",
+          clickScr: function() {
+            Core.settings.put("lovec-unit0stat-show", !global.lovec.mdl_util._cfg("unit0stat-show"));
+            global.lovec.param.forceLoadParam();
+          },
+        },
 
-        "lovec-info-wave-enemies", [0, "units", false, function() {
-          global.lovec.tp_dial.waveInfo.ex_show(null);
-        }, null],
+        "lovec-setting-unit-range", {
+          rowInd: 0,
+          icon: "lovec-icon-range",
+          clickScr: function() {
+            Core.settings.put("lovec-unit0stat-range", !global.lovec.mdl_util._cfg("unit0stat-range"));
+            global.lovec.param.forceLoadParam();
+          },
+        },
+
+        "lovec-info-wave-enemies", {
+          rowInd: 0,
+          icon: "units",
+          clickScr: function() {
+            fetchDial("waveInfo").ex_show(null);
+          },
+        },
+
+        "lovec-info-achievement", {
+          rowInd: 0,
+          icon: "lovec-icon-trophy",
+          clickScr: function() {
+            fetchDial("achievement").ex_show();
+          },
+        },
 
       ],
 
@@ -184,37 +205,48 @@ const db = {
        *
        * Buttons defined here will only be added if {PARAM.modded}.
        * ---------------------------------------- */
-      "modded": [
+      modded: [
 
-        "lovec-player-take-loot", [0, "lovec-icon-take-loot", false, function() {
-          let unit = Vars.player.unit();
-          if(unit == null) return;
-          let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
-          if(Vars.net.client() ?
-            global.lovec.frag_item.takeUnitLoot_client(unit, loot) :
-            global.lovec.frag_item.takeUnitLoot(unit, loot)
-          ) global.lovec.mdl_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
-        }, null],
+        "lovec-player-take-loot", {
+          rowInd: 0,
+          icon: "lovec-icon-take-loot",
+          clickScr: function() {
+            let unit = Vars.player.unit();
+            if(unit == null) return;
+            let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
+            if(loot == null) return;
+            if(global.lovec.frag_item.takeUnitLoot_global(unit, loot)) {
+              global.lovec.mdl_effect.showBetween_itemTransfer(loot.x, loot.y, unit, null, null, true);
+            };
+          },
+        },
 
-        "lovec-player-drop-loot", [0, "lovec-icon-drop-loot", false, function() {
-          let unit = Vars.player.unit();
-          if(unit == null) return;
-          if(unit.stack.amount > 0) {
-            Vars.net.client() ?
-              global.lovec.mdl_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
-              global.lovec.mdl_call.spawnLoot(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
-            unit.clearItem();
-          };
-        }, null],
+        "lovec-player-drop-loot", {
+          rowInd: 0,
+          icon: "lovec-icon-drop-loot",
+          clickScr: function() {
+            let unit = Vars.player.unit();
+            if(unit == null) return;
+            if(unit.stack.amount > 0) {
+              Vars.net.client() ?
+                global.lovec.mdl_call.spawnLoot_client(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0) :
+                global.lovec.mdl_call.spawnLoot_server(unit.x, unit.y, unit.item(), unit.stack.amount, 0.0);
+              unit.clearItem();
+            };
+          },
+        },
 
-        "lovec-player-destroy-loot", [0, "lovec-icon-destroy-loot", false, function() {
-          let unit = Vars.player.unit();
-          if(unit == null) return;
-          let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
-          Vars.net.client() ?
-            global.lovec.frag_item.destroyLoot_client(loot) :
-            global.lovec.frag_item.destroyLoot(loot);
-        }, null],
+        "lovec-player-destroy-loot", {
+          rowInd: 0,
+          icon: "lovec-icon-destroy-loot",
+          clickScr: function() {
+            let unit = Vars.player.unit();
+            if(unit == null) return;
+            let loot = Units.closest(null, unit.x, unit.y, global.lovec.var.rad_lootPickRad, ounit => global.lovec.mdl_cond._isLoot(ounit));
+            if(loot == null) return;
+            global.lovec.frag_item.destroyLoot_global(loot);
+          },
+        },
 
       ],
 
@@ -225,13 +257,16 @@ const db = {
   },
 
 
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * List of config names and their value getters.
    * Used in {MDL_util._cfg}.
    * ---------------------------------------- */
-  "config": [
+  config: [
 
     "test-draw", useScl => Core.settings.getBool("lovec-test-draw", false),
     "test-memory", useScl => Core.settings.getBool("lovec-test-memory", false),
@@ -282,7 +317,7 @@ const db = {
   ],
 
 
-  "search": {
+  search: {
 
 
     /* ----------------------------------------
@@ -290,7 +325,7 @@ const db = {
      *
      * Extra tags used for search.
      * ---------------------------------------- */
-    "tag": [
+    tag: [
 
       "no:", (ct, str) => !ct.name.toLowerCase().includes(str) && !Strings.stripColors(ct.localizedName).toLowerCase().includes(str) && (!Core.settings.getString("locale") === "zh_CN" || !LIB_pinyin.fetchPinyin(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str)),
 
@@ -309,7 +344,7 @@ const db = {
      * @CONTENTGEN
      * {"group:xxx"}.
      * ---------------------------------------- */
-    "group": [
+    group: [
 
       "flammable", ct => ct.flammability != null && ct.flammability > 0.0,
       "explosive", ct => ct.explosiveness != null && ct.explosiveness > 0.0,
@@ -318,15 +353,15 @@ const db = {
       "viscous", ct => ct.viscosity != null && ct.viscosity > 0.5,
       "coolant", ct => ct.coolanet != null && ct.coolant && ct.temperature != null && ct.temperature <= 0.5 && ct.flammability != null && ct.flammability < 0.1,
 
-      "intermediate", ct => MDL_cond._isIntmd(ct),
-      "waste", ct => MDL_cond._isWas(ct),
+      "intermediate", ct => MDL_cond._isIntermediate(ct),
+      "waste", ct => MDL_cond._isWaste(ct),
 
       "sand", ct => DB_item.db["group"]["sand"].includes(ct.name),
       "aggregate", ct => DB_item.db["group"]["aggregate"].includes(ct.name),
 
       "aqueous", ct => DB_fluid.db["group"]["aqueous"].includes(ct.name),
       "conductive", ct => DB_fluid.db["group"]["conductive"].includes(ct.name),
-      "aux", ct => MDL_cond._isAux(ct),
+      "aux", ct => MDL_cond._isAuxilliaryFluid(ct),
 
     ],
 
@@ -334,7 +369,10 @@ const db = {
   },
 
 
-  "recipe": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  recipe: {
 
 
     /* ----------------------------------------
@@ -343,7 +381,7 @@ const db = {
      * Used to read a particular consumer.
      * Format: {cls, (blk, cons, dictConsItm, dictConsFld) => {...}}.
      * ---------------------------------------- */
-    "consumeReader": [
+    consumeReader: [
 
       /* <---------- item ----------> */
 
@@ -417,14 +455,14 @@ const db = {
      * Used to read a particular class of blocks to get production list.
      * Format: {cls, (blk, dictProdItm, dictProdFld) => {...}}.
      * ---------------------------------------- */
-    "produceReader": [
+    produceReader: [
 
       Drill, (blk, dictProdItm, dictProdFld) => {
-        Vars.content.items().each(itm => itm.hardness <= blk.tier && !(blk.blockedItems != null && blk.blockedItems.contains(itm)) && Vars.content.blocks().toArray().some(oblk => ((oblk instanceof Floor && !(oblk instanceof OverlayFloor)) || (oblk instanceof OverlayFloor && !oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, Math.pow(blk.size, 2) * (blk instanceof BurstDrill ? 1.0 : blk.drillTime / blk.getDrillTime(itm)), {"icon": "lovec-icon-mining"}));
+        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => ((oblk instanceof Floor && !(oblk instanceof OverlayFloor)) || (oblk instanceof OverlayFloor && !oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, Math.pow(blk.size, 2) * (blk instanceof BurstDrill ? 1.0 : blk.drillTime / blk.getDrillTime(itm)), {"icon": "lovec-icon-mining"}));
       },
 
       BeamDrill, (blk, dictProdItm, dictProdFld) => {
-        Vars.content.items().each(itm => itm.hardness <= blk.tier && !(blk.blockedItems != null && blk.blockedItems.contains(itm)) && Vars.content.blocks().toArray().some(oblk => (oblk instanceof Prop || oblk instanceof TallBlock || (oblk instanceof OverlayFloor && oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, blk.size, {"icon": "lovec-icon-mining"}));
+        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => (oblk instanceof Prop || oblk instanceof TallBlock || (oblk instanceof OverlayFloor && oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, blk.size, {"icon": "lovec-icon-mining"}));
       },
 
       WallCrafter, (blk, dictProdItm, dictProdFld) => {
@@ -462,7 +500,7 @@ const db = {
      * DO NOT MODIFY THIS!
      * For other mods, simply put .csv files in "./saves/mods/data/sharedData/ore-dict".
      * ---------------------------------------- */
-    "oreDictDef": [
+    oreDictDef: [
 
       "beryllium", [],
       "blast-compound", [],
@@ -493,7 +531,7 @@ const db = {
     ],
 
 
-    "oreDictConsSetter": [
+    oreDictConsSetter: [
 
       ConsumeItems, (blk, cons, oreDict) => {
         cons.items.forEachFast(itmStack => {
@@ -510,7 +548,7 @@ const db = {
     ],
 
 
-    "oreDictProdSetter": [
+    oreDictProdSetter: [
 
       WallCrafter, (blk, oreDict) => {
         blk.output = oreDict.get(blk.output, blk.output);
@@ -539,7 +577,10 @@ const db = {
   },
 
 
-  "lsav": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  lsav: {
 
 
     /* ----------------------------------------
@@ -548,7 +589,7 @@ const db = {
      * Properties that is saved in a .lsav file.
      * Format: {header, def, arrMode}.
      * ---------------------------------------- */
-    "header": [
+    header: [
 
       "useless-field", "ohno", null,
       "save-map", "!UNDEF", null,
@@ -565,7 +606,7 @@ const db = {
      *
      * Properties here are safe (or required) to be set by client sides.
      * ---------------------------------------- */
-    "safe": [
+    safe: [
 
       "bits",
       "bit-hash",
@@ -576,7 +617,10 @@ const db = {
   },
 
 
-  "texture": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  texture: {
 
 
     /* ----------------------------------------
@@ -585,7 +629,7 @@ const db = {
      * Icons polulated in {VARGEN.icons}.
      * Format: {nm, nmReg}.
      * ---------------------------------------- */
-    "icon": [
+    icon: [
 
       "ohno", "error",
 
@@ -605,7 +649,7 @@ const db = {
      * Icons polulated in {VARGEN.noiseTexs}.
      * Format: {nm, path}.
      * ---------------------------------------- */
-    "noise": [
+    noise: [
 
       "caustics", "sprites/caustics.png",
       "clouds", "sprites/clouds.png",
@@ -620,10 +664,13 @@ const db = {
   },
 
 
-  "drama": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "chara": {
+  drama: {
+
+
+    chara: {
 
 
       /* ----------------------------------------
@@ -632,7 +679,7 @@ const db = {
        * The color used for a character.
        * Format: {nmMod, nmChara, color_gn}.
        * ---------------------------------------- */
-      "color": [
+      color: [
 
         "lovec", "earlan", "d4c0d8",
 
@@ -642,7 +689,7 @@ const db = {
     },
 
 
-    "dial": {
+    dial: {
 
 
       /* ----------------------------------------
@@ -651,12 +698,12 @@ const db = {
        * Definition of dialog flow.
        * See {MDL_ui._d_flow}.
        * ---------------------------------------- */
-      "flow": [
+      flow: [
 
         // Example dialog flow, type {global.lovec.mdl_ui._d_flow('lovec-test')} in console to see
         "lovec-test", [
           // Start of music
-          null, null, {haltTimeS: 0.0, scr: () => {global.lovecUtil.bool[0] = true; global.lovec.mdl_ui._d_bgm(0.0, Musics.boss1, () => !global.lovecUtil.bool[0])}}, null,
+          null, null, {haltTimeS: 0.0, scr: () => {TRIGGER_MUSIC = true; global.lovec.mdl_ui._d_bgm(0.0, Musics.boss1, () => !TRIGGER_MUSIC)}}, null,
           // Character art in, spoken by the character
           ["lovec", "test", 0], ["lovec", "earlan"], null, [
             [0.0, "lovec", "earlan", 0.5, false, "fade-in"],
@@ -674,7 +721,7 @@ const db = {
             [0.0, "lovec", "earlan", 0.5, true, "move", [1.0, 0.5, 0.33]],
           ],
           // End of music, empty tail, character art out
-          null, null, {isTail: true, scr: () => global.lovecUtil.bool[0] = false}, [
+          null, null, {isTail: true, scr: () => TRIGGER_MUSIC = false}, [
             [0.0, "lovec", "earlan", 0.33, true, "fade-out"],
           ],
         ],
@@ -686,6 +733,9 @@ const db = {
 
 
   },
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
 };

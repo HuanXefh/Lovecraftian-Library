@@ -11,9 +11,7 @@
 /* <---------- meta ----------> */
 
 
-const CLS_whiteNoise = function() {
-  this.init.apply(this, arguments);
-}.initClass();
+const CLS_whiteNoise = newClass().initClass();
 
 
 CLS_whiteNoise.prototype.init = function(w, h, gridW, gridH) {
@@ -30,6 +28,8 @@ CLS_whiteNoise.prototype.init = function(w, h, gridW, gridH) {
   this.tileHeight = h / gridH;
   this.noiseData = [].setVal(() => [].setVal(0.0, w), h);
   this.vecData = [].setVal(() => [].setVal(() => new Vec2(0.0, 0.0), gridW), gridH);
+
+  this.isBuilt = false;
 };
 
 
@@ -177,6 +177,7 @@ ptp.setVecData = function() {
 ptp.buildNoise = function(base, cap, seed) {
   const thisIns = this;
 
+  if(this.isBuilt) return this.noiseData;
   if(base == null) base = 0.0;
   if(cap == null) cap = 1.0;
   if(seed == null) seed = -1.0;
@@ -186,6 +187,7 @@ ptp.buildNoise = function(base, cap, seed) {
       Mathf.random(base, cap) :
       Mathf.randomSeed(seed + i + j * 10000000, base, cap);
   });
+  this.isBuilt = true;
 
   return this.noiseData;
 },

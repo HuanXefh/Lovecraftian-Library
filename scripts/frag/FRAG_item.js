@@ -9,6 +9,7 @@
 
 
   const ANNO = require("lovec/glb/BOX_anno");
+  const TRIGGER = require("lovec/glb/BOX_trigger");
 
 
   const MDL_call = require("lovec/mdl/MDL_call");
@@ -30,14 +31,14 @@
     if(amt == null) amt = 1;
     if(amt < 1) return false;
 
-    var bool = false;
+    let cond = false;
     for(let i = 0; i < amt; i++) {
       if(checkAccept && !b.acceptItem(b_f, itm)) break;
       b.offload(itm);
-      bool = true;
+      cond = true;
     };
 
-    return bool;
+    return cond;
   };
   exports.offload = offload;
 
@@ -51,40 +52,37 @@
     if(amt == null) amt = 1;
     if(amt < 1) return false;
 
-    let payload = packPayload([
-      b.pos(),
-      b_f == null ? -1 : b_f.pos(),
-      itm.name,
-      amt,
-      checkAccept,
-    ]);
-
-    MDL_net.sendPacket("server", "lovec-server-item-offload", payload);
+    MDL_net.sendPacket(
+      "server", "lovec-server-item-offload",
+      packPayload([
+        b.pos(),
+        b_f == null ? -1 : b_f.pos(),
+        itm.name, amt, checkAccept,
+      ]),
+    );
 
     return offload(b, b_f, itm, amt, checkAccept);
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setAnno(ANNO.$INIT$, function() {
     MDL_net.__packetHandler("client", "lovec-server-item-offload", payload => {
       let args = unpackPayload(payload);
-
       offload(Vars.world.build(args[0]), Vars.world.build(args[1]), Vars.content.item(args[2]), args[3], args[4]);
     });
   })
-  .setAnno(ANNO.__SERVER__, null, false);
+  .setAnno(ANNO.$SERVER$, null, false);
   exports.offload_server = offload_server;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Adds item to {b} from {b_f}.
+   * Adds item to some building from {b_f}.
    * ---------------------------------------- */
   const addItem = function(b, b_f, itm, amt, p, isForced) {
     if(b.items == null || (!isForced && !b.acceptItem(b_f, itm))) return false;
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
-
     let amtTrans = amt.randFreq(p);
 
     return Vars.net.client() ?
@@ -97,7 +95,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Lets {b} transfer items to {b_t}.
+   * Lets a building transfer items to {b_t}.
    * ---------------------------------------- */
   const transItem = function(b, b_t, itm, amt, p, isForced) {
     if(b_t == null) return false;
@@ -105,11 +103,11 @@
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
-
     let amtCur = b.items.get(itm);
     let amtCur_t = b_t.items.get(itm);
     let amtTrans = Mathf.maxZero(Math.min(amt.randFreq(p), amtCur, b_t.block.itemCapacity - amtCur_t));
     if(amtTrans < 1) return false;
+
     Call.setItem(b, itm, amtCur - amtTrans);
     Call.setItem(b_t, itm, amtCur_t + amtTrans);
 
@@ -128,9 +126,9 @@
     if(amt == null) amt = 1;
     if(amt < 1 || b.items.get(itm) < amt) return false;
     if(p == null) p = 1.0;
-
     let amtTrans = amt.randFreq(p);
     if(amtTrans < 1) return false;
+
     b.items.remove(itm, amtTrans);
     Call.setItem(b, itm, b.items.get(itm));
 
@@ -149,8 +147,10 @@
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
-
     let amtTrans = amt.randFreq(p);
+    if(amtTrans > 0) {
+      TRIGGER.itemProduce.fire(b, itm, amtTrans);
+    };
 
     return Vars.net.client() ?
       amtTrans > 0 :
@@ -179,76 +179,12 @@
    *
    * Removes all items in {b}.
    * ---------------------------------------- */
-  const clearItems = function(b) {
+  const clearItem = function(b) {
     Call.clearItems(b);
 
     return true;
   };
-  exports.clearItems = clearItems;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Adds items in a batch to {b}.
-   * ---------------------------------------- */
-  const addItemBatch = function(b, b_f, batch, isForced) {
-    if(b.items == null) return false;
-
-    var bool = false;
-    let itm;
-    batch.forEachRow(3, (itm_gn, amt, p) => {
-      itm = MDL_content._ct(itm_gn, "rs");
-      if(itm == null) return;
-      if(addItem(b, b_f, itm, amt, p, isForced)) bool = true;
-    });
-
-    return bool;
-  };
-  exports.addItemBatch = addItemBatch;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether {b} can accept the item batch.
-   * Use {mode} carefully, if set to {"any"}, some items may go to the void.
-   * ---------------------------------------- */
-  const acceptItemBatch = function(b, b_f, batch, mode) {
-    const thisFun = acceptItemBatch;
-
-    if(b.items == null) return false;
-    if(mode == null) mode = "all";
-    if(!mode.equalsAny(thisFun.modes)) return false;
-
-    let iCap = batch.iCap();
-    if(iCap === 0) return false;
-
-    let itm;
-    if(mode === "any") {
-      for(let i = 0; i < iCap; i += 3) {
-        itm = MDL_content._ct(batch[i], "rs");
-        if(itm != null && itm instanceof Item) {
-          if(b.acceptItem(b_f, itm)) return true;
-        };
-      };
-
-      return false;
-    } else {
-      for(let i = 0; i < iCap; i += 3) {
-        itm = MDL_content._ct(batch[i], "rs");
-        if(itm != null && itm instanceof Item) {
-          if(!b.acceptItem(b_f, itm)) return false;
-        };
-      };
-
-      return true;
-    };
-  }
-  .setProp({
-    modes: ["any", "all"],
-  });
-  exports.acceptItemBatch = acceptItemBatch;
+  exports.clearItem = clearItem;
 
 
   /* ----------------------------------------
@@ -257,14 +193,12 @@
    * Lets a building take items from a loot unit.
    * ---------------------------------------- */
   const takeLoot = function(b, loot, max, isForced) {
-    if(loot == null || b.items == null) return false;
-
+    if(!MDL_cond._isLoot(loot) || b.items == null) return false;
     let itm = loot.item();
     if(itm == null || (!isForced && !b.acceptItem(b, itm))) return false;
     let amt = loot.stack.amount;
     if(amt < 1) return false;
     if(max == null) max = Infinity;
-
     let amtTrans = Mathf.maxZero(Math.min(amt, b.block.itemCapacity - b.items.get(itm), max));
     if(amtTrans < 1) return false;
 
@@ -279,18 +213,17 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Lets a building drops its item to spawn a loot.
+   * Lets a building drop its item to spawn a loot.
    * ---------------------------------------- */
   const dropLoot = function(b, itm, max) {
     if(b.items == null) return false;
     if(max == null) max = Infinity;
-
     let amtCur = b.items.get(itm);
     let amtTrans = Math.min(amtCur, max);
     if(amtTrans < 1) return false;
 
     setItem(b, itm, amtCur - amtTrans);
-    MDL_call.spawnLoot(b.x, b.y, itm, amtTrans, b.block.size * Vars.tilesize * 0.7);
+    MDL_call.spawnLoot_server(b.x, b.y, itm, amtTrans, b.block.size * Vars.tilesize * 0.7);
 
     return true;
   };
@@ -300,19 +233,18 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Lets a building drops its item at (x, y) and spawn a loot there.
+   * Lets a building drop its item at (x, y) and spawn a loot there.
    * ---------------------------------------- */
   const dropLootAt = function(x, y, b, itm, max, ignoreLoot) {
     if(b.items == null) return false;
     if(max == null) max = Infinity;
-
     let amtCur = b.items.get(itm);
     let amtTrans = Math.min(amtCur, max);
     if(amtTrans < 1) return false;
 
     if(MDL_cond._posHasLoot(x, y) && !ignoreLoot) return false;
     setItem(b, itm, amtCur - amtTrans);
-    MDL_call.spawnLoot(b.x, b.y, itm, amtTrans, b.block.size * Vars.tilesize * 0.7);
+    MDL_call.spawnLoot_server(b.x, b.y, itm, amtTrans, b.block.size * Vars.tilesize * 0.7);
 
     return true;
   };
@@ -329,8 +261,9 @@
     if(amt == null) amt = 0;
     if(amt < 1) return false;
 
+    TRIGGER.itemProduce.fire(b, itm, amt);
     b.produced(itm, amt);
-    MDL_call.spawnLoot(b.x, b.y, itm, amt, b.block.size * Vars.tilesize * 0.7);
+    MDL_call.spawnLoot_server(b.x, b.y, itm, amt, b.block.size * Vars.tilesize * 0.7);
 
     return true;
   };
@@ -348,8 +281,9 @@
     if(amt < 1) return false;
 
     if(MDL_cond._posHasLoot(x, y) && !ignoreLoot) return false;
+    TRIGGER.itemProduce.fire(b, itm, amt);
     b.produced(itm, amt);
-    MDL_call.spawnLoot(x, y, itm, amt, 0.0);
+    MDL_call.spawnLoot_server(x, y, itm, amt, 0.0);
 
     return true;
   };
@@ -359,21 +293,23 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Lets a building converts the content of a loot.
+   * Lets a building convert the content of a loot.
    * This resets lifetime by default.
    * ---------------------------------------- */
   const convertLoot = function(b, loot, itm, amt, noReset) {
+    if(!MDL_cond._isLoot(loot)) return false;
     if(amt == null) amt = 0;
-    if(amt < 1) {
+    if(amt < 1 || itm == null) {
       loot.remove()
     } else {
       if(!noReset) {
-        MDL_call.spawnLoot(loot.x, loot.y, itm, amt, 0.0);
+        MDL_call.spawnLoot_server(loot.x, loot.y, itm, amt, 0.0);
         loot.remove();
       } else {
         loot.stack.item = itm;
         loot.stack.amount = amt;
       };
+      TRIGGER.itemProduce.fire(b, itm, amt);
       b.produced(itm, amt);
     };
 
@@ -388,9 +324,9 @@
    * Destroys a loot unit.
    * ---------------------------------------- */
   const destroyLoot = function(loot) {
-    if(loot == null) return false;
     if(!MDL_cond._isLoot(loot)) return false;
 
+    TRIGGER.lootDestroy.fire(loot);
     loot.remove();
 
     return true;
@@ -401,29 +337,27 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A variant of {destroyLoot} used for client side.
+   * A variant of {destroyLoot} for sync.
    * ---------------------------------------- */
-  const destroyLoot_client = function(loot) {
-    if(loot == null) return false;
+  const destroyLoot_global = function(loot) {
     if(!MDL_cond._isLoot(loot)) return false;
 
-    let payload = packPayload([
-      loot.id,
-    ]);
+    MDL_net.sendPacket(
+      "both", "lovec-both-destroy-loot",
+      packPayload([loot.id]),
+      true, true,
+    );
 
-    MDL_net.sendPacket("client", "lovec-client-destroy-loot", payload, true, true);
-
-    return true;
+    return destroyLoot(loot);
   }
-  .setAnno(ANNO.__INIT__, function() {
-    MDL_net.__packetHandler("server", "lovec-client-destroy-loot", payload => {
-      let arr = unpackPayload(payload);
-      destroyLoot(Groups.unit.getById(arr[0]));
+  .setAnno(ANNO.$INIT$, function() {
+    MDL_net.__packetHandler("both", "lovec-both-destroy-loot", payload => {
+      let args = unpackPayload(payload);
+      destroyLoot(Groups.unit.getById(args[0]));
     });
   })
-  .setAnno(ANNO.__CLIENT__, null, false)
-  .setAnno(ANNO.__NONCONSOLE__, null, false);
-  exports.destroyLoot_client = destroyLoot_client;
+  .setAnno(ANNO.$NON_CONSOLE$, null, false);
+  exports.destroyLoot_global = destroyLoot_global;
 
 
   /* <---------- unit item stack ----------> */
@@ -432,13 +366,12 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Adds items to {unit}. Will overwrite previous items the unit carries.
+   * Adds items to some unit. Will overwrite previous items the unit carries.
    * ---------------------------------------- */
   const addUnitItem = function(unit, itm, amt, p) {
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
-
     let amtTrans = amt.randFreq(p);
     if(amtTrans < 1) return false;
 
@@ -472,7 +405,6 @@
     if(amt == null) amt = 1;
     if(amt < 1) return false;
     if(p == null) p = 1.0;
-
     let amtTrans = Math.min(amt.randFreq(p), unit.stack.amount);
     if(amtTrans < 1) return false;
 
@@ -506,13 +438,12 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Lets a unit drops its items to a building.
+   * Lets a unit drop its items to a building.
    * No need for effect.
    * ---------------------------------------- */
   const dropBuildItem = function(unit, b, max, alwaysClearStack) {
     if(b.items == null || !b.acceptItem(b, unit.item())) return false;
     if(max == null) max = Infinity;
-
     let amtTrans = Mathf.maxZero(Math.min(unit.stack.amount, b.block.itemCapacity - b.items.get(unit.item()), max));
     if(amtTrans < 1) return false;
 
@@ -530,16 +461,16 @@
    * Lets a unit take items from a loot unit.
    * ---------------------------------------- */
   const takeUnitLoot = function(unit, loot, max) {
-    if(loot == null) return false;
+    if(!MDL_cond._isLoot(loot)) return false;
     let itm = loot.item();
-    if(itm == null || !unit.acceptsItem(itm)) return false;
+    if(!unit.acceptsItem(itm)) return false;
     let amt = loot.stack.amount;
     if(amt < 1) return false;
     if(max == null) max = Infinity;
-
-    var amtTrans = Mathf.maxZero(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max));
+    let amtTrans = Mathf.maxZero(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max));
     if(amtTrans < 1) return false;
 
+    Core.app.post(() => TRIGGER.lootTake.fire(unit, itm, amtTrans));
     addUnitItem(unit, itm, amtTrans);
     amtTrans < amt ? loot.stack.amount -= amtTrans : loot.remove();
 
@@ -551,88 +482,45 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A variant of {takeUnitLoot} used for client side.
+   * A variant of {takeUnitLoot} for sync.
    * ---------------------------------------- */
-  const takeUnitLoot_client = function(unit, loot, max) {
-    if(loot == null) return false;
-    let itm = loot.item();
-    if(itm == null || !unit.acceptsItem(itm)) return false;
-    let amt = loot.stack.amount;
-    if(amt < 1) return false;
-    if(max == null) max = Infinity;
+  const takeUnitLoot_global = function(unit, loot, max) {
+    if(!MDL_cond._isLoot(loot)) return false;
 
-    var amtTrans = Mathf.maxZero(Math.min(amt, unit.itemCapacity() - unit.stack.amount, max));
-    if(amtTrans < 1) return false;
+    MDL_net.sendPacket(
+      "both", "lovec-both-unit-take-loot",
+      packPayload([
+        unit.id, loot.id, max,
+      ]),
+      true, true,
+    );
 
-    let payload = packPayload([
-      unit.id,
-      loot.id,
-      max,
-    ]);
-
-    MDL_net.sendPacket("client", "lovec-client-unit-take-loot", payload, true, true);
-
-    return true;
+    return takeUnitLoot(unit, loot, max);
   }
-  .setAnno(ANNO.__INIT__, function() {
-    MDL_net.__packetHandler("server", "lovec-client-unit-take-loot", payload => {
-      let arr = unpackPayload(payload);
-      takeUnitLoot(Groups.unit.getById(arr[0]), Groups.unit.getById(arr[1]), arr[2]);
+  .setAnno(ANNO.$INIT$, function() {
+    MDL_net.__packetHandler("both", "lovec-both-unit-take-loot", payload => {
+      let args = unpackPayload(payload);
+      takeUnitLoot(Groups.unit.getById(args[0]), Groups.unit.getById(args[1]), args[2]);
     });
   })
-  .setAnno(ANNO.__CLIENT__, null, false)
-  .setAnno(ANNO.__NONCONSOLE__, null, false);
-  exports.takeUnitLoot_client = takeUnitLoot_client;
+  .setAnno(ANNO.$NON_CONSOLE$, null, false);
+  exports.takeUnitLoot_global = takeUnitLoot_global;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Lets a unit drops its item to spawn a loot.
+   * Lets a unit drop its item to spawn a loot.
    * ---------------------------------------- */
   const dropUnitLoot = function(unit, max) {
     if(max == null) max = Infinity;
-
     let itm = unit.item();
     let amtTrans = Math.min(unit.stack.amount, max);
     if(amtTrans < 1) return false;
 
     unit.stack.amount -= amtTrans;
-    MDL_call.spawnLoot(unit.x, unit.y, itm, amtTrans);
+    MDL_call.spawnLoot_server(unit.x, unit.y, itm, amtTrans);
 
     return true;
   };
   exports.dropUnitLoot = dropUnitLoot;
-
-
-  /* <---------- component ----------> */
-
-
-  /* exposed */
-
-
-  const comp_updateTile_exposed = function(b) {
-    if(!Mathf.chance(0.025)) return;
-    if(b.items == null || b.block.itemCapacity === 0 || !MDL_cond.isExposedBlk(b.block) || MDL_cond._isNoReacBlk(b.block)) return;
-
-    b.items.each(itm => {
-      MDL_reaction.handleReaction(itm, "GROUP: air", 40.0, b);
-    });
-  }
-  exports.comp_updateTile_exposed = comp_updateTile_exposed;
-
-
-  const comp_onDestroyed_exposed = function(b) {
-    // NOTE: I still have no idea what this can do.
-  }
-  exports.comp_onDestroyed_exposed = comp_onDestroyed_exposed;
-
-
-  /* virtual */
-
-
-  const comp_updateTile_virtual = function(b) {
-    // TODO
-  }
-  .setTodo("Virtual item, bit, and how to boom conveyors.");
-  exports.comp_updateTile_virtual = comp_updateTile_virtual;

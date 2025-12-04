@@ -31,45 +31,28 @@
 */
 
 
+
+
   global.lovecUtil = {
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Global switches.
-     * ---------------------------------------- */
-    bool: [
-      false,                    // For dialog flow: music
-      false,                    // For dialog flow: background
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-    ],
+    prop: {
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Global variables.
-     * ---------------------------------------- */
-    vari: [
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-    ],
+      locale: Core.settings.getString("locale"),
+
+
+      debug: (function() {
+        if(Core.settings.getString("lovec-misc-secret-code", "").includes("<anuke-mode>")) {
+          Log.info("[LOVEC] " + "Debug mode".color(Pal.accent) + " is enabled.");
+          return true;
+        } else {
+          return false;
+        };
+      })(),
+
+
+    },
 
 
     fun: {
@@ -82,8 +65,8 @@
        * ---------------------------------------- */
       _plaCur() {
         let nm = "";
-        if(!Vars.state.isMenu() && Vars.state.planet != null) {
-          nm = Vars.state.planet.name;
+        if(!Vars.state.isMenu() && Vars.state.getPlanet() != null) {
+          nm = Vars.state.getPlanet().name;
         };
 
         return nm;
@@ -113,8 +96,7 @@
        * NOTE:
        *
        * Bypasses {MDL_content} to resolve module coupling.
-       * This one is less stable and won't warn, do not abuse it!
-       * Use {global.lovec.mdl_content._ct} instead if possible.
+       * This one is less stable and won't warn, do not abuse it! Use {global.lovec.mdl_content._ct} instead whenever possible.
        * ---------------------------------------- */
       _ct(ct_gn, ctTpStr) {
         if(ct_gn == null) return null;
@@ -123,6 +105,18 @@
         return ctTpStr == null ?
           Vars.content.byName(ct_gn) :
           Vars.content.getByName(ContentType[ctTpStr], ct_gn);
+      },
+
+
+      _glbHeat() {
+        let nmPla = global.lovecUtil.fun._plaCur();
+        if(nmPla === "") return 26.0;
+        let nmMap = Vars.state.map.plainName();
+
+        return global.lovec.db_env.db["param"]["map"]["heat"].read(
+          nmMap,
+          global.lovec.db_env.db["param"]["pla"]["heat"].read(nmPla, 0.26)
+        ) * 100.0;
       },
 
 
@@ -135,10 +129,25 @@
       oreDict: new ObjectMap(),
 
 
+      lovecUnits: [],
+
+
+      keyBindListener: [],
+
+
       abilitySetter: [],
 
 
       aiSetter: [],
+
+
+      drawerSetter: [],
+
+
+      consumerSetter: [],
+
+
+      dialogGetter: [],
 
 
     },

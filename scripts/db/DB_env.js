@@ -1,13 +1,15 @@
+const MDL_color = require("lovec/mdl/MDL_color");
 const MDL_texture = require("lovec/mdl/MDL_texture");
+const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
 
 
 const db = {
 
 
-  "param": {
+  param: {
 
 
-    "pla": {
+    pla: {
 
 
       /* ----------------------------------------
@@ -16,7 +18,7 @@ const db = {
        * Wind attribute multiplier for a planet.
        * Format: {nmPla, num}.
        * ---------------------------------------- */
-      "wind": [],
+      wind: [],
 
 
       /* ----------------------------------------
@@ -26,13 +28,13 @@ const db = {
        * 1.0 here equals 100.0 HU.
        * Format: {nmPla, num}.
        * ---------------------------------------- */
-      "heat": [],
+      heat: [],
 
 
     },
 
 
-    "map": {
+    map: {
 
 
       /* ----------------------------------------
@@ -42,7 +44,7 @@ const db = {
        * Format: {nmMap, args}.
        * Format for {args}: {nmTex, color, noiseScl, opac, spd, intens, windX, windY, off}.
        * ---------------------------------------- */
-      "noise": [],
+      noise: [],
 
 
       /* ----------------------------------------
@@ -50,10 +52,9 @@ const db = {
        *
        * Weather entries for a map (always permanent), used for campaign maps but works for any map.
        * No need to set weathers for those maps in editor.
-       * No weathers from vanilla game or other mods for now.
        * Format: {nmMap, nmWeas}.
        * ---------------------------------------- */
-      "weaEn": [],
+      weaEn: [],
 
 
       /* ----------------------------------------
@@ -62,7 +63,7 @@ const db = {
        * Wind attribute multiplier for a map.
        * Format: {nmMap, num}.
        * ---------------------------------------- */
-      "wind": [],
+      wind: [],
 
 
       /* ----------------------------------------
@@ -71,7 +72,7 @@ const db = {
        * Global heat for a map.
        * Format: {nmMap, num}.
        * ---------------------------------------- */
-      "heat": [],
+      heat: [],
 
 
     },
@@ -80,10 +81,10 @@ const db = {
   },
 
 
-  "map": {
+  map: {
 
 
-    "rule": {
+    rule: {
 
 
       /* ----------------------------------------
@@ -93,17 +94,17 @@ const db = {
        * Check {CampaignRules} class.
        * Format: {nmPla, ruleSetter}.
        * ---------------------------------------- */
-      "campaignRule": [],
+      campaignRule: [],
 
 
       /* ----------------------------------------
        * NOTE:
        *
        * Maps a planet to a rule setter function.
-       * Fog should be set in campaign rules too, you should ask Anuke why.
+       * Fog should be set in campaign rules, you should ask Anuke why.
        * Format: {nmPla, ruleSetter}.
        * ---------------------------------------- */
-      "planetRule": [],
+      planetRule: [],
 
 
     },
@@ -112,10 +113,10 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Maps a random region tag to a region array getter function.
+     * Maps a random overlay region tag to a region array getter function.
      * Format: {tag, regsGetter}.
      * ---------------------------------------- */
-    "randRegTag": [
+    randRegTag: [
 
       "rock", MDL_texture._randRegsGetter("lovec-ov0rand-rock"),
       "rock-sand", MDL_texture._randRegsGetter("lovec-ov0rand-rock-sand"),
@@ -127,10 +128,13 @@ const db = {
   },
 
 
-  "group": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "map": {
+  group: {
+
+
+    map: {
 
 
       /* ----------------------------------------
@@ -138,7 +142,7 @@ const db = {
        *
        * These maps are considered as cave, where flying units cannot go over walls.
        * ---------------------------------------- */
-      "cave": [],
+      cave: [],
 
 
     },
@@ -147,7 +151,90 @@ const db = {
   },
 
 
-  "grpParam": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  grpParam: {
+
+
+    floor: {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Used to set speed multiplier of floor blocks in the same material group.
+       * See {ENV_materialFloor}.
+       * Format: {matGrp, spdMtp}.
+       * ---------------------------------------- */
+      speed: [
+
+        "none", 1.0,
+        "dirt", 0.9,
+        "grass", 0.85,
+        "gravel", 0.65,
+        "rock", 1.0,
+        "salt", 0.8,
+        "sand", 0.75,
+
+      ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Maps a liquid floor material to some cache layer.
+       * ---------------------------------------- */
+      cacheLayer: [
+
+        "none", CacheLayer.water,
+        "lava", TP_cacheLayer.shader0surf_flr0liq_lava,
+        "puddle", TP_cacheLayer.shader0surf_flr0liq_puddle,
+        "river", TP_cacheLayer.shader0surf_flr0liq_river,
+        "sea", TP_cacheLayer.shader0surf_flr0liq_sea,
+
+      ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Used to more deeply set properties of the floor.
+       * ---------------------------------------- */
+      extraSetter: [
+
+        "lava", (flr, overwriteVanillaProp) => {
+          if(overwriteVanillaProp) {
+            flr.speedMultiplier = 0.05;
+            flr.albedo = 0.2;
+            flr.emitLight = true;
+            flr.lightRadius = 40.0;
+            if(MDL_color._isSameColor(flr.lightColor, Color.white)) {
+              flr.lightColor = Color.valueOf("faae7560");
+            };
+          };
+        },
+
+      ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * These liquid floor materials have {Sounds.splash} as the {walkSound}.
+       * Used when you don't feel like making a sound for the material.
+       * ---------------------------------------- */
+      splashMaterial: [
+
+        "none",
+        "lava",
+        "puddle",
+        "river",
+
+      ],
+
+
+    },
 
 
     /* ----------------------------------------
@@ -156,7 +243,7 @@ const db = {
      * Tree parameters used for tree types.
      * See {ENV_baseTree}.
      * ---------------------------------------- */
-    "tree": [
+    tree: [
 
       "tree", "scl", 1.0,
       "tree", "mag", 1.0,
@@ -179,6 +266,9 @@ const db = {
   },
 
 
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
   /* ----------------------------------------
    * NOTE:
    *
@@ -187,16 +277,19 @@ const db = {
    * Example:
    * "core-shard", "serpulo",    // Sets the name of root with {Blocks.coreShard} to localized name of {Planets.serpulo}
    * ---------------------------------------- */
-  "nodeRootNameMap": [],
+  nodeRootNameMap: [],
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
   /* ----------------------------------------
    * NOTE:
    *
    * Extra teams to be added into {VARGEN.mainTeams}.
-   * This affects team-based mechanics like CEP and corrosion.
+   * This affects team-based mechanics like CEP.
    * ---------------------------------------- */
-  "extraMainTeam": [],
+  extraMainTeam: [],
 
 
 };

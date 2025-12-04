@@ -23,7 +23,7 @@
   const _bitHash = function(amt) {
     return String(amt + amt % 2 + amt % 3 + amt % 5 + amt % 7 + amt % 11).toHash() % 1000000.0;
   }
-  .setAnno(ANNO.__NONCONSOLE__, null, 1145141919810);
+  .setAnno(ANNO.$NON_CONSOLE$, null, 1145141919810);
   exports._bitHash = _bitHash;
 
 
@@ -49,7 +49,7 @@
 
     return amt;
   }
-  .setAnno(ANNO.__NONCONSOLE__, null, 0.0);
+  .setAnno(ANNO.$NON_CONSOLE$, null, 0.0);
   exports._bitAmt = _bitAmt;
 
 
@@ -64,7 +64,6 @@
 
     let arr1 = SAVE.get("bits").slice().write(team.toString(), String(amt));
     let arr2 = SAVE.get("bit-hash").slice().write(team.toString(), _bitHash(amt));
-    printAll(arr1, arr2);
 
     if(!Vars.net.client()) {
       SAVE.set("bits", arr1);
@@ -76,7 +75,7 @@
 
     return amt;
   }
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.__bitAmt = __bitAmt;
 
 
@@ -91,5 +90,5 @@
 
     return __bitAmt(team, _bitAmt(team) + amtTrans);
   }
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.addBit = addBit;

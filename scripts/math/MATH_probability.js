@@ -20,9 +20,7 @@
    *
    * Prints a distribution array to console.
    * ---------------------------------------- */
-  const printDis = function(disArr, lineAmt, astAmt, deciAmt1, deciAmt2) {
-    const thisFun = printDis;
-
+  const printDis = function thisFun(disArr, lineAmt, astAmt, deciAmt1, deciAmt2) {
     if(disArr == null || disArr.length === 0) return;
 
     if(lineAmt == null) lineAmt = 15;
@@ -109,8 +107,7 @@
    *
    * <Marsaglia polar method>
    * ---------------------------------------- */
-  const _dis_norm = function(size, mu, sigma) {
-    const thisFun = _dis_norm;
+  const _dis_norm = function thisFun(size, mu, sigma) {
     const arr = [];
 
     if(size == null) size = 1;

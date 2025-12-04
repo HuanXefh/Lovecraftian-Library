@@ -69,17 +69,17 @@
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return;
 
-    changePuddle(puddle, liq_gn, mtp);
+    changePuddle(puddle, liq, mtp);
 
-    let payload = packPayload([
-      puddle.id,
-      liq.name,
-      mtp,
-    ]);
-
-    MDL_net.sendPacket("both", "lovec-both-puddle-change", payload, false, true);
+    MDL_net.sendPacket(
+      "both", "lovec-both-puddle-change",
+      packPayload([
+        puddle.id, liq.name, mtp,
+      ]),
+      false, true,
+    );
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setAnno(ANNO.$INIT$, function() {
     MDL_net.__packetHandler("both", "lovec-both-puddle-change", payload => {
       let args = unpackPayload(payload);
       changePuddle(Groups.puddle.getById(args[0], args[1], args[2]));

@@ -124,7 +124,7 @@
 
     Vars.ui.announce(MDL_bundle._info(nmMod, bp), timeS);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.show_announce = show_announce;
 
 
@@ -135,7 +135,7 @@
 
     Vars.ui.showInfoFade(MDL_bundle._info(nmMod, bp), timeS);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.show_fadeInfo = show_fadeInfo;
 
 
@@ -147,7 +147,7 @@
 
     Vars.ui.hudfrag.showToast(icon, w, MDL_bundle._info(nmMod, bp));
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.show_toast = show_toast;
 
 
@@ -158,7 +158,7 @@
 
     Vars.ui.showLabel(MDL_bundle._info(nmMod, bp), timeS, x, y);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.show_label = show_label;
 
 
@@ -170,7 +170,7 @@
       Vars.ui.showErrorMessage(MDL_bundle._info(nmMod, bp));
     });
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.show_error = show_error;
 
 
@@ -526,9 +526,7 @@
    * Format for {flowArr}: {[nmMod1, nmDial, dialInd], [nmMod2, nmChara], paramObj, charaArgs}.
    * Format for {charaArgs}: {[delay, nmMod, nmChara, fracX, isDark0color, anim, animParam, customActs]}
    * ---------------------------------------- */
-  const _d_flow = function(dialKey) {
-    const thisFun = _d_flow;
-
+  const _d_flow = function thisFun(dialKey) {
     let flowArr = global.lovec.db_misc.db["drama"]["dial"]["flow"].read(dialKey);
     if(flowArr == null) {
       Log.warn("[LOVEC] Cannot find dialog flow for " + dialKey + "!");

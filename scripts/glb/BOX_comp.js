@@ -21,7 +21,7 @@ const BOX_comp = new CLS_objectBox({
   /* ----------------------------------------
    * NOTE:
    *
-   * @FIELD: ins.time, ins.lifetime, ins.isDead
+   * @FIELD: ins.time(0.0), ins.lifetime, ins.isDead(false)
    * The instance will die finally.
    * ---------------------------------------- */
   timedComp: new CLS_interface({

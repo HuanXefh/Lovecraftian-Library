@@ -37,8 +37,10 @@
 
 
   const CLS_matrix = require("lovec/cls/math/CLS_matrix");
-  const CLS_tree = require("lovec/cls/struct/CLS_tree");
+  const CLS_enumBuilder = require("lovec/cls/struct/CLS_enumBuilder");
+  const CLS_objectBox = require("lovec/cls/struct/CLS_objectBox");
   const CLS_window = require("lovec/cls/ui/CLS_window");
+  const CLS_achievement = require("lovec/cls/util/CLS_achievement");
 
 
   const MATH_function = require("lovec/math/MATH_function");
@@ -65,9 +67,9 @@
   const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_file = require("lovec/mdl/MDL_file");
-  const MDL_java = require("lovec/mdl/MDL_java");
   const MDL_json = require("lovec/mdl/MDL_json");
   const MDL_market = require("lovec/mdl/MDL_market");
+  const MDL_net = require("lovec/mdl/MDL_net");
   const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_reaction = require("lovec/mdl/MDL_reaction");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
@@ -79,14 +81,10 @@
   const MDL_util = require("lovec/mdl/MDL_util");
 
 
-  const TP_ability = require("lovec/tp/TP_ability");
-  const TP_ai = require("lovec/tp/TP_ai");
   const TP_attr = require("lovec/tp/TP_attr");
   const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
-  const TP_cons = require("lovec/tp/TP_cons");
-  const TP_dial = require("lovec/tp/TP_dial");
-  const TP_drawer = require("lovec/tp/TP_drawer");
   const TP_effect = require("lovec/tp/TP_effect");
+  const TP_recipeGen = require("lovec/tp/TP_recipeGen");
   const TP_shader = require("lovec/tp/TP_shader");
   const TP_sortF = require("lovec/tp/TP_sortF");
   const TP_stat = require("lovec/tp/TP_stat");
@@ -111,6 +109,8 @@
 */
 
 
+
+
   MDL_event._c_onLoad(() => {
 
 
@@ -131,8 +131,10 @@
 
 
       cls_matrix: CLS_matrix,
-      cls_tree: CLS_tree,
+      cls_enumBuilder: CLS_enumBuilder,
+      cls_objectBox: CLS_objectBox,
       cls_window: CLS_window,
+      cls_achievement: CLS_achievement,
 
 
       math_function: MATH_function,
@@ -158,9 +160,9 @@
       mdl_effect: MDL_effect,
       mdl_entity: MDL_entity,
       mdl_file: MDL_file,
-      mdl_java: MDL_java,
       mdl_json: MDL_json,
       mdl_market: MDL_market,
+      mdl_net: MDL_net,
       mdl_pos: MDL_pos,
       mdl_reaction: MDL_reaction,
       mdl_recipe: MDL_recipe,
@@ -172,14 +174,10 @@
       mdl_util: MDL_util,
 
 
-      tp_ability: TP_ability,
-      tp_ai: TP_ai,
       tp_attr: TP_attr,
       tp_cacheLayer: TP_cacheLayer,
-      tp_cons: TP_cons,
-      tp_dial: TP_dial,
-      tp_drawer: TP_drawer,
       tp_effect: TP_effect,
+      tp_recipeGen: TP_recipeGen,
       tp_shader: TP_shader,
       tp_sortF: TP_sortF,
       tp_stat: TP_stat,

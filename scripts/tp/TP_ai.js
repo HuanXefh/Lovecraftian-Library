@@ -8,23 +8,9 @@
   /* <---------- import ----------> */
 
 
-  const ANNO = require("lovec/glb/BOX_anno");
-
-
   const MDL_ai = require("lovec/mdl/MDL_ai");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
-
-
-  /* <---------- auxiliay ----------> */
-
-
-  const regisAiSetter = function(nm, aiSetter) {
-    MDL_event._c_onLoad(() => {
-      global.lovecUtil.db.aiSetter.push(nm, aiSetter);
-    });
-  };
-  exports.regisAiSetter = regisAiSetter;
 
 
   /* <---------- attack ----------> */
@@ -33,10 +19,11 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A missile unit that will only target missiles in range.
+   * Only targets missiles in range.
    * ---------------------------------------- */
-  const _missileInterceptor = function() {
-    return extend(MissileAI, {
+  newAi(
+    "missile-interceptor",
+    (paramObj) => extend(MissileAI, {
 
 
       updateMovement() {
@@ -61,12 +48,8 @@
       },
 
 
-    });
-  }
-  .setAnno(ANNO.__INIT__, function() {
-    regisAiSetter("missile-interceptor", this);
-  });
-  exports._missileInterceptor = _missileInterceptor;
+    }),
+  );
 
 
   /* <---------- support ----------> */
@@ -75,21 +58,23 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Used for a drone miner dock, the unit will mine the selected ore and offload it to the building.
-   * {dockB} should be set after the unit is spawned.
+   * Mines selected item and offload it into {dockB}.
    * ---------------------------------------- */
-  const _droneMiner = function() {
-    return extend(AIController, {
+  newAi(
+    "drone-miner",
+    (paramObj) => extend(AIController, {
 
 
-      timerFind: new Interval(1), isMining: false, oreT: null,
       dockB: null,
+      oreT: null,
+      isMining: false,
+      timerFind: new Interval(1),
 
 
       updateMovement() {
         if(this.dockB == null || this.dockB.efficiency < 0.9) return;
 
-        MDL_ai.comp_updateMovement_mine(this, this.unit, this.dockB, this.dockB.ex_accRsTg("read"), this.dockB.block.ex_getMineR() * Vars.tilesize);
+        MDL_ai.comp_updateMovement_mine(this, this.unit, this.dockB, this.dockB.ex_accRsTg("read"), this.dockB.block.ex_getBlkR() * Vars.tilesize);
       },
 
 
@@ -98,9 +83,5 @@
       },
 
 
-    });
-  }
-  .setAnno(ANNO.__INIT__, function() {
-    regisAiSetter("drone-miner", this);
-  });
-  exports._droneMiner = _droneMiner;
+    }),
+  );

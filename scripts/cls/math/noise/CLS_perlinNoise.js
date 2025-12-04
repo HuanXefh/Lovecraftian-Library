@@ -18,9 +18,7 @@ const MATH_interp = require("lovec/math/MATH_interp");
 /* <---------- meta ----------> */
 
 
-const CLS_perlinNoise = function() {
-  this.init.apply(this, arguments);
-}.extendClass(CLS_whiteNoise).initClass();
+const CLS_perlinNoise = newClass().extendClass(CLS_whiteNoise).initClass();
 
 
 CLS_perlinNoise.prototype.init = function(w, h, gridW, gridH) {
@@ -74,6 +72,7 @@ ptp.setVecData = function(seed) {
 ptp.buildNoise = function(seed) {
   const thisIns = this;
 
+  if(this.isBuilt) return this.noiseData;
   if(seed == null) seed = -1.0;
 
   this.setVecData(seed);
@@ -115,6 +114,7 @@ ptp.buildNoise = function(seed) {
   this.forEachPon((i, j) => {
     thisIns.noiseData[j][i] = max === min ? 0.0 : ((thisIns.noiseData[j][i] - min) / (max - min));
   });
+  this.isBuilt = true;
 
   return this.noiseData;
 };

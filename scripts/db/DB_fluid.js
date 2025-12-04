@@ -1,34 +1,40 @@
 const db = {
 
 
-  "param": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "dens": [],
+  param: {
 
 
-    "boil": [],
+    dens: [],
 
 
-    "fHeat": [],
+    boil: [],
 
 
-    "visc": [],
+    fHeat: [],
 
 
-    "corrosion": [],
+    visc: [],
 
 
-    "pol": [],
+    corrosion: [],
+
+
+    pol: [],
 
 
   },
 
 
-  "map": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "recipe": {
+  map: {
+
+
+    recipe: {
 
 
     },
@@ -37,7 +43,10 @@ const db = {
   },
 
 
-  "group": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  group: {
 
 
     /* ----------------------------------------
@@ -45,61 +54,61 @@ const db = {
      *
      * The most basic fluid groups. Fluids in the same groups will share some parameters.
      * ---------------------------------------- */
-    "elementary": {
+    elementary: {
 
 
-      "brine": [],
+      brine: [],
 
 
-      "acidAq": [],
+      acidAq: [],
 
 
-      "baseAq": [],
+      baseAq: [],
 
 
-      "acidGas": [],
+      acidGas: [],
 
 
-      "baseGas": [],
+      baseGas: [],
 
 
-      "acidSub": [],
+      acidSub: [],
 
 
-      "baseSub": [],
+      baseSub: [],
 
 
-      "alc": [],
+      alc: [],
 
 
-      "acidAlc": [],
+      acidAlc: [],
 
 
-      "baseAlc": [],
+      baseAlc: [],
 
 
-      "oil": [],
+      oil: [],
 
 
-      "acidOil": [],
+      acidOil: [],
 
 
-      "baseOil": [],
+      baseOil: [],
 
 
-      "slurry": [],
+      slurry: [],
 
 
-      "acidSlurry": [],
+      acidSlurry: [],
 
 
-      "baseSlurry": [],
+      baseSlurry: [],
 
 
-      "melt": [],
+      melt: [],
 
 
-      "sMelt": [],
+      sMelt: [],
 
 
     },
@@ -110,25 +119,25 @@ const db = {
      *
      * Fluid tag groups, used for corrosion affinities.
      * ---------------------------------------- */
-    "fTag": {
+    fTag: {
 
 
-      "chloric": [],
+      chloric: [],
 
 
-      "fluoric": [],
+      fluoric: [],
 
 
-      "oxidative": [],
+      oxidative: [],
 
 
-      "reductive": [],
+      reductive: [],
 
 
-      "dehydrative": [],
+      dehydrative: [],
 
 
-      "unstable": [],
+      unstable: [],
 
 
     },
@@ -140,7 +149,7 @@ const db = {
      * @CONTENTGEN
      * These fluids contains water.
      * ---------------------------------------- */
-    "aqueous": [],
+    aqueous: [],
 
 
     /* ----------------------------------------
@@ -149,7 +158,7 @@ const db = {
      * @CONTENTGEN
      * These fluids are acidic.
      * ---------------------------------------- */
-    "acidic": [],
+    acidic: [],
 
 
     /* ----------------------------------------
@@ -158,7 +167,7 @@ const db = {
      * @CONTENTGEN
      * These fluids are basic.
      * ---------------------------------------- */
-    "basic": [],
+    basic: [],
 
 
     /* ----------------------------------------
@@ -168,7 +177,7 @@ const db = {
      * These fluids are conductive, and cause short circuit for some blocks.
      * Automatically merges with {"aqueous"} group.
      * ---------------------------------------- */
-    "conductive": [],
+    conductive: [],
 
 
     /* ----------------------------------------
@@ -177,7 +186,7 @@ const db = {
      * These fluids will fume.
      * I mean extra visual effects for the puddle, don't put gas here.
      * ---------------------------------------- */
-    "fuming": [],
+    fuming: [],
 
 
     /* ----------------------------------------
@@ -185,16 +194,19 @@ const db = {
      *
      * Fluids like regular air.
      * ---------------------------------------- */
-    "air": [],
+    air: [],
 
 
   },
 
 
-  "grpParam": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "dens": [
+  grpParam: {
+
+
+    dens: [
 
       "acidGas", 0.00121,
       "baseGas", 0.00121,
@@ -215,7 +227,7 @@ const db = {
     ],
 
 
-    "viscWrap": [
+    viscWrap: [
 
       "alc", 0.5286,
       "acidAlc", 0.5286,
@@ -237,7 +249,7 @@ const db = {
      *
      * Default boiling point for elementary fluid groups.
      * ---------------------------------------- */
-    "boil": [
+    boil: [
 
       "brine", 100.0,
       "acidAq", 100.0,
@@ -266,7 +278,7 @@ const db = {
      *
      * Default corrosion power for elementary fluid groups.
      * ---------------------------------------- */
-    "corrosion": [
+    corrosion: [
 
       "brine", 1.0,
       "acidAq", 1.3,
@@ -295,10 +307,10 @@ const db = {
      *
      * Corrosion multiplier for a pair of material and fluid.
      * ---------------------------------------- */
-    "matEleScl": {
+    matEleScl: {
 
 
-      "wood": [
+      wood: [
 
         "acidAq", 5.0,
         "baseAq", 5.0,
@@ -316,7 +328,7 @@ const db = {
       ],
 
 
-      "iron": [
+      iron: [
 
         "brine", 7.0,
         "acidAq", 5.5,
@@ -331,7 +343,7 @@ const db = {
       ],
 
 
-      "steel": [
+      steel: [
 
         "brine", 4.5,
         "acidAq", 2.0,
@@ -342,7 +354,7 @@ const db = {
       ],
 
 
-      "galvanized": [
+      galvanized: [
 
         "acidAq", 1.5,
         "acidGas", 2.0,
@@ -352,14 +364,14 @@ const db = {
       ],
 
 
-      "stainless": [
+      stainless: [
 
         "brine", 4.5,
 
       ],
 
 
-      "cement": [
+      cement: [
 
         "brine", 5.0,
         "acidAq", 2.5,
@@ -372,7 +384,7 @@ const db = {
       ],
 
 
-      "rubber": [
+      rubber: [
 
         "acidGas", 2.0,
         "baseGas", 2.0,
@@ -393,10 +405,10 @@ const db = {
      *
      * Extra corrosion multiplier for a pair of material and fluid tag.
      * ---------------------------------------- */
-    "matFTagScl": {
+    matFTagScl: {
 
 
-      "wood": [
+      wood: [
 
         "oxidative", 5.0,
         "reductive", 5.0,
@@ -405,7 +417,7 @@ const db = {
       ],
 
 
-      "copper": [
+      copper: [
 
         "ammoniacal", 8.0,
         "chloric", 6.0,
@@ -413,21 +425,21 @@ const db = {
       ],
 
 
-      "lead": [
+      lead: [
 
         "oxidative", 4.5,
 
       ],
 
 
-      "glass": [
+      glass: [
 
         "fluoric", 12.5,
 
       ],
 
 
-      "rubber": [
+      rubber: [
 
         "fluoric", 7.5,
         "oxidative", 4.5,
@@ -439,6 +451,9 @@ const db = {
 
 
   },
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
 };

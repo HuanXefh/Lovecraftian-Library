@@ -50,16 +50,26 @@
     let intNum = Math.round(this);
     let abs = Math.abs(Math.round(this));
 
-    if(abs < 1000.0) {return String(this)}
-    else if(abs < 1000000.0) {return intNum / 1000.0 + "k"}
-    else if(abs < 1000000000.0) {return intNum / 1000000.0 + "m"}
-    else if(abs < 1000000000000.0) {return intNum / 1000000000.0 + "b"}
-    else if(abs < 1000000000000000.0) {return intNum / 1000000000000.0 + "t"}
-    else return "!LARGE";
+    if(abs < 1000.0) {
+      return String(this);
+    } else if(abs < 1000000.0) {
+      return intNum / 1000.0 + "k";
+    } else if(abs < 1000000000.0) {
+      return intNum / 1000000.0 + "m";
+    } else if(abs < 1000000000000.0) {
+      return intNum / 1000000000.0 + "b";
+    } else if(abs < 1000000000000000.0) {
+      return intNum / 1000000000000.0 + "t";
+    } else {
+      return "!LARGE";
+    };
   };
 
 
   /* <---------- string ----------> */
+
+
+  var cls = String;
 
 
   /* ----------------------------------------
@@ -70,11 +80,10 @@
    * {null} in the arguments will be ignored.
    * Arrays in the arguments will finally get flattened.
    * ---------------------------------------- */
-  String.multiline = function() {
+  cls.multiline = function() {
     let str_fi = "";
     let args = Array.from(arguments).flatten().filter(tmp => tmp != null);
-    let i = 0;
-    let iCap = args.length;
+    let i = 0, iCap = args.length;
     while(i < iCap) {
       str_fi += args[i];
       if(i !== iCap - 1) str_fi += "\n";
@@ -96,8 +105,7 @@
    * ---------------------------------------- */
   ptp.format = function() {
     let str = this, strTg;
-    let i = 0;
-    let iCap = arguments.length;
+    let i = 0, iCap = arguments.length;
     while(i < iCap) {
       strTg = "\\[\\$" + (i + 1) + "\\]";
       str = str.replace(new RegExp(strTg, "g"), arguments[i]);
@@ -144,8 +152,7 @@
     let scl_fi = Mathf.clamp(scl, 0.0, 0.9999);
     let color, color_f, color_t;
     let frac, indBase, indCap;
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     let jCap = colors.iCap();
     while(i < iCap) {
       frac = Mathf.mod(i / scl_fi / iCap + off, 1.0);

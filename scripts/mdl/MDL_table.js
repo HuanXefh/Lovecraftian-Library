@@ -23,14 +23,10 @@
   const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
-  const TP_dial = require("lovec/tp/TP_dial");
   const TP_stat = require("lovec/tp/TP_stat");
 
 
   /* <---------- base ----------> */
-
-
-  /* spacing */
 
 
   /* ----------------------------------------
@@ -46,18 +42,15 @@
   exports.__margin = __margin;
 
 
-  /* new line */
-
-
   /* ----------------------------------------
    * NOTE:
    *
    * Adds empty lines.
    * ---------------------------------------- */
   const __break = function(tb, repeat) {
-    if(repeat == null) repeat = 2;
-
-    for(let i = 0; i < repeat; i++) {tb.add("").row()};
+    tryVal(repeat, 2)._it(1, i => {
+      tb.add("").row();
+    });
   };
   exports.__break = __break;
 
@@ -71,11 +64,9 @@
     if(color == null) color = Color.darkGray;
     if(stroke == null) stroke = 4.0;
 
-    if(w == null) {
-      tb.image().color(color).height(stroke).pad(0.0).growX().fillX().row();
-    } else {
+    w == null ?
+      tb.image().color(color).height(stroke).pad(0.0).growX().fillX().row() :
       tb.image().color(color).width(w).height(stroke).pad(0.0).fillX().row();
-    };
   };
   exports.__bar = __bar;
 
@@ -89,29 +80,26 @@
     if(color == null) color = Color.darkGray;
     if(stroke == null) stroke = 4.0;
 
-    if(h == null) {
-      return tb.image().color(color).width(stroke).pad(0.0).growY().fillY();
-    } else {
-      return tb.image().color(color).width(stroke).height(h).pad(0.0).fillY();
-    };
+    return h == null ?
+      tb.image().color(color).width(stroke).pad(0.0).growY().fillY() :
+      tb.image().color(color).width(stroke).height(h).pad(0.0).fillY();
   };
   exports.__barV = __barV;
-
-
-  /* text */
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * A text line that is wrapped.
+   * A standard text line with length wrapped.
    * ---------------------------------------- */
   const __wrapLine = function(tb, str, align, ord, padLeft) {
-    if(align == null) align = Align.left;
-    if(ord == null) ord = 0;
-    if(padLeft == null) padLeft = 0.0;
-
-    tb.add(str).center().labelAlign(align).wrap().width(MDL_ui._uiW(null, null, ord * VAR.rad_ordRad)).padLeft(padLeft).row();
+    tb.add(str)
+    .center()
+    .labelAlign(tryVal(align, Align.left))
+    .wrap()
+    .width(MDL_ui._uiW(null, null, tryVal(ord, 0) * VAR.rad_ordRad))
+    .padLeft(tryVal(padLeft, 0.0))
+    .row();
   };
   exports.__wrapLine = __wrapLine;
 
@@ -122,12 +110,12 @@
    * Used when a dialog has no contents.
    * ---------------------------------------- */
   const __textNothing = function(tb) {
-    tb.add(MDL_bundle._info("lovec", "nothing").color(Color.lightGray)).center().row();
+    tb.add(MDL_bundle._info("lovec", "nothing")
+    .color(Color.lightGray))
+    .center()
+    .row();
   };
   exports.__textNothing = __textNothing;
-
-
-  /* input */
 
 
   /* ----------------------------------------
@@ -135,13 +123,13 @@
    *
    * The basic button template.
    * ---------------------------------------- */
-  const __btnBase = function(tb, nm, scr, w, h) {
-    if(w == null) w = 200.0;
-    if(h == null) h = 50.0;
-
-    return tb.button(nm, scr).size(w, h).center().pad(12.0);
+  const __btn = function(tb, nm, scr, w, h) {
+    return tb.button(nm, scr)
+    .size(tryVal(w, 200.0), tryVal(h, 50.0))
+    .center()
+    .pad(12.0);
   };
-  exports.__btnBase = __btnBase;
+  exports.__btn = __btn;
 
 
   /* ----------------------------------------
@@ -149,10 +137,13 @@
    *
    * Template for icon button.
    * ---------------------------------------- */
-  const __btnSmallBase = function(tb, icon, scr) {
-    return tb.button(icon, scr).size(42.0).center().pad(12.0);
+  const __btnSmall = function(tb, icon, scr) {
+    return tb.button(icon, scr)
+    .size(42.0)
+    .center()
+    .pad(12.0);
   };
-  exports.__btnSmallBase = __btnSmallBase;
+  exports.__btnSmall = __btnSmall;
 
 
   /* ----------------------------------------
@@ -162,10 +153,7 @@
    * ---------------------------------------- */
   const __btnClose = function(tb, dial, w, h) {
     dial.addCloseListener();
-
-    return __btnBase(tb, "@close", () => {
-      dial.hide();
-    }, w, h);
+    return __btn(tb, "@close", () => dial.hide(), w, h);
   };
   exports.__btnClose = __btnClose;
 
@@ -173,12 +161,10 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * A button to visit a website.
+   * A button to visit some website.
    * ---------------------------------------- */
   const __btnLink = function(tb, nm, url, w, h) {
-    return __btnBase(tb, nm, () => {
-      Core.app.openURI(url);
-    }, w, h);
+    return __btn(tb, nm, () => Core.app.openURI(url), w, h);
   };
   exports.__btnLink = __btnLink;
 
@@ -186,14 +172,12 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Base for config buttons.
+   * Basic config button.
    * ---------------------------------------- */
-  const __btnCfg_base = function(tb, b, scr, icon, w) {
-    if(w == null) w = 24.0;
-
-    return tb.button(icon, w, () => scr(b)).center();
+  const __btnCfg = function(tb, b, scr, icon, w) {
+    return tb.button(icon, tryVal(w, 24.0), () => scr(b)).center();
   };
-  exports.__btnCfg_base = __btnCfg_base;
+  exports.__btnCfg = __btnCfg;
 
 
   /* ----------------------------------------
@@ -201,15 +185,10 @@
    *
    * A config button to switch {bool} property in a building.
    * ---------------------------------------- */
-  const __btnCfg_toggle = function(tb, b, icon1, icon2, bool, w) {
-    if(w == null) w = 24.0;
-
-    return tb.button(bool ? icon1 : icon2, w, () => {
-      Call.tileConfig(Vars.player, b, !bool);
-      b.deselect();
-    }).center();
+  const __btnCfgToggle = function(tb, b, iconTrue, iconFalse, bool, w) {
+    return tb.button(bool ? iconTrue : iconFalse, tryVal(w, 24.0), () => {b.configure(!bool); b.deselect()}).center();
   };
-  exports.__btnCfg_toggle = __btnCfg_toggle;
+  exports.__btnCfgToggle = __btnCfgToggle;
 
 
   /* ----------------------------------------
@@ -218,13 +197,13 @@
    * Simply a slider.
    * ---------------------------------------- */
   const __slider = function(tb, valCaller, min, max, step, def, w) {
-    if(valCaller == null) valCaller = Function.air;
-    if(min == null) min = 0;
-    if(max == null) max = 2;
-    if(step == null) step = 1;
-    if(def == null) def = min;
-
-    let sliderCell = tb.slider(min, max, step, def, valCaller);
+    let sliderCell = tb.slider(
+      tryVal(min, 0),
+      tryVal(max, 2),
+      tryVal(step, 1),
+      tryVal(def, tryVal(min, 0)),
+      tryVal(valCaller, Function.air),
+    );
     if(w != null) {
       sliderCell.width(w);
       sliderCell.get().width = w;
@@ -235,7 +214,19 @@
   exports.__slider = __slider;
 
 
-  /* content */
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A slider bar used mostly for config.
+   * ---------------------------------------- */
+  const __sliderCfg = function(tb, b, strGetter, min, max, step, def, w) {
+    return tb.table(Styles.none, tb1 => {
+      tb1.add("").get().setText(prov(() => strGetter(b)));
+      tb1.row();
+      __slider(tb1, val => b.configure(val), min, max, step, def, w);
+    }).growX();
+  };
+  exports.__sliderCfg = __sliderCfg;
 
 
   /* ----------------------------------------
@@ -246,12 +237,13 @@
   const __blkEffc = function(tb, blk, mtp, nmAttr, w, dial) {
     if(blk == null) return;
     if(w == null) w = 64.0;
+    let str = (Math.abs(mtp) < 0.0001) ? "" : ((mtp < 0.0 ? "-" : "") + Strings.autoFixed(mtp * 100.0, 2) + "%");
 
-    let str = (Math.abs(mtp) < 0.0001) ? "" : (Strings.autoFixed(mtp * 100.0, 2) + "%");
     return tb.table(Styles.none, tb1 => {
       tb.left();
       tb1.table(Styles.none, tb2 => {
         tb2.left();
+        // @TABLE: block icon
         let btn = tb2.button(new TextureRegionDrawable(blk.uiIcon), w, () => {
           Vars.ui.content.show(blk);
           if(dial != null) dial.hide();
@@ -259,20 +251,17 @@
         .tooltip(blk.localizedName + ((nmAttr == null) ? "" : ("\n\n[green]" + MDL_attr._attrB(nmAttr) + "[]")))
         .padRight(-18.0)
         .get();
-        tb2.table(Styles.none, tb3 => {
-          tb3.left();
-          __break(tb3);
-          tb3.add(str)
-          .fontScale(0.85)
-          .left()
-          .style(Styles.outlineLabel)
-          .color(mtp < 0.0 ? Pal.remove : Pal.accent);
-        });
         btn.margin(0.0);
         let btnStyle = btn.getStyle();
         btnStyle.up = Styles.none;
         btnStyle.down = Styles.none;
         btnStyle.over = Styles.flatOver;
+        // @TABLE: efficiency label
+        tb2.table(Styles.none, tb3 => {
+          tb3.left();
+          __break(tb3);
+          tb3.add(str).fontScale(0.85).left().style(Styles.outlineLabel).color(mtp < 0.0 ? Pal.remove : Pal.accent);
+        });
       }).padRight(4.0);
     }).left().padRight(8.0).padTop(4.0).padBottom(4.0);
   };
@@ -283,7 +272,6 @@
    * NOTE:
    *
    * A content icon that can be clicked to show its stat page.
-   * Set {dial} to hide some dialog when clicked.
    * ---------------------------------------- */
   const __ct = function(tb, ct, w, pad, dial) {
     if(ct == null) return;
@@ -296,7 +284,6 @@
     })
     .pad(pad)
     .tooltip(ct.localizedName, true);
-
     let btn = btnCell.get();
     btn.margin(0.0);
     let btnStyle = btn.getStyle();
@@ -353,15 +340,18 @@
     if(ct == null) return;
     if(amt == null) amt = -1;
     if(p == null) p = 1.0;
-    if(cancelLiq == null) cancelLiq = false;
     if(w == null) w = 32.0;
-
-    var str = (amt < 0) ? " ": ((ct instanceof Liquid && !cancelLiq) ? Strings.autoFixed(amt * 60.0, 2) + "/s" : Strings.autoFixed(amt, 0));
+    let str = amt < 0 ?
+      "" :
+      ct instanceof Liquid && !cancelLiq ?
+        (Strings.autoFixed(amt * 60.0, 2) + "/s") :
+        Strings.autoFixed(amt, 0);
 
     return tb.table(Styles.none, tb1 => {
       tb1.left();
       tb1.table(Styles.none, tb2 => {
         tb2.left();
+        // @TABLE: content icon
         let btn = tb2.button(new TextureRegionDrawable(ct.uiIcon), w, () => {
           if(dial != null) dial.hide();
           Vars.ui.content.show(ct);
@@ -369,24 +359,23 @@
         .tooltip(ct.localizedName)
         .padRight(-4.0)
         .get();
-        tb2.table(Styles.none, tb3 => {
-          tb3.left();
-          tb3.add((Math.abs(p - 1.0) > 0.0001) ? (Strings.autoFixed(p * 100.0, 2) + "%") : "")
-          .left()
-          .fontScale(0.85)
-          .style(Styles.outlineLabel)
-          .color(Color.gray)
-          .row();
-          tb3.add(str)
-          .left()
-          .fontScale(0.85)
-          .style(Styles.outlineLabel);
-        });
         btn.margin(0.0);
         let btnStyle = btn.getStyle();
         btnStyle.up = Styles.none;
         btnStyle.down = Styles.none;
         btnStyle.over = Styles.flatOver;
+        // @TABLE: content label
+        tb2.table(Styles.none, tb3 => {
+          tb3.left();
+          // Probability (top right)
+          tb3.add(
+            Math.abs(p - 1.0) < 0.0001 ?
+              "" :
+              (Strings.autoFixed(p * 100.0, 2) + "%")
+          ).left().fontScale(0.85).style(Styles.outlineLabel).color(Color.gray).row();
+          // Amount (bottom right)
+          tb3.add(str).left().fontScale(0.85).style(Styles.outlineLabel);
+        });
       }).padRight(6.0);
     }).left().padRight(12.0).padTop(4.0).padBottom(4.0);
   };
@@ -401,18 +390,15 @@
    *
    * Sets a gray area holding text lines.
    * ---------------------------------------- */
-  const setDisplay_note = function(tb, str, ord, padLeft, noGrow) {
-    if(str == null) return;
-    if(ord == null) ord = 1;
-    if(padLeft == null) padLeft = 0.0;
-
-    let cell = tb.table(Tex.whiteui, tb1 => {
+  const setDisplay_note = function(tb, str, ord, padLeft) {
+    const noteCell = tb.table(Tex.whiteui, tb1 => {
       tb1.center().setColor(Pal.darkestGray);
       __margin(tb1, 1.5);
-      __wrapLine(tb1, str.color(Color.gray), Align.left, ord, padLeft);
+      __wrapLine(tb1, str.color(Color.gray), Align.left, tryVal(ord, 1), padLeft);
     }).padTop(8.0).padBottom(8.0);
-    if(!noGrow) cell.growX();
-    cell.row();
+    noteCell.row();
+
+    return noteCell;
   };
   exports.setDisplay_note = setDisplay_note;
 
@@ -430,14 +416,14 @@
     if(colorTitle == null) colorTitle = colorLine;
     if(colorBase == null) colorBase = Pal.darkestGray;
     if(stroke == null) stroke = 2.0;
-    if(imgW = 32.0);
+    if(imgW == null) imgW = 32.0;
 
     let rowAmt = matArr.iCap();
     let colAmt = matArr[0].iCap();
     if(rowAmt === 0 || colAmt === 0) return;
 
-    const cont =  new Table();
-    tb.add(cont);
+    const contCell = tb.table(Styles.none, tb1 => {});
+    const cont = contCell.get();
 
     for(let i = 0; i < colAmt; i++) {
       let tbCol = cont.table(Styles.none, tb1 => {}).grow().get();
@@ -454,12 +440,10 @@
 
         tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
         tbRow.table(Tex.whiteui, tbCell => {
-
           tbCell.left().setColor(j === 0 ? colorTitle : colorBase);
           __margin(tbCell, 0.25);
 
           let tmp = matArr[j][i];
-
           if(tmp instanceof TextureRegion) {
             tbCell.image(tmp).width(imgW).height(imgW);
           } else if(tmp instanceof UnlockableContent) {
@@ -473,7 +457,6 @@
           } else {
             tbCell.add("!ERR");
           };
-
         }).growX().height(j === 0 ? 24.0 : (imgW + 8.0));
         tbRow.table(Styles.none, tb => {}).width(stroke).height(stroke);
         tbRow.row();
@@ -484,6 +467,8 @@
         tbRow.row();
       };
     };
+
+    return contCell;
   };
   exports.setTable_base = setTable_base;
 
@@ -496,55 +481,63 @@
    *
    * Sets a list that shows contents in rows.
    * ---------------------------------------- */
-  const setDisplay_ctRow = function(tb, cts_gn_p, showOrd) {
-    let cts_gn;
-    if(showOrd == null) showOrd = false;
-    if(cts_gn_p instanceof Array) {
-      cts_gn = cts_gn_p
-    } else {
-      cts_gn = [cts_gn_p];
-      showOrd = false;
-    };
-
-    __break(tb, 1);
+  const setDisplay_ctRow = function thisFun(tb, cts_gn_p, showOrd) {
+    let cts_gn = cts_gn_p instanceof Array ? cts_gn_p : [cts_gn_p];
+    showOrd = showOrd && cts_gn.length > 0;
 
     let ordCur = 0;
+    const contCell = tb.table(Styles.none, tb1 => {});
+    const cont = contCell.get();
+    contCell.row();
+
+    __break(cont, 1);
     cts_gn.forEachFast(ct_gn => {
       let ct = MDL_content._ct(ct_gn, null, true);
-      if(ct != null) {
-        tb.table(Tex.whiteui, tb1 => {
-          tb1.left().setColor(Pal.darkestGray);
-          __margin(tb1);
-          // @TABLE: order
-          if(showOrd) tb1.table(Styles.none, tb2 => {
-            tb2.left();
-            tb2.table(Styles.none, tb3 => {
-              tb3.center();
-              tb3.add("[" + Strings.fixed(ordCur + 1.0, 0) + "]").color(Pal.accent);
-            }).width(48.0);
-          }).marginRight(18.0).growY();
-          // @TABLE: content icon
-          tb1.table(Styles.none, tb2 => {
-            tb2.left();
-            tb2.image(ct.uiIcon).size(Vars.iconLarge).padRight(18.0);
-            __barV(tb2).padRight(18.0);
-            tb2.add(ct.localizedName);
-          });
-          // @TABLE: spacing
-          tb1.table(Styles.none, tb2 => {}).width(80.0).growX().growY();
-          // @TABLE: "?" button
-          tb1.table(Styles.none, tb2 => {
-            tb2.left();
-            tb2.button("?", () => Vars.ui.content.show(ct)).size(VAR.rad_charBtnRad);
-          });
-        }).growX().row();
+      if(ct == null) return;
 
-        __break(tb, 1);
+      cont.table(Tex.whiteui, tb1 => {
+        tb1.left().setColor(Pal.darkestGray);
+        __margin(tb1);
 
-        ordCur++;
-      };
+        thisFun.buildOrder(tb1, ct, showOrd, ordCur);
+        thisFun.buildRowContent(tb1, ct);
+      }).growX().row();
+
+      __break(cont, 1);
+      ordCur++;
     });
-  };
+
+    return contCell;
+  }
+  .setProp({
+    buildOrder: (tb, ct, showOrd, ordCur) => {
+      if(!showOrd) return;
+
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        tb1.table(Styles.none, tb2 => {
+          tb2.center();
+          tb2.add("[" + Strings.fixed(ordCur + 1, 0) + "]").color(Pal.accent);
+        }).width(48.0);
+      }).marginRight(18.0).growY();
+    },
+    buildRowContent: (tb, ct) => {
+      // @TABLE: content icon
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        tb1.image(ct.uiIcon).size(Vars.iconLarge).padRight(18.0);
+        __barV(tb1).padRight(18.0);
+        tb1.add(ct.localizedName);
+      });
+      // @TABLE: spacing
+      tb.table(Styles.none, tb1 => {}).width(80.0).growX().growY();
+      // @TABLE: "?" button
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        tb1.button("?", () => Vars.ui.content.show(ct)).size(VAR.rad_charBtnRad);
+      });
+    },
+  });
   exports.setDisplay_ctRow = setDisplay_ctRow;
 
 
@@ -556,26 +549,27 @@
   const setDisplay_ctLi = function(tb, cts_gn_p, iconW, colAmt, dial) {
     if(iconW == null) iconW = 32.0;
     if(colAmt == null) colAmt = MDL_ui._colAmt(iconW, 0.0, 2);
-
     let cts_gn = cts_gn_p instanceof Array ? cts_gn_p : [cts_gn_p];
 
-    tb.table(Tex.whiteui, tb1 => {
+    const contCell = tb.table(Tex.whiteui, tb1 => {
       tb1.left().setColor(Pal.darkestGray);
       __margin(tb1, 0.5);
 
-      let iCap = cts_gn.length;
-      if(iCap === 0) return;
-      for(let i = 0, j = 0; i < iCap; i++) {
+      let i = 0, iCap = cts_gn.iCap(), j = 0;
+      while(i < iCap) {
         (function(i) {
           let ct = MDL_content._ct(cts_gn[i], null, true);
-          if(ct == null) return;
-          __ct(tb1, ct, iconW, null, dial);
+          if(ct != null) __ct(tb1, ct, iconW, null, dial);
         })(i);
 
         if(j % colAmt === colAmt - 1) tb1.row();
         j++;
+        i++;
       };
-    }).left().row();
+    }).left();
+    contCell.row();
+
+    return contCell;
   };
   exports.setDisplay_ctLi = setDisplay_ctLi;
 
@@ -591,68 +585,66 @@
     if(rowAmt == null) rowAmt = 4;
     if(colAmt == null) colAmt = 4;
 
-    let search = null;
-    let countRow = 0;
-    let btnGrp = new ButtonGroup();
-    btnGrp.setMinCheckCount(0);
-    btnGrp.setMaxCheckCount(1);
+    let
+      search = null,
+      searchText,
+      searchArr,
+      btnGrp = (function(btnGrp) {btnGrp.setMinCheckCount(0); btnGrp.setMaxCheckCount(1); return btnGrp})(new ButtonGroup()),
+      countRow = 0,
+      i, iCap, j;
+
     const cont = new Table().top();
     cont.defaults().size(40.0);
-
-    const rebuild = () => {
+    const rebuildCont = () => {
       btnGrp.clear();
       cont.clearChildren();
 
-      let text = search == null ? "" : search.getText().replace("=", "");
+      searchText = search == null ? "" : search.getText().replace(/=/g, "");
+      searchArr = cts.filter(ct => searchText === "" || MDL_text._searchValid(ct, searchText));
       countRow = 0;
+      i = 0, iCap = searchArr.iCap(), j = 0;
+      while(i < iCap) {
+        j += (function(i) {
+          let ct = searchArr[i];
+          if(!MDL_cond._isRsAvailable(ct)) return 0;
 
-      let arr = cts.filter(ct => text === "" || MDL_text._searchValid(ct, text));
-      let iCap = arr.iCap();
-      if(iCap > 0) {
-        for(let i = 0, j = 0; i < iCap; i++) {
-          j += (function(i) {
-            let ct = arr[i];
-            if(!MDL_cond._isRsAvailable(ct)) return 0;
+          let btn = cont.button(Tex.whiteui, Styles.clearNoneTogglei, Mathf.clamp(ct.selectionSize, 0.0, 40.0), () => {if(closeSelect) Vars.control.input.config.hideConfig()}).tooltip(ct.localizedName, true).group(btnGrp).get();
+          btn.changed(() => cfgCaller(btn.isChecked() ? ct : null));
+          btn.getStyle().imageUp = new TextureRegionDrawable(ct.uiIcon);
+          btn.update(() => btn.setChecked(ctGetter() === ct));
 
-            let btn = cont.button(Tex.whiteui, Styles.clearNoneTogglei, Mathf.clamp(ct.selectionSize, 0.0, 40.0), () => {
-              if(closeSelect) Vars.control.input.config.hideConfig();
-            }).tooltip(ct.localizedName, true).group(btnGrp).get();
-            btn.changed(() => cfgCaller(btn.isChecked() ? ct : null));
-            btn.getStyle().imageUp = new TextureRegionDrawable(ct.uiIcon);
-            btn.update(() => btn.setChecked(ctGetter() === ct));
-
-            return 1;
-          })(i);
-
-          if((j - 1) % colAmt == colAmt - 1) {
-            cont.row();
-            j = 0;
-            countRow++;
-          };
+          return 1;
+        })(i);
+        if((j - 1) % colAmt === colAmt - 1) {
+          cont.row();
+          j = 0;
+          countRow++;
         };
+        i++;
       };
     };
-    rebuild();
+    rebuildCont();
 
     const root = new Table().background(Styles.black6);
-    if(countRow > rowAmt * 1.5) root.table(Styles.none, tb1 => {
-      tb1.image(Icon.zoom).padLeft(4.0);
-      search = tb1.field(null, text => {
-        if(text.endsWith("=")) rebuild();
-      }).padBottom(4.0).left().growX().get();
-      search.setMessageText("@info.lovec-info-search.name");
-    }).growX().row();
-
-    const pn = new ScrollPane(cont, Styles.smallPane);
-    pn.setScrollingDisabled(true, false);
-    pn.exited(() => {
-      if(pn.hasScroll()) Core.scene.setScrollFocus(null);
-    });
-    if(blk != null) {
-      pn.setScrollYForce(blk.selectScroll);
-      pn.update(() => blk.selectScroll = pn.getScrollY());
+    if(countRow > rowAmt * 1.5) {
+      root.table(Styles.none, tb1 => {
+        tb1.image(Icon.zoom).padLeft(4.0);
+        searchText = tb1.field(null, text => {if(text.endsWith("=")) rebuildCont()}).padBottom(4.0).left().growX().get();
+        searchText.setMessageText("@info.lovec-info-search.name");
+      }).growX().row();
     };
-    pn.setOverscroll(false, false);
+
+    const pn = (function(pn) {
+      pn.setScrollingDisabled(true, false);
+      pn.exited(() => {if(pn.hasScroll()) Core.scene.setScrollFocus(null)});
+      if(blk != null) {
+        pn.setScrollYForce(blk.selectScroll);
+        pn.update(() => blk.selectScroll = pn.getScrollY());
+      };
+      pn.setOverscroll(false, false);
+
+      return pn;
+    })(new ScrollPane(cont, Styles.smallPane));
 
     root.add(pn).maxHeight(rowAmt * 40.0).growX();
     tb.top().add(root).width(colAmt * 40.0 + 28.0);
@@ -671,68 +663,66 @@
     if(colAmt == null) colAmt = 4;
     if(max == null) max = Number.intMax;
 
-    let search = null;
-    let countRow = 0;
-    let btnGrp = new ButtonGroup();
-    btnGrp.setMinCheckCount(0);
-    btnGrp.setMaxCheckCount(max);
+    let
+      search = null,
+      searchText,
+      searchArr,
+      btnGrp = (function(btnGrp) {btnGrp.setMinCheckCount(0); btnGrp.setMaxCheckCount(max); return btnGrp})(new ButtonGroup()),
+      countRow = 0,
+      i, iCap, j;
+
     const cont = new Table().top();
     cont.defaults().size(40.0);
-
-    const rebuild = () => {
+    const rebuildCont = () => {
       btnGrp.clear();
       cont.clearChildren();
 
-      let text = search == null ? "" : search.getText().replace("=", "");
+      searchText = search == null ? "" : search.getText().replace(/=/g, "");
+      searchArr = cts.filter(ct => searchText === "" || MDL_text._searchValid(ct, searchText));
       countRow = 0;
+      i = 0, iCap = searchArr.iCap(), j = 0;
+      while(i < iCap) {
+        j += (function(i) {
+          let ct = searchArr[i];
+          if(!MDL_cond._isRsAvailable(ct)) return 0;
 
-      let arr = cts.filter(ct => text === "" || MDL_text._searchValid(ct, text));
-      let iCap = arr.iCap();
-      if(iCap > 0) {
-        for(let i = 0, j = 0; i < iCap; i++) {
-          j += (function(i) {
-            let ct = arr[i];
-            if(!MDL_cond._isRsAvailable(ct)) return 0;
+          let btn = cont.button(Tex.whiteui, Styles.clearNoneTogglei, Mathf.clamp(ct.selectionSize, 0.0, 40.0), () => {if(closeSelect) Vars.control.input.config.hideConfig()}).tooltip(ct.localizedName, true).group(btnGrp).get();
+          btn.changed(() => cfgCaller((btn.isChecked() ? ["selector", ct, true] : ["selector", ct, false]).toJavaArr()));
+          btn.getStyle().imageUp = new TextureRegionDrawable(ct.uiIcon);
+          btn.update(() => btn.setChecked(ctsGetter().includes(ct)));
 
-            let btn = cont.button(Tex.whiteui, Styles.clearNoneTogglei, Mathf.clamp(ct.selectionSize, 0.0, 40.0), () => {
-              if(closeSelect) Vars.control.input.config.hideConfig();
-            }).tooltip(ct.localizedName, true).group(btnGrp).get();
-            btn.changed(() => cfgCaller((btn.isChecked() ? ["selector", ct, true] : ["selector", ct, false]).toJavaArr()));
-            btn.getStyle().imageUp = new TextureRegionDrawable(ct.uiIcon);
-            btn.update(() => btn.setChecked(ctsGetter().includes(ct)));
-
-            return 1;
-          })(i);
-
-          if((j - 1) % colAmt == colAmt - 1) {
-            cont.row();
-            j = 0;
-            countRow++;
-          };
+          return 1;
+        })(i);
+        if((j - 1) % colAmt === colAmt - 1) {
+          cont.row();
+          j = 0;
+          countRow++;
         };
+        i++;
       };
     };
-    rebuild();
+    rebuildCont();
 
     const root = new Table().background(Styles.black6);
-    if(countRow > rowAmt * 1.5) root.table(Styles.none, tb1 => {
-      tb1.image(Icon.zoom).padLeft(4.0);
-      search = tb1.field(null, text => {
-        if(text.endsWith("=")) rebuild();
-      }).padBottom(4.0).left().growX().get();
-      search.setMessageText("@info.lovec-info-search.name");
-    }).growX().row();
-
-    const pn = new ScrollPane(cont, Styles.smallPane);
-    pn.setScrollingDisabled(true, false);
-    pn.exited(() => {
-      if(pn.hasScroll()) Core.scene.setScrollFocus(null);
-    });
-    if(blk != null) {
-      pn.setScrollYForce(blk.selectScroll);
-      pn.update(() => blk.selectScroll = pn.getScrollY());
+    if(countRow > rowAmt * 1.5) {
+      root.table(Styles.none, tb1 => {
+        tb1.image(Icon.zoom).padLeft(4.0);
+        searchText = tb1.field(null, text => {if(text.endsWith("=")) rebuildCont()}).padBottom(4.0).left().growX().get();
+        searchText.setMessageText("@info.lovec-info-search.name");
+      }).growX().row();
     };
-    pn.setOverscroll(false, false);
+
+    const pn = (function(pn) {
+      pn.setScrollingDisabled(true, false);
+      pn.exited(() => {if(pn.hasScroll()) Core.scene.setScrollFocus(null)});
+      if(blk != null) {
+        pn.setScrollYForce(blk.selectScroll);
+        pn.update(() => blk.selectScroll = pn.getScrollY());
+      };
+      pn.setOverscroll(false, false);
+
+      return pn;
+    })(new ScrollPane(cont, Styles.smallPane));
 
     root.add(pn).maxHeight(rowAmt * 40.0).growX();
     tb.top().add(root).width(colAmt * 40.0 + 28.0);
@@ -748,28 +738,27 @@
    *
    * Sets attribute display that supports multiple attributes.
    * ---------------------------------------- */
-  const setDisplay_attr = function(tb, attrs_gn_p, boolF, iconW, colAmt, dial) {
+  const setDisplay_attr = function(tb, attrs_gn_p, boolF, scl, iconW, colAmt, dial) {
+    if(scl == null) scl = 1.0;
     if(iconW == null) iconW = 64.0;
     if(colAmt == null) colAmt = MDL_ui._colAmt(iconW, 0.0, 2);
 
     let map = MDL_attr._blkAttrMap(attrs_gn_p, boolF);
-
+    let i = 0, iCap = map.iCap(), j = 0;
     tb.table(Styles.none, tb1 => {
       tb1.left();
       __margin(tb1, 0.5);
 
-      let iCap = map.length;
-      if(iCap === 0) return;
-      for(let i = 0, j = 0; i < iCap; i += 3) {
+      while(i < iCap) {
         (function(i) {
-          let blk = map[i];
-          let attrVal = map[i + 1];
-          let nmAttr = map[i + 2];
-          __blkEffc(tb1, blk, attrVal, nmAttr, iconW, dial);
+          __blkEffc(tb1, map[i], map[i + 1] * scl, map[i + 2], iconW, dial);
         })(i);
-
-        if(j % colAmt === colAmt - 1) tb1.row();
+        if(j % colAmt === colAmt - 1) {
+          tb1.row();
+          j = 0;
+        };
         j++;
+        i += 3;
       };
     }).left().row();
   };
@@ -782,11 +771,10 @@
    * Sets a gray area holding faction icon and name.
    * ---------------------------------------- */
   const setDisplay_faction = function(tb, ct) {
-    if(ct == null) return;
-
-    let faction = MDL_content._faction(ct);
-    let factionB = MDL_content._factionB(faction);
-    let factionColor = MDL_content._factionColor(faction);
+    let
+      faction = MDL_content._faction(ct),
+      factionB = MDL_content._factionB(faction),
+      factionColor = MDL_content._factionColor(faction);
 
     tb.table(Tex.whiteui, tb1 => {
       tb1.center().setColor(Pal.darkestGray);
@@ -798,7 +786,7 @@
             "lovec-faction-none" :
             MDL_content._mod(ct) + "-faction-" + faction,
         )),
-        () => TP_dial.cts.ex_show(
+        () => fetchDial("cts").ex_show(
           factionB.color(factionColor),
           VARGEN.factions[faction],
           true,
@@ -814,11 +802,20 @@
       btnStyle.over = Styles.flatOver;
 
       tb1.add(factionB).fontScale(1.1).color(factionColor);
-    }).padTop(8.0).padBottom(8.0).growX().row();
+    })
+    .padTop(8.0)
+    .padBottom(8.0)
+    .growX()
+    .row();
   };
   exports.setDisplay_faction = setDisplay_faction;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Sets factory family boxes.
+   * ---------------------------------------- */
   const setDisplay_facFami = function(tb, blk) {
     const root = new Table();
     __break(tb, 1);
@@ -848,6 +845,12 @@
   /* <---------- recipe ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Sets recipe display for {BLK_recipeFactory}.
+   * Table hell ahead!
+   * ---------------------------------------- */
   const setDisplay_recipe = function(tb, rcMdl, blk, isCollapsed, noInnerPane) {
     if(MDL_recipe._rcSize(rcMdl) === 0) {
       __textNothing(tb);
@@ -866,9 +869,9 @@
       tb.add(contPn).maxHeight(720.0).row();
     __break(tb, 1);
 
-    const categHeaderObj = MDL_recipe._categHeaderObj(rcMdl);
-    let i = 1;
-    for(let categ in categHeaderObj) {
+    /* START OF HELL */
+
+    const buildCateg = (categ) => {
       let chunk = new Table();
       cont.left().add(chunk).growX().row();
 
@@ -897,235 +900,226 @@
       __break(chunk, 1);
 
       categHeaderObj[categ].forEachFast(rcHeader => {
-        let timeScl = MDL_recipe._timeScl(rcMdl, rcHeader);
-        let isGen = MDL_recipe._isGen(rcMdl, rcHeader);
-
-        let lockedByCts = MDL_recipe._lockedBy(rcMdl, rcHeader, true);
-
-        let tempReq = MDL_recipe._tempReq(rcMdl, rcHeader);
-        let tempAllowed = MDL_recipe._tempAllowed(rcMdl, rcHeader);
-        let durabDecMtp = MDL_recipe._durabDecMtp(rcMdl, rcHeader);
-
         let ci = MDL_recipe._ci(rcMdl, rcHeader);
         let bi = MDL_recipe._bi(rcMdl, rcHeader);
         let aux = MDL_recipe._aux(rcMdl, rcHeader);
-        let reqOpt = MDL_recipe._reqOpt(rcMdl, rcHeader);
         let opt = MDL_recipe._opt(rcMdl, rcHeader);
         let co = MDL_recipe._co(rcMdl, rcHeader);
         let bo = MDL_recipe._bo(rcMdl, rcHeader);
-        let failP = MDL_recipe._failP(rcMdl, rcHeader);
         let fo = MDL_recipe._fo(rcMdl, rcHeader);
 
         // @TABLE: recipe root
         rcRoot.table(Tex.whiteui, tb1 => {
           tb1.left().setColor(Pal.darkestGray);
-          // @TABLE: order
-          tb1.table(Styles.none, tb2 => {
-            tb2.left();
-            tb2.table(Styles.none, tb3 => {
-              tb3.center();
-              tb3.add("[" + Strings.fixed(i, 0) + "]").color(Pal.accent);
-            }).width(72.0);
-            __barV(tb2, Pal.accent);
-          }).left().growY();
-          // @TABLE: spacing
+
+          buildOrder(tb1, i);
           tb1.table(Styles.none, tb2 => {}).left().width(36.0).growY();
-          // @TABLE: input root
-          tb1.table(Styles.none, tb2 => {
-            tb2.left();
-            // @TABLE: BI
-            if(bi.length > 0) {
-              tb2.table(Styles.none, tb3 => {
-                tb3.left();
-                __margin(tb3);
-                tb3.add("BI:").left().tooltip(MDL_bundle._term("lovec", "bi"), true).row();
-                tb3.table(Styles.none, tb4 => {
-                  let i = 0;
-                  let iCap = bi.iCap();
-                  while(i < iCap) {
-                    let tmp = bi[i];
-                    if(!(tmp instanceof Array)) {
-                      let amt = bi[i + 1];
-                      let p = bi[i + 2];
-                      __rcCt(tb4, tmp, amt, p, true);
-                    } else {
-                      tb4.table(Tex.whiteui, tb5 => {
-                        tb5.left().setColor(Color.darkGray);
-                        let j = 0;
-                        let jCap = tmp.iCap();
-                        while(j < jCap) {
-                          let tmp1 = tmp[j];
-                          let amt = tmp[j + 1];
-                          let p = tmp[j + 2];
-                          __rcCt(tb5, tmp1, amt, p, true).row();
-                          j += 3;
-                        };
-                      }).padRight(16.0);
-                    };
-                    i += 3;
-                  };
-                }).left().marginRight(24.0);
-              });
-            };
-            // @TABLE: CI
-            if(ci.length > 0) {
-              tb2.table(Styles.none, tb3 => {
-                tb3.left();
-                __margin(tb3);
-                tb3.add("CI:").left().tooltip(MDL_bundle._term("lovec", "ci"), true).row();
-                tb3.table(Styles.none, tb4 => {
-                  let i = 0;
-                  let iCap = ci.iCap();
-                  while(i < iCap) {
-                    let tmp = ci[i];
-                    let amt = ci[i + 1];
-                    __rcCt(tb4, tmp, amt);
-                    i += 2;
-                  };
-                });
-              }).left().marginRight(24.0);
-            };
-            // @TABLE: AUX
-            if(aux.length > 0) {
-              tb2.table(Styles.none, tb3 => {
-                tb3.left();
-                __margin(tb3);
-                tb3.add("AUX:").left().tooltip(MDL_bundle._term("lovec", "aux"), true).row();
-                tb3.table(Styles.none, tb4 => {
-                  let i = 0;
-                  let iCap = aux.iCap();
-                  while(i < iCap) {
-                    let tmp = aux[i];
-                    let amt = aux[i + 1];
-                    __rcCt(tb4, tmp, amt);
-                    i += 2;
-                  };
-                });
-              }).left().marginRight(24.0);
-            };
-            // @TABLE: OPT
-            if(opt.length > 0) {
-              tb2.table(Styles.none, tb3 => {
-                tb3.left();
-                __margin(tb3);
-                tb3.add("OPT:").left().tooltip(MDL_bundle._term("lovec", "opt"), true).row();
-                tb3.button("?", () => TP_dial.rcOpt.ex_show(MDL_bundle._term("lovec", "opt"), opt)).size(34.0).pad(3.0);
-              }).left().marginRight(24.0);
-            };
-            // @TABLE: spacing
-            tb2.table(Styles.none, tb3 => {}).left().width(24.0).growX().growY();
-          }).left().growX().growY();
-          // @TABLE: spacing
-          tb1.table(Styles.none, tb2 => {}).width(48.0).growX().growY();
-          // @TABLE: output base
-          tb1.table(Styles.none, tb2 => {
-            tb2.left();
-            // @TABLE: BO
-            if(bo.length > 0) {
-              tb2.table(Styles.none, tb3 => {
-                tb3.left();
-                __margin(tb3);
-                tb3.add("BO:").left().tooltip(MDL_bundle._term("lovec", "bo"), true).row();
-                tb3.table(Styles.none, tb4 => {
-                  let i = 0;
-                  let iCap = bo.iCap();
-                  while(i < iCap) {
-                    let tmp = bo[i];
-                    let amt = bo[i + 1];
-                    let p = bo[i + 2];
-                    __rcCt(tb4, tmp, amt, p, true);
-                    i += 3;
-                  };
-                });
-              }).left().marginRight(24.0);
-            };
-            // @TABLE: CO
-            if(co.length > 0) {
-              tb2.table(Styles.none, tb3 => {
-                tb3.left();
-                __margin(tb3);
-                tb3.add("CO:").left().tooltip(MDL_bundle._term("lovec", "co"), true).row();
-                tb3.table(Styles.none, tb4 => {
-                  let i = 0;
-                  let iCap = co.iCap();
-                  while(i < iCap) {
-                    let tmp = co[i];
-                    let amt = co[i + 1];
-                    __rcCt(tb4, tmp, amt);
-                    i += 2;
-                  };
-                });
-              }).left().marginRight(24.0);
-            };
-            // @TABLE: FO
-            if(fo.length > 0) {
-              tb2.table(Styles.none, tb3 => {
-                tb3.left();
-                __margin(tb3);
-                tb3.add("FO:").left().tooltip(MDL_bundle._term("lovec", "fo"), true).row();
-                tb3.table(Styles.none, tb4 => {
-                  let i = 0;
-                  let iCap = fo.iCap();
-                  while(i < iCap) {
-                    let tmp = fo[i];
-                    let amt = fo[i + 1];
-                    let p = fo[i + 2];
-                    __rcCt(tb4, tmp, amt, p, true);
-                    i += 3;
-                  };
-                });
-              }).left().marginRight(24.0);
-            };
-          }).left().growY();
-          // @TABLE: recipe stats
-          tb1.table(Styles.none, tb2 => {
-            __barV(tb2, Pal.accent);
-            // @TABLE: spacing
-            tb2.table(Styles.none, tb3 => {}).width(24.0);
-            tb2.table(Styles.none, tb3 => {
-              tb3.left();
-              if(isGen) tb3.add(MDL_bundle._term("lovec", "generated-recipe").color(Color.gray)).left().row();
-              if(!timeScl.fEqual(1.0)) tb3.add(MDL_text._statText(
-                MDL_bundle._term("lovec", "time-required"),
-                Strings.fixed(timeScl, 1) + "x (" + Strings.autoFixed(blk.craftTime * timeScl / 60.0, 2) + "s)",
-              )).left().row();
-              if(reqOpt) tb3.add(MDL_text._statText(
-                MDL_bundle._term("lovec", "require-optional"),
-                MDL_bundle._base("yes"),
-              )).left().row();
-              if(failP > 0.0) tb3.add(MDL_text._statText(
-                MDL_bundle._term("lovec", "chance-to-fail"),
-                failP.perc(1),
-              )).left().row();
-              if(tempReq > 0.0) tb3.add(MDL_text._statText(
-                MDL_bundle._term("lovec", "temperature-required"),
-                Strings.fixed(tempReq, 2),
-                TP_stat.rs_heatUnits.localized(),
-              )).left().row();
-              if(tempAllowed < Infinity) tb3.add(MDL_text._statText(
-                MDL_bundle._term("lovec", "temperature-allowed"),
-                Strings.fixed(tempAllowed, 2),
-                TP_stat.rs_heatUnits.localized(),
-              )).left().row();
-              if(!durabDecMtp.fEqual(1.0)) tb3.add(MDL_text._statText(
-                MDL_bundle._term("lovec", "abrasion-multiplier"),
-                durabDecMtp.perc(),
-              )).left().row();
-              if(lockedByCts.length > 0) {
-                tb3.table(Styles.none, tb4 => {
-                  tb4.left();
-                  tb4.add(MDL_text._statText(MDL_bundle._term("lovec", "require-unlocking"), "")).left();
-                  lockedByCts.forEachFast(ct => __ct(tb4, ct, 28.0, 0.0));
-                }).left().row();
-              };
-            }).left().width(360.0).growX();
-            // @TABLE: spacing
-            tb2.table(Styles.none, tb3 => {}).width(20.0);
-          }).growY();
+          buildInput(tb1, ci, bi, aux, opt);
+          tb1.table(Styles.none, tb2 => {}).left().width(48.0).growX().growY();
+          buildOutput(tb1, co, bo, fo);
+          buildRcStats(tb1, rcMdl, rcHeader);
         }).left().growX().row();
         __bar(rcRoot, Color.valueOf("303030"), null, 1.0);
+
         i++;
       });
+    };
+
+    const buildOrder = (tb, i) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        tb1.table(Styles.none, tb2 => {
+          tb2.center();
+          tb2.add("[" + Strings.fixed(i, 0) + "]").color(Pal.accent);
+        }).width(72.0);
+        __barV(tb1, Pal.accent);
+      }).left().growY();
+    };
+
+    const buildInput = (tb, ci, bi, aux, opt) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        if(bi.length > 0) buildBi(tb1, bi);
+        if(ci.length > 0) buildCi(tb1, ci);
+        if(aux.length > 0) buildAux(tb1, aux);
+        if(opt.length > 0) buildOpt(tb1, opt);
+        tb1.table(Styles.none, tb2 => {}).left().width(24.0).growX().growY();
+      }).left().growY();
+    };
+
+    const buildOutput = (tb, co, bo, fo) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        if(bo.length > 0) buildBo(tb1, bo);
+        if(co.length > 0) buildCo(tb1, co);
+        if(fo.length > 0) buildFo(tb1, fo);
+      }).left().growY();
+    };
+
+    const buildBi = (tb, bi) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("BI:").left().tooltip(MDL_bundle._term("lovec", "bi"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          bi.forEachRow(3, (tmp, amt, p) => {
+            if(!(tmp instanceof Array)) {
+              __rcCt(tb2, tmp, amt, p, true);
+            } else {
+              tb2.table(Tex.whiteui, tb3 => {
+                tb3.left().setColor(Color.darkGray);
+                tmp.forEachRow(3, (tmp1, amt, p) => {
+                  __rcCt(tb3, tmp1, amt, p, true).row();
+                });
+              }).padRight(16.0);
+            };
+          });
+        }).left().marginRight(24.0);
+      });
+    };
+
+    const buildCi = (tb, ci) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("CI:").left().tooltip(MDL_bundle._term("lovec", "ci"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          ci.forEachRow(2, (tmp, amt) => {
+            __rcCt(tb2, tmp, amt);
+          });
+        });
+      }).left().marginRight(24.0);
+    };
+
+    const buildAux = (tb, aux) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("AUX:").left().tooltip(MDL_bundle._term("lovec", "aux"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          aux.forEachRow(2, (tmp, amt) => {
+            __rcCt(tb2, tmp, amt);
+          });
+        });
+      }).left().marginRight(24.0);
+    };
+
+    const buildOpt = (tb, opt) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("OPT:").left().tooltip(MDL_bundle._term("lovec", "opt"), true).row();
+        tb1.button("?", () => fetchDial("rcOpt").ex_show(MDL_bundle._term("lovec", "opt"), opt)).size(34.0).pad(3.0);
+      }).left().marginRight(24.0);
+    };
+
+    const buildBo = (tb, bo) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("BO:").left().tooltip(MDL_bundle._term("lovec", "bo"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          bo.forEachRow(3, (tmp, amt, p) => {
+            __rcCt(tb2, tmp, amt, p, true);
+          });
+        });
+      }).left().marginRight(24.0);
+    };
+
+    const buildCo = (tb, co) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("CO:").left().tooltip(MDL_bundle._term("lovec", "co"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          co.forEachRow(2, (tmp, amt) => {
+            __rcCt(tb2, tmp, amt);
+          });
+        });
+      }).left().marginRight(24.0);
+    };
+
+    const buildFo = (tb, fo) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("FO:").left().tooltip(MDL_bundle._term("lovec", "fo"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          bo.forEachRow(3, (tmp, amt, p) => {
+            __rcCt(tb2, tmp, amt, p, true);
+          });
+        });
+      }).left().marginRight(24.0);
+    };
+
+    const buildRcStats = (tb, rcMdl, rcHeader) => {
+      // Meta
+      let timeScl = MDL_recipe._timeScl(rcMdl, rcHeader);
+      let isGen = MDL_recipe._isGen(rcMdl, rcHeader);
+      // General
+      let lockedByCts = MDL_recipe._lockedBy(rcMdl, rcHeader, true);
+      let attr = MDL_recipe._attr(rcMdl, rcHeader);
+      let attrBoostScl = MDL_recipe._attrBoostScl(rcMdl, rcHeader);
+      // Specific
+      let tempReq = MDL_recipe._tempReq(rcMdl, rcHeader);
+      let tempAllowed = MDL_recipe._tempAllowed(rcMdl, rcHeader);
+      let durabDecMtp = MDL_recipe._durabDecMtp(rcMdl, rcHeader);
+      // I/O
+      let reqOpt = MDL_recipe._reqOpt(rcMdl, rcHeader);
+      let failP = MDL_recipe._failP(rcMdl, rcHeader);
+
+      tb.table(Styles.none, tb1 => {
+        __barV(tb1, Pal.accent);
+        tb1.table(Styles.none, tb2 => {}).width(24.0);
+        tb1.table(Styles.none, tb2 => {
+          let addStat = newMultiFunction(
+            function(cond, str) {
+              if(cond) tb2.add(str).left().row();
+            },
+            function(cond, titleStr, valStr) {
+              if(cond) tb2.add(MDL_text._statText(titleStr, valStr)).left().row();
+            },
+            function(cond, titleStr, valStr, unitStr) {
+              if(cond) tb2.add(MDL_text._statText(titleStr, valStr, unitStr)).left().row();
+            },
+          );
+
+          tb2.left();
+
+          // Stats
+          addStat(isGen, MDL_bundle._term("lovec", "generated-recipe").color(Pal.gray));
+          addStat(!timeScl.fEqual(1.0), MDL_bundle._term("lovec", "time-required"), Strings.fixed(timeScl, 1) + "x (" + Strings.autoFixed(blk.craftTime * timeScl / 60.0, 2) + "s)");
+          addStat(reqOpt, MDL_bundle._term("lovec", "require-optional"), MDL_bundle._base("yes"));
+          addStat(failP > 0.0, MDL_bundle._term("lovec", "chance-to-fail"), failP.perc(1));
+          addStat(tempReq > 0.0, MDL_bundle._term("lovec", "temperature-required"), Strings.fixed(tempReq, 2), TP_stat.rs_heatUnits.localized());
+          addStat(tempAllowed < Infinity, MDL_bundle._term("lovec", "temperature-allowed"), Strings.fixed(tempAllowed, 2), TP_stat.rs_heatUnits.localized());
+          addStat(!durabDecMtp.fEqual(1.0), MDL_bundle._term("lovec", "abrasion-multiplier"), durabDecMtp.perc());
+          if(lockedByCts.length > 0) {
+            tb2.table(Styles.none, tb3 => {
+              tb3.left();
+              tb3.add(MDL_text._statText(MDL_bundle._term("lovec", "require-unlocking"), "")).left();
+              lockedByCts.forEachFast(ct => __ct(tb3, ct, 28.0, 0.0));
+            }).left().row();
+          };
+          if(attr != null) {
+            tb2.add(MDL_text._statText(TP_stat.blk_attrReq.localized(), MDL_attr._attrB(attr))).left().tooltip(cons(tb => {
+              tb.table(Styles.black6, tb1 => {
+                __margin(tb1);
+                setDisplay_attr(tb1, attr, null, attrBoostScl, 40.0, 5);
+              });
+            })).row();
+          };
+        }).left().width(360.0).growX();
+        tb1.table(Styles.none, tb2 => {}).width(20.0);
+      }).growY();
+    };
+
+    /* END OF HELL */
+
+    const categHeaderObj = MDL_recipe._categHeaderObj(rcMdl);
+    let i = 1;
+    for(let categ in categHeaderObj) {
+      buildCateg(categ);
     };
   };
   exports.setDisplay_recipe = setDisplay_recipe;
@@ -1135,55 +1129,51 @@
     if(closeSelect == null) closeSelect = true;
     if(colAmt == null) colAmt = 4;
 
-    let btnGrp = new ButtonGroup();
-    btnGrp.setMinCheckCount(0);
-    btnGrp.setMaxCheckCount(1);
-    let rcMdl = b.block.ex_getRcMdl();
-    let categHeaderObj = MDL_recipe._categHeaderObj(rcMdl);
+    let
+      rcMdl = b.block.ex_getRcMdl(),
+      categHeaderObj = MDL_recipe._categHeaderObj(rcMdl),
+      btnGrp = (function(btnGrp) {btnGrp.setMinCheckCount(0); btnGrp.setMaxCheckCount(1); return btnGrp})(new ButtonGroup());
 
     tb.button("?", () => Vars.ui.content.show(b.block)).left().size(42.0).row();
 
-    const root = new Table().background(Styles.black6);
-    root.margin(4.0);
-    tb.top().add(root);
-
-    const rebuild = () => {
+    const cont = new Table().background(Styles.black6);
+    cont.margin(4.0);
+    tb.top().add(cont);
+    const rebuildCont = () => {
       btnGrp.clear();
-      root.clearChildren();
+      cont.clearChildren();
 
       for(let categ in categHeaderObj) {
-        root.add(MDL_recipe._categB(categ)).left().pad(4.0).row();
+        cont.add(MDL_recipe._categB(categ)).left().pad(4.0).row();
 
-        let i = 0;
+        let j = 0;
         let chunk = new Table();
         categHeaderObj[categ].forEachFast(rcHeader => {
           let ct = MDL_content._ct(MDL_recipe._iconNm(rcMdl, rcHeader), null, true);
           let icon = MDL_recipe._icon(rcMdl, rcHeader);
-          let validGetter = MDL_recipe._validGetter_fi(rcMdl, rcHeader);
+          let validGetter = MDL_recipe._finalValidGetter(rcMdl, rcHeader);
           let ttStr = MDL_recipe._ttStr(rcMdl, rcHeader, validGetter(b));
 
-          let btn = chunk.button(Tex.whiteui, Styles.clearNoneTogglei, 40.0, () => {
-            if(closeSelect) Vars.control.input.config.hideConfig();
-          }).tooltip(ttStr, true).group(btnGrp).get();
+          let btn = chunk.button(Tex.whiteui, Styles.clearNoneTogglei, 40.0, () => {if(closeSelect) Vars.control.input.config.hideConfig()}).tooltip(ttStr, true).group(btnGrp).get();
           btn.changed(() => cfgCaller(rcHeader));
           btn.getStyle().imageUp = validGetter(b) ? icon : Icon.lock;
           btn.update(() => {
             btn.setChecked(headerGetter() == rcHeader);
-            if(TIMER.timerState_effc) {
+            if(TIMER.secHalf) {
               btn.getStyle().imageUp = validGetter(b) ? icon : Icon.lock;
             };
           });
 
-          i++;
-          if((i - 1) % colAmt == colAmt - 1) {
+          j++;
+          if((j - 1) % colAmt == colAmt - 1) {
             chunk.row();
-            i = 0;
+            j = 0;
           };
         });
 
-        root.add(chunk).left().row();
+        cont.add(chunk).left().row();
       };
     };
-    rebuild();
+    rebuildCont();
   };
   exports.setSelector_recipe = setSelector_recipe;

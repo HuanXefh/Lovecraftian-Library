@@ -16,9 +16,7 @@
    *
    * Called on after all contents are initialized (after {postInit}).
    * ---------------------------------------- */
-  const _c_onInit = function(scr, id) {
-    const thisFun = _c_onInit;
-
+  const _c_onInit = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -37,9 +35,7 @@
    *
    * Called on client load.
    * ---------------------------------------- */
-  const _c_onLoad = function(scr, id) {
-    const thisFun = _c_onLoad;
-
+  const _c_onLoad = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -59,9 +55,7 @@
    * Called when starting loading a world.
    * It's known to be called before {drawBase}.
    * ---------------------------------------- */
-  const _c_onWorldLoadStart = function(scr, id) {
-    const thisFun = _c_onWorldLoadStart;
-
+  const _c_onWorldLoadStart = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -80,9 +74,7 @@
    *
    * Called when finishing loading a world.
    * ---------------------------------------- */
-  const _c_onWorldLoad = function(scr, id) {
-    const thisFun = _c_onWorldLoad;
-
+  const _c_onWorldLoad = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -101,9 +93,7 @@
    *
    * Called when saving a world.
    * ---------------------------------------- */
-  const _c_onWorldSave = function(scr, id) {
-    const thisFun = _c_onWorldSave;
-
+  const _c_onWorldSave = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -122,9 +112,7 @@
    *
    * Called every frame when the game is not paused.
    * ---------------------------------------- */
-  const _c_onUpdate = function(scr, id) {
-    const thisFun = _c_onUpdate;
-
+  const _c_onUpdate = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -143,9 +131,7 @@
    *
    * Called in the draw.
    * ---------------------------------------- */
-  const _c_onDraw = function(scr, id) {
-    const thisFun = _c_onDraw;
-
+  const _c_onDraw = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -164,9 +150,7 @@
    *
    * Called whenever a building gets damaged.
    * ---------------------------------------- */
-  const _c_onBDamage = function(scr, id) {
-    const thisFun = _c_onBDamage;
-
+  const _c_onBDamage = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -186,9 +170,7 @@
    * Called whenever a building is destroyed.
    * This really returns a {Tile} this time, WTF.
    * ---------------------------------------- */
-  const _c_onBDestroy = function(scr, id) {
-    const thisFun = _c_onBDestroy;
-
+  const _c_onBDestroy = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -207,9 +189,7 @@
    *
    * Called whenever a unit gets damaged.
    * ---------------------------------------- */
-  const _c_onUnitDamage = function(scr, id) {
-    const thisFun = _c_onUnitDamage;
-
+  const _c_onUnitDamage = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -228,9 +208,7 @@
    *
    * Called whenever a unit is destroyed.
    * ---------------------------------------- */
-  const _c_onUnitDestroy = function(scr, id) {
-    const thisFun = _c_onUnitDestroy;
-
+  const _c_onUnitDestroy = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -249,9 +227,7 @@
    *
    * Called whenever a unit drowns.
    * ---------------------------------------- */
-  const _c_onUnitDrown = function(scr, id) {
-    const thisFun = _c_onUnitDrown;
-
+  const _c_onUnitDrown = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -270,9 +246,7 @@
    *
    * Called when a tile is changed.
    * ---------------------------------------- */
-  const _c_onTileChange = function(scr, id) {
-    const thisFun = _c_onTileChange;
-
+  const _c_onTileChange = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -291,9 +265,7 @@
    *
    * Called before a tile is changed.
    * ---------------------------------------- */
-  const _c_onTilePreChange = function(scr, id) {
-    const thisFun = _c_onTilePreChange;
-
+  const _c_onTilePreChange = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -312,9 +284,7 @@
    *
    * Called when the floor block of a tile is changed.
    * ---------------------------------------- */
-  const _c_onTileFloorChange = function(scr, id) {
-    const thisFun = _c_onTileFloorChange;
-
+  const _c_onTileFloorChange = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -333,9 +303,7 @@
    *
    * Called when the overlay block of a tile is changed.
    * ---------------------------------------- */
-  const _c_onTileOverlayChange = function(scr, id) {
-    const thisFun = _c_onTileOverlayChange;
-
+  const _c_onTileOverlayChange = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
@@ -362,19 +330,13 @@
    *
    * Inspired by Extended-UI.
    * ---------------------------------------- */
-  const _c_onDrag = function(scr, id) {
-    const thisFun = _c_onDrag;
-
+  const _c_onDrag = function thisFun(scr, id) {
     if(id != null && thisFun.ids.includes(id)) return;
     if(id != null) thisFun.ids.push(id);
 
     let isDragged = false;
-    let startX = null;
-    let startY = null;
-    let lastX = null;
-    let lastY = null;
-    let x = null;
-    let y = null;
+    let startX = null, startY = null, lastX = null, lastY = null;
+    let x = null, y = null;
     Events.run(Trigger.update, () => {
 
       let isTapped = Core.input.keyTap(KeyCode.mouseLeft);

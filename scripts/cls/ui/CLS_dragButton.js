@@ -24,9 +24,7 @@ const DB_misc = require("lovec/db/DB_misc");
 /* <---------- meta ----------> */
 
 
-const CLS_dragButton = function() {
-  this.init.apply(this, arguments);
-}.initClass();
+const CLS_dragButton = newClass().initClass();
 
 
 CLS_dragButton.prototype.init = function() {
@@ -114,13 +112,13 @@ ptp.load = function() {
       obj["base"] :
       obj["base"].concat(obj["modded"]);
   })()
-  .forEachRow(2, (nm, tup) => {
-    thisIns.btnData[tup[0]].push([
+  .forEachRow(2, (nm, paramObj) => {
+    thisIns.btnData[readParam(paramObj, "rowInd", 0)].push([
       !Core.bundle.has("drag." + nm) ? null : Core.bundle.get("drag." + nm),
-      (function() {let icon; try {icon = Icon[tup[1]]} catch(err) {icon = new TextureRegionDrawable(Core.atlas.find(tup[1]))}; return icon})(),
-      tup[2],
-      tup[3],
-      tup[4],
+      (function() {let icon, iconStr = readParam(paramObj, "icon", "error"); try {icon = Icon[iconStr]} catch(err) {icon = new TextureRegionDrawable(Core.atlas.find(iconStr))}; return icon})(),
+      readParam(paramObj, "isToggle", false),
+      readParam(paramObj, "clickScr", Function.air),
+      readParam(paramObj, "updateScr", null),
     ]);
   });
   this.isLoaded = true;
@@ -205,7 +203,7 @@ ptp.update = function() {
  * ---------------------------------------- */
 ptp.add = function(x, y) {
   if(Core.scene == null) return;
-  if(x == null) x = MDL_ui._centerX() * 1.4;
+  if(x == null) x = MDL_ui._centerX() * 1.2;
   if(y == null) y = MDL_ui._centerY() * 0.4;
 
   this.rebuild();

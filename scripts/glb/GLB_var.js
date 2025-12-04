@@ -48,6 +48,16 @@
   exports.lay_unitRange = 115.03;
 
 
+  /* <---------- priority ----------> */
+
+
+  exports.prio_powTrans = 0.1;
+  exports.prio_min = 0.2;
+  exports.prio_fac = 0.5;
+  exports.prio_powGen = 1.4;
+  exports.prio_proj = 1.2;
+
+
   /* <---------- time ----------> */
 
 

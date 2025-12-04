@@ -60,44 +60,17 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a loaded mod by name.
-   * ---------------------------------------- */
-  const _loadedMod = function(nmMod) {
-    if(nmMod === "vanilla") return null;
-
-    return Vars.mods.locateMod(nmMod);
-  };
-  exports._loadedMod = _loadedMod;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the latest version (tag) of a repository on GitHub.
-   * If errored, the version will be {undefined}.
-   * ---------------------------------------- */
-  const _latestVer = function(owner, repo, caller) {
-    httpGet("https://api.github.com/repos/" + owner + "/" + repo + "/releases/latest", obj => {
-      caller(obj.tag_name);
-    });
-  };
-  exports._latestVer = _latestVer;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Localizes the mod stats.
    * Put {info.modname-info-mod} in your bundle.
    * ---------------------------------------- */
   const localizeModMeta = function(nmMod) {
-    let mod = _loadedMod(nmMod);
+    let mod = fetchMod(nmMod);
     if(mod == null) return;
 
     mod.meta.displayName = MDL_bundle._info(nmMod, "mod");
     mod.meta.description = MDL_bundle._info(nmMod, "mod", true);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.localizeModMeta = localizeModMeta;
 
 
@@ -107,9 +80,7 @@
    * Locks contents from some mod, for testing purpose.
    * If {cts} is given, this only locks mod contents in the array (NOT SEQ).
    * ---------------------------------------- */
-  const lockModContents = function(nmMod, cts, isUnlocking) {
-    const thisFun = lockModContents;
-
+  const lockModContents = function thisFun(nmMod, cts, isUnlocking) {
     if(cts != null) {
       cts.forEachFast(ct => {
         if(thisFun.checkTg(ct, nmMod)) isUnlocking ? ct.unlock() : ct.clearUnlock();
@@ -123,7 +94,6 @@
       TechTree.all.each(node => thisFun.checkTg(node.content, nmMod), node => node.reset());
     };
   }
-  .setAnno(ANNO.__DEBUG__)
   .setProp({
     defSeqs: [
       Vars.content.items(),
@@ -134,7 +104,8 @@
       Vars.content.sectors(),
     ],
     checkTg: (ct, nmMod) => ct.minfo.mod != null && ct.minfo.mod.name === nmMod,
-  });
+  })
+  .setAnno(ANNO.$DEBUG$);
   exports.lockModContents = lockModContents;
 
 

@@ -123,6 +123,8 @@
 */
 
 
+
+
   MDL_event._c_onUpdate(() => {
     if(PARAM.enableMemoryMonitor) {
       if(Vars.state.isGame()) {
@@ -132,9 +134,9 @@
           memMonitorRunning = true;
         };
         if(_memUse() > memUseMax) memUseMax = _memUse();
-        if(TIMER.timerState_memUse) memUseData.push(_memUse());
-        if(TIMER.timerState_memUseMean) memUseMeanData.push(_memUseMean());
-        if(TIMER.timerState_memPrint) _i_memMonitor();
+        if(TIMER.memUse) memUseData.push(_memUse());
+        if(TIMER.memUseMean) memUseMeanData.push(_memUseMean());
+        if(TIMER.memPrint) _i_memMonitor();
       } else {
         if(memMonitorRunning) {
           _i_memMonitorEnd();

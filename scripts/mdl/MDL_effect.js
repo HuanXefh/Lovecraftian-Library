@@ -36,53 +36,40 @@
   exports._p_frac = _p_frac;
 
 
-  const _se = function(se_gn) {
-    if(se_gn instanceof Sound) return se_gn;
-
-    return Vars.tree.loadSound(se_gn);
-  };
-  exports._se = _se;
-
-
   /* <---------- sound ----------> */
 
 
   const play = function(se_gn) {
     if(se_gn == null) return;
 
-    let se = _se(se_gn);
-    if(se != null) se.play();
+    fetchSound(se_gn).play();
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.play = play;
 
 
-  const play_global = function(se_gn, vol, pitch, offPitch) {
+  const play_server = function(se_gn, vol, pitch, offPitch) {
     if(se_gn == null) return;
-    let se = _se(se_gn);
-    if(se == null) return;
     if(vol == null) vol = 1.0;
     if(pitch == null) pitch = 1.0;
+    let pitch_fi = (offPitch == null) ? pitch : (pitch + Mathf.range(offPitch));
 
-    var pitch_fi = (offPitch == null) ? pitch : (pitch + Mathf.range(offPitch));
-    Call.sound(se, vol, pitch, 1.0);
+    Call.sound(fetchSound(se_gn), vol, pitch_fi, 1.0);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
-  .setAnno(ANNO.__SERVER__);
-  exports.play_global = play_global;
+  .setAnno(ANNO.$NON_HEADLESS$)
+  .setAnno(ANNO.$SERVER$);
+  exports.play_server = play_server;
 
 
   const playAt = function(x, y, se_gn, vol, pitch, offPitch) {
     if(se_gn == null) return;
-    let se = _se(se_gn);
-    if(se == null) return;
     if(vol == null) vol = 1.0;
     if(pitch == null) pitch = 1.0;
+    let pitch_fi = (offPitch == null) ? pitch : (pitch + Mathf.range(offPitch));
 
-    var pitch_fi = (offPitch == null) ? pitch : (pitch + Mathf.range(offPitch));
-    se.at(x, y, pitch_fi, vol);
+    fetchSound(se_gn).at(x, y, pitch_fi, vol);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.playAt = playAt;
 
 
@@ -98,7 +85,7 @@
       eff.at(x, y, rot, color) :
       eff.at(x, y, rot, color, data);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt = showAt;
 
 
@@ -107,12 +94,13 @@
     if(rot == null) rot = Mathf.random(360.0);
     if(color == null) color = Color.white;
 
-    showAt(x, y, eff, rot, color, data);
     data == null ?
       Call.effect(eff, x, y, rot, color) :
       Call.effect(eff, x, y, rot, color, data);
+
+    showAt(x, y, eff, rot, color, data);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_global = showAt_global;
 
 
@@ -121,16 +109,16 @@
 
     showAt(x + Mathf.range(rad), y + Mathf.range(rad), eff, rot, color, data);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAround = showAround;
 
 
-  const showAround_global = function(x, y, eff, rot, color, data) {
+  const showAround_global = function(x, y, eff, rad, rot, color, data) {
     if(Vars.state.isPaused() || eff == null) return;
 
-    showAt_global(x, y, eff, rot, color, data);
+    showAt_global(x + Mathf.range(rad), y + Mathf.range(rad), eff, rot, color, data);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAround_global = showAround_global;
 
 
@@ -150,7 +138,7 @@
 
     Effect.shake(pow, dur, x, y);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_shake = showAt_shake;
 
 
@@ -164,15 +152,14 @@
     if(rad == null) rad = 8.0;
     if(repeat == null) repeat = 1;
 
-    var x_i;
-    var y_i;
+    let x_i, y_i;
     (repeat)._it(1, i => {
       x_i = x + Mathf.range(rad);
       y_i = y + Mathf.range(rad);
       Effect.floorDust(x_i, y_i, 8.0);
     });
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_dust = showAt_dust;
 
 
@@ -181,18 +168,20 @@
    *
    * Creates an effect that shows click.
    * ---------------------------------------- */
-  const showAt_click = function(x, y, color_gn) {
-    const thisFun = showAt_click;
-
+  const showAt_click = function thisFun(x, y, color_gn) {
     if(Vars.state.isPaused()) return;
     if(color_gn == null) color_gn = Pal.accent;
 
     showAt(x, y, thisFun.eff, 0.0, MDL_color._color(color_gn));
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
-    eff: TP_effect._circleWave(2.0, 0.0, 6.0, null, 0.75),
-  });
+    eff: TP_effect._circleWave({
+      size_f: 2.0,
+      rad: 6.0,
+      scl: 0.75,
+    }),
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_click = showAt_click;
 
 
@@ -201,15 +190,12 @@
    *
    * Creates several circle spark effects.
    * ---------------------------------------- */
-  const showAt_colorDust = function(x, y, rad, color_gn) {
-    const thisFun = showAt_colorDust;
-
+  const showAt_colorDust = function thisFun(x, y, rad, color_gn) {
     if(Vars.state.isPaused()) return;
     if(rad == null) rad = 20.0;
 
     showAt(x, y, thisFun.eff, rad, MDL_color._color(color_gn));
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: (function() {
       const tmp = new Effect(80.0, eff => {
@@ -233,7 +219,8 @@
 
       return tmp;
     })(),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_colorDust = showAt_colorDust;
 
 
@@ -243,9 +230,7 @@
    * Creates a triangular effect that moves towards the nearest core.
    * Mostly used by CEP consumer blocks.
    * ---------------------------------------- */
-  const showAt_coreSignal = function(x, y, team, pad, rad) {
-    const thisFun = showAt_coreSignal;
-
+  const showAt_coreSignal = function thisFun(x, y, team, pad, rad) {
     if(Vars.state.isPaused() || team == null) return;
     if(team == null) return;
     let b = Vars.state.teams.closestCore(x, y, team);
@@ -255,7 +240,6 @@
 
     showAt(x, y, thisFun.eff, rad, team.color, [b, pad, Math.random() > 0.5]);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: new Effect(280.0, eff => {
       var ang = Mathf.angle(eff.data[0].x - eff.x, eff.data[0].y - eff.y);
@@ -271,25 +255,23 @@
         ang + 90.0 + 640.0 * eff.fin() * (eff.data[2] ? -1.0 : 1.0));
       Draw.reset();
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_coreSignal = showAt_coreSignal;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Creates a ripple effect on liquid floors.
+   * Creates a ripple effect.
    * ---------------------------------------- */
-  const showAt_ripple = function(x, y, rad, color_gn) {
-    const thisFun = showAt_ripple;
-
+  const showAt_ripple = function thisFun(x, y, rad, color_gn) {
     if(Vars.state.isPaused()) return;
     if(rad == null) rad = 18.0;
-    if(color_gn == null) color_gn = Vars.world.tile(x, y);
+    if(color_gn == null) color_gn = Vars.world.tileWorld(x, y);
 
     showAt(x, y, thisFun.eff, rad, MDL_color._color(color_gn));
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: (function() {
       const tmp = new Effect(30.0, eff => {
@@ -304,7 +286,8 @@
 
       return tmp;
     })(),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_ripple = showAt_ripple;
 
 
@@ -313,24 +296,22 @@
    *
    * Creates impact wave effect.
    * ---------------------------------------- */
-  const showAt_impactWave = function(x, y, rad) {
-    const thisFun = showAt_impactWave;
-
+  const showAt_impactWave = function thisFun(x, y, rad) {
     if(Vars.state.isPaused()) return;
 
     thisFun.effs.forEachFast(eff => {
       showAt(x, y, eff, rad);
     });
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     effs: [
-      TP_effect._impactWave(6.0, 0.0, null, 1.0),
-      TP_effect._impactWave(6.0, 0.0, null, 1.2),
-      TP_effect._impactWave(6.0, 0.0, null, 1.5),
-      TP_effect._impactWave(6.0, 0.0, null, 1.9),
+      TP_effect._impactWave(),
+      TP_effect._impactWave({scl: 1.2}),
+      TP_effect._impactWave({scl: 1.5}),
+      TP_effect._impactWave({scl: 1.9}),
     ],
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_impactWave = showAt_impactWave;
 
 
@@ -340,14 +321,11 @@
    * Creates rotor wave effect.
    * Used by rotor units.
    * ---------------------------------------- */
-  const showAt_rotorWave = function(x, y, rad) {
-    const thisFun = showAt_rotorWave;
-
+  const showAt_rotorWave = function thisFun(x, y, rad) {
     if(Vars.state.isPaused()) return;
 
     showAt(x, y, thisFun.eff, rad);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: (function() {
       const tmp = new Effect(20.0, eff => {
@@ -362,7 +340,8 @@
 
       return tmp;
     })(),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_rotorWave = showAt_rotorWave;
 
 
@@ -371,9 +350,7 @@
    *
    * Creates liquid corrosion effect.
    * ---------------------------------------- */
-  const showAt_corrosion = function(x, y, size, liqColor, isClogging) {
-    const thisFun = showAt_corrosion;
-
+  const showAt_corrosion = function thisFun(x, y, size, liqColor, isClogging) {
     if(Vars.state.isPaused()) return;
     if(size == null) size = 1;
     if(liqColor == null) liqColor = Color.white;
@@ -381,7 +358,6 @@
     var rad = size * Vars.tilesize * 0.5;
     showAround(x, y, thisFun.eff, rad, null, liqColor, tryVal(isClogging, false));
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: new Effect(120.0, eff => {
       Draw.z(VAR.lay_effBase);
@@ -392,7 +368,8 @@
         Fill.circle(eff.x, eff.y, 0.8 * sizeScl) :
         Draw.rect("lovec-efr-glob", eff.x, eff.y, 5.0 * sizeScl, 5.0 * sizeScl, eff.rotation);
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_corrosion = showAt_corrosion;
 
 
@@ -401,9 +378,7 @@
    *
    * Creates remains of a unit or building.
    * ---------------------------------------- */
-  const showAt_remains = function(x, y, e0etp, team, isPermanent, forceHot) {
-    const thisFun = showAt_remains;
-
+  const showAt_remains = function thisFun(x, y, e0etp, team, isPermanent, forceHot) {
     if(e0etp == null || team == null) return;
     let e = (e0etp instanceof Unit) ? e0etp : (e0etp instanceof Building ? e0etp : null);
     let etp = (e0etp instanceof Unit) ? e0etp.type : (e0etp instanceof Building ? e0etp.block : e0etp);
@@ -458,7 +433,7 @@
       softShadowRegion: etp instanceof Block ? null : etp.softShadowRegion,
       shouldFloat: shouldFloat,
       isHot: forceHot ? true : MDL_cond._isHot(e, t),
-      shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotSta(t.floor().status) || !inLiq),
+      shouldFadeHeat: forceHot ? false : (!MDL_cond._isHotStatus(t.floor().status) || !inLiq),
 
 
       draw() {
@@ -512,10 +487,10 @@
     });
     remains.add();
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     shader: TP_shader.shader0reg_debris,
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_remains = showAt_remains;
 
 
@@ -526,9 +501,7 @@
    * Color is only used for buildings, due to hard-coded {applyColor()}.
    * The only exception for unit is {Pal.heal}.
    * ---------------------------------------- */
-  const showAt_flash = function(e, color_gn) {
-    const thisFun = showAt_flash;
-
+  const showAt_flash = function thisFun(e, color_gn) {
     if(Vars.state.isPaused() || e == null) return;
 
     if(e instanceof Building) {
@@ -544,14 +517,14 @@
       };
     };
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: new Effect(20.0, eff => {
       let e = eff.data[1];
-
-      MDL_draw.drawRegion_normal(e.x, e.y, eff.data[0], e.drawrot(), 1.0, eff.color, eff.color.a * eff.fout(), Layer.effect + VAR.lay_offDrawOver, true);
+      
+      MDL_draw._reg_normal(e.x, e.y, eff.data[0], e.drawrot(), 1.0, eff.color, eff.color.a * eff.fout(), Layer.effect + VAR.lay_offDrawOver, 1.0);
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_flash = showAt_flash;
 
 
@@ -560,28 +533,23 @@
    *
    * Creates a texture region or icon that fades out.
    * ---------------------------------------- */
-  const showAt_regFade = function(x, y, reg0icon, color_gn, scl) {
-    const thisFun = showAt_regFade;
-
+  const showAt_regFade = function thisFun(x, y, reg0icon, color_gn, scl) {
     if(Vars.state.isPaused() || reg0icon == null) return;
     if(scl == null) scl = 1.0;
 
     showAt(x, y, thisFun.eff, scl, MDL_color._color(color_gn), reg0icon);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: new Effect(40.0, eff => {
       eff.lifetime = 40.0 * eff.rotation;
+      let a = eff.fout() * color.a;
 
-      var a = eff.fout() * color.a;
-
-      if(eff.data instanceof TextureRegion) {
-        MDL_draw.drawRegion_normal(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a, Layer.effect + VAR.lay_offDrawOver);
-      } else {
-        MDL_draw.drawRegion_icon(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a);
-      };
+      eff.data instanceof TextureRegion ?
+        MDL_draw._reg_normal(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a, Layer.effect + VAR.lay_offDrawOver) :
+        MDL_draw._reg_icon(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a);
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_regFade = showAt_regFade;
 
 
@@ -591,9 +559,7 @@
    * Creates a damage number effect.
    * Only works when damage display is enabled.
    * ---------------------------------------- */
-  const showAt_dmg = function(x, y, dmg, team, mode) {
-    const thisFun = showAt_dmg;
-
+  const showAt_dmg = function thisFun(x, y, dmg, team, mode) {
     if(!PARAM.displayDamage || dmg == null || dmg < 0.0001 || dmg < PARAM.damageDisplayThreshold) return;
     if(mode == null) mode = "health";
     if(!mode.equalsAny(thisFun.modes)) return;
@@ -619,16 +585,14 @@
         break;
     };
     if(color == null) return;
-
     let sizeScl = Math.max(Math.log((dmg + 10.0) / 10.0), 0.7);
 
     showAround(x, y, thisFun.eff, 8.0, dmg, color, [str, sizeScl]);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     modes: ["health", "shield", "heal", "heat"],
     eff: new Effect(40.0, eff => {
-      MDL_draw.drawText(
+      MDL_draw._d_text(
         eff.x,
         eff.y,
         eff.data[0],
@@ -640,7 +604,8 @@
         Math.min(eff.rotation / 10000.0, 10.0),
       );
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_dmg = showAt_dmg;
 
 
@@ -649,15 +614,12 @@
    *
    * Creates a line effect from (x, y) or {e0} to {e}.
    * ---------------------------------------- */
-  const showBetween_line = function(x, y, e0, e, color_gn, strokeScl) {
-    const thisFun = showBetween_line;
-
+  const showBetween_line = function thisFun(x, y, e0, e, color_gn, strokeScl) {
     if(Vars.state.isPaused() || e == null) return;
     if(strokeScl == null) strokeScl = 1.0;
 
     showAt(x, y, thisFun.eff, strokeScl, MDL_color._color(color_gn), [e0, e]);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: new Effect(40.0, eff => {
       let e0 = eff.data[0];
@@ -667,7 +629,8 @@
       Lines.line(e0 == null ? eff.x : e0.x, e0 == null ? eff.y : e0.y, eff.data[1].x, eff.data[1].y);
       Draw.reset();
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showBetween_line = showBetween_line;
 
 
@@ -685,7 +648,7 @@
       (isGlobal ? showAt_global : showAt)(x, y, Fx.itemTransfer, 0.0, MDL_color._color(color_gn), posIns);
     };
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showBetween_itemTransfer = showBetween_itemTransfer;
 
 
@@ -701,7 +664,7 @@
     showAt(x, y, Fx.chainLightning, 0.0, MDL_color._color(color_gn), e);
     if(hasSound) playAt(x, y, Sounds.spark);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showBetween_lightning = showBetween_lightning;
 
 
@@ -710,21 +673,24 @@
    *
    * A variant of {showBetween_lightning} that is used for a list of entities.
    * ---------------------------------------- */
-  const showAmong_lightning = function(x, y, es, color_gn, hasSound) {
+  const showAmong_lightning = function thisFun(x, y, es, color_gn, hasSound) {
     if(Vars.state.isPaused() || es == null || es.length === 0) return;
 
-    let i = 0;
-    let iCap = es.iCap();
+    let i = 0, iCap = es.iCap();
+    let e1, e2;
     while(i < iCap) {
-      let e1 = (i === 0) ? new Vec2(x, y) : es[i - 1];
-      let e2 = es[i];
+      e1 = (i === 0) ? thisFun.tmpVec.set(x, y) : es[i - 1];
+      e2 = es[i];
       showBetween_lightning(e1.x, e1.y, e2, color_gn);
       i++;
     };
 
     if(hasSound) playAt(x, y, Sounds.spark);
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setProp({
+    tmpVec: new Vec2(),
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAmong_lightning = showAmong_lightning;
 
 
@@ -733,20 +699,17 @@
    *
    * Line effect but replaced with laser.
    * ---------------------------------------- */
-  const showBetween_laser = function(x, y, e0, e, color_gn, strokeScl, hasLight) {
-    const thisFun = showBetween_laser;
-
+  const showBetween_laser = function thisFun(x, y, e0, e, color_gn, strokeScl, hasLight) {
     if(Vars.state.isPaused() || e == null) return;
     if(color_gn == null) color_gn = Pal.accent;
 
     showAt(x, y, thisFun.eff, tryVal(strokeScl, 1.0), MDL_color._color(color_gn), [e0, e, hasLight]);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff: new Effect(30.0, eff => {
       let e0 = eff.data[0];
 
-      MDL_draw.drawLine_laser(
+      MDL_draw._d_laser(
         e0 == null ? eff.x : e0.x,
         e0 == null ? eff.y : e0.y,
         eff.data[1].x,
@@ -758,7 +721,8 @@
         eff.data[2],
       );
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showBetween_laser = showBetween_laser;
 
 
@@ -767,9 +731,7 @@
    *
    * Creates a point laser effect, e.g. the one used in laser defense ability.
    * ---------------------------------------- */
-  const showBetween_pointLaser = function(x, y, e, color_gn, se_gn) {
-    const thisFun = showBetween_pointLaser;
-
+  const showBetween_pointLaser = function thisFun(x, y, e, color_gn, se_gn) {
     if(Vars.state.isPaused() || e == null) return;
     if(color_gn == null) color_gn = Pal.remove;
 
@@ -781,7 +743,6 @@
     showAt(x, y, thisFun.eff2, 0.0, color);
     if(se_gn != null) playAt(x, y, se_gn, 1.0, 1.0, 0.05);
   }
-  .setAnno(ANNO.__NONHEADLESS__)
   .setProp({
     eff1: new Effect(30.0, 300.0, eff => {
       Draw.color(eff.color, eff.fout());
@@ -796,5 +757,6 @@
         Fill.circle(eff.x, eff.y, 2.0 + eff.fout()) :
         Fill.circle(eff.data[0], eff.data[1], 2.0 + eff.fout());
     }),
-  });
+  })
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.showBetween_pointLaser = showBetween_pointLaser;

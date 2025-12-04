@@ -17,13 +17,13 @@
   /* <---------- static ----------> */
 
 
-  const _flare = function(size, ang, color_gn, scl, noLight) {
-    if(size == null) size = 40.0;
-    if(ang == null) ang = 0.0;
-    if(color_gn == null) color_gn = Pal.accent;
-    if(scl == null) scl = 1.0;
-
-    let color = MDL_color._color(color_gn, "new");
+  const _flare = function(paramObj) {
+    let
+      size = readParam(paramObj, "size", 40.0),
+      ang = readParam(paramObj, "ang", 0.0),
+      color = MDL_color._color(readParam(paramObj, "color", Pal.accent), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      noLight = readParam(paramObj, "noLight", false);
 
     return extend(ParticleEffect, {
 
@@ -72,12 +72,14 @@
   exports._flare = _flare;
 
 
-  const _trailFade = function(spr, size, color_gn, scl, hasLight) {
-    if(spr == null) spr = "circle";
-    if(size == null) size = 8.0;
-    if(scl == null) scl = 1.0;
+  const _trailFade = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "circle"),
+      size = readParam(paramObj, "size", 8.0),
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      noLight = readParam(paramObj, "noLight", true);
 
-    let color = MDL_color._color(color_gn, "new");
     let color_t = color.cpy();
     color_t.a = 0.0;
 
@@ -100,7 +102,7 @@
       colorFrom: color,
       colorTo: color_t,
       lightScl: 2.0,
-      lightOpacity: hasLight ? 0.65 : 0.0,
+      lightOpacity: noLight ? 0.0 : 0.65,
 
       /* angle & length */
 
@@ -131,14 +133,17 @@
   /* <---------- particle ----------> */
 
 
-  const _releaseParticle = function(spr, amt, size, rad, color_gn, scl, rev, hasBloom, hasLight) {
-    if(spr == null) spr = "circle";
-    if(amt == null) amt = 5;
-    if(size == null) size = 4.0;
-    if(rad == null) rad = 12.0;
-    if(scl == null) scl = 1.0;
-
-    let color = MDL_color._color(color_gn, "new");
+  const _releaseParticle = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "circle"),
+      amt = readParam(paramObj, "amt", 5),
+      size = readParam(paramObj, "size", 4.0),
+      rad = readParam(paramObj, "rad", 12.0),
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      rev = readParam(paramObj, "rev", false),
+      hasBloom = readParam(paramObj, "hasBloom", false),
+      noLight = readParam(paramObj, "noLight", true);
 
     return extend(ParticleEffect, {
 
@@ -159,7 +164,7 @@
       colorFrom: color,
       colorTo: color,
       lightScl: 2.0,
-      lightOpacity: hasLight ? 0.65 : 0.0,
+      lightOpacity: noLight ? 0.0 : 0.65,
 
       /* angle & length */
 
@@ -187,13 +192,17 @@
   exports._releaseParticle = _releaseParticle;
 
 
-  const _shrinkParticle = function(spr, size, spin, color_gn, scl, shouldFade, hasBloom, hasLight) {
-    if(spr == null) spr = "circle";
-    if(size == null) size = 4.0;
-    if(spin == null) spin = 0.0;
-    if(scl == null) scl = 1.0;
+  const _shrinkParticle = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "circle"),
+      size = readParam(paramObj, "size", 4.0),
+      spin = readParam(paramObj, "spin", 0.0),
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      shouldFade = readParam(paramObj, "shouldFade", false),
+      hasBloom = readParam(paramObj, "hasBloom", false),
+      noLight = readParam(paramObj, "noLight", true);
 
-    let color = MDL_color._color(color_gn, "new");
     let color_t = color.cpy();
     if(shouldFade) color_t.a = 0.0;
 
@@ -216,7 +225,7 @@
       colorFrom: color,
       colorTo: color_t,
       lightScl: 2.0,
-      lightOpacity: hasLight ? 0.65 : 0.0,
+      lightOpacity: noLight ? 0.0 : 0.65,
 
       /* angle & length */
 
@@ -244,8 +253,9 @@
   exports._shrinkParticle = _shrinkParticle;
 
 
-  const _wetParticle = function(color_gn) {
-    let color = MDL_color._color(color_gn, "new");
+  const _wetParticle = function(paramObj) {
+    let
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new");
 
     return new Effect(80.0, eff => {
       Draw.color(color);
@@ -260,13 +270,14 @@
   /* <---------- crack ----------> */
 
 
-  const _furnaceCrack = function(size, rad, color_gn, scl, noLight) {
-    if(size == null) size = 3.0;
-    if(rad == null) rad = 18.0;
-    if(color_gn == null) color_gn = "ffc999";
-    if(scl == null) scl = 1.0;
-
-    let color = MDL_color._color(color_gn, "new");
+  const _furnaceCrack = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "lovec-efr-diamond"),
+      size = readParam(paramObj, "size", 3.0),
+      rad = readParam(paramObj, "rad", 18.0),
+      color = MDL_color._color(readParam(paramObj, "color", "ffc999"), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      noLight = readParam(paramObj, "noLight", false);
 
     return extend(ParticleEffect, {
 
@@ -278,7 +289,7 @@
 
       /* visual */
 
-      region: "lovec-efr-diamond",
+      region: spr,
       layer: VAR.lay_effBase,
       particles: 2,
       followParent: true,
@@ -315,13 +326,16 @@
   exports._furnaceCrack = _furnaceCrack;
 
 
-  const _drillCrack = function(amt, size, rad, color_gn, scl, hasLight) {
-    if(amt == null) amt = 3;
-    if(size == null) size = 4.0;
-    if(rad == null) rad = 18.0;
-    if(scl == null) scl = 1.0;
+  const _drillCrack = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "lovec-efr-diamond"),
+      amt = readParam(paramObj, "amt", 3),
+      size = readParam(paramObj, "size", 4.0),
+      rad = readParam(paramObj, "rad", 18.0),
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      noLight = readParam(paramObj, "noLight", true);
 
-    let color = MDL_color._color(color_gn, "new");
     color.a = 0.5;
 
     return extend(ParticleEffect, {
@@ -334,7 +348,7 @@
 
       /* visual */
 
-      region: "lovec-efr-diamond",
+      region: spr,
       layer: VAR.lay_effBase,
       particles: amt,
       followParent: true,
@@ -343,7 +357,7 @@
       colorFrom: color,
       colorTo: color,
       lightScl: 2.0,
-      lightOpacity: hasLight ? 0.65 : 0.0,
+      lightOpacity: noLight ? 0.0 : 0.65,
 
       /* angle & length */
 
@@ -371,13 +385,15 @@
   exports._drillCrack = _drillCrack;
 
 
-  const _craftCrack = function(amt, size, rad, color_gn, scl) {
-    if(amt == null) amt = 2;
-    if(size == null) size = 4.0;
-    if(rad == null) rad = 10.0;
-    if(scl == null) scl = 1.0;
-
-    let color = MDL_color._color(color_gn, "new");
+  const _craftCrack = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "lovec-efr-diamond"),
+      amt = readParam(paramObj, "amt", 2),
+      size = readParam(paramObj, "size", 4.0),
+      rad = readParam(paramObj, "rad", 10.0),
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      noLight = readParam(paramObj, "noLight", true);
 
     return extend(ParticleEffect, {
 
@@ -389,7 +405,7 @@
 
       /* visual */
 
-      region: "lovec-efr-diamond",
+      region: spr,
       layer: VAR.lay_effBase,
       particles: amt,
       followParent: true,
@@ -398,7 +414,7 @@
       colorFrom: color,
       colorTo: color,
       lightScl: 2.0,
-      lightOpacity: 0.0,
+      lightOpacity: noLight ? 0.0 : 0.65,
 
       /* angle & length */
 
@@ -426,14 +442,14 @@
   exports._craftCrack = _craftCrack;
 
 
-  const _plantCrack = function(amt, size, rad, color_gn, scl) {
-    if(amt == null) amt = 12;
-    if(size == null) size = 1.5;
-    if(rad == null) rad = 12.0;
-    if(color_gn == null) color_gn = "91b692";
-    if(scl == null) scl = 1.0;
-
-    let color = MDL_color._color(color_gn, "new");
+  const _plantCrack = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "lovec-efr-diamond"),
+      amt = readParam(paramObj, "amt", 12),
+      size = readParam(paramObj, "size", 1.5),
+      rad = readParam(paramObj, "rad", 12.0),
+      color = MDL_color._color(readParam(paramObj, "color", "91b692"), "new"),
+      scl = readParam(paramObj, "scl", 1.0);
 
     return extend(ParticleEffect, {
 
@@ -445,7 +461,7 @@
 
       /* visual */
 
-      region: "lovec-efr-diamond",
+      region: spr,
       layer: VAR.lay_effBase,
       particles: amt,
       followParent: true,
@@ -482,13 +498,14 @@
   exports._plantCrack = _plantCrack;
 
 
-  const _smokeCrack = function(amt, size, rad, color_gn, scl) {
-    if(amt == null) amt = 5;
-    if(size == null) size = 3.0;
-    if(rad == null) rad = 12.0;
-    if(scl == null) scl = 1.0;
-
-    let color = MDL_color._color(color_gn, "new");
+  const _smokeCrack = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "lovec-efr-urchin"),
+      amt = readParam(paramObj, "amt", 5),
+      size = readParam(paramObj, "size", 3.0),
+      rad = readParam(paramObj, "rad", 12.0),
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new"),
+      scl = readParam(paramObj, "scl", 1.0);
 
     return extend(ParticleEffect, {
 
@@ -500,7 +517,7 @@
 
       /* visual */
 
-      region: "lovec-efr-urchin",
+      region: spr,
       layer: VAR.lay_effBase,
       particles: amt,
       followParent: true,
@@ -537,13 +554,15 @@
   exports._smokeCrack = _smokeCrack;
 
 
-  const _squareCrack = function(amt, size, rad, color_gn, scl, hasLight) {
-    if(amt == null) amt = 7;
-    if(size == null) size = 4.0;
-    if(rad == null) rad = 56.0;
-    if(scl == null) scl = 1.0;
-
-    let color = MDL_color._color(color_gn, "new");
+  const _squareCrack = function(paramObj) {
+    let
+      spr = readParam(paramObj, "spr", "lovec-efr-square"),
+      amt = readParam(paramObj, "amt", 7),
+      size = readParam(paramObj, "size", 4.0),
+      rad = readParam(paramObj, "rad", 56.0),
+      color = MDL_color._color(readParam(paramObj, "color", Color.white), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      noLight = readParam(paramObj, "noLight", true);
 
     return extend(ParticleEffect, {
 
@@ -555,7 +574,7 @@
 
       /* visual */
 
-      region: "lovec-efr-square",
+      region: spr,
       layer: VAR.lay_effBase,
       particles: amt,
       followParent: true,
@@ -564,7 +583,7 @@
       colorFrom: color,
       colorTo: color,
       lightScl: 2.0,
-      lightOpacity: hasLight ? 0.65 : 0.0,
+      lightOpacity: noLight ? 0.0 : 0.65,
 
       /* angle & length */
 
@@ -595,15 +614,17 @@
   /* <---------- spark ----------> */
 
 
-  const _lineSpark = function(amt, stroke, len, rad, color_gn, scl) {
-    if(amt == null) amt = 7;
-    if(stroke == null) stroke = 1.5;
-    if(len == null) len = 4.0;
-    if(rad == null) rad = 18.0;
-    if(scl == null) scl = 1.0;
+  const _lineSpark = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 7),
+      stroke = readParam(paramObj, "stroke", 1.5),
+      len = readParam(paramObj, "len", 4.0),
+      rad = readParam(paramObj, "rad", 18.0),
+      color = MDL_color._color(readParam(paramObj, "color", "null"), "new"),
+      scl = readParam(paramObj, "scl", 1.0);
 
     return new Effect(15.0 * scl, eff => {
-      Draw.color(color_gn == null ? eff.color : MDL_color._color(color_gn));
+      Draw.color(tryVal(color, eff.color));
       Lines.stroke(eff.fout() * stroke);
       Angles.randLenVectors(eff.id, amt, eff.finpow() * rad, (x, y) => {
         Lines.lineAngle(eff.x + x, eff.y + y, Mathf.angle(x, y), (eff.fout() + 0.25) * len);
@@ -613,14 +634,16 @@
   exports._lineSpark = _lineSpark;
 
 
-  const _circleSpark = function(amt, size, rad, color_gn, scl) {
-    if(amt == null) amt = 7;
-    if(size == null) size = 4.0;
-    if(rad === null) rad = 30.0;
-    if(scl == null) scl = 1.0;
+  const _circleSpark = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 7),
+      size = readParam(paramObj, "size", 4.0),
+      rad = readParam(paramObj, "rad", 30.0),
+      color = MDL_color._color(readParam(paramObj, "color", "null"), "new"),
+      scl = readParam(paramObj, "scl", 1.0);
 
     return new Effect(30.0 * scl, eff => {
-      Draw.color(color_gn == null ? eff.color : MDL_color._color(color_gn));
+      Draw.color(tryVal(color, eff.color));
       Angles.randLenVectors(eff.id, amt, eff.finpow() * rad, (x, y) => {
         Fill.circle(eff.x + x, eff.y + y, (eff.fout() + 0.25) * size);
       });
@@ -632,11 +655,14 @@
   /* <---------- smog ----------> */
 
 
-  const _releaseSmog = function(amt, size, rad, scl, isBlack, isHigh) {
-    if(amt == null) amt = 12;
-    if(size == null) size = 7.0;
-    if(rad == null) rad = 24.0;
-    if(scl == null) scl = 1.0;
+  const _releaseSmog = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 12),
+      size = readParam(paramObj, "size", 7.0),
+      rad = readParam(paramObj, "rad", 24.0),
+      scl = readParam(paramObj, "scl", 1.0),
+      isBlack = readParam(paramObj, "isBlack", false),
+      isHigh = readParam(paramObj, "isHigh", false);
 
     return extend(ParticleEffect, {
 
@@ -685,13 +711,17 @@
   exports._releaseSmog = _releaseSmog;
 
 
-  const _sideReleaseSmog = function(amt, size, rad, offRad, cone, scl, rev, isBlack, isHigh) {
-    if(amt == null) amt = 6;
-    if(size == null) size = 5.0;
-    if(rad == null) rad = 14.0;
-    if(offRad == null) offRad = 0.0;
-    if(cone == null) cone = 10.0;
-    if(scl == null) scl = 1.0;
+  const _sideReleaseSmog = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 6),
+      size = readParam(paramObj, "size", 5.0),
+      rad = readParam(paramObj, "rad", 14.0),
+      offRad = readParam(paramObj, "offRad", 0.0),
+      cone = readParam(paramObj, "cone", 10.0),
+      scl = readParam(paramObj, "scl", 1.0),
+      rev = readParam(paramObj, "rev", false),
+      isBlack = readParam(paramObj, "isBlack", false),
+      isHigh = readParam(paramObj, "isHigh", false);
 
     return extend(ParticleEffect, {
 
@@ -740,13 +770,16 @@
   exports._sideReleaseSmog = _sideReleaseSmog;
 
 
-  const _shootSmog = function(amt, size_f, size_t, rad, cone, scl, isBlack, isHigh) {
-    if(amt == null) amt = 12;
-    if(size_f == null) size_f = 4.0;
-    if(size_t == null) size_t = 12.0;
-    if(rad == null) rad = 28.0;
-    if(cone == null) cone = 20.0;
-    if(scl == null) scl = 1.0;
+  const _shootSmog = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 12),
+      size_f = readParam(paramObj, "size_f", 4.0),
+      size_t = readParam(paramObj, "size_t", 12.0),
+      rad = readParam(paramObj, "rad", 28.0),
+      cone = readParam(paramObj, "cone", 20.0),
+      scl = readParam(paramObj, "scl", 1.0),
+      isBlack = readParam(paramObj, "isBlack", false),
+      isHigh = readParam(paramObj, "isHigh", false);
 
     return extend(ParticleEffect, {
 
@@ -795,11 +828,14 @@
   exports._shootSmog = _shootSmog;
 
 
-  const _heatSmog = function(amt, size, rad, scl, isBlack, isHigh) {
-    if(amt == null) amt = 4;
-    if(size == null) size = 6.0;
-    if(rad == null) rad = 10.0;
-    if(scl == null) scl = 1.0;
+  const _heatSmog = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 4),
+      size = readParam(paramObj, "size", 6.0),
+      rad = readParam(paramObj, "rad", 10.0),
+      scl = readParam(paramObj, "scl", 1.0),
+      isBlack = readParam(paramObj, "isBlack", false),
+      isHigh = readParam(paramObj, "isHigh", false);
 
     return extend(ParticleEffect, {
 
@@ -848,11 +884,14 @@
   exports._heatSmog = _heatSmog;
 
 
-  const _exploSmog = function(amt, size, rad, scl, isBlack, isHigh) {
-    if(amt == null) amt = 16;
-    if(size == null) size = 54.0;
-    if(rad == null) rad = 54.0;
-    if(scl == null) scl = 1.0;
+  const _exploSmog = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 16),
+      size = readParam(paramObj, "size", 54.0),
+      rad = readParam(paramObj, "rad", 54.0),
+      scl = readParam(paramObj, "scl", 1.0),
+      isBlack = readParam(paramObj, "isBlack", false),
+      isHigh = readParam(paramObj, "isHigh", false);
 
     return extend(ParticleEffect, {
 
@@ -901,13 +940,14 @@
   exports._exploSmog = _exploSmog;
 
 
-  const _ventSmog = function(size, rad, color_gn, scl) {
-    if(size == null) size = 10.0;
-    if(rad == null) rad = 20.0;
-    if(color_gn == null) color_gn = "7898ba";
-    if(scl == null) scl = 1.0;
+  const _ventSmog = function(paramObj) {
+    let
+      amt = readParam(paramObj, "amt", 1),
+      size = readParam(paramObj, "size", 10.0),
+      rad = readParam(paramObj, "rad", 20.0),
+      color = MDL_color._color(readParam(paramObj, "color", "7898ba")),
+      scl = readParam(paramObj, "scl", 1.0);
 
-    let color = MDL_color._color(color_gn, "new");
     let color_f = color.cpy();
     color_f.a = 0.3;
     let color_t = color.cpy();
@@ -925,7 +965,7 @@
 
       region: "lovec-efr-shadow-white",
       layer: VAR.lay_effSmog,
-      particles: 1,
+      particles: amt,
       followParent: true,
       rotWithParent: false,
       useRotation: true,
@@ -963,19 +1003,19 @@
   /* <---------- wave ----------> */
 
 
-  const _impactWave = function(size_f, size_t, rad, scl) {
-    if(size_f == null) size_f = 6.0;
-    if(size_t == null) size_t = 0.0;
-    if(scl == null) scl = 1.0;
+  const _impactWave = function(paramObj) {
+    let
+      size_f = readParam(paramObj, "size_f", 6.0),
+      size_t = readParam(paramObj, "size_t", 0.0),
+      rad = readParam(paramObj, "rad", null),
+      scl = readParam(paramObj, "scl", 1.0);
 
     const eff = new Effect(40.0, eff => {
-      var rad_fi = tryVal(rad, eff.rotation);
-
-      eff.lifetime = 40.0 * scl * Math.pow(rad_fi * 0.025, 0.5);
+      eff.lifetime = 40.0 * scl * Math.pow(tryVal(rad, eff.rotation) * 0.025, 0.5);
 
       Draw.color(MDL_color._color("ffffff30", Tmp.c2), MDL_color._color("ffffff00", Tmp.c3), eff.fin());
       Lines.stroke(size_f - Interp.pow2Out.apply(eff.fin()) * (size_f - size_t));
-      Lines.circle(eff.x, eff.y, rad_fi * Interp.pow2Out.apply(eff.fin()));
+      Lines.circle(eff.x, eff.y, tryVal(rad, eff.rotation) * Interp.pow2Out.apply(eff.fin()));
       Draw.reset();
     });
     eff.layer = VAR.lay_effFlr;
@@ -985,21 +1025,23 @@
   exports._impactWave = _impactWave;
 
 
-  const _rectWave = function(size_f, size_t, r, color_gn, scl) {
-    if(size_f == null) size_f = 4.0;
-    if(size_t == null) size_t = 0.0;
-    if(scl == null) scl = 1.0;
+  const _rectWave = function(paramObj) {
+    let
+      size_f = readParam(paramObj, "size_f", 4.0),
+      size_t = readParam(paramObj, "size_t", 0.0),
+      r = readParam(paramObj, "r", null),
+      color = MDL_color._color(readParam(paramObj, "color", "null"), "new"),
+      scl = readParam(paramObj, "scl", 1.0);
 
     const eff = new Effect(20.0 * scl, eff => {
-      var rad_fi = tryVal(r, eff.rotation) * Vars.tilesize * Interp.pow2Out.apply(eff.fin());
-      let color = MDL_color._color(tryVal(color_gn, eff.color));
+      let rad = tryVal(r, eff.rotation) * Vars.tilesize * Interp.pow2Out.apply(eff.fin());
 
-      Draw.color(color);
+      Draw.color(tryVal(color, eff.color));
       Lines.stroke(size_f - eff.fin() * (size_f - size_t));
-      Lines.line(eff.x - rad_fi, eff.y - rad_fi, eff.x + rad_fi, eff.y - rad_fi);
-      Lines.line(eff.x + rad_fi, eff.y - rad_fi, eff.x + rad_fi, eff.y + rad_fi);
-      Lines.line(eff.x + rad_fi, eff.y + rad_fi, eff.x - rad_fi, eff.y + rad_fi);
-      Lines.line(eff.x - rad_fi, eff.y + rad_fi, eff.x - rad_fi, eff.y - rad_fi);
+      Lines.line(eff.x - rad, eff.y - rad, eff.x + rad, eff.y - rad);
+      Lines.line(eff.x + rad, eff.y - rad, eff.x + rad, eff.y + rad);
+      Lines.line(eff.x + rad, eff.y + rad, eff.x - rad, eff.y + rad);
+      Lines.line(eff.x - rad, eff.y + rad, eff.x - rad, eff.y - rad);
       Draw.reset();
     });
 
@@ -1008,18 +1050,18 @@
   exports._rectWave = _rectWave;
 
 
-  const _circleWave = function(size_f, size_t, rad, color_gn, scl) {
-    if(size_f == null) size_f = 4.0;
-    if(size_t == null) size_t = 0.0;
-    if(scl == null) scl = 1.0;
+  const _circleWave = function(paramObj) {
+    let
+      size_f = readParam(paramObj, "size_f", 4.0),
+      size_t = readParam(paramObj, "size_t", 0.0),
+      rad = readParam(paramObj, "rad", null),
+      color = MDL_color._color(readParam(paramObj, "color", "null"), "new"),
+      scl = readParam(paramObj, "scl", 1.0);
 
     const eff = new Effect(20.0 * scl, eff => {
-      var rad_fi = tryVal(rad, eff.rotation) * Interp.pow2Out.apply(eff.fin());
-      let color = MDL_color._color(tryVal(color_gn, eff.color));
-
-      Draw.color(color);
+      Draw.color(tryVal(color, eff.color));
       Lines.stroke(size_f - eff.fin() * (size_f - size_t));
-      Lines.circle(eff.x, eff.y, rad_fi);
+      Lines.circle(eff.x, eff.y, tryVal(rad, eff.rotation) * Interp.pow2Out.apply(eff.fin()));
       Draw.reset();
     });
 
@@ -1031,14 +1073,14 @@
   /* <---------- area ----------> */
 
 
-  const _squareFade = function(r, color_gn, scl) {
-    if(r == null) r = 0.5;
-    if(scl == null) scl = 1.0;
+  const _squareFade = function(paramObj) {
+    let
+      r = readParam(paramObj, "r", 0.5),
+      color = MDL_color._color(readParam(paramObj, "color", "null"), "new"),
+      scl = readParam(paramObj, "scl", 1.0);
 
     const eff = new Effect(40.0 * scl, eff => {
-      let color = MDL_color._color(tryVal(color_gn, eff.color));
-
-      Draw.color(color);
+      Draw.color(tryVal(color, eff.color));
       Draw.alpha(eff.fout());
       Fill.square(eff.x, eff.y, r * Vars.tilesize);
       Draw.reset();
@@ -1049,12 +1091,13 @@
   exports._squareFade = _squareFade;
 
 
-  const _exploDisk = function(rad, color_gn, scl, noLight) {
-    if(rad == null) rad = 40.0;
-    if(color_gn == null) color_gn = Pal.accent;
-    if(scl == null) scl = 1.0;
+  const _exploDisk = function(paramObj) {
+    let
+      rad = readParam(paramObj, "rad", 40.0),
+      color = MDL_color._color(readParam(paramObj, "color", Pal.accent), "new"),
+      scl = readParam(paramObj, "scl", 1.0),
+      noLight = readParam(paramObj, "noLight", false);
 
-    let color = MDL_color._color(color_gn, "new");
     let color_t = color.cpy();
     color_t.a = 0.0;
 
@@ -1153,53 +1196,132 @@
   /* <---------- complex ----------> */
 
 
-  const _impactDrillCraft = function(size, rad) {
+  const _impactDrillCraft = function(paramObj) {
+    let
+      blkSize = readParam(paramObj, "blkSize", 1),
+      rad = readParam(paramObj, "rad", null);
+
     return new MultiEffect(
-      _impactWave(null, null, rad, size / 2.0 * 0.75),
-      _impactWave(null, null, rad, size / 2.0),
-      _releaseSmog(18, 10.0, 40.0, 1.5),
-      _drillCrack(6, null, size * 9.0, null, 1.33333333),
+      _impactWave({
+        rad: rad,
+        scl: blkSize / 2.0 * 0.75,
+      }),
+      _impactWave({
+        rad: rad,
+        scl: blkSize / 2.0,
+      }),
+      _releaseSmog({
+        amt: 18,
+        size: 10.0,
+        rad: 40.0,
+        scl: 1.5,
+      }),
+      _drillCrack({
+        amt: 6,
+        rad: blkSize * 9.0,
+        scl: 1.33333333,
+      }),
     );
   };
   exports._impactDrillCraft = _impactDrillCraft;
 
 
-  const _explosion = function(rad, color_gn, colorCenter_gn, noSmog) {
-    if(rad == null) rad = 56.0;
-    if(color_gn == null) color_gn = "feb380";
-    if(colorCenter_gn == null) colorCenter_gn = Pal.accent;
+  const _explosion = function(paramObj) {
+    let
+      rad = readParam(paramObj, "rad", 56.0),
+      radDyna = readParam(paramObj, "rad", null),
+      color = readParam(paramObj, "color", "feb380"),
+      colorCenter = readParam(paramObj, "colorCenter", Pal.accent),
+      noSmog = readParam(paramObj, "noSmog", false);
 
     return noSmog ?
       new MultiEffect(
-        _squareCrack(5, 1.5, rad, color_gn, 0.3, true),
-        _exploDisk(rad * 0.7, colorCenter_gn),
+        _squareCrack({
+          amt: 5,
+          size: 1.5,
+          rad: rad,
+          color: color,
+          scl: 0.3,
+          noLight: false,
+        }),
+        _exploDisk({
+          rad: rad * 0.7,
+          color: colorCenter,
+        }),
       ) :
       new MultiEffect(
-        _impactWave(null, null, rad, 1.0),
-        _impactWave(null, null, rad, 1.2),
-        _impactWave(null, null, rad, 1.5),
-        _impactWave(null, null, rad, 1.9),
-        _exploSmog(null, rad * 1.35, rad * 1.35),
-        _squareCrack(null, null, rad, color_gn, 1.0, true),
-        _exploDisk(rad * 0.7, colorCenter_gn),
+        _impactWave({
+          rad: radDyna,
+        }),
+        _impactWave({
+          rad: radDyna,
+          scl: 1.2,
+        }),
+        _impactWave({
+          rad: radDyna,
+          scl: 1.5,
+        }),
+        _impactWave({
+          rad: radDyna,
+          scl: 1.9,
+        }),
+        _exploSmog({
+          size: rad * 1.35,
+          rad: rad * 1.35,
+        }),
+        _squareCrack({
+          rad: rad,
+          color: color,
+          noLight: false,
+        }),
+        _exploDisk({
+          rad: rad * 0.7,
+          color: colorCenter,
+        }),
       );
   };
   exports._explosion = _explosion;
 
 
-  const _rectPulse = function(r, color_gn) {
+  const _rectPulse = function(paramObj) {
+    let
+      r = readParam(paramObj, "r", null),
+      color = readParam(paramObj, "color", null);
+
     return new MultiEffect(
-      _rectWave(3.5, 0.0, r, color_gn, 1.0),
-      _rectWave(2.5, 0.0, r, color_gn, 2.0),
+      _rectWave({
+        size_f: 3.5,
+        r: r,
+        color: color,
+      }),
+      _rectWave({
+        size_f: 2.5,
+        r: r,
+        color: color,
+        scl: 2.0,
+      }),
     );
   };
   exports._rectPulse = _rectPulse;
 
 
-  const _circlePulse = function(rad, color_gn) {
+  const _circlePulse = function(paramObj) {
+    let
+      rad = readParam(paramObj, "rad", null),
+      color = readParam(paramObj, "color", null);
+
     return new MultiEffect(
-      _circleWave(3.5, 0.0, rad, color_gn, 1.0),
-      _circleWave(2.5, 0.0, rad, color_gn, 2.0),
+      _circleWave({
+        size_f: 3.5,
+        rad: rad,
+        color: color,
+      }),
+      _circleWave({
+        size_f: 2.5,
+        rad: rad,
+        color: color,
+        scl: 2.0,
+      }),
     );
   };
   exports._circlePulse = _circlePulse;

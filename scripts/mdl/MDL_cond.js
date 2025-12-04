@@ -23,6 +23,14 @@
   const DB_unit = require("lovec/db/DB_unit");
 
 
+  /* <---------- auxilliary ----------> */
+
+
+  function matchTag(ct_gn, tag, mode, suppressWarning) {
+    return MDL_content._hasTag(MDL_content._ct(ct_gn, mode, suppressWarning), tag);
+  };
+
+
   /* <---------- pos ----------> */
 
 
@@ -32,10 +40,8 @@
    * Whether the floor at given position supports shadow casting.
    * ---------------------------------------- */
   const _posCanShadow = function(x, y) {
-    var flr = Vars.world.floorWorld(x, y);
-    if(flr == null || flr instanceof EmptyFloor || !flr.canShadow) return false;
-
-    return true;
+    let flr = Vars.world.floorWorld(x, y);
+    return flr != null && flr.canShadow && !(flr instanceof EmptyFloor);
   };
   exports._posCanShadow = _posCanShadow;
 
@@ -46,9 +52,7 @@
    * Whether something at given position is visible (in the screen).
    * ---------------------------------------- */
   const _posVisible = function(x, y, clipSize) {
-    if(clipSize == null) clipSize = 0.0;
-
-    return Core.camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(x, y, clipSize));
+    return Core.camera.bounds(Tmp.r1).overlaps(Tmp.r2.setCentered(x, y, tryVal(clipSize, 0.0001)));
   };
   exports._posVisible = _posVisible;
 
@@ -59,9 +63,7 @@
    * Whether mouse is in range with (x, y) as the center.
    * ---------------------------------------- */
   const _posHovered = function(x, y, rad) {
-    if(rad == null || rad < 0.0001) return false;
-
-    return Mathf.dst(x, y, Core.input.mouseWorldX(), Core.input.mouseWorldY()) < rad;
+    return Mathf.dst(x, y, Core.input.mouseWorldX(), Core.input.mouseWorldY()) < tryVal(rad, 0.0001);
   };
   exports._posHovered = _posHovered;
 
@@ -72,11 +74,7 @@
    * Variant of {_posHovered} where the range is a rectangle.
    * ---------------------------------------- */
   const _posHoveredRect = function(x, y, r, size) {
-    if(r == null) r = 0;
-    if(size == null) size = 0;
-    let hw = (r + size * 0.5) * Vars.tilesize;
-    if(hw < 0.0001) return false;;
-
+    let hw = (tryVal(r, 0) + tryVal(size, 0) * 0.5) * Vars.tilesize;
     return Math.abs(x - Core.input.mouseWorldX()) < hw && Math.abs(y - Core.input.mouseWorldY()) < hw;
   };
   exports._posHoveredRect = _posHoveredRect;
@@ -103,9 +101,7 @@
    * ---------------------------------------- */
   const _isVanilla = function(ct_gn) {
     let ct = MDL_content._ct(ct_gn, null, true);
-    if(ct == null) return false;
-
-    return ct.minfo.mod == null;
+    return ct != null && ct.minfo.mod == null;
   };
   exports._isVanilla = _isVanilla;
 
@@ -117,9 +113,7 @@
    * ---------------------------------------- */
   const _isRsAvailable = function(rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
-    if(rs == null) return false;
-
-    return rs.unlockedNow() && rs.isOnPlanet(Vars.state.getPlanet()) && !rs.isHidden();
+    return rs != null && rs.unlockedNow() && rs.isOnPlanet(Vars.state.getPlanet()) && !rs.isHidden();
   };
   exports._isRsAvailable = _isRsAvailable;
 
@@ -129,10 +123,10 @@
    *
    * Whether this resource is an intermediate.
    * ---------------------------------------- */
-  const _isIntmd = function(rs_gn) {
-    return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-intmd");
+  const _isIntermediate = function(rs_gn) {
+    return matchTag(rs_gn, "rs-intmd", "rs");
   };
-  exports._isIntmd = _isIntmd;
+  exports._isIntermediate = _isIntermediate;
 
 
   /* ----------------------------------------
@@ -140,21 +134,10 @@
    *
    * Whether this resource is a waste.
    * ---------------------------------------- */
-  const _isWas = function(rs_gn) {
-    return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-was");
+  const _isWaste = function(rs_gn) {
+    return matchTag(rs_gn, "rs-was", "rs");
   };
-  exports._isWas = _isWas;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this resource is a virtual item.
-   * ---------------------------------------- */
-  const _isVirt = function(rs_gn) {
-    return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-virt");
-  };
-  exports._isVirt = _isVirt;
+  exports._isWaste = _isWaste;
 
 
   /* ----------------------------------------
@@ -162,10 +145,10 @@
    *
    * Whether this resource is an abstract fluid.
    * ---------------------------------------- */
-  const _isAux = function(rs_gn) {
-    return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-aux");
+  const _isAuxilliaryFluid = function(rs_gn) {
+    return matchTag(rs_gn, "rs-aux", "rs");
   };
-  exports._isAux = _isAux;
+  exports._isAuxilliaryFluid = _isAuxilliaryFluid;
 
 
   /* ----------------------------------------
@@ -173,10 +156,10 @@
    *
    * Whether this resource is an abstract fluid that is not capped in buildings.
    * ---------------------------------------- */
-  const _isNoCapAux = function(rs_gn) {
-    return MDL_content._hasTag(MDL_content._ct(rs_gn, "rs"), "rs-nocap0aux");
+  const _isNoCapAuxilliaryFluid = function(rs_gn) {
+    return matchTag(rs_gn, "rs-nocap0aux", "rs");
   };
-  exports._isNoCapAux = _isNoCapAux;
+  exports._isNoCapAuxilliaryFluid = _isNoCapAuxilliaryFluid;
 
 
   /* ----------------------------------------
@@ -184,12 +167,11 @@
    *
    * Whether this resource contains water.
    * ---------------------------------------- */
-  const _isAqueousLiq = function(rs_gn) {
+  const _isAqueousLiquid = function(rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
-
-    return rs == null ? false : DB_fluid.db["group"]["aqueous"].includes(rs.name);
+    return rs != null && DB_fluid.db["group"]["aqueous"].includes(rs.name);
   };
-  exports._isAqueousLiq = _isAqueousLiq;
+  exports._isAqueousLiquid = _isAqueousLiquid;
 
 
   /* ----------------------------------------
@@ -197,12 +179,11 @@
    *
    * Whether this resource is conductive and can cause short circuit.
    * ---------------------------------------- */
-  const _isConductiveLiq = function(rs_gn) {
+  const _isConductiveLiquid = function(rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
-
-    return rs == null ? false : DB_fluid.db["group"]["conductive"].includes(rs.name);
+    return rs != null && DB_fluid.db["group"]["conductive"].includes(rs.name);
   };
-  exports._isConductiveLiq = _isConductiveLiq;
+  exports._isConductiveLiquid = _isConductiveLiquid;
 
 
   /* <---------- block ----------> */
@@ -211,21 +192,10 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this block is used for map.
-   * ---------------------------------------- */
-  const _isMapBlock = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-map");
-  };
-  exports._isMapBlock = _isMapBlock;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Whether this block is a generic miner.
    * ---------------------------------------- */
   const _isMiner = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-min");
+    return matchTag(blk_gn, "blk-min", "blk");
   };
   exports._isMiner = _isMiner;
 
@@ -236,7 +206,7 @@
    * Whether this block is a drill.
    * ---------------------------------------- */
   const _isDrill = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-drl");
+    return matchTag(blk_gn, "blk-drl", "blk");
   };
   exports._isDrill = _isDrill;
 
@@ -247,7 +217,7 @@
    * Whether this block is an attribute miner.
    * ---------------------------------------- */
   const _isHarvester = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-harv");
+    return matchTag(blk_gn, "blk-harv", "blk");
   };
   exports._isHarvester = _isHarvester;
 
@@ -258,7 +228,7 @@
    * Whether this block is an ore scanner for depth ore detection.
    * ---------------------------------------- */
   const _isOreScanner = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-scan");
+    return matchTag(blk_gn, "blk-scan", "blk");
   };
   exports._isOreScanner = _isOreScanner;
 
@@ -269,7 +239,7 @@
    * Whether this block is a crop that can be harvested.
    * ---------------------------------------- */
   const _isCrop = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-crop");
+    return matchTag(blk_gn, "blk-crop", "blk");
   };
   exports._isCrop = _isCrop;
 
@@ -280,7 +250,7 @@
    * Whether this block transports items.
    * ---------------------------------------- */
   const _isItemDistributor = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-dis");
+    return matchTag(blk_gn, "blk-dis", "blk");
   };
   exports._isItemDistributor = _isItemDistributor;
 
@@ -288,12 +258,39 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether this block transports fluids.
+   * ---------------------------------------- */
+  const _isFluidDistributor = function(blk_gn) {
+    return matchTag(blk_gn, "blk-liq", "blk");
+  };
+  exports._isFluidDistributor = _isFluidDistributor;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block does not accept side inputs.
+   * ---------------------------------------- */
+  const _isNoSideBlock = function(blk_gn) {
+    let blk = MDL_content._ct(blk_gn, "blk");
+    return blk != null && (
+      blk instanceof ArmoredConveyor
+        || blk instanceof ArmoredConduit
+        || (blk instanceof Duct && blk.armored)
+    );
+  };
+  exports._isNoSideBlock = _isNoSideBlock;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether this block is a conveyor.
    * ---------------------------------------- */
-  const _isConv = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-conv");
+  const _isConveyor = function(blk_gn) {
+    return matchTag(blk_gn, "blk-conv", "blk");
   };
-  exports._isConv = _isConv;
+  exports._isConveyor = _isConveyor;
 
 
   /* ----------------------------------------
@@ -301,10 +298,10 @@
    *
    * Whether this block is a bridge (for item or fluid).
    * ---------------------------------------- */
-  const _isBrd = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-brd");
+  const _isBridge = function(blk_gn) {
+    return matchTag(blk_gn, "blk-brd", "blk");
   };
-  exports._isBrd = _isBrd;
+  exports._isBridge = _isBridge;
 
 
   /* ----------------------------------------
@@ -313,7 +310,7 @@
    * Whether this block is a gate (for item or fluid).
    * ---------------------------------------- */
   const _isGate = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-gate");
+    return matchTag(blk_gn, "blk-gate", "blk");
   };
   exports._isGate = _isGate;
 
@@ -324,7 +321,7 @@
    * Whether this block is god.
    * ---------------------------------------- */
   const _isRouter = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-router");
+    return matchTag(blk_gn, "blk-router", "blk");
   };
   exports._isRouter = _isRouter;
 
@@ -334,12 +331,11 @@
    *
    * Whether this block is exposed to air (can trigger some reactions).
    * ---------------------------------------- */
-  const isExposedBlk = function(blk_gn) {
+  const _isExposedBlock = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : DB_block.db["group"]["exposed"].includes(blk.name);
+    return blk != null && DB_block.db["group"]["exposed"].includes(blk.name);
   };
-  exports.isExposedBlk = isExposedBlk;
+  exports._isExposedBlock = _isExposedBlock;
 
 
   /* ----------------------------------------
@@ -347,32 +343,10 @@
    *
    * Whether this block is an item container.
    * ---------------------------------------- */
-  const _isCont = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cont");
+  const _isContainer = function(blk_gn) {
+    return matchTag(blk_gn, "blk-cont", "blk");
   };
-  exports._isCont = _isCont;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block can store virtual items.
-   * ---------------------------------------- */
-  const _isVirtBlk = function(blk_gn) {
-    return _isCoreBlock(blk_gn) || _isVCont(blk_gn);
-  };
-  exports._isVirtBlk = _isVirtBlk;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a virutal item container.
-   * ---------------------------------------- */
-  const _isVCont = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-vcont") || _isCoreBlock(blk_gn);
-  };
-  exports._isVCont = _isVCont;
+  exports._isContainer = _isContainer;
 
 
   /* ----------------------------------------
@@ -382,8 +356,7 @@
    * ---------------------------------------- */
   const _isCoreBlock = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk")
-
-    return blk == null ? false : (blk instanceof CoreBlock || MDL_content._hasTag(blk, "blk-core"));
+    return blk != null && (blk instanceof CoreBlock || MDL_content._hasTag(blk, "blk-core"));
   };
   exports._isCoreBlock = _isCoreBlock;
 
@@ -391,25 +364,10 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this block rejects all reactions.
-   * ---------------------------------------- */
-  const _isNoReacBlk = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk")
-    if(blk == null) return false;
-    if(blk instanceof CoreBlock) return true;
-
-    return DB_block.db["group"]["noReac"].includes(blk.name);
-  };
-  exports._isNoReacBlk = _isNoReacBlk;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a pump block (can produce pressure/vacuum).
+   * Whether this block is a pump block.
    * ---------------------------------------- */
   const _isPump = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pump");
+    return matchTag(blk_gn, "blk-pump", "blk");
   };
   exports._isPump = _isPump;
 
@@ -417,12 +375,12 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this block is a fluid conduit.
+   * Whether this block is a conduit.
    * ---------------------------------------- */
-  const _isFCond = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fcond");
+  const _isFluidConduit = function(blk_gn) {
+    return matchTag(blk_gn, "blk-fcond", "blk");
   };
-  exports._isFCond = _isFCond;
+  exports._isFluidConduit = _isFluidConduit;
 
 
   /* ----------------------------------------
@@ -430,73 +388,10 @@
    *
    * Whether this block is a fluid container.
    * ---------------------------------------- */
-  const _isFCont = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fcont");
+  const _isFluidContainer = function(blk_gn) {
+    return matchTag(blk_gn, "blk-fcont", "blk");
   };
-  exports._isFCont = _isFCont;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a liquid conduit.
-   * ---------------------------------------- */
-  const _isLCond = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : MDL_content._hasTag(blk, "blk-fcond") && (blk.ex_getFluidType() === "liq" || blk.ex_getFluidType() === "both");
-  };
-  exports._isLCond = _isLCond;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a liquid container.
-   * ---------------------------------------- */
-  const _isLCont = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : MDL_content._hasTag(blk, "blk-fcont") && (blk.ex_getFluidType() === "liq" || blk.ex_getFluidType() === "both");
-  };
-  exports._isLCont = _isLCont;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a gas conduit.
-   * ---------------------------------------- */
-  const _isGCond = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : MDL_content._hasTag(blk, "blk-fcond") && (blk.ex_getFluidType() === "gas" || blk.ex_getFluidType() === "both");
-  };
-  exports._isGCond = _isGCond;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a gas container.
-   * ---------------------------------------- */
-  const _isGCont = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : MDL_content._hasTag(blk, "blk-fcont") && (blk.ex_getFluidType() === "gas" || blk.ex_getFluidType() === "both");
-  };
-  exports._isGCont = _isGCont;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a fluid junction.
-   * ---------------------------------------- */
-  const _isFJunc = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fjunc");
-  };
-  exports._isFJunc = _isFJunc;
+  exports._isFluidContainer = _isFluidContainer;
 
 
   /* ----------------------------------------
@@ -504,23 +399,11 @@
    *
    * Whether this conduit will receive damage if the fluid in it is viscous.
    * ---------------------------------------- */
-  const _isCloggable = function(blk_gn) {
+  const _isCloggableBlock = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : DB_block.db["group"]["cloggable"].includes(blk.name);
+    return blk != null && DB_block.db["group"]["cloggable"].includes(blk.name);
   };
-  exports._isCloggable = _isCloggable;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block can store abstract fluid.
-   * ---------------------------------------- */
-  const _isAuxBlk = function(blk_gn) {
-    return _isPump(blk_gn) || _isHCond(blk_gn) || _isTCont(blk_gn);
-  };
-  exports._isAuxBlk = _isAuxBlk;
+  exports._isCloggableBlock = _isCloggableBlock;
 
 
   /* ----------------------------------------
@@ -528,21 +411,10 @@
    *
    * Whether this block is a heat conduit.
    * ---------------------------------------- */
-  const _isHCond = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-hcond");
+  const _isHeatConduit = function(blk_gn) {
+    return matchTag(blk_gn, "blk-hcond", "blk");
   };
-  exports._isHCond = _isHCond;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block is a torque container.
-   * ---------------------------------------- */
-  const _isTCont = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-tcont");
-  };
-  exports._isTCont = _isTCont;
+  exports._isHeatConduit = _isHeatConduit;
 
 
   /* ----------------------------------------
@@ -550,10 +422,10 @@
    *
    * Whether this block is a cogwheel.
    * ---------------------------------------- */
-  const _isCog = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cog");
+  const _isCogwheel = function(blk_gn) {
+    return matchTag(blk_gn, "blk-cog", "blk");
   };
-  exports._isCog = _isCog;
+  exports._isCogwheel = _isCogwheel;
 
 
   /* ----------------------------------------
@@ -561,10 +433,21 @@
    *
    * Whether this block is a cogwheel stack.
    * ---------------------------------------- */
-  const _isCogStack = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cog0stack");
+  const _isCogwheelStack = function(blk_gn) {
+    return matchTag(blk_gn, "blk-cog0stack", "blk");
   };
-  exports._isCogStack = _isCogStack;
+  exports._isCogwheelStack = _isCogwheelStack;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a gear box.
+   * ---------------------------------------- */
+  const _isGearBox = function(blk_gn) {
+    return matchTag(blk_gn, "blk-cog0box", "blk");
+  };
+  exports._isGearBox = _isGearBox;
 
 
   /* ----------------------------------------
@@ -572,23 +455,10 @@
    *
    * Whether this block is a transmission rod.
    * ---------------------------------------- */
-  const _isTransRod = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-trans0rod");
+  const _isTransmissionRod = function(blk_gn) {
+    return matchTag(blk_gn, "blk-trans0rod", "blk");
   };
-  exports._isTransRod = _isTransRod;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block can short-circuit if soaked in water.
-   * ---------------------------------------- */
-  const _canShortCircuit = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : DB_block.db["group"]["shortCircuit"].includes(blk.name);
-  };
-  exports._canShortCircuit = _canShortCircuit;
+  exports._isTransmissionRod = _isTransmissionRod;
 
 
   /* ----------------------------------------
@@ -596,10 +466,10 @@
    *
    * Whether this block is related to power generation or transmission.
    * ---------------------------------------- */
-  const _isPowBlock = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pow");
+  const _isPowerBlock = function(blk_gn) {
+    return matchTag(blk_gn, "blk-pow", "blk");
   };
-  exports._isPowBlock = _isPowBlock;
+  exports._isPowerBlock = _isPowerBlock;
 
 
   /* ----------------------------------------
@@ -607,10 +477,10 @@
    *
    * Whether this block is a generator.
    * ---------------------------------------- */
-  const _isPowGen = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pow0gen");
+  const _isPowerGenerator = function(blk_gn) {
+    return matchTag(blk_gn, "blk-pow0gen", "blk");
   };
-  exports._isPowGen = _isPowGen;
+  exports._isPowerGenerator = _isPowerGenerator;
 
 
   /* ----------------------------------------
@@ -618,10 +488,10 @@
    *
    * Whether this block is a power transmitter.
    * ---------------------------------------- */
-  const _isPowTrans = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-pow0trans");
+  const _isPowerTransmitter = function(blk_gn) {
+    return matchTag(blk_gn, "blk-pow0trans", "blk");
   };
-  exports._isPowTrans = _isPowTrans;
+  exports._isPowerTransmitter = _isPowerTransmitter;
 
 
   /* ----------------------------------------
@@ -630,7 +500,7 @@
    * Whether this block is a cable.
    * ---------------------------------------- */
   const _isCable = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-cable");
+    return matchTag(blk_gn, "blk-cable", "blk");
   };
   exports._isCable = _isCable;
 
@@ -640,10 +510,10 @@
    *
    * Whether this block is a power relay.
    * ---------------------------------------- */
-  const _isPowRelay = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-relay");
+  const _isPowerRelay = function(blk_gn) {
+    return matchTag(blk_gn, "blk-relay", "blk");
   };
-  exports._isPowRelay = _isPowRelay;
+  exports._isPowerRelay = _isPowerRelay;
 
 
   /* ----------------------------------------
@@ -651,23 +521,10 @@
    *
    * Whether this block is a power node.
    * ---------------------------------------- */
-  const _isPowNode = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-node");
+  const _isPowerNode = function(blk_gn) {
+    return matchTag(blk_gn, "blk-node", "blk");
   };
-  exports._isPowNode = _isPowNode;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this block induces magnetic disturbance.
-   * ---------------------------------------- */
-  const _isMagnetic = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? false : DB_block.db["group"]["magnetic"].includes(blk.name);
-  };
-  exports._isMagnetic = _isMagnetic;
+  exports._isPowerNode = _isPowerNode;
 
 
   /* ----------------------------------------
@@ -676,7 +533,7 @@
    * Whether this block is a factory.
    * ---------------------------------------- */
   const _isFactory = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-fac");
+    return matchTag(blk_gn, "blk-fac", "blk");
   };
   exports._isFactory = _isFactory;
 
@@ -687,7 +544,7 @@
    * Whether this block is a furnace.
    * ---------------------------------------- */
   const _isFurnace = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-furn");
+    return matchTag(blk_gn, "blk-furn", "blk");
   };
   exports._isFurnace = _isFurnace;
 
@@ -697,10 +554,10 @@
    *
    * Whether this block is a wall for defense.
    * ---------------------------------------- */
-  const _isWall = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-wall");
+  const _isDefenseWall = function(blk_gn) {
+    return matchTag(blk_gn, "blk-wall", "blk");
   };
-  exports._isWall = _isWall;
+  exports._isDefenseWall = _isDefenseWall;
 
 
   /* ----------------------------------------
@@ -709,7 +566,7 @@
    * Whether this block is a generic projector.
    * ---------------------------------------- */
   const _isProjector = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-proj");
+    return matchTag(blk_gn, "blk-proj", "blk");
   };
   exports._isProjector = _isProjector;
 
@@ -720,7 +577,7 @@
    * Whether this block is a repairer.
    * ---------------------------------------- */
   const _isRepairer = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-mend");
+    return matchTag(blk_gn, "blk-mend", "blk");
   };
   exports._isRepairer = _isRepairer;
 
@@ -731,7 +588,7 @@
    * Whether this block is related to logic.
    * ---------------------------------------- */
   const _isLogicBlock = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-log");
+    return matchTag(blk_gn, "blk-log", "blk");
   };
   exports._isLogicBlock = _isLogicBlock;
 
@@ -742,7 +599,7 @@
    * Whether this block is a switch.
    * ---------------------------------------- */
   const _isSwitch = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-switch");
+    return matchTag(blk_gn, "blk-switch", "blk");
   };
   exports._isSwitch = _isSwitch;
 
@@ -756,7 +613,7 @@
    * Whether this block is an environmental block.
    * ---------------------------------------- */
   const _isEnvBlock = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-env");
+    return matchTag(blk_gn, "blk-env", "blk");
   };
   exports._isEnvBlock = _isEnvBlock;
 
@@ -767,7 +624,7 @@
    * Whether this block is a vent.
    * ---------------------------------------- */
   const _isVentBlock = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-vent");
+    return matchTag(blk_gn, "blk-vent", "blk");
   };
   exports._isVentBlock = _isVentBlock;
 
@@ -778,7 +635,7 @@
    * Whether this block is a large tree (or mushroom).
    * ---------------------------------------- */
   const _isTreeBlock = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-tree");
+    return matchTag(blk_gn, "blk-tree", "blk");
   };
   exports._isTreeBlock = _isTreeBlock;
 
@@ -789,7 +646,7 @@
    * Whether this block is an underground ore.
    * ---------------------------------------- */
   const _isDepthOre = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-dpore");
+    return matchTag(blk_gn, "blk-dpore", "blk");
   };
   exports._isDepthOre = _isDepthOre;
 
@@ -800,7 +657,7 @@
    * Whether this block is an underground fluid deposit.
    * ---------------------------------------- */
   const _isDepthLiquid = function(blk_gn) {
-    return MDL_content._hasTag(MDL_content._ct(blk_gn, "blk"), "blk-dpliq");
+    return matchTag(blk_gn, "blk-dpliq", "blk");
   };
   exports._isDepthLiquid = _isDepthLiquid;
 
@@ -811,9 +668,7 @@
    * Whether this block is affected by ore scanners.
    * ---------------------------------------- */
   const _isScannerTarget = function(blk_gn) {
-    if(_isDepthOre(blk_gn) || _isDepthLiquid(blk_gn)) return true;
-
-    return false;
+    return _isDepthOre(blk_gn) || _isDepthLiquid(blk_gn)
   };
   exports._isScannerTarget = _isScannerTarget;
 
@@ -827,7 +682,7 @@
    * Whether this unit is created with Lovec methods.
    * ---------------------------------------- */
   const _isLovecUnit = function(utp_gn) {
-    return MDL_content._hasTag(MDL_content._ct(utp_gn, "utp"), "utp-lovec");
+    return global.lovecUtil.db.lovecUnits.includes(MDL_content._ct(utp_gn, "utp"));
   };
   exports._isLovecUnit = _isLovecUnit;
 
@@ -839,8 +694,7 @@
    * ---------------------------------------- */
   const _isCoreUnit = function(utp_gn) {
     let utp = MDL_content._ct(utp_gn, "utp");
-
-    return utp == null ? false : DB_unit.db["group"]["coreUnit"].includes(utp.name);
+    return utp != null && DB_unit.db["group"]["coreUnit"].includes(utp.name);
   };
   exports._isCoreUnit = _isCoreUnit;
 
@@ -852,8 +706,7 @@
    * ---------------------------------------- */
   const _isNonRobot = function(utp_gn) {
     let utp = MDL_content._ct(utp_gn, "utp");
-
-    return utp == null ? false : DB_unit.db["group"]["nonRobot"].includes(utp.name);
+    return utp != null && DB_unit.db["group"]["nonRobot"].includes(utp.name);
   };
   exports._isNonRobot = _isNonRobot;
 
@@ -861,7 +714,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit or building can creates remains upon death.
+   * Whether this unit or building doesn't create remains upon death.
    * ---------------------------------------- */
   const _hasNoRemains = function(etp_gn) {
     let etp = MDL_content._ct(etp_gn, null, true);
@@ -889,26 +742,9 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this entity is supposed to update.
-   * ---------------------------------------- */
-  const _canUpdate = function(e) {
-    if(e == null) return false;
-    if(Vars.state.isEditor()) return false;
-    if(e instanceof Building && !e.allowUpdate()) return false;
-
-    return true;
-  };
-  exports._canUpdate = _canUpdate;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Whether this entity is in the screen and not covered by fog.
    * ---------------------------------------- */
   const _isVisible = function(e) {
-    if(e == null) return false;
-
     return !e.inFogTo(Vars.player.team()) && _posVisible(e.x, e.y, MDL_entity._clipSize(e));
   };
   exports._isVisible = _isVisible;
@@ -920,10 +756,7 @@
    * Whether this entity is seen as enemy to {team}.
    * ---------------------------------------- */
   const _isEnemy = function(e, team) {
-    if(e == null || team == null) return false;
-    if(e.team === Team.derelict || e.team === team) return false;
-
-    return true;
+    return e.team !== Team.derelict && e.team !== team;
   };
   exports._isEnemy = _isEnemy;
 
@@ -934,11 +767,7 @@
    * Whether this entity can be healed.
    * ---------------------------------------- */
   const _canHeal = function(e, team) {
-    if(e == null) return false;
-    if(team != null && e.team !== team) return false;
-    if(!e.damaged() || (e instanceof Building && e.isHealSuppressed())) return false;
-
-    return true;
+    return e.tean === team && e.damaged() && (e instanceof Building ? !e.isHealSuppressed() : true);
   };
   exports._canHeal = _canHeal;
 
@@ -949,10 +778,7 @@
    * Whether this building is running.
    * ---------------------------------------- */
   const _isBuildingActive = function(b) {
-    if(b == null) return false;
-    if(b.team === Team.derelict || b.edelta() < 0.0001) return false;
-
-    return true;
+    return b.team !== Team.derelict && b.efficiency > 0.0;
   };
   exports._isBuildingActive = _isBuildingActive;
 
@@ -963,8 +789,6 @@
    * Whether this unit is a loot unit.
    * ---------------------------------------- */
   const _isLoot = function(unit) {
-    if(unit == null) return false;
-
     return unit.type.name.includes("unit0misc-loot");
   };
   exports._isLoot = _isLoot;
@@ -984,15 +808,12 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit can be controlled by AI now.
+   * Whether this unit won't be used in regular iteration.
    * ---------------------------------------- */
-  const _isAiReady = function(unit) {
-    if(unit == null) return false;
-    if(unit.dead || unit.isPlayer()) return false;
-
-    return true;
+  const _isIrregularUnit = function(unit) {
+    return unit.internal || _isLoot(unit);
   };
-  exports._isAiReady = _isAiReady;
+  exports._isIrregularUnit = _isIrregularUnit;
 
 
   /* ----------------------------------------
@@ -1001,11 +822,7 @@
    * Whether this unit can be covered by trees.
    * ---------------------------------------- */
   const _isCoverable = function(unit, includeSize) {
-    if(unit == null) return false;
-    if(unit.flying || unit.type.groundLayer > 75.9999) return false;
-    if(includeSize && unit.type.hitSize > VAR.rad_treeHideMaxRad - 0.0001) return false;
-
-    return true;
+    return !unit.flying && unit.type.groundLayer < 76.0 && (!includeSize ? true : unit.hitSize <= VAR.rad_treeHideMaxRad);
   };
   exports._isCoverable = _isCoverable;
 
@@ -1016,12 +833,7 @@
    * Whether this unit is covered by trees.
    * ---------------------------------------- */
   const _isCovered = function(unit) {
-    if(unit == null) return false;
-
-    let sta = Vars.content.statusEffect("loveclab-sta-hidden-well");
-    if(sta != null && unit.hasEffect(sta)) return true;
-
-    return false;
+    return unit.hasEffect(global.lovec.varGen.staHiddenWell);
   };
   exports._isCovered = _isCovered;
 
@@ -1032,11 +844,7 @@
    * Whether this unit can be damaged by heat.
    * ---------------------------------------- */
   const _isHeatDamageable = function(unit) {
-    if(unit == null) return false;
-    if(!_isOnFloor(unit)) return false;
-    if(unit.type.naval) return false;
-
-    return true;
+    return !unit.type.naval && _isOnFloor(unit)
   };
   exports._isHeatDamageable = _isHeatDamageable;
 
@@ -1047,28 +855,9 @@
    * Whether this unit can be affected by liquid floor.
    * ---------------------------------------- */
   const _isOnFloor = function(unit) {
-    if(unit == null) return false;
-    if(unit.flying) return false;
-    if(unit.hovering && (unit instanceof Legsc)) return false;
-
-    return true;
+    return !unit.flying && (!unit.hovering ? true : !(unit instanceof Legsc));
   };
   exports._isOnFloor = _isOnFloor;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether this unit suffers from wall penalty.
-   * ---------------------------------------- */
-  const _isLowGround = function(unit) {
-    if(unit == null) return false;
-    if(unit.flying) return false;
-    if(unit instanceof Legsc) return false;
-
-    return true;
-  };
-  exports._isLowGround = _isLowGround;
 
 
   /* ----------------------------------------
@@ -1077,11 +866,7 @@
    * Still affected by explosion knockback.
    * ---------------------------------------- */
   const _isLowAir = function(unit) {
-    if(unit == null) return false;
-    if(!unit.flying) return false;
-    if(!unit.type.lowAltitude) return false;
-
-    return true;
+    return unit.flying && unit.type.lowAltitude;
   };
   exports._isLowAir = _isLowAir;
 
@@ -1092,11 +877,7 @@
    * It flies high.
    * ---------------------------------------- */
   const _isHighAir = function(unit) {
-    if(unit == null) return false;
-    if(!unit.flying) return false;
-    if(unit.type.lowAltitude) return false;
-
-    return true;
+    return unit.flying && !unit.type.lowAltitude;
   };
   exports._isHighAir = _isHighAir;
 
@@ -1107,8 +888,6 @@
    * Whether this unit is moving (not through collision).
    * ---------------------------------------- */
   const _isMoving = function(unit) {
-    if(unit == null) return false;
-
     return unit.vel.len() > (unit.flying ? 0.1 : 0.01);
   };
   exports._isMoving = _isMoving;
@@ -1120,10 +899,7 @@
    * Whether this unit is boosting up/down.
    * ---------------------------------------- */
   const _isBoosting = function(unit) {
-    if(unit == null) return false;
-    if(!unit.type.canBoost) return false;
-
-    return unit.elevation > 0.33 && unit.elevation < 1.0;
+    return unit.type.canBoost && unit.elevation > 0.73 && unit.elevation < 1.0;
   };
   exports._isBoosting = _isBoosting;
 
@@ -1133,13 +909,8 @@
    *
    * Whether this unit has injured status.
    * ---------------------------------------- */
-  const _isInjured = function(unit) {
-    const thisFun = _isInjured;
-
-    if(unit == null) return false;
-    if(_hasEffectAny(unit, thisFun.injuredStas)) return true;
-
-    return false;
+  const _isInjured = function thisFun(unit) {
+    return _hasEffectAny(unit, thisFun.injuredStas);
   }
   .setProp({
     injuredStas: [
@@ -1156,13 +927,8 @@
    *
    * Whether this unit has damaged status.
    * ---------------------------------------- */
-  const _isDamaged = function(unit) {
-    const thisFun = _isDamaged;
-
-    if(unit == null) return false;
-    if(_hasEffectAny(unit, thisFun.damagedStas)) return true;
-
-    return false;
+  const _isDamaged = function thisFun(unit) {
+    return _hasEffectAny(unit, thisFun.damagedStas);
   }
   .setProp({
     damagedStas: [
@@ -1179,13 +945,11 @@
    * Whether this unit has any of given status effects.
    * ---------------------------------------- */
   const _hasEffectAny = function(unit, stas_gn) {
-    if(unit == null) return false;
-    if(stas_gn.some(sta_gn => {
-      let sta = MDL_content._ct(sta_gn, "sta", true);
+    let sta;
+    return stas_gn.some(sta_gn => {
+      sta = MDL_content._ct(sta_gn, "sta", true);
       return sta != null && unit.hasEffect(sta);
-    })) return true;
-
-    return false;
+    });
   };
   exports._hasEffectAny = _hasEffectAny;
 
@@ -1197,18 +961,9 @@
    * Used for remains.
    * ---------------------------------------- */
   const _isHot = function(e, t) {
-    if(e == null) {
-      if(t == null) return false;
-
-      return _isHotSta(t.floor().status);
-    } else {
-      if(e instanceof Building) return false;
-      if(_hasEffectAny(e, DB_status.db["group"]["hot"])) return true;
-      let t = e.tileOn();
-      if(t != null && _isHotSta(t.floor().status)) return true;
-
-      return false;
-    };
+    return e == null ?
+      t != null && _isHotStatus(t.floor().status) :
+      !(e instanceof Building) && (_hasEffectAny(e, DB_status.db["group"]["hot"]) || _isHot(null, e.tileOn()));
   };
   exports._isHot = _isHot;
 
@@ -1220,10 +975,7 @@
    * This may influence something like short circuit.
    * ---------------------------------------- */
   const _isWet = function(unit) {
-    if(unit == null) return false;
-    if(_hasEffectAny(unit, DB_status.db["group"]["wet"])) return true;
-
-    return false;
+    return _hasEffectAny(unit, DB_status.db["group"]["wet"]);
   };
   exports._isWet = _isWet;
 
@@ -1234,10 +986,7 @@
    * Whether this unit has at least one weapon active.
    * ---------------------------------------- */
   const _isAttacking = function(unit) {
-    if(unit == null) return false;
-    if(unit.mounts.some(mt => mt.reload > 0.0)) return true;
-
-    return false;
+    return unit.mounts.some(mt => mt.reload > 0.0);
   };
   exports._isAttacking = _isAttacking;
 
@@ -1248,10 +997,7 @@
    * Whether this unit is performing any actions.
    * ---------------------------------------- */
   const _isActing = function(unit) {
-    if(unit == null) return false;
-    if(_isMoving(unit) || _isAttacking(unit) || unit.mining() || unit.isBuilding()) return true;
-
-    return false;
+    return _isMoving(unit) || _isAttacking(unit) || unit.mining() || unit.isBuilding();
   };
   exports._isActing = _isActing;
 
@@ -1264,12 +1010,11 @@
    *
    * Whether this status is related to high temperature.
    * ---------------------------------------- */
-  const _isHotSta = function(sta_gn) {
+  const _isHotStatus = function(sta_gn) {
     let sta = MDL_content._ct(sta_gn, "sta");
-
-    return sta == null ? false : DB_status.db["group"]["hot"].includes(sta.name);
+    return sta != null && DB_status.db["group"]["hot"].includes(sta.name);
   };
-  exports._isHotSta = _isHotSta;
+  exports._isHotStatus = _isHotStatus;
 
 
   /* ----------------------------------------
@@ -1277,12 +1022,11 @@
    *
    * Whether this status is related to water.
    * ---------------------------------------- */
-  const _isWetSta = function(sta_gn) {
+  const _isWetStatus = function(sta_gn) {
     let sta = MDL_content._ct(sta_gn, "sta");
-
-    return sta == null ? false : DB_status.db["group"]["wet"].includes(sta.name);
+    return sta != null && DB_status.db["group"]["wet"].includes(sta.name);
   };
-  exports._isWetSta = _isWetSta;
+  exports._isWetStatus = _isWetStatus;
 
 
   /* ----------------------------------------
@@ -1290,10 +1034,10 @@
    *
    * Whether this status is a fading (or flickering) status.
    * ---------------------------------------- */
-  const _isFadeSta = function(sta_gn) {
-    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-fade");
+  const _isFadeStatus = function(sta_gn) {
+    return matchTag(sta_gn, "sta-fade", "sta");
   };
-  exports._isFadeSta = _isFadeSta;
+  exports._isFadeStatus = _isFadeStatus;
 
 
   /* ----------------------------------------
@@ -1301,10 +1045,10 @@
    *
    * Whether this status is triggered upon unit death.
    * ---------------------------------------- */
-  const _isDeathSta = function(sta_gn) {
-    return MDL_content._hasTag(MDL_content._ct(sta_gn, "sta"), "sta-death");
+  const _isDeathStatus = function(sta_gn) {
+    return matchTag(sta_gn, "sta-death", "sta");
   };
-  exports._isDeathSta = _isDeathSta;
+  exports._isDeathStatus = _isDeathStatus;
 
 
   /* ----------------------------------------
@@ -1312,10 +1056,8 @@
    *
    * Whether this status is a stackable status.
    * ---------------------------------------- */
-  const _isStackSta = function(sta_gn) {
+  const _isStackStatus = function(sta_gn) {
     let sta = MDL_content._ct(sta_gn, "sta");
-    if(sta == null) return false;
-
-    return tryFun(sta.ex_isStackSta, sta, false);
+    return sta != null && tryFun(sta.ex_isStackSta, sta, false);
   };
-  exports._isStackSta = _isStackSta;
+  exports._isStackStatus = _isStackStatus;

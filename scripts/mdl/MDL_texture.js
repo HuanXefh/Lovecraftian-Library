@@ -17,23 +17,6 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a region matching the suffix, that's it.
-   * ---------------------------------------- */
-  const _reg = function(ct_gn, suffix, suffixFallback, isNullFallback) {
-    let ct = global.lovecUtil.fun._ct(ct_gn);
-    if(ct == null) return null;
-    if(suffix == null) suffix = "";
-    if(suffixFallback == null) suffixFallback = "";
-
-    return Core.atlas.find(ct.name + suffix, Core.atlas.find(ct.name + suffixFallback, ct.region));
-  }
-  .setAnno(ANNO.__NONHEADLESS__);
-  exports._reg = _reg;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Gets the default complete region for a block.
    * ---------------------------------------- */
   const _regBlk = function(blk_gn, shouldReturnName) {
@@ -59,7 +42,7 @@
   const _regHeat = function(size) {
     return Core.atlas.find("lovec-ast-block-heat" + Math.round(size));
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports._regHeat = _regHeat;
 
 
@@ -77,7 +60,7 @@
     if(off == null) off = 0;
     return blk.variantRegions[Math.floor(Mathf.randomSeed(t.pos() + off, 0.0, Mathf.maxZero(blk.variantRegions.length - 1) + 0.9999))];
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports._regVari = _regVari;
 
 
@@ -102,7 +85,7 @@
 
     return null;
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports._regTurBase = _regTurBase;
 
 
@@ -159,7 +142,7 @@
    * ---------------------------------------- */
   const _pix_ctStack = function(pix0, ct_gn) {
     let ct = global.lovecUtil.fun._ct(ct_gn);
-    if(ct == null) ERROR_HANDLER.noCt(ct_gn);
+    if(ct == null) ERROR_HANDLER.noContent(ct_gn);
     let pixCt = Core.atlas.getPixmap(ct instanceof Block ? _regBlk(ct) : ct.fullIcon);
     let pixCtStack = new Pixmap(pix0.width, pix0.height);
     pixCtStack.draw(pixCt, pixCtStack.width * 0.5, pixCtStack.height * 0.5, pixCtStack.width * 0.5, pixCtStack.height * 0.5);
@@ -180,7 +163,7 @@
     if(w == null) w = 32;
     let hw = w / 2;
     let ct = global.lovecUtil.fun._ct(ct_gn);
-    if(ct == null) ERROR_HANDLER.noCt(ct_gn);
+    if(ct == null) ERROR_HANDLER.noContent(ct_gn);
     let reg = ct instanceof Block ? _regBlk(ct) : Core.atlas.find(ct.name);
     let pixCt = Core.atlas.getPixmap(reg);
     let wCt = pixCt.width;
@@ -202,8 +185,12 @@
   exports._pix_ctTag = _pix_ctTag;
 
 
-  const comp_createIcons_ctTag = function(ct, packer, nmCtBot, nmCtOv, suffix) {
-    let pix = _pix_ctStack(Core.atlas.getPixmap(nmCtBot), nmCtOv);
+  const comp_createIcons_ctTag = function(ct, packer, ctUnd_gn, ctOv_gn, suffix) {
+    let ctUnd = global.lovecUtil.fun._ct(ctUnd_gn);
+    if(ctUnd == null) ERROR_HANDLER.noContent(ctUnd_gn);
+    let ctOv = global.lovecUtil.fun._ct(ctOv_gn);
+    if(ctOv == null) ERROR_HANDLER.noContent(ctOv_gn);
+    let pix = _pix_ctStack(Core.atlas.getPixmap(ctUnd.name), ctOv);
     packer.add(MultiPacker.PageType.main, ct.name + suffix, pix);
     pix.dispose();
   };

@@ -8,7 +8,6 @@
   /* <---------- import ----------> */
 
 
-  const ANNO = require("lovec/glb/BOX_anno");
   const PARAM = require("lovec/glb/GLB_param");
 
 
@@ -28,30 +27,18 @@
   /* <---------- auxiliay ----------> */
 
 
-  function comp_addStats(abi, tb, nm, tableF) {
-    tb.add("\n\n[gray]" + Core.bundle.get("ability.lovec-abi-" + nm + ".description") + "[]\n\n").wrap().width(350.0);
+  const comp_addStats = function(abi, tb, tableF) {
+    tb.add("\n\n[gray]" + Core.bundle.get("ability.lovec-abi-" + abi.nm + ".description") + "[]\n\n").wrap().width(350.0);
     tb.row();
     tableF(tb);
   };
+  exports.comp_addStats = comp_addStats;
 
 
-  function comp_localized(abi, nm) {
-    return Core.bundle.get("ability.lovec-abi-" + nm + ".name");
+  const comp_localized = function(abi) {
+    return Core.bundle.get("ability.lovec-abi-" + abi.nm + ".name");
   };
-
-
-  const _abiDmg = function(dmg, e, bDmgMtp) {
-    return dmg * (e instanceof Building ? tryVal(bDmgMtp, 1.0) : e.damageMultiplier);
-  };
-  exports._abiDmg = _abiDmg;
-
-
-  const regisAbiSetter = function(nm, abiSetter) {
-    MDL_event._c_onLoad(() => {
-      global.lovecUtil.db.abilitySetter.push(nm, abiSetter);
-    });
-  };
-  exports.regisAbiSetter = regisAbiSetter;
+  exports.comp_localized = comp_localized;
 
 
   /* <---------- attack ----------> */
@@ -62,68 +49,51 @@
    *
    * Creates explosion upon death.
    * ---------------------------------------- */
-  const _explosion = function(dmg, rad, sta, staDur, se_gn) {
-    if(dmg == null) dmg = 160.0;
-    if(rad == null) rad = 40.0;
-    if(sta == null) sta = StatusEffects.blasted;
-    if(staDur == null) staDur = 120.0;
-    if(se_gn == null) se_gn = "se-shot-explosion";
+  newAbility(
+    "explosion",
+    (paramObj) => extend(Ability, {
 
-    let nm = "explosion";
-    return extend(Ability, {
+
+      nm: "explosion",
+      dmg: readParam(paramObj, "dmg", 160.0),
+      rad: readParam(paramObj, "rad", 40.0),
+      sta: readParam(paramObj, "sta", StatusEffects.blasted),
+      staDur: readParam(paramObj, "staDur", 120.0),
+      se: fetchSound(readParam(paramObj, "se", "se-shot-explosion")),
 
 
       addStats(tb) {
-        comp_addStats(this, tb, nm, tb => {
-
-          tb.add(MDL_text._statText(
-            Stat.damage.localized(),
-            Strings.autoFixed(dmg, 2),
-          ));
+        comp_addStats(this, tb, tb => {
+          tb.add(MDL_text._statText(Stat.damage.localized(), Strings.autoFixed(this.dmg, 2)));
           tb.row();
-
-          tb.add(MDL_text._statText(
-            Stat.range.localized(),
-            Strings.autoFixed(rad / Vars.tilesize, 2),
-            StatUnit.blocks.localized(),
-          ));
+          tb.add(MDL_text._statText(Stat.range.localized(), Strings.autoFixed(this.rad / Vars.tilesize, 2), StatUnit.blocks.localized()));
           tb.row();
-
-          if(sta !== StatusEffects.none) {
-            tb.add(MDL_text._statText(
-              Core.bundle.get("stat.lovec-stat-blk0misc-status"),
-              sta.localizedName,
-            ));
-            tb.row();
+          if(this.sta !== StatusEffects.none) {
+            tb.add(MDL_text._statText(Core.bundle.get("stat.lovec-stat-blk0misc-status"), this.sta.localizedName));
           };
-
         });
       },
 
 
       death(unit) {
-        Damage.damage(unit.team, unit.x, unit.y, rad, dmg);
-        MDL_pos._it_units(unit.x, unit.y, rad, unit.team, null, ounit => {
-          ounit.apply(sta, staDur);
+        Damage.damage(unit.team, unit.x, unit.y, this.rad, this.dmg);
+        MDL_pos._it_units(unit.x, unit.y, this.rad, unit.team, null, ounit => {
+          ounit.apply(this.sta, this.staDur);
         });
 
-        MDL_effect.showAt(unit.x, unit.y, rad < 16.0 ? EFF.explosionSmall : EFF.explosion, 0.0);
-        MDL_effect.showAt_shake(unit.x, unit.y, dmg / 160.0);
-        MDL_effect.playAt(unit.x, unit.y, se_gn, 1.0, 1.0, 0.1);
+        MDL_effect.showAt(unit.x, unit.y, this.rad < 16.0 ? EFF.explosionSmall : EFF.explosion, 0.0);
+        MDL_effect.showAt_shake(unit.x, unit.y, this.dmg / 160.0);
+        MDL_effect.playAt(unit.x, unit.y, this.se, 1.0, 1.0, 0.1);
       },
 
 
       localized() {
-        return comp_localized(this, nm);
+        return comp_localized(this);
       },
 
 
-    });
-  }
-  .setAnno(ANNO.__INIT__, function() {
-    regisAbiSetter("explosion", this);
-  });
-  exports._explosion = _explosion;
+    }),
+  );
 
 
   /* <---------- support ----------> */
@@ -132,221 +102,166 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Periodically regenerates shield for this unit.
+   * Actively regenerates shield.
    * ---------------------------------------- */
-  const _shieldCore = function(maxShield, regenAmt, regenIntv) {
-    if(maxShield == null) maxShield = 0.0;
-    if(regenAmt == null) regenAmt = 0.0;
-    if(regenIntv == null) regenIntv = 1.0;
+  newAbility(
+    "shield-core",
+    (paramObj) => extend(Ability, {
 
-    let nm = "shield-core";
-    let timerMap = new ObjectMap();
-    return extend(Ability, {
+
+      nm: "shield-core",
+      maxShield: readParam(paramObj, "maxShield", 0.0),
+      regenAmt: readParam(paramObj, "regenAmt", 0.0),
+      regenIntv: readParam(paramObj, "regenIntv", 1.0),
+      timerMap: new ObjectMap(),
 
 
       addStats(tb) {
-        comp_addStats(this, tb, nm, tb => {
-
-          tb.add(MDL_text._statText(
-            Stat.shieldHealth.localized(),
-            Strings.autoFixed(maxShield, 2),
-          ));
+        comp_addStats(this, tb, tb => {
+          tb.add(MDL_text._statText(Stat.shieldHealth.localized(), Strings.autoFixed(this.maxShield, 2)));
           tb.row();
-
-          tb.add(MDL_text._statText(
-            Stat.repairSpeed.localized(),
-            Strings.autoFixed(regenAmt / regenIntv * 60.0, 2),
-            StatUnit.perSecond.localized(),
-          ));
-          tb.row();
-
+          tb.add(MDL_text._statText(Stat.repairSpeed.localized(), Strings.autoFixed(this.regenAmt / this.regenIntv * 60.0, 2), StatUnit.perSecond.localized()));
         });
       },
 
 
       update(unit) {
-        if(!timerMap.containsKey(unit)) timerMap.put(unit, new Interval(1));
-        if(unit.shield >= maxShield || !timerMap.get(unit).get(regenIntv)) return;
+        if(!this.timerMap.containsKey(unit)) this.timerMap.put(unit, new Interval(1));
+        if(unit.shield >= this.maxShield || !this.timerMap.get(unit).get(this.regenIntv)) return;
 
-        unit.shield = Math.min(unit.shield + regenAmt, maxShield);
+        unit.shield = Math.min(unit.shield + this.regenAmt, this.maxShield);
         unit.shieldAlpha = 1.0;
       },
 
 
       localized() {
-        return comp_localized(this, nm);
+        return comp_localized(this);
       },
 
 
-    });
-  }
-  .setAnno(ANNO.__INIT__, function() {
-    regisAbiSetter("shield-core", this);
-  });
-  exports._shieldCore = _shieldCore;
+    }),
+  );
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Point laser defense that targets enemy bullets.
+   * Targets and eliminates incoming bullets.
+   * Can overheat.
    * ---------------------------------------- */
-  const _laserDefense = function(dmg, chargeCap, chargeMtp, rad, se_gn) {
-    if(dmg == null) dmg = 60.0;
-    if(chargeCap == null) chargeCap = 180.0;
-    if(chargeMtp == null) chargeMtp = 1.0;
-    if(rad == null) rad = 80.0;
-    if(se_gn == null) se_gn = "se-shot-laser-defense";
+  newAbility(
+    "laser-defense",
+    (paramObj) => extend(Ability, {
 
-    let nm = "laser-defense";
-    let progMap = new ObjectMap();
-    let inCdMap = new ObjectMap();
-    return extend(Ability, {
+
+      nm: "laser-defense",
+      dmg: readParam(paramObj, "dmg", 60.0),
+      chargeCap: readParam(paramObj, "chargeCap", 180.0),
+      chargeMtp: readParam(paramObj, "chargeMtp", 1.0),
+      rad: readParam(paramObj, "rad", 80.0),
+      se: fetchSound(readParam(paramObj, "se", "se-shot-laser-defense")),
+      progMap: new ObjectMap(),
+      inCdMap: new ObjectMap(),
 
 
       addStats(tb) {
-        comp_addStats(this, tb, nm, tb => {
-
-          tb.add(MDL_text._statText(
-            Stat.damage.localized(),
-            Strings.autoFixed(dmg, 2),
-          ));
+        comp_addStats(this, tb, tb => {
+          tb.add(MDL_text._statText(Stat.damage.localized(), Strings.autoFixed(this.dmg, 2)));
           tb.row();
-
-          tb.add(MDL_text._statText(
-            Core.bundle.get("stat.lovec-stat-blk0misc-reloadtime"),
-            Strings.autoFixed(chargeCap / 60.0 / chargeMtp, 2),
-            StatUnit.seconds.localized(),
-          ));
+          tb.add(MDL_text._statText(Core.bundle.get("stat.lovec-stat-blk0misc-reloadtime"), Strings.autoFixed(this.chargeCap / 60.0 / this.chargeMtp, 2), StatUnit.seconds.localized()));
           tb.row();
-
-          tb.add(MDL_text._statText(
-            Stat.range.localized(),
-            Strings.autoFixed(rad / Vars.tilesize, 2),
-            StatUnit.blocks.localized(),
-          ));
-          tb.row();
-
+          tb.add(MDL_text._statText(Stat.range.localized(), Strings.autoFixed(this.rad / Vars.tilesize, 2), StatUnit.blocks.localized()));
         });
       },
 
 
       update(unit) {
         if(!Mathf.chance(0.2)) return;
+        if(!this.progMap.containsKey(unit)) this.progMap.put(unit, this.chargeCap);
+        if(!this.inCdMap.containsKey(unit)) this.inCdMap.put(unit, false);
 
-        if(!progMap.containsKey(unit)) progMap.put(unit, chargeCap);
-        if(!inCdMap.containsKey(unit)) inCdMap.put(unit, false);
-
-        let prog = Math.min(progMap.get(unit, 0.0) + Time.delta * 5.0 * chargeMtp * MDL_entity._reloadMtp(unit), chargeCap);
-        let inCd = inCdMap.get(unit, false);
+        let prog = Math.min(this.progMap.get(unit, 0.0) + Time.delta * 5.0 * this.chargeMtp * MDL_entity._reloadMtp(unit), this.chargeCap);
+        let inCd = this.inCdMap.get(unit, false);
         if(prog > 0.0 && !inCd) {
-          let bul = MDL_pos._bul_tg(unit.x, unit.y, unit.team, rad);
+          let bul = MDL_pos._bul_tg(unit.x, unit.y, unit.team, this.rad);
           if(bul != null) {
-            prog = Mathf.maxZero(prog - Mathf.clamp((bul.damage + bul.type.splashDamage) / dmg, 0.25, 1.0) * dmg);
-            MDL_effect.showBetween_pointLaser(unit.x, unit.y, bul, Pal.remove, se_gn);
-            MDL_call.damageBul(bul, dmg);
+            prog = Mathf.maxZero(prog - Mathf.clamp((bul.damage + bul.type.splashDamage) / this.dmg, 0.25, 1.0) * this.dmg);
+            MDL_effect.showBetween_pointLaser(unit.x, unit.y, bul, Pal.remove, this.se);
+            MDL_call.damageBul(bul, this.dmg);
           };
         };
-        if(prog < 0.0001) inCdMap.put(unit, true);
-        if(prog > chargeCap - 0.0001 && inCd) inCdMap.put(unit, false);
+        if(prog < 0.0001) this.inCdMap.put(unit, true);
+        if(prog > this.chargeCap - 0.0001 && inCd) this.inCdMap.put(unit, false);
 
-        progMap.put(unit, prog);
+        this.progMap.put(unit, prog);
       },
 
 
       draw(unit) {
         if(!PARAM.drawUnitReload) return;
 
-        MDL_draw.drawUnit_reload(
-          unit,
-          null,
-          inCdMap.get(unit, false) ? Color.white : Pal.remove,
-          1.0,
-          0.0,
-          1,
-          progMap.get(unit, 0.0) / chargeCap,
+        MDL_draw._d_reload(
+          unit, null,
+          this.inCdMap.get(unit, false) ? Color.white : Pal.remove, 1.0, 0.0, 1,
+          this.progMap.get(unit, 0.0) / this.chargeCap,
         );
       },
 
 
       localized() {
-        return comp_localized(this, nm);
+        return comp_localized(this);
       },
 
 
-    });
-  }
-  .setAnno(ANNO.__INIT__, function() {
-    regisAbiSetter("laser-defense", this);
-  });
-  exports._explosion = _explosion;
+    }),
+  );
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Periodically repairs the nearest damaged building.
+   * Actively repairs buildings in range.
    * ---------------------------------------- */
-  const _buildingRepairerModule = function(healAmt, healPerc, intv, rad, strokeScl) {
-    if(healAmt == null) healAmt = 0.0;
-    if(healPerc == null) healPerc = 0.0;
-    if(intv == null) intv = 60.0;
-    if(rad == null) rad = 40.0;
-    if(strokeScl == null) strokeScl = 1.0;
+  newAbility(
+    "building-repairer-module",
+    (paramObj) => extend(Ability, {
 
-    let nm = "building-repairer-module";
-    let timerMap = new ObjectMap();
-    return extend(Ability, {
+
+      nm: "building-repairer-module",
+      healAmt: readParam(paramObj, "healAmt", 0.0),
+      healPerc: readParam(paramObj, "healPerc", 0.0),
+      intv: readParam(paramObj, "intv", 60.0),
+      rad: readParam(paramObj, "rad", 40.0),
+      strokeScl: readParam(paramObj, "strokeScl", 1.0),
+      timerMap: new ObjectMap(),
 
 
       addStats(tb) {
-        comp_addStats(this, tb, nm, tb => {
-
-          tb.add(MDL_text._statText(
-            Core.bundle.get("stat.lovec-stat-blk0misc-repairamt"),
-            MDL_text._healText(healAmt, healPerc),
-          ));
+        comp_addStats(this, tb, tb => {
+          tb.add(MDL_text._statText(Core.bundle.get("stat.lovec-stat-blk0misc-repairamt"), MDL_text._healText(this.healAmt, this.healPerc)));
           tb.row();
-
-          tb.add(MDL_text._statText(
-            Core.bundle.get("stat.lovec-stat-blk0misc-repairintv"),
-            Strings.autoFixed(intv / 60.0, 2),
-            StatUnit.seconds.localized(),
-          ));
+          tb.add(MDL_text._statText(Core.bundle.get("stat.lovec-stat-blk0misc-repairintv"), Strings.autoFixed(this.intv / 60.0, 2), StatUnit.seconds.localized()));
           tb.row();
-
-          tb.add(MDL_text._statText(
-            Core.bundle.get("stat.lovec-stat-blk0misc-repairr"),
-            Strings.autoFixed(rad / Vars.tilesize, 2),
-            StatUnit.blocks.localized(),
-          ));
-          tb.row();
-
+          tb.add(MDL_text._statText(Core.bundle.get("stat.lovec-stat-blk0misc-repairr"), Strings.autoFixed(this.rad / Vars.tilesize, 2), StatUnit.blocks.localized()));
         });
       },
 
 
       update(unit) {
-        if(!timerMap.containsKey(unit)) timerMap.put(unit, new Interval(1));
-
-        if(!timerMap.get(unit).get(intv)) return;
-
-        let b = MDL_pos._b_base(unit.x, unit.y, unit.team, rad, b => MDL_cond._canHeal(b));
+        if(!this.timerMap.containsKey(unit)) this.timerMap.put(unit, new Interval(1));
+        if(!this.timerMap.get(unit).get(this.intv)) return;
+        let b = MDL_pos._b_base(unit.x, unit.y, unit.team, this.rad, b => MDL_cond._canHeal(b));
         if(b == null) return;
 
-        FRAG_attack.heal(b, b.maxHealth * healPerc + healAmt);
-        MDL_effect.showBetween_laser(unit.x, unit.y, unit, b, Pal.heal, strokeScl);
+        FRAG_attack.heal(b, b.maxHealth * this.healPerc + this.healAmt);
+        MDL_effect.showBetween_laser(unit.x, unit.y, unit, b, Pal.heal, this.strokeScl);
       },
 
 
       localized() {
-        return comp_localized(this, nm);
+        return comp_localized(this);
       },
 
 
-    });
-  }
-  .setAnno(ANNO.__INIT__, function() {
-    regisAbiSetter("building-repairer-module", this);
-  });
-  exports._buildingRepairerModule = _buildingRepairerModule;
+    }),
+  );

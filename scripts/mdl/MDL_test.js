@@ -50,6 +50,12 @@
   exports._w_costySearch = _w_costySearch;
 
 
+  const _w_noCusSha = function(ct) {
+    Log.warn("[LOVEC] No [$1] region found for [$2]!".format("-shadow".color(Pal.remove), ct.name.color(Pal.accent)));
+  };
+  exports._w_noCusSha = _w_noCusSha;
+
+
   /* <---------- print ----------> */
 
 

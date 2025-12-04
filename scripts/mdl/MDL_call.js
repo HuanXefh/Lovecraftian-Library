@@ -39,21 +39,19 @@
    *
    * Script called by this will be called only once in each round of update.
    * ---------------------------------------- */
-  const callOnce = function(id, scr) {
-    const thisFun = callOnce;
-
+  const callOnce = function thisFun(id, scr) {
     if(Vars.state.updateId !== thisFun.idCurMap.get(id, 0)) {
       thisFun.idCurMap.put(id, Vars.state.updateId);
       scr();
     };
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setProp({
+    idCurMap: new ObjectMap(),
+  })
+  .setAnno(ANNO.$INIT$, function() {
     MDL_event._c_onLoad(() => {
       TRIGGER.mapChange.addListener(nmMap => callOnce.idCurMap.clear());
     }, 10777892);
-  })
-  .setProp({
-    idCurMap: new ObjectMap(),
   });
   exports.callOnce = callOnce;
 
@@ -69,7 +67,7 @@
    * Set {ang} to apply a specific rotation.
    * Use {scr} to furthur modify those spawned units.
    * ---------------------------------------- */
-  const spawnUnit = function(x, y, utp_gn, team, rad, ang, repeat, applyDefSta, scr) {
+  const spawnUnit_server = function(x, y, utp_gn, team, rad, ang, repeat, applyDefSta, scr) {
     let utp = MDL_content._ct(utp_gn, "utp");
     if(utp == null) return;
     if(team == null) team = Team.sharded;
@@ -77,7 +75,7 @@
     if(ang == null) ang = "rand";
     if(repeat == null) repeat = 1;
 
-    var x_i, y_i, ang_i;
+    let x_i, y_i, ang_i;
     for(let i = 0; i < repeat; i++) {
       x_i = x + Mathf.range(rad);
       y_i = y + Mathf.range(rad);
@@ -91,39 +89,36 @@
       Units.notifyUnitSpawn(unit);
     };
   }
-  .setAnno(ANNO.__SERVER__);
-  exports.spawnUnit = spawnUnit;
+  .setAnno(ANNO.$SERVER$);
+  exports.spawnUnit_server = spawnUnit_server;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * A variant of {spawnUnit} used on client side.
+   * A variant of {spawnUnit} for sync.
    * ---------------------------------------- */
-  const spawnUnit_client = function(x, y, utp, team, rad, ang, repeat, applyDefSta) {
+  const spawnUnit_client = function(x, y, utp_gn, team, rad, ang, repeat, applyDefSta) {
     let utp = MDL_content._ct(utp_gn, "utp");
     if(utp == null) return;
+    if(team == null) team = Team.sharded;
 
-    let payload = packPayload([
-      x,
-      y,
-      utp.name,
-      team,
-      rad,
-      ang,
-      repeat,
-      applyDefSta
-    ]);
-
-    MDL_net.sendPacket("client", "lovec-client-unit-spawn", payload, true, true);
+    MDL_net.sendPacket(
+      "client", "lovec-client-unit-spawn",
+      packPayload([
+        x, y, utp.name, team.id, rad, ang, repeat, applyDefSta,
+      ]),
+      true, true,
+    );
   }
-  .setAnno(ANNO.__INIT__, function() {
-    MDL_net.__packetHandler("server", "lovec-client-unit-spawn", payload => {
-      spawnUnit.apply(this, unpackPayload(payload));
+  .setAnno(ANNO.$INIT$, function() {
+    MDL_net.__packetHandler("client", "lovec-client-unit-spawn", payload => {
+      let args = unpackPayload(payload);
+      spawnUnit_server(args[0], args[1], args[2], Team.get(args[3]), args[4], args[5], args[6], args[7]);
     });
   })
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$CLIENT$)
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.spawnUnit_client = spawnUnit_client;
 
 
@@ -137,7 +132,7 @@
 
     Call.unitDespawn(unit);
   }
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
   exports.despawnUnit = despawnUnit;
 
 
@@ -183,9 +178,7 @@
    * Spawns a loot unit.
    * It's item on the ground which can be picked up by player units.
    * ---------------------------------------- */
-  const spawnLoot = function(x, y, itm_gn, amt, rad, repeat) {
-    const thisFun = spawnLoot;
-
+  const spawnLoot_server = function thisFun(x, y, itm_gn, amt, rad, repeat) {
     if(!PARAM.modded) return;
     let itm = MDL_content._ct(itm_gn, "rs");
     if(itm == null) return;
@@ -194,14 +187,13 @@
     if(rad == null) rad = VAR.rad_unitLootRad;
     if(repeat == null) repeat = 1;
 
-    spawnUnit(x, y, thisFun.lootUtp, Vars.player.team(), rad, null, repeat, false, unit => {
+    spawnUnit_server(x, y, thisFun.lootUtp, Vars.player.team(), rad, null, repeat, false, unit => {
       unit.addItem(itm, amt);
       MDL_effect.showAt_global(unit.x, unit.y, EFF.circlePulseDynamic, 5.0, Pal.accent);
       MDL_effect.showBetween_line(x, y, null, unit, Pal.accent);
-      Core.app.post(() => TRIGGER.lootSpawn.fire(unit.x, unit.y, unit.item(), unit));
+      Core.app.post(() => TRIGGER.lootSpawn.fire(unit));
     });
   }
-  .setAnno(ANNO.__SERVER__)
   .setProp({
     lootUtp: (function() {
       if(!PARAM.modded) return null;
@@ -303,7 +295,7 @@
           Draw.reset();
 
           // Draw amount text
-          if(PARAM.drawLootAmount && Mathf.dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) < Math.max(8.0 * sizeScl, 6.0)) MDL_draw.drawText(unit.x, unit.y - 4.0, String(amt), 0.85, Pal.accent);
+          if(PARAM.drawLootAmount && Mathf.dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) < Math.max(8.0 * sizeScl, 6.0)) MDL_draw._d_text(unit.x, unit.y - 4.0, String(amt), 0.85, Pal.accent);
         },
 
 
@@ -312,8 +304,9 @@
 
       return tmp;
     })(),
-  });
-  exports.spawnLoot = spawnLoot;
+  })
+  .setAnno(ANNO.$SERVER$);
+  exports.spawnLoot_server = spawnLoot_server;
 
 
   /* ----------------------------------------
@@ -323,28 +316,24 @@
    * ---------------------------------------- */
   const spawnLoot_client = function(x, y, itm_gn, amt, rad, repeat) {
     if(!PARAM.modded) return;
-
     let itm = MDL_content._ct(itm_gn, "rs");
     if(itm == null) return;
 
-    let payload = packPayload([
-      x,
-      y,
-      itm.name,
-      amt,
-      rad,
-      repeat,
-    ]);
-
-    MDL_net.sendPacket("client", "lovec-client-loot-spawn", payload, true, true);
+    MDL_net.sendPacket(
+      "client", "lovec-client-loot-spawn",
+      packPayload([
+        x, y, itm.name, amt, rad, repeat,
+      ]),
+      true, true,
+    );
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setAnno(ANNO.$INIT$, function() {
     MDL_net.__packetHandler("server", "lovec-client-loot-spawn", payload => {
-      spawnLoot.apply(this, unpackPayload(payload));
+      spawnLoot_server.apply(null, unpackPayload(payload));
     });
   })
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$CLIENT$)
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.spawnLoot_client = spawnLoot_client;
 
 
@@ -358,7 +347,7 @@
       if(MDL_cond._isLoot(unit)) unit.remove();
     });
   }
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
   exports.clearLoot = clearLoot;
 
 
@@ -393,7 +382,7 @@
 
     MDL_effect.playAt(x, y, se_gn);
   }
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
   exports.spawnBul = spawnBul;
 
 

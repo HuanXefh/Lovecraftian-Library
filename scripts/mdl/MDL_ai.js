@@ -21,7 +21,7 @@
    * NOTE:
    *
    * Gets the {target} field of the AI controller.
-   * It's private and no class in JS, I have to do this.
+   * It's private and no class allowed in JS, I have to do this.
    * ---------------------------------------- */
   const _tg = function(ctrl) {
     if(ctrl == null) return null;

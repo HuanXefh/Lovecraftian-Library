@@ -14,9 +14,7 @@ const CLS_paramBuilder = require("lovec/cls/util/builder/CLS_paramBuilder");
 /* <---------- meta ----------> */
 
 
-const CLS_weaponBuilder = function() {
-  this.init.apply(this, arguments);
-}.extendClass(CLS_paramBuilder).initClass();
+const CLS_weaponBuilder = newClass().extendClass(CLS_paramBuilder).initClass();
 
 
 CLS_weaponBuilder.prototype.init = function() {
@@ -33,17 +31,14 @@ CLS_weaponBuilder.prototype.init = function() {
 var ptp = CLS_weaponBuilder.prototype;
 
 
-/* modification */
-
-
-ptp.name = function(nm) {
+ptp.__name = function(nm) {
   this.builderObj.name = tryVal(nm, "");
 
   return this;
 };
 
 
-ptp.stat = function(shouldDisplay, showSprite) {
+ptp.__stat = function(shouldDisplay, showSprite) {
   this.builderObj.display = tryVal(shouldDisplay, true);
   this.builderObj.showStatSprite = tryVal(showSprite, true);
 
@@ -51,7 +46,7 @@ ptp.stat = function(shouldDisplay, showSprite) {
 };
 
 
-ptp.control = function(controllable, aiControllable) {
+ptp.__control = function(controllable, aiControllable) {
   this.builderObj.controllable = tryVal(controllable, true);
   this.builderObj.aiControllable = tryVal(aiControllable, true);
 
@@ -59,14 +54,14 @@ ptp.control = function(controllable, aiControllable) {
 };
 
 
-ptp.ammo = function(useAmmo, ammoItm) {
+ptp.__ammo = function(useAmmo, ammoItm) {
   this.builderObj.useAmmo = tryVal(useAmmo, true);
 
   return this;
 };
 
 
-ptp.pos = function(x, y, shootX, shootY, randX, randY) {
+ptp.__pos = function(x, y, shootX, shootY, randX, randY) {
   this.builderObj.x = tryVal(x, 0.0);
   this.builderObj.y = tryVal(y, 0.0);
   this.builderObj.shootX = tryVal(shootX, 0.0);
@@ -78,7 +73,7 @@ ptp.pos = function(x, y, shootX, shootY, randX, randY) {
 };
 
 
-ptp.draw = function(offZ, isTop, radSha) {
+ptp.__draw = function(offZ, isTop, radSha) {
   this.builderObj.layerOffset = tryVal(offZ, 0.0);
   this.builderObj.top = tryVal(isTop, true);
   this.builderObj.shadow = tryVal(radSha, -1.0);
@@ -87,7 +82,7 @@ ptp.draw = function(offZ, isTop, radSha) {
 };
 
 
-ptp.effect = function(shouldParentize, ejectEff) {
+ptp.__effect = function(shouldParentize, ejectEff) {
   this.builderObj.shouldParentize = tryVal(shouldParentize, true);
   this.builderObj.ejectEffect = tryVal(ejectEff, Fx.none);
 
@@ -95,7 +90,7 @@ ptp.effect = function(shouldParentize, ejectEff) {
 };
 
 
-ptp.sound = function(shootSeStr, chargeSeStr, noAmmoSeStr) {
+ptp.__sound = function(shootSeStr, chargeSeStr, noAmmoSeStr) {
   this.builderObj.shootSound = shootSeStr == null ? Sounds.none : Vars.tree.loadSound(shootSeStr);
   this.builderObj.chargeSound = chargeSeStr == null ? Sounds.none : Vars.tree.loadSound(chargeSeStr);
   this.builderObj.noAmmoSound = noAmmoSeStr == null ? Sounds.none : Vars.tree.loadSound(noAmmoSeStr);
@@ -104,7 +99,7 @@ ptp.sound = function(shootSeStr, chargeSeStr, noAmmoSeStr) {
 };
 
 
-ptp.soundExt = function(minPitch, maxPitch) {
+ptp.__soundExt = function(minPitch, maxPitch) {
   this.builderObj.soundPitchMin = tryVal(minPitch, 0.8);
   this.builderObj.soundPitchMax = tryVal(maxPitch, 1.0);
 
@@ -112,16 +107,15 @@ ptp.soundExt = function(minPitch, maxPitch) {
 };
 
 
-ptp.mirror = function(shouldMirror, shouldAlternate, shouldFlipSprite) {
+ptp.__mirror = function(shouldMirror, shouldAlternate) {
   this.builderObj.mirror = tryVal(shouldMirror, false);
   this.builderObj.alternate = tryVal(shouldAlternate, false);
-  this.builderObj.flipSprite = tryVal(shouldFlipSprite, true);
 
   return this;
 };
 
 
-ptp.rotate = function(canRot, rotSpd, baseRot, rotLimit) {
+ptp.__rotate = function(canRot, rotSpd, baseRot, rotLimit) {
   this.builderObj.rotate = tryVal(canRot, false);
   this.builderObj.rotateSpeed = tryVal(rotSpd, 20.0);
   this.builderObj.baseRotation = tryVal(baseRot, 0.0);
@@ -131,14 +125,14 @@ ptp.rotate = function(canRot, rotSpd, baseRot, rotLimit) {
 };
 
 
-ptp.range = function(useAttackRange) {
+ptp.__range = function(useAttackRange) {
   this.builderObj.useAttackRange = tryVal(useAttackRange, true);
 
   return this;
 };
 
 
-ptp.shoot = function(cone, pattern, minVel, sta, staDur) {
+ptp.__shoot = function(cone, pattern, minVel, sta, staDur) {
   this.builderObj.shootCone = tryVal(cone, 5.0);
   this.builderObj.shootPattern = tryVal(pattern, new ShootPattern());
   this.builderObj.minShootVelocity = tryVal(minVel, -1.0);
@@ -149,7 +143,7 @@ ptp.shoot = function(cone, pattern, minVel, sta, staDur) {
 };
 
 
-ptp.shootExt = function(noAttack, shootOnDeath, alwaysShooting, ignoreRot) {
+ptp.__shootExt = function(noAttack, shootOnDeath, alwaysShooting, ignoreRot) {
   this.builderObj.noAttack = tryVal(noAttack, false);
   this.builderObj.shootOnDeath = tryVal(shootOnDeath, false);
   this.builderObj.alwaysShooting = tryVal(alwaysShooting, false);
@@ -159,14 +153,14 @@ ptp.shootExt = function(noAttack, shootOnDeath, alwaysShooting, ignoreRot) {
 };
 
 
-ptp.reload = function(reload) {
+ptp.__reload = function(reload) {
   this.builderObj.reload = tryVal(reload, 1.0);
 
   return this;
 };
 
 
-ptp.recoil = function(shake, recoil, time, pow, recoils) {
+ptp.__recoil = function(shake, recoil, time, pow, recoils) {
   this.builderObj.shake = tryVal(shake, 0.0);
   this.builderObj.recoil = tryVal(recoil, 1.5);
   this.builderObj.recoilTime = tryVal(time, -1.0);
@@ -177,7 +171,7 @@ ptp.recoil = function(shake, recoil, time, pow, recoils) {
 };
 
 
-ptp.heat = function(cdTime, heatColor) {
+ptp.__heat = function(cdTime, heatColor) {
   this.builderObj.cooldownTime = tryVal(cdTime, tryVal(this.builderObj.reload, 0.0) * 1.2);
   this.builderObj.heatColor = tryVal(heatColor, Pal.turretHeat);
 
@@ -185,7 +179,7 @@ ptp.heat = function(cdTime, heatColor) {
 };
 
 
-ptp.target = function(autoTarget, predictTarget, aimChangeSpd) {
+ptp.__target = function(autoTarget, predictTarget, aimChangeSpd) {
   this.builderObj.autoTarget = tryVal(autoTarget, false);
   this.builderObj.predictTarget = tryVal(predictTarget, true);
   this.builderObj.aimChangeSpeed = tryVal(aimChangeSpd, java.lang.Float.POSITIVE_INFINITY);
@@ -194,7 +188,7 @@ ptp.target = function(autoTarget, predictTarget, aimChangeSpd) {
 };
 
 
-ptp.targetItnv = function(intv, switchIntv) {
+ptp.__targetItnv = function(intv, switchIntv) {
   this.builderObj.targetInterval = tryVal(intv, 40.0);
   this.builderObj.targetSwitchInterval = tryVal(switchIntv, 70.0);
 
@@ -202,7 +196,7 @@ ptp.targetItnv = function(intv, switchIntv) {
 };
 
 
-ptp.warmup = function(minWarmup, isLinear, partWarmupSpd, partReloadSpd) {
+ptp.__warmup = function(minWarmup, isLinear, partWarmupSpd, partReloadSpd) {
   this.builderObj.minWarmup = tryVal(minWarmup, 0.0);
   this.builderObj.linearWarmup = tryVal(isLinear, false);
   this.builderObj.shootWarmupSpeed = tryVal(partWarmupSpd, 0.1);
@@ -212,21 +206,21 @@ ptp.warmup = function(minWarmup, isLinear, partWarmupSpd, partReloadSpd) {
 };
 
 
-ptp.part = function(partArr) {
+ptp.__part = function(partArr) {
   this.builderObj.parts = tryVal(partArr, []).toSeq();
 
   return this;
 };
 
 
-ptp.bullet = function(btp) {
+ptp.__bullet = function(btp) {
   this.builderObj.bullet = tryVal(btp, Bullets.placeholder);
 
   return this;
 };
 
 
-ptp.continuous = function(isContinuous, alwaysContinuous) {
+ptp.__continuous = function(isContinuous, alwaysContinuous) {
   this.builderObj.continuous = tryVal(isContinuous, false);
   this.builderObj.alwaysContinuous = tryVal(alwaysContinuous, false);
 
@@ -234,7 +228,7 @@ ptp.continuous = function(isContinuous, alwaysContinuous) {
 };
 
 
-ptp.bulVel = function(randVelFrac, addVelFrac) {
+ptp.__bulVel = function(randVelFrac, addVelFrac) {
   this.builderObj.velocityRnd = tryVal(randVelFrac, 0.0);
   this.builderObj.extraVelocity = tryVal(addVelFrac, 0.0);
 

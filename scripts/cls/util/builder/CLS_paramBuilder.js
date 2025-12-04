@@ -12,9 +12,7 @@
 /* <---------- meta ----------> */
 
 
-const CLS_paramBuilder = function() {
-  this.init.apply(this, arguments);
-}.initAbstrClass();
+const CLS_paramBuilder = newClass().initAbstrClass();
 
 
 /* <---------- static method ----------> */
@@ -24,9 +22,6 @@ const CLS_paramBuilder = function() {
 
 
 var ptp = CLS_paramBuilder.prototype;
-
-
-/* meta */
 
 
 ptp.extend = function(obj) {

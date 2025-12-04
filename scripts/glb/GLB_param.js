@@ -24,23 +24,11 @@
   /* <---------- base ----------> */
 
 
-  let upSup_i = 0;
-  let upSupTime = 300;
-  let secretCode = "";
-  let unit_pl = null;
-  let shouldLoadParam = true;
-
-
-  // Not in {MDL_flow} to avoid coupling of modules
-  function _glbHeat() {
-    let pla = Vars.state.planet;
-    if(pla == null) return 0.0;
-
-    let nmPla = pla.name;
-    let nmMap = Vars.state.map.plainName();
-
-    return DB_env.db["param"]["map"]["heat"].read(nmMap, DB_env.db["param"]["pla"]["heat"].read(nmPla, 0.26)) * 100.0;
-  };
+  let
+    updateSuppressTimeCur = 0, updateSuppressTime = 300,
+    unit_pl = null,
+    secretCode = "",
+    shouldLoadParam = true;
 
 
   /* ----------------------------------------
@@ -61,32 +49,32 @@
 */
 
 
-  // Time to spawn bugs
-  exports.debug = (function() {
-    if(Core.settings.getString("lovec-misc-secret-code", "").includes("<anuke-mode>")) {
-      Log.info("[LOVEC] " + "Debug mode".color(Pal.accent) + " is enabled.");
-      return true;
-    } else return false;
-  })();
 
 
-  // Whether required by other mods
+  // Parameters populated on load
+  exports.debug = global.lovecUtil.prop.debug;
   exports.modded = (function() {
-    var cond1 = MDL_util._cfg("load-force-modded");
-    var cond2 = DB_misc.db["mod"]["lovecMod"].some(nmMod => MDL_util._loadedMod(nmMod) != null);
+    let cond1 = MDL_util._cfg("load-force-modded");
+    let cond2 = DB_misc.db["mod"]["lovecMod"].some(nmMod => fetchMod(nmMod) != null);
     if(cond1 && !cond2) MDL_test._w_forceModded();
 
     return cond1 || cond2;
   })();
 
 
+
+
   // Settings that cannot be {undefined} when loading
   exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
+
+
 
 
   MDL_event._c_onLoad(() => {
 
   }, 59556227);
+
+
 
 
   MDL_event._c_onWorldLoad(() => {
@@ -96,19 +84,23 @@
   }, 44492271);
 
 
+
+
   MDL_event._c_onUpdate(() => {
 
 
-    upSup_i--;
-    exports.updateSuppressed = upSup_i > 0;
-    exports.updateDeepSuppressed = upSup_i > -upSupTime;
+    updateSuppressTimeCur--;
+    exports.updateSuppressed = updateSuppressTimeCur > 0;
+    exports.updateDeepSuppressed = updateSuppressTimeCur > -updateSuppressTime;
 
 
-    if(TIMER.timerState_paramGlobal || shouldLoadParam) {
+    if(TIMER.paramGlobal || shouldLoadParam) {
 
 
-      // Param
+      // Param load
       unit_pl = Vars.player.unit();
+      secretCode = MDL_util._cfg("misc-secret-code");
+      shouldLoadParam = false;
 
 
       /* <---------- param ----------> */
@@ -117,7 +109,7 @@
       exports.plaCur = global.lovecUtil.fun._plaCur();
       exports.mapCur = global.lovecUtil.fun._mapCur();
       exports.isCaveMap = DB_env.db["group"]["map"]["cave"].includes(module.exports.mapCur);
-      exports.glbHeat = _glbHeat();
+      exports.glbHeat = global.lovecUtil.fun._glbHeat();
 
 
       /* <---------- setting ----------> */
@@ -131,7 +123,7 @@
       exports.drawStaticLoot = MDL_util._cfg("draw0loot-static");
       exports.drawLootAmount = MDL_util._cfg("draw0loot-amount");
       exports.treeAlpha = (Groups.player.size() > 1) ? 1.0 : MDL_util._cfg("draw0tree-alpha", true);
-      exports.checkTreeDst = MDL_util._cfg("draw0tree-player") && MDL_cond._isCoverable(unit_pl);
+      exports.checkTreeDst = MDL_util._cfg("draw0tree-player") && unit_pl != null && MDL_cond._isCoverable(unit_pl);
       exports.showExtraInfo = MDL_util._cfg("draw0aux-extra-info");
       exports.drawBridgeTransportLine = MDL_util._cfg("draw0aux-bridge");
       exports.drawRouterHeresy = MDL_util._cfg("draw0aux-router");
@@ -162,9 +154,9 @@
       exports.showWindow = MDL_util._cfg("window-show");
 
 
-      secretCode = MDL_util._cfg("misc-secret-code");
       if(secretCode.includes("<crash>")) {
         Core.settings.put("lovec-misc-secret-code", secretCode.replace("<crash>", ""));
+        Core.settings.put("lovec-misc-secret-code-crashed", true);
         throw new Error("You definitely know what <crash> means don't you?");
       };
       exports.secret_fireInTheHole = secretCode.includesAny("<fire-in-the-hole>", "<fire-in-da-hole>", "<fith>");
@@ -172,17 +164,16 @@
       exports.secret_revisionFix = secretCode.includes("<revision-fix>");
 
 
-      shouldLoadParam = false;
-
-
     };
   }, 12976533);
+
+
 
 
   MDL_event._c_onWorldLoad(() => {
 
 
-    upSup_i = upSupTime;
+    updateSuppressTimeCur = updateSuppressTime;
 
 
   }, 52647992);

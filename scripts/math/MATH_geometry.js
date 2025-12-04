@@ -18,9 +18,8 @@
    * Simply calculates distance.
    * ---------------------------------------- */
   const _dst = function() {
-    var val = 0.0;
-    let i = 0;
-    let iCap = arguments.length / 2;
+    let val = 0.0;
+    let i = 0, iCap = arguments.length / 2;
     while(i < iCap) {
       val += Math.pow(arguments[i + iCap] - arguments[i], 2);
       i++;
@@ -38,9 +37,8 @@
    * Manhattan distance.
    * ---------------------------------------- */
   const _dstManh = function() {
-    var val = 0.0;
-    let i = 0;
-    let iCap = arguments.length / 2;
+    let val = 0.0;
+    let i = 0, iCap = arguments.length / 2;
     while(i < iCap) {
       val += Math.abs(arguments[i + iCap] - arguments[i]);
       i++;
@@ -58,9 +56,8 @@
    * Chebyshev distance.
    * ---------------------------------------- */
   const _dstCheb = function() {
-    var val = 0.0;
-    let i = 0;
-    let iCap = arguments.length / 2;
+    let val = 0.0;
+    let i = 0, iCap = arguments.length / 2;
     while(i < iCap) {
       val = Math.max(val, arguments[i + iCap] - arguments[i]);
       i++;
@@ -91,7 +88,7 @@
   const _pathLen = function(pathData, dim) {
     if(dim == null) dim = 2;
 
-    var len = 0.0;
+    let len = 0.0;
     let i = 0, iCap = pathData.iCap();
     let tmpArr = [];
     while(i < iCap) {
@@ -144,13 +141,13 @@
   const _area = function() {
     let iCap = arguments.length;
     if(iCap < 6) return 0.0;
-    var tmp1 = 0.0;
-    var tmp2 = 0.0;
+    let tmp1 = 0.0, tmp2 = 0.0;
+    let x_i, y_i, x_ii, y_ii;
     for(let i = 0; i < iCap; i += 2) {
-      let x_i = arguments[i];
-      let y_i = arguments[i + 1];
-      let x_ii = (i + 2 > iCap - 1) ? arguments[0] : arguments[i + 2];
-      let y_ii = (i + 3 > iCap - 1) ? arguments[1] : arguments[i + 3];
+      x_i = arguments[i];
+      y_i = arguments[i + 1];
+      x_ii = (i + 2 > iCap - 1) ? arguments[0] : arguments[i + 2];
+      y_ii = (i + 3 > iCap - 1) ? arguments[1] : arguments[i + 3];
 
       tmp1 += x_i * y_ii;
       tmp2 += x_ii * y_i;
@@ -189,8 +186,7 @@
     let iCap = arguments.length;
     if(iCap < 8) return true;
 
-    let x = arguments[0];
-    let y = arguments[1];
+    let x = arguments[0], y = arguments[1];
     let coords = [];
     for(let i = 2; i < iCap; i++) {
       coords.push(arguments[i]);
@@ -198,12 +194,13 @@
     const area = _area.apply(null, coords);
 
     let iCap1 = coords.iCap();
-    var tmpArea = 0.0;
+    let tmpArea = 0.0;
+    let x_i, y_i, x_ii, y_ii;
     for(let i = 0; i < iCap1; i += 2) {
-      let x_i = coords[i];
-      let y_i = coords[i + 1];
-      let x_ii = (i + 2 > iCap1 - 1) ? coords[0] : coords[i + 2];
-      let y_ii = (i + 3 > iCap1 - 1) ? coords[1] : coords[i + 3];
+      x_i = coords[i];
+      y_i = coords[i + 1];
+      x_ii = (i + 2 > iCap1 - 1) ? coords[0] : coords[i + 2];
+      y_ii = (i + 3 > iCap1 - 1) ? coords[1] : coords[i + 3];
 
       tmpArea += _area(x, y, x_i, y_i, x_ii, y_ii);
     };

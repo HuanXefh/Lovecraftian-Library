@@ -18,17 +18,19 @@
   /* <---------- object ----------> */
 
 
+  var cls = Object;
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Converts array to object.
    * This also works on function arguments.
    * ---------------------------------------- */
-  Object.arrToObj = function(arr) {
+  cls.arrToObj = function(arr) {
     const obj = {};
 
-    let i = 0;
-    let iCap = arr.iCap();
+    let i = 0, iCap = arr.iCap();
     while(i < iCap) {
       obj[i] = arr[i];
       i++;
@@ -43,7 +45,7 @@
    *
    * Converts object to array (loses all keys).
    * ---------------------------------------- */
-  Object.objToArr = function(obj) {
+  cls.objToArr = function(obj) {
     const arr = [];
 
     let i = 0;
@@ -61,7 +63,7 @@
    *
    * Converts object to 2-array.
    * ---------------------------------------- */
-  Object.objTo2Arr = function(obj) {
+  cls.objTo2Arr = function(obj) {
     const arr = [];
     if(obj == null) return arr;
 
@@ -79,14 +81,94 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Merges two objects.
+   * @ARGS: obj1, obj2, obj3, ...
+   * Simply merges a series of objects.
+   * Properties defined later will overwrite the ones defined before.
+   * ---------------------------------------- */
+  cls.mergeObj = function() {
+    const obj0 = {};
+
+    for(let obj of arguments) {
+      for(let key in obj) {
+        obj0[key] = obj[key];
+      };
+    };
+
+    return obj0;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: obj1, obj2, obj3, ...
+   * A variant of {mergeObj} that tries merging methods.
+   * Used for modification of objects built by content templates.
+   * {noSuper} here is used only if {override}, since {ins.super$xxx} is most probably included in the first object.
+   * ---------------------------------------- */
+  cls.mergeObjMixin = function() {
+    const obj0 = {};
+
+    for(let obj of arguments) {
+      for(let key in obj) {
+        if(typeof obj[key] !== "function" || typeof obj0[key] !== "function") {
+          obj0[key] = obj[key];
+        } else {
+          let funPrev = obj0[key];
+          let funCur = obj[key];
+          let argLen = Math.max(tryVal(funPrev.argLen, -1), tryVal(funCur.argLen, -1));
+          let fun = !funCur.override ?
+            (
+              funPrev.final ?
+                funPrev :                
+                funCur.boolMode === "and" ?
+                  function() {
+                    return funPrev.apply(this, arguments) && funCur.apply(this, arguments);
+                  }.wrapLen(argLen) :
+                  funCur.boolMode === "or" ?
+                    function() {
+                      return funPrev.apply(this, arguments) || funCur.apply(this, arguments);
+                    }.wrapLen(argLen) :
+                    function() {
+                      funPrev.apply(this, arguments);
+                      return funCur.apply(this, arguments);
+                    }.wrapLen(argLen)
+            ) :
+            funCur.noSuper ?
+              function() {
+                return funCur.apply(this, arguments);
+              }.wrapLen(argLen) :
+              (
+                tryVal(funCur.superBoolMode, funCur.boolMode) === "and" ?
+                  function() {
+                    return tryVal(this["super$" + key], Function.air).apply(this, arguments) && funCur.apply(this, arguments);
+                  }.wrapLen(argLen) :
+                  tryVal(funCur.superBoolMode, funCur.boolMode) === "or" ?
+                    function() {
+                      return tryVal(this["super$" + key], Function.air).apply(this, arguments) || funCur.apply(this, arguments);
+                    }.wrapLen(argLen) :
+                    function() {
+                      tryVal(this["super$" + key], Function.air).apply(this, arguments);
+                      return funCur.apply(this, arguments);
+                    }.wrapLen(argLen)
+              );
+          // I know it's very unsightreadable so darn it
+          obj0[key] = fun;
+        };
+      };
+    };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Merges two DB objects.
    * Only objects and arrays should be present in the object.
    *
    * I have no idea how to simply this.
    * ---------------------------------------- */
-  Object.mergeObj = function(obj0, obj) {
-    const thisFun = Object.mergeObj;
-
+  cls.mergeObjDB = function thisFun(obj0, obj) {
     Object._it(obj0, (key1, val1) => {
       // Depth: 0
       val1 instanceof Array ?
@@ -99,7 +181,17 @@
               // Depth: 2
               val3 instanceof Array ?
                 thisFun.applyMerge(key3, Object.dir(obj, [key1, key2], Object.air), val3) :
-                Log.warn("[LOVEC] Cannot fully merge an object due to " + "too many layers".color(Pal.remove) + ".");
+                Object._it(obj0[key1][key2][key3], (key4, val4) => {
+                  // Depth: 3
+                  val4 instanceof Array ?
+                    thisFun.applyMerge(key4, Object.dir(obj, [key1, key2, key3], Object.air), val4) :
+                    Object._it(obj0[key1][key2][key3][key4], (key5, val5) => {
+                      // Depth: 4
+                      val5 instanceof Array ?
+                        thisFun.applyMerge(key5, Object.dir(obj, [key1, key2, key3, key4], Object.air), val5) :
+                        Log.warn("[LOVEC] Cannot fully merge an object due to " + "too many layers".color(Pal.remove) + ".");
+                    });
+                });
             });
         });
     });
@@ -121,7 +213,7 @@
    * Merges all found DB files with the same name, in "scripts/db".
    * Cross-mod.
    * ---------------------------------------- */
-  Object.mergeDB = function(dbObj, nmFi, nmModCur) {
+  cls.mergeDB = function(dbObj, nmFi, nmModCur) {
     if(nmModCur == null) nmModCur = "lovec";
 
     let i = 0;
@@ -137,12 +229,12 @@
       };
 
       if(dbMdl != null) {
-        Object.mergeObj(dbObj, dbMdl.db);
+        Object.mergeObjDB(dbObj, dbMdl.db);
         i++;
       };
     });
 
-    Log.info("[LOVEC] Merged " + i + " DB file(s) for " + nmFi + " in " + nmModCur.color(Pal.accent) + ".");
+    Log.info("[LOVEC] Merged [$1] DB file(s) for [$2] in [$3] from other mods.".format(i, nmFi, nmModCur.color(Pal.accent)));
   };
 
 
@@ -196,28 +288,4 @@
    * ---------------------------------------- */
   ptp.hasIns = function(obj) {
     return this.some(cls => obj instanceof cls);
-  };
-
-
-  /* <---------- math ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets a unique integer, used for id.
-   * If the provided range is too small, however, duplicates may occur.
-   * ---------------------------------------- */
-  Math.intUnique = function(base, cap, arrGetter) {
-    let base_fi = Math.round(base);
-    let cap_fi = Math.round(cap);
-
-    let num = null;
-    let i = 0;
-    while(num == null || (arrGetter().includes(num) && i < 1000)) {
-      num = cap_fi.randInt(base_fi);
-      i++;
-    };
-
-    return num;
   };

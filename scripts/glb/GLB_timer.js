@@ -21,7 +21,7 @@
   const timer_mem = new Interval(3);
 
 
-  const timer_gn = new Interval(3);
+  const timer_gn = new Interval(8);
   const timer_effc = new Interval(4);
   const timer_param = new Interval(3);
 
@@ -45,31 +45,36 @@
   MDL_event._c_onUpdate(() => {
 
 
-    exports.timerState_memUse = timer_mem.get(0, 50.0);
-    exports.timerState_memUseMean = timer_mem.get(1, 450.0);
-    exports.timerState_memPrint = timer_mem.get(2, 3600.0);
+    exports.memUse = timer_mem.get(0, 50.0);
+    exports.memUseMean = timer_mem.get(1, 450.0);
+    exports.memPrint = timer_mem.get(2, 3600.0);
 
 
-    exports.timerState_sec = timer_gn.get(0, 60.0);
-    exports.timerState_secFive = timer_gn.get(1, 300.0);
-    exports.timerState_min = timer_gn.get(2, 3600.0);
-    exports.timerState_effc = timer_effc.get(0, MDL_util._cfg("interval-efficiency", true));
-    exports.timerState_rsCur = timer_effc.get(1, 180.0);
-    exports.timerState_liq = timer_effc.get(2, VAR.time_liqIntv);
-    exports.timerState_heat = timer_effc.get(3, VAR.time_heatIntv);
-    exports.timerState_param = timer_param.get(0, VAR.time_paramIntv);
-    exports.timerState_paramGlobal = timer_param.get(1, VAR.time_paramGlobalIntv);
-    exports.timerState_paramLarge = timer_param.get(2, VAR.time_paramLargeIntv);
+    exports.secQuarter = timer_gn.get(0, 15.0);
+    exports.secHalf = timer_gn.get(1, 30.0);
+    exports.sec = timer_gn.get(2, 60.0);
+    exports.secTwo = timer_gn.get(3, 120.0);
+    exports.secThree = timer_gn.get(4, 180.0);
+    exports.secFive = timer_gn.get(5, 300.0);
+    exports.min = timer_gn.get(6, 3600.0);
+    exports.minTwo = timer_gn.get(7, 7200.0);
+    exports.effc = timer_effc.get(0, MDL_util._cfg("interval-efficiency", true));
+    exports.rsCur = timer_effc.get(1, 180.0);
+    exports.liq = timer_effc.get(2, VAR.time_liqIntv);
+    exports.heat = timer_effc.get(3, VAR.time_heatIntv);
+    exports.param = timer_param.get(0, VAR.time_paramIntv);
+    exports.paramGlobal = timer_param.get(1, VAR.time_paramGlobalIntv);
+    exports.paramLarge = timer_param.get(2, VAR.time_paramLargeIntv);
 
 
-    exports.timerState_lightning = timer_eff.get(0, VAR.time_lightningIntv);
-    exports.timerState_coreSignal = timer_eff.get(1, 25.0);
+    exports.lightning = timer_eff.get(0, VAR.time_lightningIntv);
+    exports.coreSignal = timer_eff.get(1, 25.0);
 
 
-    exports.timerState_unit = timer_unit.get(VAR.time_unitIntv);
+    exports.unit = timer_unit.get(VAR.time_unitIntv);
 
 
-    exports.timerState_stackSta = timer_stackSta.get(VAR.time_stackStaExtDef * 0.5);
+    exports.stackSta = timer_stackSta.get(VAR.time_stackStaExtDef * 0.5);
 
 
   }, 17885422);

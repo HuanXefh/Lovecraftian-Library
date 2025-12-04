@@ -11,6 +11,7 @@
   const FRAG_recipe = require("lovec/frag/FRAG_recipe");
 
 
+  const MDL_attr = require("lovec/mdl/MDL_attr");
   const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
@@ -35,8 +36,7 @@
     try {
       rcMdl = require(nmMod + "/auxFi/rc/" + nmBlk);
     } catch(err) {
-      rcMdl = null;
-      Log.warn("[LOVEC] Failed to load recipe for " + nmMod + "-" + nmBlk + ":\n" + err);
+      throw new Error("Failed to load recipe for " + nmMod + "-" + nmBlk + ":\n" + err);
     };
 
     return rcMdl;
@@ -51,7 +51,9 @@
    * Returns an empty object if errored.
    * ---------------------------------------- */
   const _rcBase = function(rcMdl) {
-    return rcMdl == null ? Object.air : tryVal(rcMdl.rc["base"], Object.air);
+    return rcMdl == null ?
+      Object.air :
+      tryVal(rcMdl.rc["base"], Object.air);
   };
   exports._rcBase = _rcBase;
 
@@ -74,7 +76,9 @@
    * Returns an empty array if errored.
    * ---------------------------------------- */
   const _rcLi = function(rcMdl) {
-    return rcMdl == null ? Array.air : tryVal(rcMdl.rc["recipe"], Array.air);
+    return rcMdl == null ?
+      Array.air :
+      tryVal(rcMdl.rc["recipe"], Array.air);
   };
   exports._rcLi = _rcLi;
 
@@ -130,20 +134,15 @@
    * Whether the header exists in {rcMdl}.
    * ---------------------------------------- */
   const _hasHeader = function(rcMdl, rcHeader) {
-    let rcLi = _rcLi(rcMdl);
-    var cond = false;
-    var i = 0;
-    var iCap = rcLi.iCap();
+    let rcLi = _rcLi(rcMdl), tmpHeader;
+    let i = 0, iCap = rcLi.iCap();
     while(i < iCap) {
-      let tmpHeader = rcLi[i];
-      if(tmpHeader === rcHeader) {
-        cond = true;
-        break;
-      };
+      tmpHeader = rcLi[i];
+      if(tmpHeader === rcHeader) return true;
       i += 2;
     };
 
-    return cond;
+    return false;
   };
   exports._hasHeader = _hasHeader;
 
@@ -161,35 +160,48 @@
    * ---------------------------------------- */
   const _rcVal = function(rcMdl, rcHeader, key, def) {
     let rcObj = _rcObj(rcMdl, rcHeader);
-    if(rcObj == null) return def;
-
-    return tryVal(rcObj[key], def);
+    return rcObj == null ?
+      def :
+      tryVal(rcObj[key], def);
   };
   exports._rcVal = _rcVal;
 
 
-  const _hasInput = function(rs_gn, rcMdl) {
+  const _hasInput = function thisFun(rs_gn, rcMdl) {
+    let ci, bi, aux, opt;
     return _rcHeaders(rcMdl).some(rcHeader => {
-      let ci = _ci(rcMdl, rcHeader);
-      let bi = _bi(rcMdl, rcHeader);
-      let aux = _aux(rcMdl, rcHeader);
-      let opt = _opt(rcMdl, rcHeader);
+      ci = _ci(rcMdl, rcHeader, thisFun.tmpArr);
+      bi = _bi(rcMdl, rcHeader, thisFun.tmpArr1);
+      aux = _aux(rcMdl, rcHeader, thisFun.tmpArr2);
+      opt = _opt(rcMdl, rcHeader, thisFun.tmpArr3);
 
       return FRAG_recipe._hasInput(rs_gn, ci, bi, aux, opt);
     });
-  };
+  }
+  .setProp({
+    tmpArr: [],
+    tmpArr1: [],
+    tmpArr2: [],
+    tmpArr3: [],
+  });
   exports._hasInput = _hasInput;
 
 
-  const _hasOutput = function(rs_gn, rcMdl) {
+  const _hasOutput = function thisFun(rs_gn, rcMdl) {
+    let co, bo, fo;
     return _rcHeaders(rcMdl).some(rcHeader => {
-      let co = _co(rcMdl, rcHeader);
-      let bo = _bo(rcMdl, rcHeader);
-      let fo = _fo(rcMdl, rcHeader);
+      co = _co(rcMdl, rcHeader, thisFun.tmpArr);
+      bo = _bo(rcMdl, rcHeader, thisFun.tmpArr1);
+      fo = _fo(rcMdl, rcHeader, thisFun.tmpArr2);
 
       return FRAG_recipe._hasOutput(rs_gn, co, bo, fo);
     });
-  };
+  }
+  .setProp({
+    tmpArr: [],
+    tmpArr1: [],
+    tmpArr2: [],
+  });
   exports._hasOutput = _hasOutput;
 
 
@@ -198,14 +210,19 @@
    *
    * Whether there's any item output in the recipe module.
    * ---------------------------------------- */
-  const _hasAnyOutput_itm = function(rcMdl) {
+  const _hasAnyOutput_itm = function thisFun(rcMdl) {
+    let bo, fo;
     return _rcHeaders(rcMdl).some(rcHeader => {
-      let bo = _bo(rcMdl, rcHeader);
-      let fo = _fo(rcMdl, rcHeader);
+      bo = _bo(rcMdl, rcHeader, thisFun.tmpArr);
+      fo = _fo(rcMdl, rcHeader, thisFun.tmpArr1);
 
       return FRAG_recipe._hasOutput_itm(bo, fo);
     });
-  };
+  }
+  .setProp({
+    tmpArr: [],
+    tmpArr1: [],
+  });
   exports._hasAnyOutput_itm = _hasAnyOutput_itm;
 
 
@@ -214,14 +231,19 @@
    *
    * Whether there's any fluid output in the recipe module.
    * ---------------------------------------- */
-  const _hasAnyOutput_liq = function(rcMdl, includeAux) {
+  const _hasAnyOutput_liq = function thisFun(rcMdl, includeAux) {
+    let co, bo;
     return _rcHeaders(rcMdl).some(rcHeader => {
-      let co = _co(rcMdl, rcHeader);
-      let bo = _bo(rcMdl, rcHeader);
+      co = _co(rcMdl, rcHeader, thisFun.tmpArr);
+      bo = _bo(rcMdl, rcHeader, thisFun.tmpArr1);
 
       return FRAG_recipe._hasOutput_liq(includeAux, co, bo);
     });
-  };
+  }
+  .setProp({
+    tmpArr: [],
+    tmpArr1: [],
+  });
   exports._hasAnyOutput_liq = _hasAnyOutput_liq;
 
 
@@ -248,10 +270,11 @@
   const _icon = function(rcMdl, rcHeader, notContent) {
     let iconNm = _iconNm(rcMdl, rcHeader);
     if(notContent) return new TextureRegionDrawable(Core.atlas.find(iconNm));
-
     let ct = MDL_content._ct(iconNm, null, true);
 
-    return ct == null ? Icon.cancel : new TextureRegionDrawable(ct.uiIcon);
+    return ct == null ?
+      Icon.cancel :
+      new TextureRegionDrawable(ct.uiIcon);
   };
   exports._icon = _icon;
 
@@ -279,8 +302,7 @@
     const arr = [];
 
     let rcLi = _rcLi(rcMdl);
-    let i = 0;
-    let iCap = rcLi.iCap();
+    let i = 0, iCap = rcLi.iCap();
     while(i < iCap) {
       let categ = rcLi[i + 1]["category"];
       if(categ != null && !arr.includes(categ)) arr.push(categ);
@@ -357,7 +379,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Contents that is required to be unlocked for the recipe the be available.
+   * Contents that are required to be unlocked for the recipe.
    * ---------------------------------------- */
   const _lockedBy = function(rcMdl, rcHeader, toCts) {
     const arr = _rcVal(rcMdl, rcHeader, "lockedBy", Array.air);
@@ -379,18 +401,28 @@
    *
    * Gets the final {validGetter} used in multi-crafters.
    * ---------------------------------------- */
-  const _validGetter_fi = function(rcMdl, rcHeader) {
+  const _finalValidGetter = function(rcMdl, rcHeader) {
     let validGetter = _validGetter(rcMdl, rcHeader);
     let cts = _lockedBy(rcMdl, rcHeader, true);
 
-    return b => {
-      if(!validGetter(b)) return false;
-      if(cts.some(ct => !ct.unlockedNow())) return false;
-
-      return true;
-    };
+    return b => validGetter(b) && cts.every(ct => ct.unlockedNow());
   };
-  exports._validGetter_fi = _validGetter_fi;
+  exports._finalValidGetter = _finalValidGetter;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {_finalValidGetter} for tuple.
+   * ---------------------------------------- */
+  const _validTup = function(rcMdl, rcHeader, contTup) {
+    const tup = contTup != null ? contTup.clear() : [];
+
+    tup.push(_finalValidGetter(rcMdl, rcHeader));
+
+    return tup;
+  };
+  exports._validTup = _validTup;
 
 
   /* ----------------------------------------
@@ -413,6 +445,64 @@
     return _rcVal(rcMdl, rcHeader, "ignoreItemFullness", false);
   };
   exports._ignoreItemFullness = _ignoreItemFullness;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the attribute that affects efficiency of the recipe.
+   * ---------------------------------------- */
+  const _attr = function(rcMdl, rcHeader) {
+    return _rcVal(rcMdl, rcHeader, "attr", _rcBaseVal(rcMdl, "baseAttr", null));
+  };
+  exports._attr = _attr;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the attribute value minimum (0.0 efficiency).
+   * Don't include block size here.
+   * ---------------------------------------- */
+  const _attrMin = function(rcMdl, rcHeader) {
+    return _rcVal(rcMdl, rcHeader, "attrMin", _rcBaseVal(rcMdl, "baseAttrMin", 0.0));
+  };
+  exports._attrMin = _attrMin;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the attribute value maximum (1.0 efficiency).
+   * Don't include block size here.
+   * ---------------------------------------- */
+  const _attrMax = function(rcMdl, rcHeader) {
+    return _rcVal(rcMdl, rcHeader, "attrMax", _rcBaseVal(rcMdl, "baseAttrMax", 1.0));
+  };
+  exports._attrMax = _attrMax;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the multiplier on final boost.
+   * You can use a negative scaling for something.
+   * ---------------------------------------- */
+  const _attrBoostScl = function(rcMdl, rcHeader) {
+    return _rcVal(rcMdl, rcHeader, "attrBoostScl", _rcBaseVal(rcMdl, "baseAttrBoostScl", 1.0));
+  };
+  exports._attrBoostScl = _attrBoostScl;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the maximum efficiency that can be reached with attribute boost.
+   * ---------------------------------------- */
+  const _attrBoostCap = function(rcMdl, rcHeader) {
+    return _rcVal(rcMdl, rcHeader, "attrBoostCap", _rcBaseVal(rcMdl, "baseAttrBoostCap", Infinity));
+  };
+  exports._attrBoostCap = _attrBoostCap;
 
 
   /* ----------------------------------------
@@ -444,7 +534,8 @@
         (function() {
           let str = String.multiline(
             "",
-            !_isGen(rcMdl, rcHeader) ? null : MDL_bundle._term("lovec", "generated-recipe"),
+            !_isGen(rcMdl, rcHeader) ? null : MDL_bundle._term("lovec", "generated-recipe").color(Color.darkGray),
+            (function() {let attr = _attr(rcMdl, rcHeader); return attr == null ? null : MDL_text._statText(TP_stat.blk_attrReq.localized(), MDL_attr._attrB(attr))})(),
             (function() {let p = _failP(rcMdl, rcHeader); return p < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "chance-to-fail"), p.perc(1))})(),
             (function() {let temp = _tempReq(rcMdl, rcHeader); return temp < 0.0001 ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-required"), Strings.fixed(temp, 2), TP_stat.rs_heatUnits.localized())})(),
             (function() {let temp = _tempAllowed(rcMdl, rcHeader); return !isFinite(temp) ? null : MDL_text._statText(MDL_bundle._term("lovec", "temperature-allowed"), Strings.fixed(temp, 2), TP_stat.rs_heatUnits.localized())})(),
@@ -480,14 +571,14 @@
   const initRc = function(rcMdl, blkInit) {
     _rcHeaders(rcMdl).forEachFast(rcHeader => {
       let timeScl = _timeScl(rcMdl, rcHeader);
-      _ci(rcMdl, rcHeader, blkInit);
-      _bi(rcMdl, rcHeader, blkInit, timeScl);
-      _aux(rcMdl, rcHeader, blkInit);
-      _opt(rcMdl, rcHeader, blkInit);
-      _co(rcMdl, rcHeader, blkInit);
+      _ci(rcMdl, rcHeader, null, blkInit);
+      _bi(rcMdl, rcHeader, null, blkInit, timeScl);
+      _aux(rcMdl, rcHeader, null, blkInit);
+      _opt(rcMdl, rcHeader, null, blkInit);
+      _co(rcMdl, rcHeader, null, blkInit);
       let failP = _failP(rcMdl, rcHeader);
-      _bo(rcMdl, rcHeader, blkInit, timeScl, failP);
-      _fo(rcMdl, rcHeader, blkInit, timeScl, failP);
+      _bo(rcMdl, rcHeader, null, blkInit, timeScl, failP);
+      _fo(rcMdl, rcHeader, null, blkInit, timeScl, failP);
     });
   };
   exports.initRc = initRc;
@@ -498,24 +589,24 @@
    *
    * Converts the continuous input list from a recipe object.
    * ---------------------------------------- */
-  const _ci = function(rcMdl, rcHeader, blkInit) {
-    const arr = [];
+  const _ci = function(rcMdl, rcHeader, contArr, blkInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
     let raw = _rcVal(rcMdl, rcHeader, "ci", Array.air).concat(_rcBaseVal(rcMdl, "baseCi", Array.air));
-    let i = 0;
-    let iCap = raw.iCap();
+    let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let ct = MDL_content._ct(raw[i], "rs");
-      if(ct != null) {
-        let amt = raw[i + 1];
-        arr.push(ct, amt);
-        if(blkInit != null) {
-          MDL_recipeDict.addFldConsTerm(
-            blkInit,
-            ct,
-            amt,
-            {"ct": _iconNm(rcMdl, rcHeader)},
-          );
-        };
+      let tmp = MDL_content._ct(raw[i], "rs");
+      if(tmp == null) {
+        i += 2;
+        continue;
+      };
+      let amt = raw[i + 1];
+      arr.push(tmp, amt);
+      if(blkInit != null) {
+        MDL_recipeDict.addFldConsTerm(
+          blkInit, tmp, amt,
+          {ct: _iconNm(rcMdl, rcHeader)},
+        );
       };
       i += 2;
     };
@@ -530,62 +621,55 @@
    *
    * Converts the batch input list from a recipe object.
    * ---------------------------------------- */
-  const _bi = function(rcMdl, rcHeader, blkInit, timeSclInit) {
-    const arr = [];
+  const _bi = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
     let raw = _rcVal(rcMdl, rcHeader, "bi", Array.air).concat(_rcBaseVal(rcMdl, "baseBi", Array.air));
-    let i = 0;
-    let iCap = raw.iCap();
+    let i = 0, iCap = raw.iCap(), j, jCap;
     while(i < iCap) {
       let tmp = raw[i];
       if(!(tmp instanceof Array)) {
-        let ct = MDL_content._ct(raw[i], "rs");
-        if(ct != null) {
-          let amt = raw[i + 1];
-          let p = raw[i + 2];
-          arr.push(ct, amt, p);
-          if(blkInit != null) {
-            ct instanceof Item ?
-              MDL_recipeDict.addItmConsTerm(
-                blkInit,
-                ct,
-                amt / tryVal(timeSclInit, 1.0),
-                p,
-                {"ct": _iconNm(rcMdl, rcHeader)},
-              ) :
-              MDL_recipeDict.addFldConsTerm(
-                blkInit,
-                ct,
-                amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
-                {"ct": _iconNm(rcMdl, rcHeader)},
-              );
-          };
+        tmp = MDL_content._ct(tmp, "rs");
+        if(tmp == null) {
+          i += 3;
+          continue;
+        };
+        let amt = raw[i + 1];
+        let p = raw[i + 2];
+        arr.push(tmp, amt, p);
+        if(blkInit != null) {
+          tmp instanceof Item ?
+            MDL_recipeDict.addItmConsTerm(
+              blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p,
+              {ct: _iconNm(rcMdl, rcHeader)},
+            ) :
+            MDL_recipeDict.addFldConsTerm(
+              blkInit, tmp, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
+              {ct: _iconNm(rcMdl, rcHeader)},
+            );
         };
       } else {
         let tmpArr = [];
-        let j = 0;
-        let jCap = tmp.iCap();
+        j = 0, jCap = tmp.iCap();
         while(j < jCap) {
-          let ct = MDL_content._ct(tmp[j], "rs");
-          if(ct != null) {
-            let amt = tmp[j + 1];
-            let p = tmp[j + 2];
-            tmpArr.push(ct, amt, p);
-            if(blkInit != null) {
-              ct instanceof Item ?
-                MDL_recipeDict.addItmConsTerm(
-                  blkInit,
-                  ct,
-                  amt / tryVal(timeSclInit, 1.0),
-                  p,
-                  {"ct": _iconNm(rcMdl, rcHeader)},
-                ) :
-                MDL_recipeDict.addFldConsTerm(
-                  blkInit,
-                  ct,
-                  amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
-                  {"ct": _iconNm(rcMdl, rcHeader)},
-                );
-            };
+          let tmp1 = MDL_content._ct(tmp[j], "rs");
+          if(tmp1 == null) {
+            j += 3;
+            continue;
+          };
+          let amt = tmp[j + 1];
+          let p = tmp[j + 2];
+          tmpArr.push(tmp1, amt, p);
+          if(blkInit != null) {
+            tmp1 instanceof Item ?
+              MDL_recipeDict.addItmConsTerm(
+                blkInit, tmp1, amt / tryVal(timeSclInit, 1.0), p,
+                {ct: _iconNm(rcMdl, rcHeader)},
+              ) :
+              MDL_recipeDict.addFldConsTerm(
+                blkInit, tmp1, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
+                {ct: _iconNm(rcMdl, rcHeader)},
+              );
           };
           j += 3;
         };
@@ -605,24 +689,24 @@
    * Converts the auxiliay list from a recipe object.
    * It's just another CI.
    * ---------------------------------------- */
-  const _aux = function(rcMdl, rcHeader, blkInit) {
-    const arr = [];
+  const _aux = function(rcMdl, rcHeader, contArr, blkInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
     let raw = _rcVal(rcMdl, rcHeader, "aux", Array.air).concat(_rcBaseVal(rcMdl, "baseAux", Array.air));
-    let i = 0;
-    let iCap = raw.iCap();
+    let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let ct = MDL_content._ct(raw[i], "rs");
-      if(ct != null) {
-        let amt = raw[i + 1];
-        arr.push(ct, amt);
-        if(blkInit != null) {
-          MDL_recipeDict.addFldConsTerm(
-            blkInit,
-            ct,
-            amt,
-            {"ct": _iconNm(rcMdl, rcHeader)},
-          );
-        };
+      let tmp = MDL_content._ct(raw[i], "rs");
+      if(tmp == null) {
+        i += 2;
+        continue;
+      };
+      let amt = raw[i + 1];
+      arr.push(tmp, amt);
+      if(blkInit != null) {
+        MDL_recipeDict.addFldConsTerm(
+          blkInit, tmp, amt,
+          {ct: _iconNm(rcMdl, rcHeader)},
+        );
       };
       i += 2;
     };
@@ -648,27 +732,26 @@
    *
    * Converts the optional input list from a recipe object.
    * ---------------------------------------- */
-  const _opt = function(rcMdl, rcHeader, blkInit, timeSclInit) {
-    const arr = [];
+  const _opt = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
     let raw = _rcVal(rcMdl, rcHeader, "opt", Array.air).concat(_rcBaseVal(rcMdl, "baseOpt", Array.air));
-    let i = 0;
-    let iCap = raw.iCap();
+    let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let ct = MDL_content._ct(raw[i], "rs");
-      if(ct != null) {
-        let amt = raw[i + 1];
-        let p = raw[i + 2];
-        let mtp = raw[i + 3];
-        arr.push(ct, amt, p, mtp);
-        if(blkInit != null) {
-          MDL_recipeDict.addItmConsTerm(
-            blkInit,
-            ct,
-            amt / tryVal(timeSclInit, 1.0),
-            p,
-            {"ct": _iconNm(rcMdl, rcHeader), "icon": "lovec-icon-optional"},
-          );
-        };
+      let tmp = MDL_content._ct(raw[i], "rs");
+      if(tmp == null) {
+        i += 4;
+        continue;
+      };
+      let amt = raw[i + 1];
+      let p = raw[i + 2];
+      let mtp = raw[i + 3];
+      arr.push(tmp, amt, p, mtp);
+      if(blkInit != null) {
+        MDL_recipeDict.addItmConsTerm(
+          blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p,
+          {ct: _iconNm(rcMdl, rcHeader), icon: "lovec-icon-optional"},
+        );
       };
       i += 4;
     };
@@ -683,24 +766,24 @@
    *
    * Converts the continuous output list from a recipe object.
    * ---------------------------------------- */
-  const _co = function(rcMdl, rcHeader, blkInit) {
-    const arr = [];
+  const _co = function(rcMdl, rcHeader, contArr, blkInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
     let raw = _rcVal(rcMdl, rcHeader, "co", Array.air).concat(_rcBaseVal(rcMdl, "baseCo", Array.air));
-    let i = 0;
-    let iCap = raw.iCap();
+    let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let ct = MDL_content._ct(raw[i], "rs");
-      if(ct != null) {
-        let amt = raw[i + 1];
-        arr.push(ct, amt);
-        if(blkInit != null) {
-          MDL_recipeDict.addFldProdTerm(
-            blkInit,
-            ct,
-            amt,
-            {"ct": _iconNm(rcMdl, rcHeader)},
-          );
-        };
+      let tmp = MDL_content._ct(raw[i], "rs");
+      if(tmp == null) {
+        i += 2;
+        continue;
+      };
+      let amt = raw[i + 1];
+      arr.push(tmp, amt);
+      if(blkInit != null) {
+        MDL_recipeDict.addFldProdTerm(
+          blkInit, tmp, amt,
+          {ct: _iconNm(rcMdl, rcHeader)},
+        );
       };
       i += 2;
     };
@@ -715,26 +798,25 @@
    *
    * Converts the batch output list from a recipe object.
    * ---------------------------------------- */
-  const _bo = function(rcMdl, rcHeader, blkInit, timeSclInit, failPInit) {
-    const arr = [];
+  const _bo = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit, failPInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
     let raw = _rcVal(rcMdl, rcHeader, "bo", Array.air).concat(_rcBaseVal(rcMdl, "baseBo", Array.air));
-    let i = 0;
-    let iCap = raw.iCap();
+    let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let ct = MDL_content._ct(raw[i], "rs");
-      if(ct != null) {
-        let amt = raw[i + 1];
-        let p = raw[i + 2];
-        arr.push(ct, amt, p);
-        if(blkInit != null) {
-          MDL_recipeDict.addItmProdTerm(
-            blkInit,
-            ct,
-            amt / tryVal(timeSclInit, 1.0),
-            p * (failPInit == null ? 1.0 : (1.0 - failPInit)),
-            {"ct": _iconNm(rcMdl, rcHeader)},
-          );
-        };
+      let tmp = MDL_content._ct(raw[i], "rs");
+      if(tmp == null) {
+        i += 3;
+        continue;
+      };
+      let amt = raw[i + 1];
+      let p = raw[i + 2];
+      arr.push(tmp, amt, p);
+      if(blkInit != null) {
+        MDL_recipeDict.addItmProdTerm(
+          blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p * (failPInit == null ? 1.0 : (1.0 - failPInit)),
+          {ct: _iconNm(rcMdl, rcHeader)},
+        );
       };
       i += 3;
     };
@@ -761,26 +843,25 @@
    *
    * Converts the failure output list from a recipe object.
    * ---------------------------------------- */
-  const _fo = function(rcMdl, rcHeader, blkInit, timeSclInit, failPInit) {
-    const arr = [];
+  const _fo = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit, failPInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
     let raw = _rcVal(rcMdl, rcHeader, "fo", Array.air).concat(_rcBaseVal(rcMdl, "baseFo", Array.air));
-    let i = 0;
-    let iCap = raw.iCap();
+    let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let ct = MDL_content._ct(raw[i], "rs");
-      if(ct != null) {
-        let amt = raw[i + 1];
-        let p = raw[i + 2];
-        arr.push(ct, amt, p);
-        if(blkInit != null) {
-          MDL_recipeDict.addItmProdTerm(
-            blkInit,
-            ct,
-            amt / tryVal(timeSclInit, 1.0),
-            p * (failPInit == null ? 0.0 : failPInit),
-            {"ct": _iconNm(rcMdl, rcHeader)},
-          );
-        };
+      let tmp = MDL_content._ct(raw[i], "rs");
+      if(tmp == null) {
+        i += 3;
+        continue;
+      };
+      let amt = raw[i + 1];
+      let p = raw[i + 2];
+      arr.push(tmp, amt, p);
+      if(blkInit != null) {
+        MDL_recipeDict.addItmProdTerm(
+          blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p * (failPInit == null ? 0.0 : failPInit),
+          {ct: _iconNm(rcMdl, rcHeader)},
+        );
       };
       i += 3;
     };
@@ -800,7 +881,8 @@
       _rcVal(rcMdl, rcHeader, "updateScr", Function.air)(b);
       _rcBaseVal(rcMdl, "baseUpdateScr", Function.air)(b);
     };
-  };
+  }
+  .setCache();
   exports._updateScr = _updateScr;
 
 
@@ -814,7 +896,8 @@
       _rcVal(rcMdl, rcHeader, "runScr", Function.air)(b);
       _rcBaseVal(rcMdl, "baseRunScr", Function.air)(b);
     };
-  };
+  }
+  .setCache();
   exports._runScr = _runScr;
 
 
@@ -828,7 +911,8 @@
       _rcVal(rcMdl, rcHeader, "craftScr", Function.air)(b);
       _rcBaseVal(rcMdl, "baseCraftScr", Function.air)(b);
     };
-  };
+  }
+  .setCache();
   exports._craftScr = _craftScr;
 
 
@@ -843,7 +927,8 @@
       _rcVal(rcMdl, rcHeader, "stopScr", Function.air)(b);
       _rcBaseVal(rcMdl, "baseStopScr", Function.air)(b);
     };
-  };
+  }
+  .setCache();
   exports._stopScr = _stopScr;
 
 
@@ -852,13 +937,17 @@
    *
    * Gets a 4-tuple of recipe scripts for storage.
    * ---------------------------------------- */
-  const _scrTup = function(rcMdl, rcHeader) {
-    return [
+  const _scrTup = function(rcMdl, rcHeader, contTup) {
+    const tup = contTup != null ? contTup.clear() : [];
+
+    tup.push(
       _updateScr(rcMdl, rcHeader),
       _runScr(rcMdl, rcHeader),
       _craftScr(rcMdl, rcHeader),
       _stopScr(rcMdl, rcHeader),
-    ];
+    );
+
+    return tup;
   };
   exports._scrTup = _scrTup;
 

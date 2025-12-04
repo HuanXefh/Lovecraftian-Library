@@ -105,10 +105,10 @@
       if(e.reloadCounter != null) reload = e.reloadCounter;
       if(e.block.reload != null) maxReload = e.block.reload;
 
-      if(DB_block.db["class"]["reload"]["frac"].hasIns(e.block)) return reload;
-      if(DB_block.db["class"]["reload"]["revFrac"].hasIns(e.block)) return 1.0 - reload;
+      if(DB_block.db["class"]["group"]["reload"]["frac"].hasIns(e.block)) return reload;
+      if(DB_block.db["class"]["group"]["reload"]["revFrac"].hasIns(e.block)) return 1.0 - reload;
       let frac = maxReload < 0.0001 ? 1.0 : Mathf.clamp(reload / maxReload);
-      if(DB_block.db["class"]["reload"]["rev"].hasIns(e.block)) return 1.0 - frac;
+      if(DB_block.db["class"]["group"]["reload"]["rev"].hasIns(e.block)) return 1.0 - frac;
 
       return frac;
     } else if(e instanceof Unit) {
@@ -149,6 +149,17 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Gets the damage that {e} should be dealt to {e_t} (before it takes).
+   * ---------------------------------------- */
+  const _dmgDeal = function(e, e_t, dmg, bDmgMtp) {
+    return dmg * e.damageMultiplier * (e_t instanceof Building ? tryVal(bDmgMtp, 1.0) : 1.0);
+  };
+  exports._dmgDeal = _dmgDeal;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Gets the damage that {e} should take.
    * ---------------------------------------- */
   const _dmgTake = function(e, dmg, piercesArmor) {
@@ -165,7 +176,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets the damage that {e} should take.
+   * Gets the warmup of {e}.
    * ---------------------------------------- */
   const _warmup = function(b) {
     return tryFun(b.ex_getWarmupFrac, b, Mathf.maxZero(tryProp(b.warmup, b)));
@@ -195,7 +206,7 @@
   const _bShield = function(b, isSelfShield) {
     if(b.power != null && b.power.status < 0.0001) return 0.0;
 
-    return readClassFunMap(DB_block.db["class"]["shield"], b.block, Function.airZero)(b, isSelfShield);
+    return readClassFunMap(DB_block.db["class"]["map"]["shield"], b.block, Function.airZero)(b, isSelfShield);
   };
   exports._bShield = _bShield;
 

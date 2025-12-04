@@ -8,7 +8,7 @@
   /* <---------- import ----------> */
 
 
-  const PINYIN = require("lovec/lib/pinyin");
+  const LIB_pinyin = require("lovec/lib/LIB_pinyin");
 
 
   const DB_misc = require("lovec/db/DB_misc");
@@ -17,22 +17,22 @@
   /* <---------- text ----------> */
 
 
-  const arr_noSpaceLocale = [
-    "zh_CN",
-    "zh_TW",
-    "ja",
-    "ko",
-  ];
-
-
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a space character or not, based on current locale.
+   * Gets a space character or empty string, based on current locale.
    * ---------------------------------------- */
-  const _space = function() {
-    return arr_noSpaceLocale.includes(Core.settings.getString("locale")) ? "" : " ";
-  };
+  const _space = function thisFun() {
+    return thisFun.noSpaceLocales.includes(global.lovecUtil.prop.locale) ? "" : " ";
+  }
+  .setProp({
+    noSpaceLocales: [
+      "zh_CN",
+      "zh_TW",
+      "ja",
+      "ko",
+    ],
+  });
   exports._space = _space;
 
 
@@ -46,12 +46,13 @@
    * Mostly used in {addStats(tb)} in abilities. It kinda sucks to write the format every time.
    *
    * Example:
-   * _statText(Stat.range.localized(), 8, StatUnit.blocks.localized());    // Returns {"Range: 8 blocks"} with proper colors
+   * _statText(Stat.range.localized(), 8, StatUnit.blocks.localized());    // Returns {"Range: 8 blocks"} with proper color
    * ---------------------------------------- */
   const _statText = function(strStat, strVal, strUnit) {
-    var str1 = (strStat == null) ? "" : ("[lightgray]" + strStat + ": []");
-    var str2 = (strVal == null) ? "" : strVal;
-    var str3 = (strUnit == null) ? "" : (" " + strUnit);
+    let
+      str1 = (strStat == null) ? "" : ("[lightgray]" + strStat + ": []"),
+      str2 = (strVal == null) ? "" : strVal,
+      str3 = (strUnit == null) ? "" : (" " + strUnit);
 
     return str1 + str2 + str3;
   };
@@ -78,8 +79,9 @@
 
 
   const _dmgText = function(dmg, dmgPerc) {
-    var str1 = dmg == null || dmg < 0.0001 ? null : String(dmg.roundFixed(2)).color(Pal.remove);
-    var str2 = dmgPerc == null || dmgPerc < 0.0001 ? null : dmgPerc.perc().color(Pal.remove);
+    let
+      str1 = dmg == null || dmg < 0.0001 ? null : String(dmg.roundFixed(2)).color(Pal.remove),
+      str2 = dmgPerc == null || dmgPerc < 0.0001 ? null : dmgPerc.perc().color(Pal.remove);
 
     if(str1 == null && str2 == null) {
       return "!ERR";
@@ -93,8 +95,9 @@
 
 
   const _healText = function(healAmt, healPerc) {
-    var str1 = healAmt == null || healAmt < 0.0001 ? null : String(healAmt.roundFixed(2)).color(Pal.heal);
-    var str2 = healPerc == null || healPerc < 0.0001 ? null : healPerc.perc().color(Pal.heal);
+    let
+      str1 = healAmt == null || healAmt < 0.0001 ? null : String(healAmt.roundFixed(2)).color(Pal.heal),
+      str2 = healPerc == null || healPerc < 0.0001 ? null : healPerc.perc().color(Pal.heal);
 
     if(str1 == null && str2 == null) {
       return "!ERR";
@@ -116,7 +119,7 @@
    * _tagText(["chloric", "fluoric", "oxidative"]);    // Returns {"chloric; fluoric; oxidative; "}
    * ---------------------------------------- */
   const _tagText = function(strs, ignoreEmpty) {
-    var str_fi = "";
+    let str_fi = "";
     strs.forEachFast(str => str_fi += str + "; ");
 
     return (str_fi === "" && !ignoreEmpty) ? "!NOTAG" : str_fi;
@@ -129,23 +132,21 @@
    *
    * Converts a tag text back to an array of tags.
    * ---------------------------------------- */
-  const tagTextToArr = function(text) {
-    const arr = [];
+  const tagTextToArr = function(text, contArr) {
+    const arr = contArr != null ? contArr.clear() : [];
     if(text === "" || text === "!NOTAG") return arr;
 
-    let tmpStr = "";
-    let i = 0;
-    let iCap = text.iCap();
+    let tmp = "", l;
+    let i = 0, iCap = text.iCap();
     while(i < iCap) {
-      let l = text[i];
+      l = text[i];
       if(l === ";") {
-        let tmpStr1 = tmpStr;
-        arr.push(tmpStr1);
-        tmpStr = "";
+        arr.push(String(tmp));
+        tmp = "";
         i += 2;
         continue;
       } else {
-        tmpStr += l;
+        tmp += l;
       };
       i++;
     };
@@ -163,27 +164,22 @@
    *
    * Gets a list of keywords for search.
    * ---------------------------------------- */
-  const _keywords = function(str) {
-    const thisFun = _keywords;
-
+  const _keywords = function thisFun(str) {
     const arr = [];
-    var cond = false;
-    var tmpStr = "";
 
-    let i = 0;
-    let iCap = str.iCap();
+    let tmp = "", l;
+    let i = 0, iCap = str.iCap();
     while(i < iCap) {
-      let l = str[i];
-      cond = thisFun.splitters.includes(l);
-      if(!cond) {
-        tmpStr += l;
+      l = str[i];
+      if(!thisFun.splitters.includes(l)) {
+        tmp += l;
       } else {
-        arr.push(tmpStr);
-        var tmpStr = "";
+        arr.push(String(tmp));
+        tmp = "";
       };
       i++;
     };
-    arr.push(tmpStr);
+    arr.push(tmp);
 
     return arr;
   }
@@ -206,19 +202,17 @@
     const arr = [];
     const li = DB_misc.db["search"]["tag"];
 
-    let isTag = false;
-    let tmpTag;
-    let iCap = li.iCap();
+    let isTag = false, tmpTag, tmpStr, i, iCap = li.iCap();
     keywords.forEachFast(str => {
-      let str_fi = str.trim().toLowerCase();
-      let tmpStr = "";
-      let i = 0;
+      str = str.trim().toLowerCase();
+      tmpStr = "";
+      i = 0;
       while(i < iCap) {
         tmpTag = li[i];
-        if(str_fi.startsWith(tmpTag)) {
+        if(str.startsWith(tmpTag)) {
           // This keyword is treated as a tag
           isTag = true;
-          tmpStr = str_fi.replace(tmpTag, "").trim();
+          tmpStr = str.replace(tmpTag, "").trim();
           if(tmpStr !== "") arr.push(ct => li[i + 1](ct, tmpStr));
           break;
         };
@@ -226,11 +220,11 @@
       };
       if(!isTag) {
         // Not tag, use regular search
-        arr.push(ct => (
-          ct.name.toLowerCase().includes(str_fi)
-            || Strings.stripColors(ct.localizedName).toLowerCase().includes(str_fi))
-            || (Core.settings.getString("locale") === "zh_CN" && PINYIN.get(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str_fi))
-          );
+        arr.push(
+          ct => ct.name.toLowerCase().includes(str)
+            || Strings.stripColors(ct.localizedName).toLowerCase().includes(str)
+            || (global.lovecUtil.prop.locale === "zh_CN" && LIB_pinyin.fetchPinyin(Strings.stripColors(ct.localizedName)).toLowerCase().includes(str))
+        );
       };
       isTag = false;
     });

@@ -106,7 +106,7 @@
 
     MDL_json.write(MDL_file._lsav(), lsav);
   }
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
 
 
   /* ----------------------------------------
@@ -117,7 +117,7 @@
   const _lsav = function() {
     return lsav;
   }
-  .setAnno(ANNO.__DEBUG__);
+  .setAnno(ANNO.$DEBUG$);
   exports._lsav = _lsav;
 
 
@@ -129,7 +129,7 @@
   const __lsav = function(obj) {
     lsav = obj;
   }
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.__lsav = __lsav;
 
 
@@ -161,7 +161,7 @@
       sync();
     };
   }
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
   exports.set = set;
 
 
@@ -177,7 +177,7 @@
 
     set(header, val, false);
   }
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
   exports.setSafe = setSafe;
 
 
@@ -198,15 +198,18 @@
    * Called on server side, synchronizes LSAV on all client sides.
    * ---------------------------------------- */
   const sync = function() {
-    let payload = JSON.stringify(lsav);
-    MDL_net.sendPacket("server", "lovec-server-lsav-sync", payload, true);
+    MDL_net.sendPacket(
+      "server", "lovec-server-lsav-sync",
+      JSON.stringify(lsav),
+      true,
+    );
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setAnno(ANNO.$INIT$, function() {
     MDL_net.__packetHandler("client", "lovec-server-lsav-sync", payload => {
       __lsav(JSON.parse(payload));
     });
   })
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
   exports.sync = sync;
 
 
@@ -216,15 +219,19 @@
    * Requests the server to send sync packets.
    * ---------------------------------------- */
   const requestSync = function() {
-    MDL_net.sendPacket("client", "lovec-client-lsav-sync-request", "", true, true);
+    MDL_net.sendPacket(
+      "client", "lovec-client-lsav-sync-request",
+      "",
+      true, true,
+    );
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setAnno(ANNO.$INIT$, function() {
     MDL_net.__packetHandler("server", "lovec-client-lsav-sync-request", payload => {
       sync();
     });
   })
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$CLIENT$)
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.requestSync = requestSync;
 
 
@@ -235,17 +242,21 @@
    * Only safe properties are allowed.
    * ---------------------------------------- */
   const requestSet = function(header, val) {
-    let payload = packPayload([header, val]);
-
-    MDL_net.sendPacket("client", "lovec-client-lsav-set-request", payload, true, true);
+    MDL_net.sendPacket(
+      "client", "lovec-client-lsav-set-request",
+      packPayload([
+        header, val,
+      ]),
+      true, true,
+    );
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setAnno(ANNO.$INIT$, function() {
     MDL_net.__packetHandler("server", "lovec-client-lsav-set-request", payload => {
       setSafe.apply(this, unpackPayload(payload));
     });
   })
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$CLIENT$)
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.requestSet = requestSet;
 
 

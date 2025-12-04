@@ -2,7 +2,7 @@
  * NOTE:
  *
  * A container formed from an object, not expected to be modified afterwards.
- * Do not try iteration on this.
+ * You cannot modify the box after it being created.
  *
  * Object boxes are named like {BOX_xxx}.
  * ---------------------------------------- */
@@ -14,21 +14,23 @@
 /* <---------- meta ----------> */
 
 
-const CLS_objectBox = function() {
-  this.init.apply(this, arguments);
-}.initClass();
+const CLS_objectBox = newClass().initClass();
 
 
 CLS_objectBox.prototype.init = function(obj) {
   if(obj == null) obj = {};
 
-  var count = 0;
-  for(let key in obj) {
-    this[key] = obj[key];
+  let args = [this, true];
+  let count = 0;
+  Object._it(obj, (key, val) => {
+    args.push(key, val);
     count++;
-  };
-
+  });
+  Object.setProp.apply(null, args);
   this.size = count;
+  this.keys = Object.keys(obj);
+
+  Object.seal(this);
 };
 
 
@@ -47,28 +49,20 @@ var ptp = CLS_objectBox.prototype;
 /* ----------------------------------------
  * NOTE:
  *
- * Returns size of the box, NOW.
+ * Returns size of the box.
  * ---------------------------------------- */
 ptp.getSize = function() {
-  var count = 0;
-  for(let key in this) {
-    count++;
-  };
-
-  return count;
+  return this.size;
 };
-
-
-/* condition */
 
 
 /* ----------------------------------------
  * NOTE:
  *
- * Whether the box has been modified.
+ * Returns possible keys of the container.
  * ---------------------------------------- */
-ptp.isDirty = function() {
-  return this.size !== this.getSize();
+ptp.getKeys = function() {
+  return this.keys;
 };
 
 

@@ -1,7 +1,10 @@
 const db = {
 
 
-  "map": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  map: {
 
 
     /* ----------------------------------------
@@ -10,7 +13,7 @@ const db = {
      * @CONTENTGEN
      * Used to set up status affinities.
      * ---------------------------------------- */
-    "affinity": [],
+    affinity: [],
 
 
     /* ----------------------------------------
@@ -21,7 +24,7 @@ const db = {
      * Used to set up status opposites.
      * Acidic and basic status effects are by default opposite to each other.
      * ---------------------------------------- */
-    "opposite": [
+    opposite: [
 
       "loveclab-sta0bur-overheated", () => db["group"]["wet"],
 
@@ -31,7 +34,10 @@ const db = {
   },
 
 
-  "group": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  group: {
 
 
     /* ----------------------------------------
@@ -39,7 +45,7 @@ const db = {
      *
      * These status effects will react with basic status effects.
      * ---------------------------------------- */
-    "acidic": [
+    acidic: [
 
       "loveclab-sta0liq-acidic-i",
       "loveclab-sta0liq-acidic-ii",
@@ -54,7 +60,7 @@ const db = {
      *
      * These status effects will react with acidic status effects.
      * ---------------------------------------- */
-    "basic": [
+    basic: [
 
       "loveclab-sta0liq-basic-i",
       "loveclab-sta0liq-basic-ii",
@@ -69,14 +75,14 @@ const db = {
      *
      * These status effects can't be applied to biotic units.
      * ---------------------------------------- */
-    "robotOnly": [
+    robotOnly: [
 
       "loveclab-sta-haste",
 
       "loveclab-sta0liq-sea-water-corrosion",
       "loveclab-sta0liq-brine-corrosion",
       "loveclab-sta0liq-waste-corrosion",
-      
+
       "loveclab-sta0death-explosion-mark",
 
     ],
@@ -87,7 +93,7 @@ const db = {
      *
      * These status effects are related to sea, naval units will gain immunity to these.
      * ---------------------------------------- */
-    "oceanic": [
+    oceanic: [
 
       "wet",
 
@@ -103,7 +109,7 @@ const db = {
      * Missile units will be immune to these.
      * By default missiles are immune to {STA_deathStatus}.
      * ---------------------------------------- */
-    "missileImmune": [
+    missileImmune: [
 
       "loveclab-sta-haste",
 
@@ -118,7 +124,7 @@ const db = {
      * A loot is a collectable stack of items on the ground.
      * By default, loot units are always immune to robot-only status effects.
      * ---------------------------------------- */
-    "lootImmune": [
+    lootImmune: [
 
       "loveclab-sta-hidden-well",
 
@@ -130,7 +136,7 @@ const db = {
      *
      * These status effects are related to high temperature.
      * ---------------------------------------- */
-    "hot": [
+    hot: [
 
       "burning",
       "melting",
@@ -145,7 +151,7 @@ const db = {
      *
      * These status effects are related to being soaked in aqueous liquids.
      * ---------------------------------------- */
-    "wet": [
+    wet: [
 
       "wet",
 
@@ -159,6 +165,9 @@ const db = {
   },
 
 
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
 };
 
 
@@ -167,10 +176,10 @@ Object.mergeDB(db, "DB_status");
 db["map"]["affinity"].pushAll((function() {
   const arr = [];
   db["group"]["acidic"].forEachFast(nmSta => {
-    arr.push(nmSta, ["melting", function(unit, result, time) {result.set(this, result.time = time + 240.0)}]);
+    arr.push(nmSta, ["melting", function(unit, staEn, time) {staEn.set(this, time + 240.0)}]);
   });
   db["group"]["basic"].forEachFast(nmSta => {
-    arr.push(nmSta, ["melting", function(unit, result, time) {result.set(this, result.time = time + 240.0)}]);
+    arr.push(nmSta, ["melting", function(unit, staEn, time) {staEn.set(this, time + 240.0)}]);
   });
   return arr;
 })());

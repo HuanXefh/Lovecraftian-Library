@@ -18,18 +18,20 @@
   /* <---------- object ----------> */
 
 
+  var cls = Object;
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Returns the last child object that is not {undefined} when searching with given keys.
    * If {def} is given, returns it instead if not found.
    * ---------------------------------------- */
-  Object.dir = function(obj, keys, def) {
+  cls.dir = function(obj, keys, def) {
     let tg = obj;
     let tmp = null;
 
-    let i = 0;
-    let iCap = keys.iCap();
+    let i = 0, iCap = keys.iCap();
     while(i < iCap) {
       tmp = tg[keys[i]];
       if(tmp != null) {
@@ -47,10 +49,10 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Iterates through an object, if you're that lazy.
+   * Iterates through an object (or function, whatever), if you're that lazy.
    * {_it_xxx} means interation, I assume that you have seen it in {MDL_pos}.
    * ---------------------------------------- */
-  Object._it = function(obj, scr, forceIns) {
+  cls._it = function(obj, scr, forceIns) {
     if(!forceIns) {
       for(let key in obj) {
         scr(key, obj[key]);
@@ -66,19 +68,38 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * @ARGS: obj, isWritable, nmProp1, val1, nmProp2, val2, nmProp3, val3, ...
+   * @ARGS: obj, propObj
+   * @ARGS: obj, isFinal, nmProp1, val1, nmProp2, val2, nmProp3, val3, ...
    * Sets a lot of properties for {obj}.
    * ---------------------------------------- */
-  Object.prop = function(obj, isFinal) {
-    let iCap = arguments.length;
-    if(iCap <= 2) return obj;
-    if(isFinal == null) isFinal = false;
-
-    for(let i = 2; i < iCap; i += 2) {
-      Object.defineProperty(obj, arguments[i], {value: arguments[i + 1], writable: !isFinal});
+  cls.setProp = function() {
+    if(arguments.length === 2 && typeof arguments[1] === "object") {
+      for(let key in arguments[1]) {
+        arguments[0][key] = arguments[1][key];
+      };
+    } else {
+      let i = 2, iCap = arguments.length;
+      while(i < iCap) {
+        Object.defineProperty(arguments[0], arguments[i], {value: arguments[i + 1], writable: !arguments[1]});
+        i += 2;
+      };
     };
 
-    return obj;
+    return arguments[0];
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Clones all properties from {objOld} to {objNew}.
+   * ---------------------------------------- */
+  cls.cloneProp = function(objNew, objOld) {
+    Object._it(objOld, (key, prop) => {
+      objNew[key] = prop;
+    });
+
+    return objNew;
   };
 
 
@@ -87,10 +108,45 @@
    *
    * Whether {obj} has {key}.
    * ---------------------------------------- */
-  Object.hasKey = function(obj, key) {
+  cls.hasKey = function(obj, key) {
     return obj[key] !== undefined;
   };
 
+
+  var ptp = Object.prototype;
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Instance version of {Object._it}.
+  * ---------------------------------------- */
+  setHiddenProp(ptp, "_it", function(scr, forceIns) {
+    Object._it(this, scr, forceIns);
+  });
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Instance version of {Object.setProp}.
+  * ---------------------------------------- */
+  setHiddenProp(ptp, "setProp", function() {
+    let args = Array.from(arguments);
+    args.unshift(this);
+    return Object.setProp.apply(this, args);
+  });
+
+
+  /* ----------------------------------------
+  * NOTE:
+  *
+  * Instance version of {Object.cloneProp}.
+  * ---------------------------------------- */
+  setHiddenProp(ptp, "cloneProp", function(objOld) {
+    return Object.cloneProp(this, objOld);
+  });
+  
 
   /* <---------- number ----------> */
 
@@ -148,16 +204,17 @@
   /* <---------- array ----------> */
 
 
+  var cls = Array;
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Iterates through each pair in {arr1} and {arr2}.
    * ---------------------------------------- */
-  Array.forEachPair = function(arr1, arr2, scr) {
-    let i = 0;
-    let iCap = arr1.iCap();
-    let j = 0;
-    let jCap = arr2.iCap();
+  cls.forEachPair = function(arr1, arr2, scr) {
+    let i = 0, iCap = arr1.iCap();
+    let j = 0, jCap = arr2.iCap();
     while(i < iCap) {
       while(j < jCap) {
         scr(arr1[i], arr2[j]);
@@ -207,8 +264,7 @@
     gap = Math.round(gap);
     if(gap < 1) return;
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     while(i < iCap) {
       scr(i);
       i += gap;

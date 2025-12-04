@@ -17,9 +17,7 @@ const MDL_content = require("lovec/mdl/MDL_content");
 /* <---------- meta ----------> */
 
 
-const CLS_bulletBuilder = function() {
-  this.init.apply(this, arguments);
-}.extendClass(CLS_paramBuilder).initClass();
+const CLS_bulletBuilder = newClass().extendClass(CLS_paramBuilder).initClass();
 
 
 CLS_bulletBuilder.prototype.init = function() {
@@ -34,9 +32,6 @@ CLS_bulletBuilder.prototype.init = function() {
 
 
 var ptp = CLS_bulletBuilder.prototype;
-
-
-/* modification */
 
 
 ptp.__range = function(rad, vel, keepVel) {

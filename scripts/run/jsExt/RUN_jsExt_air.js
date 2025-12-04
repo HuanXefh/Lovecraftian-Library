@@ -18,31 +18,40 @@
   /* <---------- object ----------> */
 
 
-  Object.air = {};
+  var cls = Object;
+
+
+  cls.air = {};
 
 
   /* <---------- function ----------> */
 
 
-  Function.air = function() {};
-  Function.airSelf = function(val) {return val};
-  Function.airZero = function() {return 0.0};
-  Function.airOne = function() {return 1.0};
-  Function.airOneMinus = function() {return -1.0};
-  Function.airInfinity = function() {return Infinity};
-  Function.airFalse = function() {return false};
-  Function.airTrue = function() {return true};
-  Function.airBoolInv = function(bool) {return !bool};
-  Function.airStrEmpty = function() {return ""};
-  Function.airArr = function() {return Array.air};
-  Function.airObj = function() {return Object.air};
-  Function.airNull = function() {return null};
-  Function.airWhite = function() {return Color.white};
-  Function.airBlack = function() {return Color.black};
+  var cls = Function;
+
+
+  cls.air = function() {};
+  cls.airSelf = function(val) {return val};
+  cls.airZero = function() {return 0.0};
+  cls.airOne = function() {return 1.0};
+  cls.airOneMinus = function() {return -1.0};
+  cls.airInfinity = function() {return Infinity};
+  cls.airFalse = function() {return false};
+  cls.airTrue = function() {return true};
+  cls.airBoolInv = function(bool) {return !bool};
+  cls.airStrEmpty = function() {return ""};
+  cls.airArr = function() {return Array.air};
+  cls.airObj = function() {return Object.air};
+  cls.airNull = function() {return null};
+  cls.airWhite = function() {return Color.white};
+  cls.airBlack = function() {return Color.black};
 
 
   /* <---------- array ----------> */
 
 
-  Array.air = [];
-  Array.airZero = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+  var cls = Array;
+
+
+  cls.air = [];
+  cls.airZero = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];

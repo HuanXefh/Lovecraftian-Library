@@ -25,12 +25,6 @@
     return typeof reac === "string" && (reac.startsWith("GROUP: ") || reac.startsWith("ITEMGROUP: ") || reac.startsWith("CONST: "));
   };
 
-  function reacToStr(reac) {
-    if(reac == null) return "null";
-
-    return typeof reac === "string" ? reac : reac.toString();
-  };
-
 
   /* <---------- parameter ----------> */
 
@@ -61,32 +55,18 @@
    * The final result is an array with arrays of reaction type and parameter.
    * ---------------------------------------- */
   const _reactions = function(reac1, reac2) {
-    const thisFun = _reactions;
+    let arr = [];
+    let grps1 = _reacGrps(reac1);
+    let grps2 = _reacGrps(reac2);
 
-    let str1 = reacToStr(reac1);
-    let str2 = reacToStr(reac2);
-    if(str1 === str2) return Array.air;
+    Array.forEachPair(grps1, grps2, (grp1, grp2) => {
+      arr.pushNonNull(DB_reaction.db["fluid"].read([grp1, grp2], null, true));
+      arr.pushNonNull(DB_reaction.db["item"].read([grp1, grp2], null, true));
+    });
 
-    let key = str1 + " + " + str2;
-    if(thisFun.tmpMap.containsKey(key)) {
-      return thisFun.tmpMap.get(key);
-    } else {
-      let arr = [];
-      let grps1 = _reacGrps(reac1);
-      let grps2 = _reacGrps(reac2);
-
-      Array.forEachPair(grps1, grps2, (grp1, grp2) => {
-        arr.pushNonNull(DB_reaction.db["fluid"].read([grp1, grp2], null, true));
-        arr.pushNonNull(DB_reaction.db["item"].read([grp1, grp2], null, true));
-      });
-      thisFun.tmpMap.put(key, arr);
-
-      return arr;
-    };
+    return arr;
   }
-  .setProp({
-    tmpMap: new ObjectMap(),
-  });
+  .setCache();
   exports._reactions = _reactions;
 
 
@@ -111,7 +91,7 @@
       tup[1](tup0[1], x, y, b, rs);
     });
   }
-  .setAnno(ANNO.__SERVER__);
+  .setAnno(ANNO.$SERVER$);
   exports.applyReaction = applyReaction;
 
 
@@ -123,25 +103,24 @@
   const requestReaction = function(reactions, pMtp, x, y, b, rs_gn) {
     let rs = MDL_content._ct(rs_gn, "rs");
 
-    let payload = packPayload([
-      reactions,
-      pMtp,
-      x,
-      y,
-      b == null ? -1 : b.pos(),
-      rs == null ? "null" : rs.name,
-    ]);
-
-    MDL_net.sendPacket("client", "lovec-client-reaction", payload, true, true);
+    MDL_net.sendPacket(
+      "client", "lovec-client-reaction",
+      packPayload([
+        reactions, pMtp, x, y,
+        b == null ? -1 : b.pos(),
+        rs == null ? "null" : rs.name,
+      ]),
+      true, true,
+    );
   }
-  .setAnno(ANNO.__INIT__, function() {
+  .setAnno(ANNO.$INIT$, function() {
     MDL_net.__packetHandler("server", "lovec-client-reaction", payload => {
       let args = unpackPayload(payload);
       applyReaction(args[0], args[1], args[2], args[3], Vars.world.build(args[4]), args[5]);
     });
   })
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
+  .setAnno(ANNO.$CLIENT$)
+  .setAnno(ANNO.$NON_CONSOLE$);
   exports.requestReaction = requestReaction;
 
 
@@ -159,26 +138,28 @@
       t0b instanceof Building ? t0b : null,
       _isReac(reac1) ? null : reac1,
     );
-  }
-  .setAnno(ANNO.__SERVER__);
+  };
   exports.handleReaction = handleReaction;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * A variant of {handleReaction} used on client side.
+   * A variant of {handleReaction} for sync.
    * ---------------------------------------- */
-  const handleReaction_client = function(reac1, reac2, pMtp, t0b) {
-    requestReaction(
-      _reactions(reac1, reac2),
-      pMtp,
-      t0b instanceof Building ? t0b.x : t0b.worldx(),
-      t0b instanceof Building ? t0b.y : t0b.worldy(),
-      t0b instanceof Building ? t0b : null,
-      _isReac(reac1) ? null : reac1,
-    );
+  const handleReaction_global = function(reac1, reac2, pMtp, t0b) {
+    if(!Vars.net.client()) {
+      handleReaction(reac1, reac2, pMtp, t0b);
+    } else {
+      requestReaction(
+        _reactions(reac1, reac2),
+        pMtp,
+        t0b instanceof Building ? t0b.x : t0b.worldx(),
+        t0b instanceof Building ? t0b.y : t0b.worldy(),
+        t0b instanceof Building ? t0b : null,
+        _isReac(reac1) ? null : reac1,
+      );
+    };
   }
-  .setAnno(ANNO.__CLIENT__)
-  .setAnno(ANNO.__NONCONSOLE__);
-  exports.handleReaction_client = handleReaction_client;
+  .setAnno(ANNO.$NON_CONSOLE$);
+  exports.handleReaction_global = handleReaction_global;

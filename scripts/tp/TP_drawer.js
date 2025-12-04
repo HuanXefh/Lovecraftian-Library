@@ -8,10 +8,7 @@
   /* <---------- import ----------> */
 
 
-  const MDL_texture = require("lovec/mdl/MDL_texture");
-
-
-  /* <---------- base ----------> */
+  /* <---------- region ----------> */
 
 
   /* ----------------------------------------
@@ -19,19 +16,21 @@
    *
    * A modified {DrawSprite} for rotators, where clockwise rotation is supported.
    * ---------------------------------------- */
-  const _rotator = function(suffix, spd, ang, offX, offY, shouldFade) {
-    return extend(DrawBlock, {
+  newDrawer(
+    "DrawRotator",
+    (paramObj) => extend(DrawBlock, {
 
 
-      suffix: tryVal(suffix, "-rotator"),
-      spd: tryVal(spd, 0.0), ang: tryVal(ang, 0.0),
-      offX: tryVal(offX, 0.0), offY: tryVal(offY, 0.0),
-      shouldFade: tryVal(shouldFade, true),
+      suffix: readParam(paramObj, "suffix", "-rotator"),
+      spd: readParam(paramObj, "spd", 0.0),
+      ang: readParam(paramObj, "ang", 0.0),
+      offX: readParam(paramObj, "offX", 0.0), offY: readParam(paramObj, "offY", 0.0),
+      shouldFade: readParam(paramObj, "shouldFade", true),
       rotReg: null,
 
 
       load(blk) {
-        this.rotReg = MDL_texture._reg(blk, this.suffix, "-rotator");
+        this.rotReg = fetchRegion(blk, this.suffix, "-rotator");
       },
 
 
@@ -64,12 +63,8 @@
       },
 
 
-    });
-  };
-  exports._rotator = _rotator;
-
-
-  /* <---------- color ----------> */
+    }),
+  );
 
 
   /* ----------------------------------------
@@ -77,27 +72,30 @@
    *
    * A modified {DrawLiquidRegion} where the liquid with largest amount is used.
    * ---------------------------------------- */
-  const _dynamicLiquid = function(suffix, canRotate) {
-    return extend(DrawBlock, {
+  newDrawer(
+    "DrawDynamicLiquid",
+    (paramObj) => extend(DrawBlock, {
 
 
-      suffix: tryVal(suffix, "-liquid"),
-      canRotate: tryVal(canRotate, false),
+      suffix: readParam(paramObj, "suffix", "-liquid"),
+      canRot: readParam(paramObj, "canRot", false),
       liqReg: null,
-      tmpLiq: null, timerCheckMap: new ObjectMap(),
+      tmpLiq: null,
+      timerCheckMap: new ObjectMap(),
 
 
       load(blk) {
-        if(!blk.hasLiquids) ERROR_HANDLER.noLiq(blk);
-
-        this.liqReg = MDL_texture._reg(blk, this.suffix, "-liquid");
+        if(!blk.hasLiquids) ERROR_HANDLER.noLiquidModule(blk);
+        this.liqReg = fetchRegion(blk, this.suffix, "-liquid");
       },
 
 
       draw(b) {
         const thisDrawer = this;
 
-        if(this.timerCheckMap.get(b, new Interval(1)).get(10.0)) {
+        if(!this.timerCheckMap.containsKey(b)) this.timerCheckMap.put(b, new Interval(1));
+
+        if(this.timerCheckMap.get(b).get(10.0)) {
           let tmpAmt = 0.0;
           b.liquids.each(liq => {
             if(b.liquids.get(liq) > tmpAmt) {
@@ -108,13 +106,12 @@
         };
 
         if(this.tmpLiq != null) {
-          Draw.color(this.tmpLiq.color, b.liquids.get(this.tmpLiq) / b.block.liquidCapacity);
-          Draw.rect(this.liqReg, b.x, b.y, this.canRotate ? b.drawrot() : 0.0);
+          Draw.color(this.tmpLiq.color, Mathf.clamp(b.liquids.get(this.tmpLiq) / b.block.liquidCapacity));
+          Draw.rect(this.liqReg, b.x, b.y, this.canRot ? b.drawrot() : 0.0);
           Draw.color();
         };
       },
 
 
-    });
-  };
-  exports._dynamicLiquid = _dynamicLiquid;
+    }),
+  );

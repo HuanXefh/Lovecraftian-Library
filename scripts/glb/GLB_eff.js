@@ -14,34 +14,70 @@
   /* <---------- static ----------> */
 
 
-  exports.sniperTrail = TP_effect._trailFade("lovec-efr-sniper-wave", 18.0, Color.valueOf("ffffffa0"), 0.22222222);
+  exports.sniperTrail = TP_effect._trailFade({
+    spr: "lovec-efr-sniper-wave",
+    size: 18.0,
+    color: "ffffffa0",
+    scl: 0.22222222,
+  });
 
 
   /* <---------- particle ----------> */
 
 
-  exports.harvesterParticle = TP_effect._shrinkParticle("lovec-efr-square", 4.0, 0.0, Pal.accent, 0.7, false, true, false);
-  exports.powerParticle = TP_effect._releaseParticle("circle", 3, 1.2, 8.0, Pal.accent);
+  exports.harvesterParticle = TP_effect._shrinkParticle({
+    spr: "lovec-efr-square",
+    size: 4.0,
+    color: Pal.accent,
+    scl: 0.7,
+    hasBloom: true,
+    noLight: true,
+  });
+  exports.powerParticle = TP_effect._releaseParticle({
+    spr: "circle",
+    amt: 3,
+    size: 1.2,
+    rad: 8.0,
+    color: Pal.accent,
+  });
 
 
   /* <---------- crack ----------> */
 
 
   exports.furnaceCrack = TP_effect._furnaceCrack();
-  exports.furnaceCrackLarge = TP_effect._furnaceCrack(4.5, 24.0, null, 2.0);
+  exports.furnaceCrackLarge = TP_effect._furnaceCrack({
+    size: 4.5,
+    rad: 24.0,
+    scl: 2.0,
+  });
   exports.craftCrack = TP_effect._craftCrack();
   exports.drillCrack = TP_effect._drillCrack();
   exports.plantCrack = TP_effect._plantCrack();
-  exports.sawmillCrack = TP_effect._smokeCrack(5, 3.0, 12.0, Color.valueOf("dccdb1"), 1.0);
+  exports.sawmillCrack = TP_effect._smokeCrack({color: "dccdb1"});
 
 
   /* <---------- smog ----------> */
 
 
   exports.furnaceSmog = TP_effect._releaseSmog();
-  exports.furnaceSmogLarge = TP_effect._releaseSmog(18, 14.0, 64.0, 4.0);
-  exports.blackSmog = TP_effect._releaseSmog(null, null, null, 1.5, true);
-  exports.unitDamagedSmog = TP_effect._releaseSmog(1, null, 12.0, 0.6, true, true);
+  exports.furnaceSmogLarge = TP_effect._releaseSmog({
+    amt: 18,
+    size: 14.0,
+    rad: 64.0,
+    scl: 4.0,
+  });
+  exports.blackSmog = TP_effect._releaseSmog({
+    scl: 1.5,
+    isBlack: true,
+  });
+  exports.unitDamagedSmog = TP_effect._releaseSmog({
+    amt: 1,
+    rad: 12.0,
+    scl: 0.6,
+    isBlack: true,
+    isHigh: true,
+  });
   exports.heatSmog = TP_effect._heatSmog();
 
 
@@ -51,56 +87,52 @@
   /* <---------- area ----------> */
 
 
-  exports.squareFadePack = [
-    Fx.none,
-    TP_effect._squareFade(0.5, Pal.accent),
-    TP_effect._squareFade(1, Pal.accent),
-    TP_effect._squareFade(1.5, Pal.accent),
-    TP_effect._squareFade(2, Pal.accent),
-    TP_effect._squareFade(2.5, Pal.accent),
-    TP_effect._squareFade(3, Pal.accent),
-    TP_effect._squareFade(3.5, Pal.accent),
-    TP_effect._squareFade(4, Pal.accent),
-    TP_effect._squareFade(4.5, Pal.accent),
-    TP_effect._squareFade(5, Pal.accent),
-  ],
+  exports.squareFadePack = (function() {
+    let arr = [];
+    (10)._it(1, size => {
+      arr.push(size === 0 ? Fx.none : TP_effect._squareFade({
+        r: size * 0.5,
+        color: Pal.accent,
+      }));
+    });
+    return arr;
+  })();
 
 
-  exports.disableFadePack = [
-    Fx.none,
-    TP_effect._squareFade(0.5, Pal.sap),
-    TP_effect._squareFade(1, Pal.sap),
-    TP_effect._squareFade(1.5, Pal.sap),
-    TP_effect._squareFade(2, Pal.sap),
-    TP_effect._squareFade(2.5, Pal.sap),
-    TP_effect._squareFade(3, Pal.sap),
-    TP_effect._squareFade(3.5, Pal.sap),
-    TP_effect._squareFade(4, Pal.sap),
-    TP_effect._squareFade(4.5, Pal.sap),
-    TP_effect._squareFade(5, Pal.sap),
-  ],
+  exports.disableFadePack = (function() {
+    let arr = [];
+    (10)._it(1, size => {
+      arr.push(size === 0 ? Fx.none : TP_effect._squareFade({
+        r: size * 0.5,
+        color: Pal.sap,
+      }));
+    });
+    return arr;
+  })();
 
 
   /* <---------- complex ----------> */
 
 
-  exports.explosion = TP_effect._explosion(56.0);
-  exports.explosionSmall = TP_effect._explosion(24.0, null, null, true);
+  exports.explosion = TP_effect._explosion({
+    rad: 56.0,
+  });
+  exports.explosionSmall = TP_effect._explosion({
+    rad: 24.0,
+    noSmog: true,
+  });
 
 
-  exports.drillPulsePack = [
-    Fx.none,
-    TP_effect._rectPulse(0.5, Pal.techBlue),
-    TP_effect._rectPulse(1, Pal.techBlue),
-    TP_effect._rectPulse(1.5, Pal.techBlue),
-    TP_effect._rectPulse(2, Pal.techBlue),
-    TP_effect._rectPulse(2.5, Pal.techBlue),
-    TP_effect._rectPulse(3, Pal.techBlue),
-    TP_effect._rectPulse(3.5, Pal.techBlue),
-    TP_effect._rectPulse(4, Pal.techBlue),
-    TP_effect._rectPulse(4.5, Pal.techBlue),
-    TP_effect._rectPulse(5, Pal.techBlue),
-  ];
+  exports.drillPulsePack = (function() {
+    let arr = [];
+    (10)._it(1, size => {
+      arr.push(size === 0 ? Fx.none : TP_effect._rectPulse({
+        r: size * 0.5,
+        color: Pal.techBlue,
+      }));
+    });
+    return arr;
+  })();
 
 
   exports.circlePulseDynamic = TP_effect._circlePulse();

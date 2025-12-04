@@ -21,28 +21,20 @@
   var ptp = Function.prototype;
 
 
+  ptp.__SUPER_CLASS__ = null;
+  ptp.__IS_CLASS__ = false;
+  ptp.__IS_ABSTRACT_CLASS__ = false;
+  ptp.__IS_CONTENT_TEMPLATE__ = false;
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Gets the super class. If not a function class, returns {null}.
    * ---------------------------------------- */
-  ptp.getSuper = Function.airNull;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether the function is a function class.
-   * ---------------------------------------- */
-  ptp.isClass = Function.airFalse;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Whether the function is an abstract function class.
-   * ---------------------------------------- */
-  ptp.isAbstrClass = Function.airFalse;
+  ptp.getSuper = function() {
+    return this.__SUPER_CLASS__;
+  };
 
 
   /* ----------------------------------------
@@ -56,9 +48,9 @@
     let ins = this.prototype;
 
     // Root class of all function class is {Function}
-    if(cls.getSuper() == null) cls.getSuper = () => Function;
+    if(cls.getSuper() == null) cls.__SUPER_CLASS__ = Function;
 
-    cls.isClass = Function.airTrue;
+    cls.__IS_CLASS__ = true;
     ins.getClass = () => cls;
 
     ins.setProp = obj => {
@@ -67,7 +59,7 @@
       };
     };
 
-    return cls;
+    return this;
   };
 
 
@@ -83,7 +75,7 @@
   ptp.initAbstrClass = function() {
     this.initClass();
 
-    this.isAbstrClass = Function.airTrue;
+    this.__IS_ABSTRACT_CLASS__ = true;
     this.prototype.init = function() {
       ERROR_HANDLER.abstractInstance();
     };
@@ -95,24 +87,28 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Lets a function class extends another function class.
+   * Lets a function class extend another function class.
    * Should be called before {initClass}.
-   * WTF why do I even need reinvent this.
-   *
    * You can use {this.super(nmFun, ...args)} to call super methods later.
    * ---------------------------------------- */
   ptp.extendClass = function(cls) {
-    if(typeof cls !== "function" || !cls.isClass()) ERROR_HANDLER.notClass(cls);
+    if(typeof cls !== "function" || !cls.__IS_CLASS__) ERROR_HANDLER.notClass(cls);
 
     Object.assign(this, cls);
+    // Clone all native objects/arrays to prevent modification of the super one
+    Object._it(this, (key, val) => {
+      if(isNativeObject(val)) this[key] = Object.assign({}, val);
+      if(val instanceof Array) this[key] = val.slice();
+    });
+
+    this.__SUPER_CLASS__ = cls;
     // A second abstract class??? {initAbstrClass} again
-    this.isAbstrClass = Function.airFalse;
-    this.getSuper = () => cls;
+    this.__IS_ABSTRACT_CLASS__ = false;
 
     this.super = function(nmFun) {
       let clsParent = this.getSuper();
       if(clsParent === Function) ERROR_HANDLER.noSuperClass();
-      if(clsParent.isAbstrClass()) ERROR_HANDLER.abstractSuper();
+      if(clsParent.__IS_ABSTRACT_CLASS__) ERROR_HANDLER.abstractSuper();
       let funParent = clsParent[nmFun];
       if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
 
@@ -125,7 +121,7 @@
     this.prototype.super = function(nmFun) {
       let clsParent = this.getClass().getSuper();
       if(clsParent === Function) ERROR_HANDLER.noSuperClass();
-      if(clsParent.isAbstrClass()) ERROR_HANDLER.abstractSuper();
+      if(clsParent.__IS_ABSTRACT_CLASS__) ERROR_HANDLER.abstractSuper();
       let funParent = clsParent.prototype[nmFun];
       if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
 

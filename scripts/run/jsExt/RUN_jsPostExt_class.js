@@ -35,11 +35,15 @@
     if(intf == null || !(intf instanceof CLS_interface)) ERROR_HANDLER.notInterface();
     if(intf.children.includes(this)) ERROR_HANDLER.duplicateInterface();
 
-    Object._it(intf.interfaceObj, (key, prop) => {
-      thisCls[key] !== undefined ?
-        ERROR_HANDLER.interfaceMethodConflict(key) :
-        thisCls[key] = prop;
-    });
+    if(!thisCls.__IS_CONTENT_TEMPLATE__) {
+      Object._it(intf.interfaceObj, (nm, fun) => {
+        thisCls[nm] !== undefined ?
+          ERROR_HANDLER.interfaceMethodConflict(nm) :
+          thisCls[nm] = fun;
+      });
+    } else {
+      thisCls.setMethod(intf.interfaceObj);
+    };
     intf.children.push(this);
 
     return this;

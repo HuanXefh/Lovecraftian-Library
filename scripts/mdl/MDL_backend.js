@@ -43,7 +43,7 @@
   const _w_min = function(winLong) {
     SDL.SDL_MinimizeWindow(tryVal(winLong, Core.app.window));
   }
-  .setAnno(ANNO.__NONMOBILE__);
+  .setAnno(ANNO.$NON_MOBILE$);
   exports._w_min = _w_min;
 
 
@@ -55,7 +55,7 @@
   const _w_max = function(winLong) {
     SDL.SDL_MaximizeWindow(tryVal(winLong, Core.app.window));
   }
-  .setAnno(ANNO.__NONMOBILE__);
+  .setAnno(ANNO.$NON_MOBILE$);
   exports._w_max = _w_max;
 
 
@@ -67,7 +67,7 @@
   const _w_restor = function(winLong) {
     SDL.SDL_RestoreWindow(tryVal(winLong, Core.app.window));
   }
-  .setAnno(ANNO.__NONMOBILE__);
+  .setAnno(ANNO.$NON_MOBILE$);
   exports._w_restor = _w_restor;
 
 
@@ -79,7 +79,7 @@
   const setWinTitle = function(winLong, str) {
     SDL.SDL_SetWindowTitle(tryVal(winLong, Core.app.window), tryVal(str, "Mindustry"));
   }
-  .setAnno(ANNO.__NONMOBILE__);
+  .setAnno(ANNO.$NON_MOBILE$);
   exports.setWinTitle = setWinTitle;
 
 
@@ -88,9 +88,7 @@
    *
    * Simply creates a message window.
    * ---------------------------------------- */
-  const showMessage = function(mode, title, str) {
-    const thisFun = showMessage;
-
+  const showMessage = function thisFun(mode, title, str) {
     if(mode != null) mode = "info";
     if(!mode.equalsAny(thisFun.modes)) return;
 
@@ -104,8 +102,8 @@
       tryVal(str, ""),
     );
   }
-  .setAnno(ANNO.__NONMOBILE__)
   .setProp({
     modes: ["info", "warn", "err"],
-  });
+  })
+  .setAnno(ANNO.$NON_MOBILE$);
   exports.showMessage = showMessage;

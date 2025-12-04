@@ -41,14 +41,14 @@
    *
    * Don't do stupid things like naming something "null".
    * ---------------------------------------- */
-  const _ct = function(ct_gn, mode, suppressWarning) {
+  const _ct = function thisFun(ct_gn, mode, suppressWarning) {
     if(ct_gn == null || ct_gn === "null") return null;
     if(ct_gn instanceof UnlockableContent) return global.lovecUtil.db.oreDict.get(ct_gn, ct_gn);
 
     let ct = null;
     if(mode != null) {
       // Try finding content in specific categories
-      _ct.modeMap.get(mode, Array.air).forEachFast(ctTpStr => {
+      thisFun.modeMap.get(mode, Array.air).forEachFast(ctTpStr => {
         if(ct != null) return;
         ct = Vars.content.getByName(ContentType[ctTpStr], ct_gn);
       });
@@ -104,7 +104,7 @@
       ct.localizedName = nm;
     });
   }
-  .setAnno(ANNO.__NONHEADLESS__);
+  .setAnno(ANNO.$NON_HEADLESS$);
   exports.rename = rename;
 
 
@@ -200,8 +200,11 @@
     if(rs == null) return arr;
 
     let li = Vars.content.blocks();
-    if(rs instanceof Item) li.each(blk => {if(blk.itemDrop === rs || tryFun(blk.ex_getRsDrop, blk, null) === rs) arr.push(blk)});
-    if(rs instanceof Liquid) li.each(blk => {if(blk.liquidDrop === rs || tryFun(blk.ex_getRsDrop, blk, null) === rs) arr.push(blk)});
+    if(rs instanceof Item) {
+      li.each(blk => blk.itemDrop === rs || tryFun(blk.ex_getRsDrop, blk, null) === rs, blk => arr.push(blk));
+    } else if(rs instanceof Liquid) {
+      li.each(blk => blk.liquidDrop === rs || tryFun(blk.ex_getRsDrop, blk, null) === rs, blk => arr.push(blk));
+    };
 
     return arr;
   };
@@ -217,8 +220,7 @@
   const _sintTemp = function(rs_gn) {
     let rs = _ct(rs_gn, "rs");
     if(rs == null) return 100.0;
-
-    if(_hasTag(rs, "rs-intmd")) rs = rs.ex_getParent();
+    if(_hasTag(rs, "rs-intmd")) rs = tryVal(rs.ex_getIntmdParent(), rs);
 
     return DB_item.db["param"]["sintTemp"].read(rs.name, 100.0);
   };
@@ -230,16 +232,11 @@
    *
    * A variant of {_sintTemp} that internally calculates maximum/minimum.
    * ---------------------------------------- */
-  const _exSintTemp = function(rss_gn, mode) {
-    const thisFun = _exSintTemp;
-
+  const _exSintTemp = function thisFun(rss_gn, mode) {
     if(mode == null) mode = "max";
     if(!mode.equalsAny(thisFun.modes)) return 100.0;
 
-    const temps = [];
-    rss_gn.forEachFast(rs_gn => temps.push(_sintTemp(rs_gn)));
-
-    return (mode === "max" ? Math.max : Math.min).apply(null, temps);
+    return (mode === "max" ? Math.max : Math.min).apply(null, rss_gn.map(rs_gn => _sintTemp(rs_gn)));
   }
   .setProp({
     modes: ["max", "min"],
@@ -254,8 +251,7 @@
    * Intermediate tags are listed in DB_item.db["intmdTag"].
    * ---------------------------------------- */
   const _intmdTags = function(rs) {
-    let tags = tryFun(rs.ex_getTags, rs, null);
-    return tags == null ? [] : tags.filter(tag => DB_item.db["intmdTag"].includes(tag));
+    return tryFun(rs.ex_getTags, rs, Array.air).filter(tag => DB_item.db["intmdTag"].includes(tag));
   };
   exports._intmdTags = _intmdTags;
 
@@ -269,12 +265,12 @@
   const _intmd = function(rs_gn, intmdTag) {
     let rs = _ct(rs_gn, "rs");
     if(rs == null) return null;
-    if(rs.ex_getParent != null) rs = rs.ex_getParent();
+    if(rs.ex_getIntmdParent != null) rs = rs.ex_getIntmdParent();
 
     let arr = VARGEN.intmds[intmdTag];
     if(arr == null) return null;
 
-    return arr.find(ors => ors.ex_getParent() === rs);
+    return arr.find(ors => ors.ex_getIntmdParent() === rs);
   };
   exports._intmd = _intmd;
 
@@ -288,17 +284,16 @@
    * Returns generalized craft time for the block. See {DB_misc}.
    * ---------------------------------------- */
   const _craftTime = function(blk_gn, isDrillTime) {
-    const arr = DB_block.db["class"]["craftTime"];
-    var val = Infinity;
-
+    const arr = DB_block.db["class"]["map"]["craftTime"];
+    let val = Infinity;
     let blk = _ct(blk_gn, "blk");
     if(blk == null) return val;
 
     let valCaller = null;
-    let i = 0;
-    let iCap = arr.iCap();
+    let i = 0, iCap = arr.iCap();
+    let cls;
     while(i < iCap) {
-      let cls = arr[i];
+      cls = arr[i];
       if(blk instanceof cls) valCaller = arr[i + 1];
       i += 2;
     };
@@ -316,7 +311,7 @@
    * ---------------------------------------- */
   const _powConsAmt = function(blk_gn) {
     let blk = _ct(blk_gn, "blk");
-    if(blk == null || !blk.hasPower) return 0.0;
+    if(!blk.hasPower) return 0.0;
 
     let powCons = blk.consumers.find(cons => cons instanceof ConsumePower);
 
@@ -337,17 +332,11 @@
   const _faction = function(blk0utp_gn) {
     let ct = _ct(blk0utp_gn, null, true);
     if(ct == null) {
-
       return "none";
-
     } else if(ct instanceof Block) {
-
       return DB_block.db["map"]["faction"].read(ct.name, "none");
-
     } else if(ct instanceof UnitType) {
-
       return DB_unit.db["map"]["faction"].read(ct.name, "none");
-
     };
 
     return "none";
@@ -388,16 +377,14 @@
     const arr = [];
     const li1 = DB_block.db["map"]["faction"];
     const li2 = DB_unit.db["map"]["faction"];
-    let i = 0;
-    let iCap1 = li1.iCap();
-    let iCap2 = li2.iCap();
+    let i = 0, iCap1 = li1.iCap(), iCap2 = li2.iCap();
     while(i < iCap1) {
-      if(li1[i + 1] === faction) arr.push(_ct(li1[i], "blk"));
+      if(li1[i + 1] === faction) arr.pushNonNull(_ct(li1[i], "blk"));
       i += 2;
     };
     i = 0;
     while(i < iCap2) {
-      if(li2[i + 1] === faction) arr.push(_ct(li2[i], "utp"));
+      if(li2[i + 1] === faction) arr.pushNonNull(_ct(li2[i], "utp"));
       i += 2;
     };
 
@@ -454,12 +441,10 @@
   const _facFamiBlks = function(facFami) {
     const arr = [];
     const arr1 = DB_block.db["map"]["facFami"];
-    let i = 0;
-    let iCap = arr1.iCap();
+    let i = 0, iCap = arr1.iCap();
     while(i < iCap) {
       if(arr1[i + 1] === facFami) {
-        let blk = _ct(arr1[i], "blk");
-        if(blk != null) arr.push(blk);
+        arr.pushNonNull(_ct(arr1[i], "blk"));
       };
       i += 2;
     };

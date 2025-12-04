@@ -15,9 +15,7 @@ const CLS_paramBuilder = require("lovec/cls/util/builder/CLS_paramBuilder");
 /* <---------- meta ----------> */
 
 
-const CLS_recipeBuilder = function() {
-  this.init.apply(this, arguments);
-}.extendClass(CLS_paramBuilder).initClass();
+const CLS_recipeBuilder = newClass().extendClass(CLS_paramBuilder).initClass();
 
 
 CLS_recipeBuilder.prototype.init = function() {
@@ -32,9 +30,6 @@ CLS_recipeBuilder.prototype.init = function() {
 
 
 var ptp = CLS_recipeBuilder.prototype;
-
-
-/* modification */
 
 
 ptp.__ci = function(arr) {

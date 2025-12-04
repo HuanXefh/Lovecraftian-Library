@@ -8,6 +8,8 @@
   /* <---------- import ----------> */
 
 
+  const ANNO = require("lovec/glb/BOX_anno");
+  const TRIGGER = require("lovec/glb/BOX_trigger");
   const PARAM = require("lovec/glb/GLB_param");
 
 
@@ -111,25 +113,23 @@
    * NOTE:
    *
    * Calculate {attrSum} from a list of tiles.
-   * If mode is {"blk"} attributes from buildings will get involved... if you want for some reason.
+   * If mode is {"block"} attributes from buildings will get involved... if you want for some reason.
    * ---------------------------------------- */
-  const _sum_ts = function(ts, attr_gn, mode) {
-    const thisFun = _sum_ts;
-
+  const _sum_ts = function thisFun(ts, attr_gn, mode) {
     let attrSum = 0.0;
 
-    if(mode == null) mode = "flr";
+    if(mode == null) mode = "floor";
     if(!mode.equalsAny(thisFun.modes)) return attrSum;
 
     let nmAttr = _attr(attr_gn);
     switch(mode) {
-      case "flr" :
+      case "floor" :
         ts.forEachFast(ot => attrSum += ot.floor().attributes.get(Attribute.get(nmAttr)));
         break;
-      case "blk" :
+      case "block" :
         ts.forEachFast(ot => attrSum += ot.block().attributes.get(Attribute.get(nmAttr)));
         break;
-      case "ov" :
+      case "overlay" :
         ts.forEachFast(ot => attrSum += ot.overlay().attributes.get(Attribute.get(nmAttr)));
         break;
       case "all" :
@@ -144,20 +144,26 @@
     return attrSum;
   }
   .setProp({
-    modes: ["flr", "blk", "ov", "all"],
+    modes: ["floor", "block", "overlay", "all"],
   });
   exports._sum_ts = _sum_ts;
 
 
-  const _sum_rect = function(t, r, size, attr_gn, mode) {
-    return _sum_ts(MDL_pos._tsRect(t, r, size), attr_gn, mode);
-  };
+  const _sum_rect = function thisFun(t, r, size, attr_gn, mode) {
+    return _sum_ts(MDL_pos._tsRect(t, r, size, thisFun.tmpTs), attr_gn, mode);
+  }
+  .setProp({
+    tmpTs: [],
+  });
   exports._sum_rect = _sum_rect;
 
 
-  const _sum_circle = function(t, r, size, attr_gn, mode) {
-    return _sum_ts(MDL_pos._tsCircle(t, r, size), attr_gn, mode);
-  };
+  const _sum_circle = function thisFun(t, r, size, attr_gn, mode) {
+    return _sum_ts(MDL_pos._tsCircle(t, r, size, thisFun.tmpTs), attr_gn, mode);
+  }
+  .setProp({
+    tmpTs: [],
+  });
   exports._sum_circle = _sum_circle;
 
 
@@ -260,19 +266,33 @@
    * NOTE:
    *
    * Calculate current value of wind attribute.
+   *
    * To set wind force for your planet, see {DB_env.db["param"]["pla"]["wind"]}.
    * For a specific map, see {DB_env.db["param"]["map"]["wind"]}, which has higher priority than planet.
    * ---------------------------------------- */
-  const _sumWind = function(t, mtp) {
+  const _sumWind = function thisFun(t, mtp) {
     if(mtp == null) mtp = 1.0;
 
     let attrSum = (1.0 - Math.pow(Math.sin(Time.time / 6400.0 / mtp), 2) * 0.7);
-    attrSum *= DB_env.db["param"]["map"]["wind"].read(PARAM.mapCur, DB_env.db["param"]["pla"]["wind"].read(PARAM.plaCur, 1.0));
+    if(thisFun.sumScl == null) {
+      thisFun.sumScl = DB_env.db["param"]["map"]["wind"].read(PARAM.mapCur, DB_env.db["param"]["pla"]["wind"].read(PARAM.plaCur, 1.0));
+    };
+    attrSum *= thisFun.sumScl;
     if(t != null && attrSum > 0.0) attrSum += Mathf.randomSeed(t.pos(), -2, 2) * 0.1;
     if(attrSum < 0.0) attrSum = 0.0;
 
     return attrSum;
-  };
+  }
+  .setProp({
+    sumScl: null,
+  })
+  .setAnno(ANNO.$INIT$, function() {
+    const thisFun = this;
+
+    TRIGGER.mapChange.addListener(() => {
+      thisFun.sumScl = null;
+    });
+  });
   exports._sumWind = _sumWind;
 
 

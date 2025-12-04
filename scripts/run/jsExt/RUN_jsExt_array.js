@@ -18,13 +18,80 @@
   /* <---------- array ----------> */
 
 
+  var cls = Array;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: ele, arr1, arr2, arr3, ...
+   * Whether {ele} is found in any of those arrays.
+   * ---------------------------------------- */
+  cls.someIncludes = function() {
+    let i = 1, iCap = arguments.length;
+    while(i < iCap) {
+      if(arguments[i].includes(arguments[0])) return true;
+      i++;
+    };
+
+    return false;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: ele, arr1, arr2, arr3, ...
+   * Whether {ele} is found in all those arrays.
+   * ---------------------------------------- */
+  cls.everyIncludes = function() {
+    let i = 2, iCap = arguments.length;
+    while(i < iCap) {
+      if(!arguments[i].includes(arguments[0])) return false;
+      i++;
+    };
+
+    return true;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @ARGS: arr, shouldUpdateArr, ele1, ele2, ele3, ...
+   * Whether given elements don't match the ones found in this array.
+   * IF {shouldUpdateArr}, elements of this array will be replaced by the given arguments.
+   * ---------------------------------------- */
+  cls.someMismatch = function() {
+    let arr = arguments[0];
+    if(arr.length === 0) return true;
+
+    let i = 2, iCap = arguments.length;
+    while(i < iCap) {
+      if(arguments[i] !== arr[i - 2]) {
+        if(arguments[1]) {
+          let j = 2, jCap = iCap;
+          while(j < jCap) {
+            arr[j - 2] = arguments[j];
+            j++;
+          };
+        };
+        return true;
+      };
+      i++;
+    };
+
+    return false;
+  };
+
+
   /* ----------------------------------------
    * NOTE:
    *
    * Returns an index array.
    * If {isStatistical}, this will starts at 1 instead of 0.
    * ---------------------------------------- */
-  Array.getIndArr = function(len, isStatistical) {
+  cls.getIndArr = function(len, isStatistical) {
     const arr = [];
 
     let i = 0;
@@ -43,14 +110,32 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Returns the first element, {null} if not found.
+   * ---------------------------------------- */
+  ptp.first = function() {
+    return this[0] == null ? null : this[0];
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns the last element, {null} if not found.
+   * ---------------------------------------- */
+  ptp.last = function() {
+    return this.length === 0 ? null : this[this.length - 1];
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Pushes the element only when it is not in the array.
    * ---------------------------------------- */
   ptp.pushUnique = function(ele) {
     var cond = true;
-
     if(this.includes(ele)) cond = false;
     if(ele instanceof Array && this.some(ele0 => ele0 instanceof Array && ele0.equals(ele))) cond = false;
-
     if(cond) this.push(ele);
 
     return this;
@@ -93,7 +178,7 @@
    * Removes the first matching element in the array.
    * ---------------------------------------- */
   ptp.remove = function(ele) {
-    var ind = this.indexOf(ele);
+    let ind = this.indexOf(ele);
     if(ind > -1) this.splice(ind, 1);
 
     return this;
@@ -127,9 +212,9 @@
     // Don't remove anything if index is negative
     if(rowInd < 0) return;
 
-    let ind = (rowInd + 1) * ord;
+    this.splice((rowInd + 1) * ord, ord);
 
-    return this.splice(ind, ord);
+    return this;
   };
 
 
@@ -208,6 +293,40 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Variant of {map} that don't return a new array.
+   * ---------------------------------------- */
+  ptp.inSituMap = function(mapF) {
+    let i = 0, iCap = this.iCap();
+    while(i < iCap) {
+      this[i] = mapF(this[i]);
+      i++;
+    };
+
+    return this;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Variant of {filter} that don't return a new array.
+   * ---------------------------------------- */
+  ptp.inSituFilter = function(boolF) {
+    let i = 0, iCap = this.iCap();
+    while(i < iCap) {
+      if(!boolF(this[i])) this[i] = "!PENDING";
+      i++;
+    };
+    this.pull("!PENDING");
+
+    return this;
+  };
+
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * {sort} for purely numeric array, since native {sort} always treats elements as strings.
    * ---------------------------------------- */
   ptp.numSort = function() {
@@ -220,9 +339,7 @@
    *
    * {sort} for mixed-type array.
    * ---------------------------------------- */
-  ptp.mixSort = function() {
-    const thisFun = ptp.mixSort;
-
+  ptp.mixSort = function thisFun() {
     return this.sort((a, b) => {
       // Sort different types
       if(typeof a !== typeof b) return thisFun.ordList.indexOf(typeof a) - thisFun.ordList.indexOf(typeof b);
@@ -274,10 +391,10 @@
     if(ord == null) ord = 1;
     if(off == null) off = 0;
 
-    let iCap = this.iCap();
-    if(iCap === 0) return this;
-    for(let i = 0; i < iCap; i += ord) {
+    let i = 0, iCap = this.iCap();
+    while(i < iCap) {
       this[i + off] = mapF(this[i + off]);
+      i += ord;
     };
 
     return this;
@@ -287,12 +404,11 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether the two arrays equal each other.
+   * Whether the two arrays are equal with each other.
    * WTF why is this not defined?!
    * ---------------------------------------- */
   ptp.equals = function(arr, mapF) {
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     if(iCap !== arr.length) return false;
 
     if(mapF == null) {
@@ -325,14 +441,30 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether this array contains another array (loose equality).
+   * ---------------------------------------- */
+  ptp.looseIncludes = function(arr) {
+    let i = 0, iCap = this.iCap();
+    while(i < iCap) {
+      if(!(this[i] instanceof Array)) ERROR_HANDLER.not3dArray(this[i]);
+      if(this[i].looseEquals(arr)) return true;
+      i++;
+    };
+
+    return false;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * A variant of {includes} used for formatted arrays.
    * ---------------------------------------- */
   ptp.colIncludes = function(ele, ord, off) {
     if(ord == null) ord = 1;
     if(off == null) off = 0;
 
-    let i = off;
-    let iCap = this.iCap();
+    let i = off, iCap = this.iCap();
     while(i < iCap) {
       if(this[i] === ele) return true;
       i += ord;
@@ -351,8 +483,7 @@
   ptp.subsetOf = function(arr) {
     const countArr = this.toCountArr();
 
-    let i = 0;
-    let iCap = countArr.iCap();
+    let i = 0, iCap = countArr.iCap();
     while(i < iCap) {
       if(arr.count(countArr[i]) < countArr[i + 1]) return false;
       i += 2;
@@ -374,8 +505,7 @@
     if(ord == null) ord = 1;
     if(off == null) off = 0;
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     if(mapF == null) {
       while(i < iCap) {
         if(this[i + off] === ele) count++;
@@ -401,8 +531,7 @@
   ptp.unique = function(mapF) {
     const arr = [];
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     if(mapF == null) {
       while(i < iCap) {
         if(!arr.includes(this[i])) arr.push(this[i]);
@@ -519,15 +648,13 @@
     const arr = [];
     if(ord == null) ord = 1;
 
-    let i = 0;
-    let j = 0;
-    let iCap = this.iCap();
+    let i = 0, j = 0, iCap = Math.ceil(this.length / ord);
     while(i < iCap) {
       let tmpArr = [];
       while(j < ord) {
         let tmp = this[i + j];
         if(tmp !== undefined) {
-          tmpArr.push(ele);
+          tmpArr.push(tmp);
         } else if(def !== undefined) {
           tmpArr.push(def);
         };
@@ -535,6 +662,7 @@
       };
       arr.push(tmpArr);
       j = 0;
+      i++;
     };
 
     return arr;
@@ -552,8 +680,7 @@
   ptp.flatten = function() {
     const arr = [];
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     while(i < iCap) {
       !(this[i] instanceof Array) ?
         arr.push(this[i]) :
@@ -579,8 +706,7 @@
     if(ord == null) ord = 1;
     if(off == null) off = 0;
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     while(i < iCap) {
       let tmp = this[i + off];
       if(arr.read(tmp, 0) === 0) {
@@ -699,8 +825,7 @@
     if(ord == null) ord = 1;
     if(off == null) off = 0;
 
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     while(i < iCap) {
       arr.push(this[i + off]);
       i += ord;
@@ -806,7 +931,7 @@
    *
    * Removes the first matching row in a formatted array.
    * ---------------------------------------- */
-  ptp.removeRow = function(nms_p, isUnordered) {
+  ptp.removeFormatRow = function(nms_p, isUnordered) {
     let i = 0, iCap = this.iCap();
     let nms = nms_p instanceof Array ? nms_p : [nms_p];
     let jCap = nms.iCap();

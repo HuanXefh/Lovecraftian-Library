@@ -8,43 +8,24 @@
   /* <---------- import ----------> */
 
 
+  const TRIGGER = require("lovec/glb/BOX_trigger");
   const PARAM = require("lovec/glb/GLB_param");
-  const SAVE = require("lovec/glb/GLB_save");
-  const TIMER = require("lovec/glb/GLB_timer");
   const VAR = require("lovec/glb/GLB_var");
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
-  const FRAG_attack = require("lovec/frag/FRAG_attack");
-  const FRAG_fluid = require("lovec/frag/FRAG_fluid");
-  const FRAG_item = require("lovec/frag/FRAG_item");
-
-
-  const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
-  const MDL_draw = require("lovec/mdl/MDL_draw");
-  const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_event = require("lovec/mdl/MDL_event");
-  const MDL_pos = require("lovec/mdl/MDL_pos");
-  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
-  const MDL_text = require("lovec/mdl/MDL_text");
-  const MDL_texture = require("lovec/mdl/MDL_texture");
-
-
-  const TP_attr = require("lovec/tp/TP_attr");
-  const TP_stat = require("lovec/tp/TP_stat");
 
 
   const DB_block = require("lovec/db/DB_block");
   const DB_env = require("lovec/db/DB_env");
-  const DB_fluid = require("lovec/db/DB_fluid");
-  const DB_item = require("lovec/db/DB_item");
   const DB_unit = require("lovec/db/DB_unit");
 
 
-  /* <---------- core ----------> */
+  /* <---------- core energy ----------> */
 
 
   const cepCapMap = new ObjectMap();
@@ -56,32 +37,30 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets amount of CEPs provided by {blk_gn}.
+   * Gets amount of CEPs provided by some block.
    * ---------------------------------------- */
-  const _cepProv = function(blk_gn, b) {
+  const _cepProv = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
-    var tmp = blk == null ? 0.0 : DB_block.db["param"]["cep"]["prov"].read(blk.name, MDL_cond._isCoreBlock(blk) ? 5.0 : 0.0);
-
-    return tmp !== "function" ?
-      tmp :
-      (b == null ? 0.0 : tmp(b));
-  };
+    return blk == null ?
+      0.0 :
+      DB_block.db["param"]["cep"]["prov"].read(blk.name, MDL_cond._isCoreBlock(blk) ? 5.0 : 0.0);
+  }
+  .setCache();
   exports._cepProv = _cepProv;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets amount of CEPs used by {blk_gn}.
+   * Gets amount of CEPs used by some block.
    * ---------------------------------------- */
-  const _cepUse = function(blk_gn, b) {
+  const _cepUse = function(blk_gn) {
     let blk = MDL_content._ct(blk_gn, "blk");
-    var tmp = blk == null ? 0.0 : DB_block.db["param"]["cep"]["use"].read(blk.name, 0.0);
-
-    return tmp !== "function" ?
-      tmp :
-      (b == null ? 0.0 : tmp(b));
-  };
+    return blk == null ?
+      0.0 :
+      DB_block.db["param"]["cep"]["use"].read(blk.name, 0.0);
+  }
+  .setCache();
   exports._cepUse = _cepUse;
 
 
@@ -129,180 +108,6 @@
   exports._cepEffcCur = _cepEffcCur;
 
 
-  const comp_setStats_cep = function(blk) {
-    let cepProv = _cepProv(blk);
-    if(cepProv > 0.0) blk.stats.add(TP_stat.blk0misc_cepProv, cepProv);
-    let cepUse = _cepUse(blk);
-    if(cepUse > 0.0) blk.stats.add(TP_stat.blk0misc_cepUse, cepUse);
-  };
-  exports.comp_setStats_cep = comp_setStats_cep;
-
-
-  const comp_updateTile_cepEff = function(b) {
-    if(b.efficiency > 0.0 && TIMER.timerState_coreSignal) MDL_effect.showAt_coreSignal(b.x, b.y, b.team, b.block.size * 0.6 * Vars.tilesize);
-  };
-  exports.comp_updateTile_cepEff = comp_updateTile_cepEff;
-
-
-  const comp_drawSelect_cep = function(b, offTy) {
-    MDL_draw.drawText_select(b, MDL_bundle._info("lovec", "text-cep") + " " + _cepUseCur(b.team) + " / " + _cepCapCur(b.team), _cepFracCur(b.team) < 1.0001, offTy);
-  };
-  exports.comp_drawSelect_cep = comp_drawSelect_cep;
-
-
-  /* <---------- fuel ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets fuel point of {rs_gn}.
-   * If it's a fluid, this returns consumption rate.
-   * ---------------------------------------- */
-  const _fuelPon = function(rs_gn) {
-    let rs = MDL_content._ct(rs_gn, "rs");
-    if(rs == null) return 0.0;
-
-    return DB_item.db["param"]["fuel"][rs instanceof Item ? "item" : "fluid"].read(rs.name, Array.airZero)[0];
-  };
-  exports._fuelPon = _fuelPon;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets fuel level of {rs_gn}.
-   * ---------------------------------------- */
-  const _fuelLvl = function(rs_gn) {
-    let rs = MDL_content._ct(rs_gn, "rs");
-    if(rs == null) return 0.0;
-
-    return DB_item.db["param"]["fuel"][rs instanceof Item ? "item" : "fluid"].read(rs.name, Array.airZero)[1];
-  };
-  exports._fuelLvl = _fuelLvl;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * @METHOD: blk.ex_getFuelType, blk.ex_getBlockedFuels
-   * Gets an array of available fuels for {blk}.
-   * ---------------------------------------- */
-  const _fuelArr = function(blk) {
-    const arr = [];
-    switch(blk.ex_getFuelType()) {
-
-      case "item" :
-        arr.pushAll(VARGEN.fuelItms);
-        break;
-
-      case "liquid" :
-        arr.pushAll(VARGEN.fuelLiqs);
-        break;
-
-      case "gas" :
-        arr.pushAll(VARGEN.fuelGases);
-        break;
-
-      default :
-        arr.pushAll(VARGEN.fuelItms);
-        arr.pushAll(VARGEN.fuelLiqs);
-        arr.pushAll(VARGEN.fuelGases);
-
-    };
-
-    return arr.filter(rs => !blk.ex_getBlockedFuels().includes(rs.name));
-  };
-  exports._fuelArr = _fuelArr;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * @METHOD: blk.ex_getFuelType, blk.ex_getBlockedFuels
-   * Gets the fuel tuple for a furnace.
-   * Format: {fuelRs, fuelPon, fuelLvl}.
-   * ---------------------------------------- */
-  const _fuelTup = function(b) {
-    let fuelType = b.block.ex_getFuelType();
-    let blockedFuels = b.block.ex_getBlockedFuels();
-    let rsTg = null;
-    let fuelLvl = 0.0;
-    let rsTgSpare = null;
-    let fuelLvlSpare = 0.0;
-
-    if(b.items != null && fuelType.equalsAny(["item", "any"])) {
-      VARGEN.fuelItms.forEachFast(itm => {
-        if(!b.items.has(itm) || blockedFuels.includes(itm.name)) return;
-
-        let tmpLvl = _fuelLvl(itm);
-        if(tmpLvl > fuelLvl) {
-          rsTg = itm;
-          fuelLvl = tmpLvl;
-          rsTgSpare = rsTg;
-          fuelLvlSpare = fuelLvl;
-        };
-      });
-    };
-
-    if(b.liquids != null && fuelType.equalsAny(["liquid", "any"])) {
-      VARGEN.fuelLiqs.forEachFast(liq => {
-        if(b.liquids.get(liq) < 0.01 || blockedFuels.includes(liq.name)) return;
-
-        let tmpLvl = _fuelLvl(liq);
-        if(tmpLvl > fuelLvl) {
-          rsTg = liq;
-          fuelLvl = tmpLvl;
-          rsTgSpare = rsTg;
-          fuelLvlSpare = fuelLvl;
-        };
-      });
-    };
-
-    if(b.liquids != null && fuelType.equalsAny(["gas", "any"])) {
-      VARGEN.fuelGases.forEachFast(gas => {
-        if(b.liquids.get(gas) < 0.01 || blockedFuels.includes(gas.name)) return;
-
-        let tmpLvl = _fuelLvl(gas);
-        if(tmpLvl > fuelLvl) {
-          rsTg = gas;
-          fuelLvl = tmpLvl;
-          rsTgSpare = rsTg;
-          fuelLvlSpare = fuelLvl;
-        };
-      });
-    };
-
-    if(rsTg != null && MDL_recipeDict._prodAmt(rsTg, b.block) > 0.0 && rsTgSpare != null) {
-      rsTg = rsTgSpare;
-      fuelLvl = fuelLvlSpare;
-    };
-
-    return rsTg == null ? null : [rsTg, _fuelPon(rsTg), fuelLvl];
-  };
-  exports._fuelTup = _fuelTup;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * @FIELD: b.fuelPonCur
-   * Returns the fraction used in {Mathf.lerp}.
-   * ---------------------------------------- */
-  const _tempTgFrac = function(b, fuelRs) {
-    if(fuelRs == null || b.fuelPonCur < 0.0001) return 0.0;
-
-    if(fuelRs instanceof Item) {
-      if(b.items == null || !b.items.has(fuelRs)) return 0.0;
-    } else {
-      if(b.liquids == null || b.liquids.get(fuelRs) < 0.01) return 0.0;
-    };
-
-    return 1.0;
-  };
-  exports._tempTgFrac = _tempTgFrac;
-
-
   /* <---------- mining ----------> */
 
 
@@ -312,335 +117,9 @@
    * Gets the drill speed for {blk}.
    * ---------------------------------------- */
   const _drillSpd = function(blk, boosted) {
-    const arr = DB_block.db["class"]["drillSpd"];
-    let getter = null;
-    let i = 0;
-    let iCap = arr.iCap();
-    while(i < iCap) {
-      if(blk instanceof arr[i]) getter = arr[i + 1];
-      i += 2;
-    };
-
-    return getter == null ? 0.0 : getter(blk, tryVal(boosted, false));
+    return readClassFunMap(DB_block.db["class"]["map"]["drillSpd"], blk, Function.airZero)(blk, tryVal(boosted, false));
   };
   exports._drillSpd = _drillSpd;
-
-
-  // @FIELD: blk.drawnMap
-  const comp_init_depthOre = function(blk) {
-    MDL_event._c_onWorldLoadStart(() => {
-      blk.drawnMap.clear();
-    });
-
-    MDL_event._c_onDraw(() => {
-      if(!Vars.state.isGame() || (!Vars.state.isEditor() && !PARAM.drawScannerResult)) return;
-
-      blk.drawnMap.each((t, cond) => {
-        if(!cond || !MDL_cond._posVisible(t.worldx(), t.worldy(), 8.0)) return;
-
-        Draw.z(VAR.lay_dporeRevealed);
-        Draw.alpha(0.65);
-        Draw.rect(MDL_texture._regVari(blk, t), t.worldx(), t.worldy());
-        Draw.reset();
-      });
-    });
-  };
-  exports.comp_init_depthOre = comp_init_depthOre;
-
-
-  // @FIELD: b.outputsLoot, b.lootCharge, b.lootBackX, b.lootBackY
-  const comp_offload_loot = function(b, itm) {
-    if(!b.outputsLoot) {
-      b.super$offload(itm);
-    } else {
-      b.lootCharge++;
-      let cap = b.block.itemCapacity;
-      if(b.lootCharge >= cap) {
-        b.lootCharge = 0;
-        FRAG_item.produceLootAt(b.lootBackX, b.lootBackY, b, itm, cap, true);
-      };
-    };
-  };
-  exports.comp_offload_loot = comp_offload_loot;
-
-
-  /* <---------- pollution ----------> */
-
-
-  let blkPol = 0.0;
-  let dynaPol = 0.0;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets pollution produced/reduced by {blk_gn}.
-   * ---------------------------------------- */
-  const _pol = function(blk_gn) {
-    var pol = 0.0;
-    let blk = MDL_content._ct(blk_gn, "blk");
-    if(blk == null) return pol;
-
-    pol = DB_block.db["param"]["pol"].read(blk.name, 0.0);
-
-    return pol;
-  };
-  exports._pol = _pol;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the pollution of a fluid.
-   * If not defined, pollution of the parent will be used (if found).
-   * ---------------------------------------- */
-  const _liqPol = function(liq_gn) {
-    const thisFun = _liqPol;
-
-    let liq = MDL_content._ct(liq_gn, "rs");
-    if(liq == null) return 0.0;
-    let pol = thisFun.tmpMap.get(liq.name);
-    if(pol != null) return pol;
-
-    pol = DB_fluid.db["param"]["pol"].read(liq.name);
-    if(pol == null && liq.ex_getParent != null) {
-      let parent = liq.ex_getParent();
-      if(parent) pol = DB_fluid.db["param"]["pol"].read(parent);
-    };
-
-    if(pol == null) pol = 0.0;
-    thisFun.tmpMap.put(liq.name, pol);
-
-    return pol;
-  }
-  .setProp({
-    tmpMap: new ObjectMap(),
-  });
-  exports._liqPol = _liqPol;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets pollution tolerance of {blk_gn} or {utp_gn}.
-   * ---------------------------------------- */
-  const _polTol = function(blk0utp_gn) {
-    var polTol = 0.0;
-    let blk0utp = MDL_content._ct(blk0utp_gn, null, true);
-    if(blk0utp == null) return polTol;
-
-    polTol = ((blk0utp instanceof UnitType) ? DB_unit.db["param"]["polTol"] : DB_block.db["param"]["polTol"]).read(blk0utp.name, 500.0);
-
-    return polTol;
-  };
-  exports._polTol = _polTol;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Increase (or decrease if negative) the dynamic pollution point.
-   * ---------------------------------------- */
-  const addDynaPol = function(amt) {
-    return dynaPol = Mathf.maxZero(dynaPol + tryVal(amt, 0.0));
-  };
-  exports.addDynaPol = addDynaPol;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the global pollution point of the map.
-   * ---------------------------------------- */
-  const _glbPol = function() {
-    return blkPol + dynaPol;
-  };
-  exports._glbPol = _glbPol;
-
-
-  const comp_setStats_pol = function(blk) {
-    let pol = _pol(blk);
-    if(!pol.fEqual(0.0)) blk.stats.add(pol > 0.0 ? TP_stat.blk_pol : TP_stat.blk_polRed, Math.abs(pol), TP_stat.blk_polUnits);
-  };
-  exports.comp_setStats_pol = comp_setStats_pol;
-
-
-  /* <---------- power ----------> */
-
-
-  const comp_setBars_powGen = function(blk) {
-    blk.addBar("poweroutput", b => new Bar(
-      prov(() => Core.bundle.format("bar.poweroutput", Strings.fixed(b.getPowerProduction() * 60.0 * b.timeScale(), 1))),
-      prov(() => Pal.powerBar),
-      () => b.efficiency,
-    ));
-    blk.addBar("power", b => new Bar(
-      prov(() => Core.bundle.format("bar.powerbalance", (b.power.graph.getPowerBalance() >= 0.0 ? "+" : "") + UI.formatAmount(b.power.graph.getPowerBalance() * 60.0))),
-      prov(() => Pal.powerBar),
-      () => Mathf.clamp(b.power.graph.getLastPowerProduced() / b.power.graph.getLastPowerNeeded()),
-    ));
-  };
-  exports.comp_setBars_powGen = comp_setBars_powGen;
-
-
-  const comp_onProximityUpdate_powGen = function(b) {
-    if(!b.allowUpdate()) b.enabled = false;
-  };
-  exports.comp_onProximityUpdate_powGen = comp_onProximityUpdate_powGen;
-
-
-  /* <---------- terrain ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Terrain type is internal, it's hard to implement customized terrain calculation.
-   * You can call it biome.
-   * ---------------------------------------- */
-  const ters = [
-    "dirt",
-    "lava",
-    "grass",
-    "gravel",
-    "puddle",
-    "river",
-    "rock",
-    "salt",
-    "sand",
-    "sea",
-  ];
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the terrain at {t}.
-   * ---------------------------------------- */
-  const _ter = function(t, size) {
-    if(t == null) return null;
-    if(size == null) size = 1;
-
-    let ts = MDL_pos._tsRect(t, 5, size, true);
-    let count = ts.iCap();
-    if(count === 0) return null;
-
-    let countObj = {};
-    ters.forEachFast(ter => countObj[ter] = 0);
-    ts.forEachFast(ot => {
-      let ter = tryFun(ot.floor().ex_getMatGrp, ot.floor(), null);
-      if(ter != null) countObj[ter] += 1;
-    });
-
-    let thr = VAR.blk_terFlrThr;
-    let ter = null;
-
-    if((countObj["dirt"] + countObj["grass"]) / count > thr) ter = "dirt";
-    if(countObj["lava"] / count > thr) ter = "lava";
-    if(countObj["puddle"] / count > thr) ter = "puddle";
-    if(countObj["river"] / count > thr) ter = "river";
-    if((countObj["gravel"] + countObj["rock"]) / count > thr) ter = "rock";
-    if(countObj["salt"] / count > thr) ter = "salt";
-    if((countObj["gravel"] + countObj["sand"]) / count > thr) ter = "sand";
-    if(countObj["sea"] / count > thr) ter = "sea";
-
-    if(countObj["river"] / count > thr * 0.55 && (countObj["dirt"] + countObj["grass"] + countObj["gravel"] + countObj["rock"] + countObj["sand"]) / count > thr * 0.45) ter = "bank";
-    if(countObj["beach"] / count > thr * 0.55 && (countObj["gravel"] + countObj["rock"] + countObj["sand"]) / count > thr * 0.45) ter = "beach";
-
-    return ter;
-  };
-  exports._ter = _ter;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Gets the name for terrain from the bundle.
-   * ---------------------------------------- */
-  const _terB = function(ter) {
-    return Vars.headless ? "" : MDL_bundle._term("lovec", "ter-" + (tryVal(ter, "transition")));
-  };
-  exports._terB = _terB;
-
-
-  const comp_setStats_ter = function(blk, ters, mode) {
-    const thisFun = comp_setStats_ter;
-
-    if(ters == null || ters.length === 0) return;
-
-    if(mode == null) mode = "enable";
-    if(!mode.equalsAny(thisFun.modes)) return;
-
-    let terBs = ters.map(ter => _terB(ter));
-    blk.stats.add(
-      mode === "enable" ? TP_stat.blk_terReq : TP_stat.blk_terBan,
-      (mode === "enable" ? "[green]" : "[red]") + MDL_text._tagText(terBs) + "[]",
-    );
-  }
-  .setProp({
-    modes: ["enable", "disable"],
-  });
-  exports.comp_setStats_ter = comp_setStats_ter;
-
-
-  const comp_drawPlace_ter = function(blk, tx, ty, rot, valid, offTy) {
-    const thisFun = comp_drawPlace_ter;
-
-    if(Vars.world.tile(tx, ty) == null) return;
-
-    if(thisFun.tmpTup.length === 0 || blk !== thisFun.tmpTup[0] || tx !== thisFun.tmpTup[1] || ty !== thisFun.tmpTup[2] || rot !== thisFun.tmpTup[3]) {
-      thisFun.tmpTup[0] = blk;
-      thisFun.tmpTup[1] = tx;
-      thisFun.tmpTup[2] = ty;
-      thisFun.tmpTup[3] = rot;
-      thisFun.tmpTup[4] = _terB(_ter(Vars.world.tile(tx, ty), blk.size));
-    };
-
-    MDL_draw.drawText_place(blk, tx, ty, MDL_bundle._info("lovec", "text-terrain") + " " + thisFun.tmpTup[4], valid, offTy);
-  }
-  .setProp({
-    tmpTup: [],
-  });
-  exports.comp_drawPlace_ter = comp_drawPlace_ter;
-
-
-  const comp_canPlaceOn_ter = function(blk, t, team, rot, ters, mode, offTy) {
-    const thisFun = comp_canPlaceOn_ter;
-
-    if(t == null) return false;
-    if(mode == null) mode = "enable";
-    if(!mode.equalsAny(thisFun.modes)) return false;
-
-    if(thisFun.tmpTup.length === 0 || blk !== thisFun.tmpTup[0] || t !== thisFun.tmpTup[1]) {
-      thisFun.tmpTup[0] = blk;
-      thisFun.tmpTup[1] = t;
-      thisFun.tmpTup[2] = _ter(t, blk.size);
-      thisFun.tmpTup[3] = _terB(thisFun.tmpTup[2]);
-    };
-
-    var cond = true;
-    if(mode === "enable") {
-      if(thisFun.tmpTup[2] == null || !ters.includes(thisFun.tmpTup[2])) {
-        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-enabled") + " " + thisFun.tmpTup[3], false, offTy);
-        cond = false;
-      };
-    } else {
-      if(thisFun.tmpTup[2] != null && ters.includes(thisFun.tmpTup[2])) {
-        MDL_draw.drawText_place(blk, t.x, t.y, MDL_bundle._info("lovec", "text-terrain-disabled") + " " + thisFun.tmpTup[3], false, offTy);
-        cond = false;
-      };
-    };
-
-    return cond;
-  }
-  .setProp({
-    modes: ["enable", "disable"],
-    tmpTup: [],
-  });
-  exports.comp_canPlaceOn_ter = comp_canPlaceOn_ter;
-
-
-  /* <---------- tree ----------> */
 
 
   /* ----------------------------------------
@@ -663,7 +142,7 @@
 
     return rsLvl;
   }
-  .setTodo("Sets up bush map in {DB_block.db['map']['attrMap']['bush']}.");
+  .setTodo("Set up bush map in {DB_block.db['map']['attrMap']['bush']}.");
   exports._treeRsLvl = _treeRsLvl;
 
 
@@ -681,22 +160,7 @@
       ct.outlineColor = MDL_color._color(tup[1], "new");
     };
   };
-  exports.comp_init_outline = comp_init_outline
-
-
-  /* <---------- wire ----------> */
-
-
-  const comp_updateTile_wireTouch = function(b, b_t, dmg, color) {
-    if(b_t == null || b.power == null || b.power.status < 0.01) return;
-    if(dmg < 0.0001 || !Mathf.chance(0.08)) return;
-
-    let ounit = MDL_pos._rayGet_unit(b.x, b.y, b_t.x, b_t.y, unit => MDL_cond._isBoosting(unit));
-    if(ounit == null) return;
-
-    FRAG_attack.apply_lightning(ounit.x, ounit.y, null, dmg, 3, 7, 8, color);
-  };
-  exports.comp_updateTile_wireTouch = comp_updateTile_wireTouch;
+  exports.comp_init_outline = comp_init_outline;
 
 
 /*
@@ -706,84 +170,29 @@
 */
 
 
-  MDL_event._c_onWorldLoad(() => {
 
 
-    Time.run(25.0, () => {
-      dynaPol = SAVE.get("dynamic-pollution");
+  MDL_event._c_onLoad(() => {
+
+    let cepCapObj = {}, cepUseObj = {};
+    TRIGGER.majorIter.start.addListener(() => {
+      VARGEN.mainTeams.forEachFast(team => {
+        cepCapObj[team] = 0.0;
+        cepUseObj[team] = 0.0;
+      });
+    });
+    TRIGGER.majorIter.building.addListener((b, isActive) => {
+      if(!isActive) return;
+      cepCapObj[b.team] += _cepProv(b.block);
+      cepUseObj[b.team] += _cepUse(b.block);
+    });
+    TRIGGER.majorIter.end.addListener(() => {
+      VARGEN.mainTeams.forEachFast(team => {
+        cepCapMap.put(team, cepCapObj[team]);
+        cepUseMap.put(team, cepUseObj[team]);
+        cepFracMap.put(team, cepCapObj[team] < 0.0001 ? 1.0 : cepUseObj[team] / cepCapObj[team]);
+        cepEffcMap.put(team, cepFracMap.get(team) < 1.0001 ? 1.0 : Mathf.maxZero((2.0 * cepCapObj[team] - cepUseObj[team]) / cepCapObj[team]));
+      });
     });
 
-
-  }, 49520302);
-
-
-  MDL_event._c_onUpdate(() => {
-
-
-    if(!PARAM.modded) return;
-
-
-    if(Vars.state.isGame()) {
-      if(TIMER.timerState_sec) dynaPol *= 0.984;
-      if(TIMER.timerState_paramLarge) SAVE.set("dynamic-pollution", dynaPol);
-    } else {
-      dynaPol = 0.0;
-    };
-
-
-    if(Vars.state.isGame() && TIMER.timerState_paramLarge) {
-
-
-      blkPol = 0.0;
-
-
-      VARGEN.mainTeams.forEachFast(team => {
-
-
-        // Team cores
-        let cepCap = 0.0;
-        team.cores().each(b => {
-
-          cepCap += _cepProv(b.block, b);
-
-        });
-        cepCapMap.put(team, cepCap);
-
-
-        // Team buildings
-        let cepUse = 0.0;
-        team.data().buildings.each(b => {
-
-          if(b.liquids != null && b.liquids.currentAmount() > 0.0 && DB_block.db["class"]["nonAux"].hasIns(b.block)) FRAG_fluid.comp_updateTile_aux(b);
-
-          if(MDL_cond._isBuildingActive(b)) {
-            cepUse += _cepUse(b.block, b);
-            if(Mathf.chance(VAR.p_polUpdateP)) blkPol += _pol(b.block);
-          };
-
-        });
-        cepUseMap.put(team, cepUse);
-
-
-        // Team units
-        team.data().units.each(unit => {
-
-        });
-
-
-        let cepFrac = cepCap < 0.0001 ? 1.0 : cepUse / cepCap;
-        cepFracMap.put(team, cepFrac);
-        let cepEffc = cepFrac < 1.0001 ? 1.0 : Mathf.maxZero((2.0 * cepCap - cepUse) / cepCap);
-        cepEffcMap.put(team, cepEffc);
-
-
-      });
-
-
-      blkPol /= VAR.p_polUpdateP;
-
-
-    };
-
-
-  }, 22468922);
+  }, 38429987);

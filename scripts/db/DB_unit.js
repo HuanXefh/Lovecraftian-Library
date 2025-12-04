@@ -1,7 +1,10 @@
 const db = {
 
 
-  "param": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  param: {
 
 
     /* ----------------------------------------
@@ -10,7 +13,7 @@ const db = {
      * Pollution tolerance.
      * Units will gain debuffs when current pollution point exceeds this.
      * ---------------------------------------- */
-    "polTol": [],
+    polTol: [],
 
 
     /* ----------------------------------------
@@ -20,10 +23,10 @@ const db = {
      * For flipped weapons, using the same offset group is recommended.
      * For different type of weapons, put them in different groups.
      * ---------------------------------------- */
-    "reloadBarIds": {
+    reloadBarIds: {
 
 
-      "off0": [
+      off0: [
 
         "vela", [0],
         "corvus", [0],
@@ -138,10 +141,28 @@ const db = {
         "exogenesis-war", [0],
         "exogenesis-xenoct", [4, 5],
 
+        "ve-conscript", [0],
+        "ve-capture", [0, 1],
+        "ve-mist", [0, 1],
+        "ve-haze", [2, 3, 4],
+        "ve-hurricane", [2, 3],
+        "ve-meteorology", [0],
+        "ve-hovopid", [0, 1, 2],
+        "ve-firelock", [0, 1],
+        "ve-solar", [0, 1],
+        "ve-thorium-rocketeer", [0],
+        "ve-alev", [0],
+        "ve-toxorpion", [0],
+        "ve-sunrise", [0],
+        "ve-soar", [0, 1],
+        "ve-hover", [0, 1],
+        "ve-thunder", [0],
+        "ve-md", [2],
+
       ],
 
 
-      "off1": [
+      off1: [
 
         "new-horizon-macrophage", [3],
 
@@ -169,7 +190,7 @@ const db = {
       ],
 
 
-      "off2": [
+      off2: [
 
         "sapphirium-raptor", [0],
 
@@ -185,10 +206,13 @@ const db = {
   },
 
 
-  "map": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "entity": {
+  map: {
+
+
+    entity: {
 
 
       /* ----------------------------------------
@@ -197,7 +221,7 @@ const db = {
        * Maps type to a unit class and extra id if possible.
        * Make sure the id here is not used by vanilla game!
        * ---------------------------------------- */
-      "type": [
+      type: [
 
         "flying", [UnitEntity, null],
         "mech", [MechUnit, null],
@@ -222,7 +246,7 @@ const db = {
        * Used to define new entity types.
        * Format: {id, obj}.
        * ---------------------------------------- */
-      "entityDef": [
+      entityDef: [
 
         // lovec-air
         80, {
@@ -255,7 +279,7 @@ const db = {
      *
      * Faction for unit type. See {DB_block.db["map"]["faction"]}.
      * ---------------------------------------- */
-    "faction": [],
+    faction: [],
 
 
     /* ----------------------------------------
@@ -264,9 +288,9 @@ const db = {
      * Used to add abilities to some unit types.
      * The ability setter function must be registered first!
      * See {TP_ability} where {nmAbi} and the function is added to {global.lovecUtil.db.abilitySetter}.
-     * Format: {nmUtp, nmAbi, args}.
+     * Format: {nmUtp, nmAbi, paramObj}.
      * ---------------------------------------- */
-    "ability": [],
+    ability: [],
 
 
     /* ----------------------------------------
@@ -275,13 +299,16 @@ const db = {
      * Used to add ai controllers to some unit types.
      * Similar to {"ability"}.
      * ---------------------------------------- */
-    "ai": [],
+    ai: [],
 
 
   },
 
 
-  "group": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  group: {
 
 
     /* ----------------------------------------
@@ -289,7 +316,7 @@ const db = {
      *
      * These units are related to core in some way.
      * ---------------------------------------- */
-    "coreUnit": [],
+    coreUnit: [],
 
 
     /* ----------------------------------------
@@ -297,7 +324,7 @@ const db = {
      *
      * These units are not robots, and they don't create remains upon death.
      * ---------------------------------------- */
-    "nonRobot": [
+    nonRobot: [
 
       "renale", "latum",
 
@@ -310,7 +337,7 @@ const db = {
      * These units are rare exceptions that don't create remains.
      * No need to add biotic units here.
      * ---------------------------------------- */
-    "noRemains": [
+    noRemains: [
 
       "new-horizon-nucleoid",
       "new-horizon-guardian",
@@ -341,7 +368,7 @@ const db = {
      *
      * If a mod has customized unit debris, don't create extra remains.
      * ---------------------------------------- */
-    "noRemainsMod": [
+    noRemainsMod: [
 
       "aquarion",
 
@@ -351,7 +378,10 @@ const db = {
   },
 
 
-  "grpParam": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  grpParam: {
 
 
     /* ----------------------------------------
@@ -359,7 +389,7 @@ const db = {
      *
      * Outline parameters used for units & turrets.
      * ---------------------------------------- */
-    "outline": [
+    outline: [
 
       "loveclab", [2, "373a4d"],
       "projreind", [2, "373a4d"],
@@ -370,10 +400,13 @@ const db = {
   },
 
 
-  "class": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "btp": {
+  class: {
+
+
+    btp: {
 
 
       /* ----------------------------------------
@@ -381,7 +414,7 @@ const db = {
        *
        * These bullets can deal damage remotely.
        * ---------------------------------------- */
-      "remote": [
+      remote: [
 
         ContinuousBulletType,
         LaserBulletType, ShrapnelBulletType,
@@ -395,6 +428,9 @@ const db = {
 
 
   },
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
 };

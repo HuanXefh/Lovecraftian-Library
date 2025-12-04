@@ -164,7 +164,7 @@
     iCap = co.iCap();
     while(i < iCap) {
       tmp = co[i];
-      if(!MDL_cond._isAux(tmp)) {
+      if(!MDL_cond._isAuxilliaryFluid(tmp)) {
         return true;
       } else {
         if(includeAux) return true;
@@ -178,7 +178,7 @@
     while(i < iCap) {
       tmp = bo[i];
       if(tmp instanceof Liquid) {
-        if(!MDL_cond._isAux(tmp)) {
+        if(!MDL_cond._isAuxilliaryFluid(tmp)) {
           return true;
         } else {
           if(includeAux) return true;
@@ -197,8 +197,8 @@
    *
    * Returns an array of all liquids found in inputs.
    * ---------------------------------------- */
-  const _inputLiqs = function(ci, bi, aux) {
-    const arr = [];
+  const _inputLiqs = function(contArr, ci, bi, aux) {
+    const arr = contArr != null ? contArr.clear() : [];
     let i, iCap, j, jCap;
 
     // CI
@@ -246,8 +246,8 @@
    *
    * Returns an array of all liquids found in outputs.
    * ---------------------------------------- */
-  const _outputLiqs = function(co, bo) {
-    const arr = [];
+  const _outputLiqs = function(contArr, co, bo) {
+    const arr = contArr != null ? contArr.clear() : [];
     let i, iCap;
 
     // CO
@@ -280,7 +280,6 @@
   const _canAdd = function(b, ignoreItemFullness, co, bo, fo) {
     let noItm = b.items == null;
     let noLiq = b.liquids == null;
-
     let i, iCap, tmp, amt, p;
 
     // CO
@@ -344,12 +343,15 @@
    * Returns a 2-tuple of items and fluids to dump.
    * {co} is called in dump method for output direction.
    * ---------------------------------------- */
-  const _dumpTup = function(b, bo, fo) {
-    let itms = [];
-    let liqs = [];
-    let noItm = b.items == null;
-    let noLiq = b.liquids == null;
-    let i, iCap;
+  const _dumpTup = function(b, contTup, bo, fo) {
+    const tup = contTup != null ? contTup : [[], []];
+
+    let
+      itms = tup[0].clear(),
+      liqs = tup[1].clear(),
+      noItm = b.items == null,
+      noLiq = b.liquids == null,
+      i, iCap;
 
     // BO
     i = 0;
@@ -372,7 +374,7 @@
       };
     };
 
-    return [itms, liqs];
+    return tup;
   };
   exports._dumpTup = _dumpTup;
 
@@ -673,22 +675,14 @@
    *
    * Lets a multi-crafter dump some resource in it.
    * ---------------------------------------- */
-  const dump = function(b, co, dumpTup, splitAmt, fluidType) {
+  const dump = function(b, co, dumpTup) {
     if(dumpTup == null) return;
 
-    let i, iCap, tmp, dir;
-
     if(b.liquids != null) {
-      i = 0;
-      iCap = co.iCap();
+      let i = 0, iCap = co.iCap(), tmp, dir;
       while(i < iCap) {
         tmp = co[i];
         dir = (b.block.liquidOutputDirections.length > i / 2) ? b.block.liquidOutputDirections[i / 2] : -1;
-        if(tmp === VARGEN.auxPres) {
-          FRAG_fluid.dumpPres(b, co[i + 1], false, splitAmt, fluidType);
-        } else if(tmp === VARGEN.auxVac) {
-          FRAG_fluid.dumpPres(b, co[i + 1], true, splitAmt, fluidType);
-        };
         b.dumpLiquid(tmp, 2.0, dir);
         i += 2;
       };

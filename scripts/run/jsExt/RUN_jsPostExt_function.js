@@ -30,18 +30,17 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Modifies the method, which is defined in annotation.
-   * Returns the modified method. This does not modify the original one!
-   * {annoArgs} is for on-call-type annotations.
-   * {annoLoadArgs} is for on-load-type annotations.
-   * {annoArgArgs} is for argument-type annotations.
+   * Modifies the method, the behaviour is defined in annotation.
    * {skipVal} is the value returned when method is skipped somehow.
+   * ----------------------------------------
+   * IMPORTANT:
+   *
+   * Annotation application should be done last, after any other function decorators!
    * ---------------------------------------- */
   ptp.setAnno = function(anno, args_p, skipVal) {
     const thisFun = this;
 
     if(anno == null || !(anno instanceof CLS_annotation)) ERROR_HANDLER.notAnno();
-
     if(args_p == null) args_p = [];
     let args = args_p instanceof Array ? args_p : [args_p];
 
@@ -54,6 +53,7 @@
         skipVal :
         thisFun.apply(this, arguments);
     };
+    fun.cloneProp(thisFun);
     fun.annos = this.getAnnos().pushAll(anno);
 
     return fun;
@@ -73,8 +73,8 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Sets up {__TODO__}.
+   * Sets up {$TODO$}.
    * ---------------------------------------- */
   ptp.setTodo = function(todoInfo) {
-    return this.setAnno(ANNO.__TODO__, todoInfo);
+    return this.setAnno(ANNO.$TODO$, todoInfo);
   };

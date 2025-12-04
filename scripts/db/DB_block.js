@@ -1,151 +1,10 @@
 const db = {
 
 
-  "param": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "color": {
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Generic color parameter for the block.
-       * ---------------------------------------- */
-      "base": [],
-
-
-    },
-
-
-    "amount": {
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Generic amount parameter for the block.
-       * ---------------------------------------- */
-      "base": [],
-
-    },
-
-
-    "range": {
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Generic range parameter for the block.
-       * ---------------------------------------- */
-      "base": [],
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Range of impact wave.
-       * ---------------------------------------- */
-      "impact": [],
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Range of EP detection.
-       * ---------------------------------------- */
-      "ep": [],
-
-
-    },
-
-
-    "speed": {
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Generic speed parameter for the block.
-       * ---------------------------------------- */
-      "base": [],
-
-
-    },
-
-
-    "multiplier": {
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Multiplier on fuel consumption speed.
-       * ---------------------------------------- */
-      "fuelCons": [],
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Multiplier on fuel level used.
-       * ---------------------------------------- */
-      "fuelLvl": [],
-
-
-    },
-
-
-    "time": {
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Generic time parameter for the block.
-       * ---------------------------------------- */
-      "base": [],
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Time used for duration like status duration.
-       * ---------------------------------------- */
-      "dur": [],
-
-
-    },
-
-
-    "heal": {
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Generic heal amount.
-       * ---------------------------------------- */
-      "amount": [],
-
-
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Generic heal percent.
-       * ---------------------------------------- */
-      "percent": [],
-
-
-    },
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Diameter of the fluid pipe, independent of block size.
-     * ---------------------------------------- */
-    "pipeDiam": [],
+  param: {
 
 
     /* ----------------------------------------
@@ -154,7 +13,7 @@ const db = {
      * Maximum pressure allowed in the block.
      * If unset, group parameter will be used.
      * ---------------------------------------- */
-    "presRes": [],
+    presRes: [],
 
 
     /* ----------------------------------------
@@ -164,7 +23,7 @@ const db = {
      * Note that vacuum is set in negative values.
      * If unset, group parameter will be used.
      * ---------------------------------------- */
-    "vacRes": [],
+    vacRes: [],
 
 
     /* ----------------------------------------
@@ -173,7 +32,7 @@ const db = {
      * Corrosion resistence for the block.
      * If unset, group parameter will be used.
      * ---------------------------------------- */
-    "corRes": [],
+    corRes: [],
 
 
     /* ----------------------------------------
@@ -182,7 +41,7 @@ const db = {
      * Heat resistence for the block.
      * If unset, group parameter will be used.
      * ---------------------------------------- */
-    "heatRes": [],
+    heatRes: [],
 
 
     /* ----------------------------------------
@@ -190,7 +49,7 @@ const db = {
      *
      * How many pollution points the block generates.
      * ---------------------------------------- */
-    "pol": [],
+    pol: [],
 
 
     /* ----------------------------------------
@@ -199,7 +58,7 @@ const db = {
      * Pollution tolerance.
      * Some buildings may halt.
      * ---------------------------------------- */
-    "polTol": [],
+    polTol: [],
 
 
     /* ----------------------------------------
@@ -209,7 +68,7 @@ const db = {
      * Core energy points provided/used by a block.
      * Core block provides 5 points by default.
      * ---------------------------------------- */
-    "cep": {
+    cep: {
 
 
       "prov": [],
@@ -224,7 +83,10 @@ const db = {
   },
 
 
-  "map": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  map: {
 
 
     /* ----------------------------------------
@@ -233,7 +95,7 @@ const db = {
      * The only faction a block belongs to.
      * Format: {nmBlk, faction}.
      * ---------------------------------------- */
-    "faction": [],
+    faction: [],
 
 
     /* ----------------------------------------
@@ -244,28 +106,31 @@ const db = {
      * A factory can be included in multiple families.
      * Format: {nmBlk, facFami}.
      * ---------------------------------------- */
-    "facFami": [],
+    facFami: [],
 
 
   },
 
 
-  "group": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  group: {
 
 
     /* ----------------------------------------
      * NOTE:
      *
      * When building recipe dictionary, these blocks will be ignored to allow customized modification.
-     * Useful cauz it's javascript, no new classes.
+     * Useful cauz it's JavaScript, no new classes.
      * ---------------------------------------- */
-    "noRcDict": {
+    noRcDict: {
 
 
-      "cons": [],
+      cons: [],
 
 
-      "prod": [],
+      prod: [],
 
 
     },
@@ -276,37 +141,37 @@ const db = {
      *
      * Material groups, used mainly for corrosion.
      * ---------------------------------------- */
-    "material": {
+    material: {
 
 
-      "wood": [],
+      wood: [],
 
 
-      "copper": [],
+      copper: [],
 
 
-      "lead": [],
+      lead: [],
 
 
-      "iron": [],
+      iron: [],
 
 
-      "steel": [],
+      steel: [],
 
 
-      "galvanized": [],
+      galvanized: [],
 
 
-      "stainless": [],
+      stainless: [],
 
 
-      "glass": [],
+      glass: [],
 
 
-      "cement": [],
+      cement: [],
 
 
-      "rubber": [],
+      rubber: [],
 
 
     },
@@ -315,18 +180,10 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These drills cannot mine items from sand group.
-     * ---------------------------------------- */
-    "nonSandMiner": [],
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
      * These blocks will trigger item reaction.
      * Only works for item blocks.
      * ---------------------------------------- */
-    "exposed": [],
+    exposed: [],
 
 
     /* ----------------------------------------
@@ -334,7 +191,7 @@ const db = {
      *
      * Theses blocks will get damaged if containing viscous fluids.
      * ---------------------------------------- */
-    "cloggable": [],
+    cloggable: [],
 
 
     /* ----------------------------------------
@@ -342,15 +199,7 @@ const db = {
      *
      * Theses blocks can short-circuit if soaked in water.
      * ---------------------------------------- */
-    "shortCircuit": [],
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Theses fluid pipes will short-circuit if powered somehow.
-     * ---------------------------------------- */
-    "shortCircuitPipe": [],
+    shortCircuit: [],
 
 
     /* ----------------------------------------
@@ -359,7 +208,7 @@ const db = {
      * These blocks won't get involved in reaction at all.
      * No need to put core blocks here.
      * ---------------------------------------- */
-    "noReac": [],
+    noReac: [],
 
 
     /* ----------------------------------------
@@ -367,7 +216,7 @@ const db = {
      *
      * These blocks won't drop loot when destroyed.
      * ---------------------------------------- */
-    "noLoot": [],
+    noLoot: [],
 
 
     /* ----------------------------------------
@@ -376,7 +225,7 @@ const db = {
      * These blocks won't create remains upon destruction.
      * No need for 1-block sized blocks and core blocks.
      * ---------------------------------------- */
-    "noRemains": [],
+    noRemains: [],
 
 
     /* ----------------------------------------
@@ -384,7 +233,7 @@ const db = {
      *
      * If a mod has customized building debris, don't create extra remains.
      * ---------------------------------------- */
-    "noRemainsMod": [
+    noRemainsMod: [
 
       "aquarion",
 
@@ -396,7 +245,7 @@ const db = {
      *
      * These blocks have reload bars (long time of reloading).
      * ---------------------------------------- */
-    "showReload": [
+    showReload: [
 
       "mass-driver",
       "payload-mass-driver",
@@ -448,7 +297,10 @@ const db = {
   },
 
 
-  "grpParam": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  grpParam: {
 
 
     /* ----------------------------------------
@@ -456,7 +308,7 @@ const db = {
      *
      * Color used for faction-related texts.
      * ---------------------------------------- */
-    "factionColor": [
+    factionColor: [
 
       "none", "999999",
 
@@ -477,7 +329,7 @@ const db = {
      *
      * Base pressure resistence for each material group.
      * ---------------------------------------- */
-    "presRes": [
+    presRes: [
 
       "wood", 1.0,
       "copper", 7.0,
@@ -498,7 +350,7 @@ const db = {
      *
      * Base vacuum resistence for each material group.
      * ---------------------------------------- */
-    "vacRes": [
+    vacRes: [
 
       "wood", 0.0,
       "copper", -3.0,
@@ -519,7 +371,7 @@ const db = {
      *
      * Base corrosion resistence for each material group.
      * ---------------------------------------- */
-    "corRes": [
+    corRes: [
 
       "wood", 1.0,
       "copper", 1.5,
@@ -540,7 +392,7 @@ const db = {
      *
      * Base heat resistence for each material group.
      * ---------------------------------------- */
-    "heatRes": [
+    heatRes: [
 
       "wood", 60.0,
       "copper", 800.0,
@@ -561,7 +413,7 @@ const db = {
      *
      * Maps a wire material to texture region name.
      * ---------------------------------------- */
-    "wireMatReg": [
+    wireMatReg: [
 
       "copper", "lovec-ast-wire-copper",
 
@@ -571,28 +423,25 @@ const db = {
   },
 
 
-  "class": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "reload": {
+  class: {
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * These blocks have reload in (0.0, 1.0).
-       * ---------------------------------------- */
-      "frac": [],
+    map: {
 
 
       /* ----------------------------------------
        * NOTE:
        *
-       * These blocks have reversed reload calculation (decreasing).
+       * Used to read shield amount.
        * ---------------------------------------- */
-      "rev": [
+      shield: [
 
-        LaserTurret,
+        ShieldWall, (b, isSelfShield) => b.shield,
+        ForceProjector, (b, isSelfShield) => isSelfShield ? 0.0 : (b.block.shieldHealth + b.block.phaseShieldBoost * b.phaseHeat - b.buildup),
+        DirectionalForceProjector, (b, isSelfShield) => isSelfShield ? 0.0 : (b.block.shieldHealth - b.buildup),
 
       ],
 
@@ -600,11 +449,45 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Combination.
+       * Used to read drill speed for display.
        * ---------------------------------------- */
-      "revFrac": [
+      drillSpd: [
 
-        MassDriver,
+        Drill, (blk, boosted) => Math.pow(blk.size, 2) / blk.drillTime * 60.0 * (boosted ? Math.pow(blk.liquidBoostIntensity, 2) : 1.0),
+        BeamDrill, (blk, boosted) => blk.size / blk.drillTime * 60.0 * (boosted ? blk.optionalBoostIntensity : 1.0),
+
+      ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Used to read generalized craft time for blocks.
+       * This affects calculation of consumption/production rates.
+       * ---------------------------------------- */
+      craftTime: [
+
+        Drill, blk => blk.drillTime,
+        BeamDrill, blk => blk.drillTime,
+        WallCrafter, (blk, isDrillTime) => isDrillTime ? blk.drillTime : blk.boostItemUseTime,
+
+        Pump, blk => blk.consumeTime,
+        Fracker, blk => blk.itemUseTime,
+
+        ConsumeGenerator, blk => blk.itemDuration,
+        NuclearReactor, blk => blk.itemDuration,
+        ImpactReactor, blk => blk.itemDuration,
+
+        GenericCrafter, blk => blk.craftTime,
+
+        Reconstructor, blk => blk.constructTime,
+
+        MendProjector, blk => blk.useTime,
+        RegenProjector, blk => blk.optionalUseTime,
+        OverdriveProjector, blk => blk.useTime,
+        ForceProjector, blk => blk.phaseUseTime,
+
+        LandingPad, blk => blk.cooldownTime,
 
       ],
 
@@ -612,79 +495,66 @@ const db = {
     },
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * These blocks by default cannot hold auxiliay fluids.
-     * ---------------------------------------- */
-    "nonAux": [
-
-      LiquidBlock,
-
-    ],
+    group: {
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Used to read shield amount.
-     * ---------------------------------------- */
-    "shield": [
-
-      ShieldWall, (b, isSelfShield) => b.shield,
-      ForceProjector, (b, isSelfShield) => isSelfShield ? 0.0 : (b.block.shieldHealth + b.block.phaseShieldBoost * b.phaseHeat - b.buildup),
-      DirectionalForceProjector, (b, isSelfShield) => isSelfShield ? 0.0 : (b.block.shieldHealth - b.buildup),
-
-    ],
+      reload: {
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Used to read drill speed for display.
-     * ---------------------------------------- */
-    "drillSpd": [
-
-      Drill, (blk, boosted) => Math.pow(blk.size, 2) / blk.drillTime * 60.0 * (boosted ? Math.pow(blk.liquidBoostIntensity, 2) : 1.0),
-      BeamDrill, (blk, boosted) => blk.size / blk.drillTime * 60.0 * (boosted ? blk.optionalBoostIntensity : 1.0),
-
-    ],
+        /* ----------------------------------------
+         * NOTE:
+         *
+         * These blocks have reload in (0.0, 1.0).
+         * ---------------------------------------- */
+        frac: [],
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Used to read generalized craft time for blocks.
-     * This affects calculation of consumption/production rates.
-     * ---------------------------------------- */
-    "craftTime": [
+        /* ----------------------------------------
+         * NOTE:
+         *
+         * These blocks have reversed reload calculation (decreasing).
+         * ---------------------------------------- */
+        rev: [
 
-      Drill, blk => blk.drillTime,
-      BeamDrill, blk => blk.drillTime,
-      WallCrafter, (blk, isDrillTime) => isDrillTime ? blk.drillTime : blk.boostItemUseTime,
+          LaserTurret,
 
-      Pump, blk => blk.consumeTime,
-      Fracker, blk => blk.itemUseTime,
+        ],
 
-      ConsumeGenerator, blk => blk.itemDuration,
-      NuclearReactor, blk => blk.itemDuration,
-      ImpactReactor, blk => blk.itemDuration,
 
-      GenericCrafter, blk => blk.craftTime,
+        /* ----------------------------------------
+         * NOTE:
+         *
+         * Combination.
+         * ---------------------------------------- */
+        revFrac: [
 
-      Reconstructor, blk => blk.constructTime,
+          MassDriver,
 
-      MendProjector, blk => blk.useTime,
-      RegenProjector, blk => blk.optionalUseTime,
-      OverdriveProjector, blk => blk.useTime,
-      ForceProjector, blk => blk.phaseUseTime,
+        ],
 
-      LandingPad, blk => blk.cooldownTime,
 
-    ],
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * These blocks by default cannot hold auxiliay fluids.
+       * ---------------------------------------- */
+      nonAux: [
+
+        LiquidBlock,
+
+      ],
+
+
+    },
 
 
   },
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
 };

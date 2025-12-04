@@ -16,9 +16,7 @@
    *
    * Registers a new packet handler.
    * ---------------------------------------- */
-  const __packetHandler = function(mode, header, payloadCaller) {
-    const thisFun = __packetHandler;
-
+  const __packetHandler = function thisFun(mode, header, payloadCaller) {
     if(header == null) return;
     if(thisFun.headers.includes(header)) ERROR_HANDLER.headerConfict(header, "packet");
     if(mode == null) mode = "client";
@@ -42,9 +40,7 @@
    *
    * Sends out a packet.
    * ---------------------------------------- */
-  const sendPacket = function(mode, header, payload, isReliable, useConnection) {
-    const thisFun = sendPacket;
-
+  const sendPacket = function thisFun(mode, header, payload, isReliable, useConnection) {
     if(!global.lovec.param.modded || header == null || payload == null) return;
     if(mode == null) mode = "server";
     if(!mode.equalsAny(thisFun.modes)) return;
@@ -63,3 +59,25 @@
     modes: ["client", "server", "both"],
   });
   exports.sendPacket = sendPacket;
+
+
+  /* <---------- http ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Fetches the latest version (tag) of a repository on GitHub.
+   * If errored, the value will be {undefined}.
+   * ---------------------------------------- */
+  const fetchLatestVer = function(owner, repo, valCaller) {
+    let val;
+    Http.get("https://api.github.com/repos/" + owner + "/" + repo + "/releases/latest")
+    .header("X-GitHub-Api-Version", "2022-11-28")
+    .error(err => valCaller(val))
+    .submit((res, exc) => {
+      if(exc == null) val = parseResponse(res).tag_name;
+      valCaller(val);
+    });
+  };
+  exports.fetchLatestVer = fetchLatestVer;

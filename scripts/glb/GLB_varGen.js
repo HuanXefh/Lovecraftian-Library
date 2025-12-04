@@ -26,26 +26,26 @@
 
 
   const bindings = {};
+  exports.bindings = bindings;
 
 
-  const __bindings = function(nm, keyBind) {
-    bindings[nm] = keyBind;
+  const addKeyBind = function(nm, keyCodeDef, categ) {
+    if(bindings[nm] !== undefined) {
+      Log.warn("[LOVEC] Key binding [$1] has already been registered!".format(nm.color(Pal.accent)));
+      return false;
+    };
+    bindings[nm] = KeyBind.add(nm, keyCodeDef, categ);
+
+    return true;
   };
-  exports.__bindings = __bindings;
+  exports.addKeyBind = addKeyBind;
 
 
-  /* <---------- window ----------> */
+  /* <---------- achievement ----------> */
 
 
-  let winCur = null;
-  exports.winCur = winCur;
-
-
-  const __winCur = function(tb) {
-    winCur = tb;
-    exports.winCur = winCur;
-  };
-  exports.__winCur = __winCur;
+  const achievements = [];
+  exports.achievements = achievements;
 
 
   /* <---------- sprite ----------> */
@@ -177,8 +177,7 @@
     exports.hotFlds = (function() {
       const arr = [];
       let li = DB_fluid.db["param"]["fHeat"];
-      let i = 0;
-      let iCap = li.iCap();
+      let i = 0, iCap = li.iCap();
       while(i < iCap) {
         if(li[i + 1] > 49.9999) {
           let ct = MDL_content._ct(li[i], "rs");
@@ -226,8 +225,8 @@
     })();
 
 
-    exports.wasItms = Vars.content.items().select(itm => MDL_cond._isWas(itm)).toArray();
-    exports.wasFlds = Vars.content.liquids().select(liq => MDL_cond._isWas(liq)).toArray();
+    exports.wasItms = Vars.content.items().select(itm => MDL_cond._isWaste(itm)).toArray();
+    exports.wasFlds = Vars.content.liquids().select(liq => MDL_cond._isWaste(liq)).toArray();
 
 
     exports.vanillaUtps = Vars.content.units().select(utp => MDL_content._mod(utp) === "vanilla");
@@ -237,9 +236,9 @@
     exports.missileUtps = Vars.content.units().select(utp => utp instanceof MissileUnitType).toArray();
 
 
-    exports.fadeStas = Vars.content.statusEffects().select(sta => MDL_cond._isFadeSta(sta)).toArray();
-    exports.deathStas = Vars.content.statusEffects().select(sta => MDL_cond._isDeathSta(sta)).toArray();
-    exports.stackStas = Vars.content.statusEffects().select(sta => MDL_cond._isStackSta(sta)).toArray();
+    exports.fadeStas = Vars.content.statusEffects().select(sta => MDL_cond._isFadeStatus(sta)).toArray();
+    exports.deathStas = Vars.content.statusEffects().select(sta => MDL_cond._isDeathStatus(sta)).toArray();
+    exports.stackStas = Vars.content.statusEffects().select(sta => MDL_cond._isStackStatus(sta)).toArray();
 
 
 
@@ -269,14 +268,15 @@
   MDL_event._c_onLoad(() => {
 
 
-    exports.bindings = bindings;
-
-
     exports.auxPres = Vars.content.liquid("loveclab-aux0aux-pressure");
     exports.auxVac = Vars.content.liquid("loveclab-aux0aux-vacuum");
     exports.auxHeat = Vars.content.liquid("loveclab-aux0aux-heat");
     exports.auxTor = Vars.content.liquid("loveclab-aux0aux-torque");
     exports.auxRpm = Vars.content.liquid("loveclab-aux0aux-rpm");
+
+
+    exports.staHiddenWell = Vars.content.statusEffect("loveclab-sta-hidden-well");
+    exports.staStunned = Vars.content.statusEffect("loveclab-sta-stunned");
 
 
   }, 54888119);

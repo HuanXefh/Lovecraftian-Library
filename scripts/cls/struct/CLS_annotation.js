@@ -21,13 +21,11 @@
 /* <---------- meta ----------> */
 
 
-const CLS_annotation = function() {
-  this.init.apply(this, arguments);
-}.initClass();
+const CLS_annotation = newClass().initClass();
 
 
 CLS_annotation.prototype.init = function(nm, funCaller, loadScr, funArgCaller) {
-  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.noNm("annotation");
+  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.notUniqueName("annotation");
   insNms.push(nm);
   this.name = nm;
 
@@ -66,9 +64,6 @@ const insNms = [];
 
 
 /* <---------- instance method ----------> */
-
-
-var ptp = CLS_annotation.prototype;
 
 
 module.exports = CLS_annotation;

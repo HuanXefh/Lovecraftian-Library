@@ -20,9 +20,7 @@ const MDL_ui = require("lovec/mdl/MDL_ui");
 /* <---------- meta ----------> */
 
 
-const CLS_window = function() {
-  this.init.apply(this, arguments);
-}.initClass();
+const CLS_window = newClass().initClass();
 
 
 CLS_window.prototype.init = function(title, tableF) {
@@ -51,12 +49,15 @@ let selectedWins = [];
 /* <---------- static method ----------> */
 
 
+var cls = CLS_window;
+
+
 /* ----------------------------------------
  * NOTE:
  *
  * Modified button styles used for window.
  * ---------------------------------------- */
-CLS_window.btnStyles = {
+cls.btnStyles = {
   close: extend(TextButton.TextButtonStyle, {
     font: Fonts.outline,
     fontColor: Pal.remove,
@@ -84,7 +85,7 @@ CLS_window.btnStyles = {
 };
 
 
-CLS_window.getRootTable = function(win) {
+cls.getRootTable = function(win) {
   const tb = new Table();
   tb.tapped(() => {
     if(!Core.input.keyDown(KeyCode.controlLeft) && !Core.input.keyDown(KeyCode.controlRight)) selectedWins.clear();
@@ -96,7 +97,7 @@ CLS_window.getRootTable = function(win) {
 };
 
 
-CLS_window.getBaseTable = function(win) {
+cls.getBaseTable = function(win) {
   const tb = new Table(Tex.whiteui);
   win.root.top().add(tb).growX();
   return tb;
@@ -113,7 +114,7 @@ var ptp = CLS_window.prototype;
 
 
 ptp.initParams = function() {
-  this.isAdded = false;
+  this.added = false;
   this.isHidden = false;
   this.prefW = 0.0;
   this.prefH = 0.0;
@@ -235,11 +236,11 @@ ptp.rebuild = function() {
  * Adds the window to scene.
  * ---------------------------------------- */
 ptp.add = function() {
-  if(Core.scene == null || this.isAdded) return;
+  if(Core.scene == null || this.added) return;
 
   this.rebuild();
   Core.scene.add(this.root);
-  this.isAdded = true;
+  this.added = true;
 };
 
 
@@ -249,10 +250,10 @@ ptp.add = function() {
  * Removes the window from scene.
  * ---------------------------------------- */
 ptp.close = function() {
-  if(!this.isAdded) return;
+  if(!this.added) return;
 
   this.root.actions(Actions.remove());
-  this.isAdded = false;
+  this.added = false;
 };
 
 
@@ -263,7 +264,7 @@ ptp.close = function() {
  * Currently disabled for mobile ends, due to some weird bugs.
  * ---------------------------------------- */
 ptp.minimize = function() {
-  if(!this.isAdded || Core.app.isMobile()) return;
+  if(!this.added || Core.app.isMobile()) return;
 
   this.isHidden = !this.isHidden;
   this.rebuild();
@@ -277,7 +278,7 @@ ptp.minimize = function() {
  * This technically creates a new table.
  * ---------------------------------------- */
 ptp.top = function() {
-  if(!this.isAdded) return;
+  if(!this.added) return;
 
   let tmpX = this.root.translation.x, tmpY = this.root.translation.y;
   this.close();

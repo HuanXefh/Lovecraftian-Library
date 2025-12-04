@@ -29,8 +29,7 @@
   ptp.toHash = function() {
     let hash = 0;
     if(this.length === 0) return hash;
-    let i = 0;
-    let iCap = this.iCap();
+    let i = 0, iCap = this.iCap();
     while(i < iCap) {
       hash = ((hash << 5) - hash) + this.charCodeAt(i);
       hash = hash & hash;

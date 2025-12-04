@@ -38,9 +38,10 @@
   /* <---------- base ----------> */
 
 
-  let rules = null;
-  let hasInit = false;
-  let hasWea = false;
+  let
+    rules = null,
+    hasInit = false,
+    hasWea = false;
 
 
   function evComp_updateBase() {
@@ -62,7 +63,6 @@
     hasWea = true;
     Time.run(60.0, () => {
       let nmWeas = DB_env.db["param"]["map"]["weaEn"].read(PARAM.mapCur, Array.air);
-      printAll(PARAM.mapCur, nmWeas);
       if(nmWeas.length > 0) {
         Groups.weather.clear();
 
@@ -86,6 +86,8 @@
 */
 
 
+
+
   TRIGGER.mapChange.addListener(nmMap => {
     hasInit = false;
     PARAM.forceLoadParam();
@@ -97,6 +99,8 @@
       ),
     );
   });
+
+
 
 
   MDL_event._c_onUpdate(() => {

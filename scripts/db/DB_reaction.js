@@ -16,6 +16,9 @@ const DB_item = require("lovec/db/DB_item");
 const db = {
 
 
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
   /* ----------------------------------------
    * NOTE:
    *
@@ -23,13 +26,12 @@ const db = {
    * Note that the script is called on server side only.
    * Format: {reaction, [p, (param, x, y, b, rs) => {...}]}.
    * ---------------------------------------- */
-  "reaction": [
+  reaction: [
 
     // Create explosion
     "explosion", [0.001, (param, x, y, b, rs) => {
-      FRAG_attack.apply_explosion_global(
-        x,
-        y,
+      FRAG_attack._a_explosion_global(
+        x, y,
         Mathf.lerp(40.0, 200.0, ct1.explosiveness) * param,
         16.0 * param,
         2.0 + param * 3.0,
@@ -78,7 +80,7 @@ const db = {
    *
    * Conditions for each reaction group.
    * ---------------------------------------- */
-  "groupCond": [
+  groupCond: [
 
     "GROUP: air", (rs) => DB_fluid.db["group"]["air"].includes(rs.name),
     "GROUP: water", (rs) => DB_fluid.db["group"]["aqueous"].includes(rs.name),
@@ -102,7 +104,7 @@ const db = {
    * This is expected to be read without order.
    * Format: {reactant1, reactant2, [reaction, param]}.
    * ---------------------------------------- */
-  "fluid": [
+  fluid: [
 
     "GROUP: water", "GROUP: dehydrative", ["heat", 1.0],
 
@@ -114,7 +116,7 @@ const db = {
    *
    * For item reaction. The first reactant is item and second is fluid.
    * ---------------------------------------- */
-  "item": [
+  item: [
 
     "ITEMGROUP: denaturing", "GROUP: air", ["denaturing", 1.0],
     "ITEMGROUP: solvation", "GROUP: water", ["solvation", 0.75],
@@ -133,7 +135,7 @@ const db = {
    * Target item in a denaturing reaction.
    * If {null} no item will be formed.
    * ---------------------------------------- */
-  "denaturingTarget": [],
+  denaturingTarget: [],
 
 
   /* ----------------------------------------
@@ -142,7 +144,10 @@ const db = {
    * Target liquid in a solvation reaction.
    * If {null} no liquid puddle will be changed.
    * ---------------------------------------- */
-  "solvationTarget": [],
+  solvationTarget: [],
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
 };

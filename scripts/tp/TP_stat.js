@@ -87,7 +87,6 @@
 
   exports.blk0liq_presOutput = newIns_stat("blk0liq-presoutput", StatCat.liquids);
   exports.blk0liq_vacOutput = newIns_stat("blk0liq-vacoutput", StatCat.liquids);
-  exports.blk0liq_splitAmt = newIns_stat("blk0liq-splitamt", StatCat.liquids);
 
 
   exports.blk0liq_matGrp = newIns_stat("blk0liq-matgrp");
@@ -134,7 +133,7 @@
 
   exports.rs_isConsumable = newIns_stat("rs-isconsumable");
   exports.rs_isIntermediate = newIns_stat("rs-isintermediate");
-  exports.rs_isWaste = newIns_stat("rs-iswaste");
+  exports.rs_isWastete = newIns_stat("rs-iswaste");
 
 
   exports.rs0int_parent = newIns_stat("rs0int-parent");

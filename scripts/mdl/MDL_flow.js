@@ -56,6 +56,8 @@
     for(let key in obj) {
       if(obj[key].includes(liq.name)) return key;
     };
+
+    return null;
   };
   exports._eleGrp = _eleGrp;
 
@@ -90,6 +92,8 @@
     for(let key in obj) {
       if(obj[key].includes(blk.name)) return key;
     };
+
+    return null;
   };
   exports._matGrp = _matGrp;
 
@@ -107,27 +111,28 @@
    * NOTE:
    *
    * Gets a list of fluid tags of the fluid.
-   * Fluid tags provide extra multipliers to corrosion damage.
+   * Fluid tags provide extra multipliers on corrosion damage.
    * ---------------------------------------- */
   const _fTags = function(liq_gn) {
-    const arr = [];
+    const arr0 = [];
+
     let liq = MDL_content._ct(liq_gn, "rs");
-    if(liq == null) return arr;
+    if(liq == null) return arr0;
 
-    let obj = DB_fluid.db["group"]["fTag"];
-    for(let key in obj) {
-      if(obj[key].includes(liq.name)) arr.push(key);
-    };
+    Object._it(DB_fluid.db["group"]["fTag"], (key, arr) => {
+      if(arr.includes(liq.name)) arr0.push(key);
+    });
 
-    return arr;
-  };
+    return arr0;
+  }
+  .setCache();
   exports._fTags = _fTags;
 
 
   const _fTagsB = function(liq_gn) {
-    let arr = _fTags(liq_gn).substitute(tag => MDL_bundle._term("common", "grp-" + tag));
-
-    return MDL_text._tagText(arr);
+    return MDL_text._tagText(
+      _fTags(liq_gn).slice().substitute(tag => MDL_bundle._term("common", "grp-" + tag))
+    );
   };
   exports._fTagsB = _fTagsB;
 
@@ -141,11 +146,11 @@
    * Gets density of a fluid.
    * ---------------------------------------- */
   const _dens = function(liq_gn) {
-    var dens = 1.0;
+    let dens = 1.0;
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return dens;
 
-    var dens_def = liq.gas ? 0.00121 : 1.0;
+    let dens_def = liq.gas ? 0.00121 : 1.0;
     dens = DB_fluid.db["param"]["dens"].read(liq.name);
     if(dens == null) {
       let eleGrp = _eleGrp(liq);
@@ -163,7 +168,7 @@
    * Gets boiling point of a fluid.
    * ---------------------------------------- */
   const _boilPon = function(liq_gn) {
-    var boilPon = 100.0;
+    let boilPon = 100.0;
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return boilPon;
 
@@ -187,8 +192,7 @@
    * This will affect temperature.
    * ---------------------------------------- */
   const _fHeat = function(liq_gn) {
-    let def = 26.0;
-    var fHeat = def;
+    let def = 26.0, fHeat = def;
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return fHeat;
 
@@ -216,24 +220,20 @@
    * Gets wrapped viscosity.
    * ---------------------------------------- */
   const _viscWrap = function(liq_gn) {
-    var viscWrap = 0.5;
+    let viscWrap = 0.5;
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return viscWrap;
 
-    var visc = DB_fluid.db["param"]["visc"].read(liq.name);
+    let visc = DB_fluid.db["param"]["visc"].read(liq.name);
     if(visc != null) {
-
       viscWrap = halfLogWrap(visc, 0.98, 2800.0);
-
     } else {
-
       if(liq.gas) {
         viscWrap = 0.15;
       } else {
         let eleGrp = _eleGrp(liq);
         viscWrap = eleGrp == null ? 0.5 : DB_fluid.db["grpParam"]["viscWrap"].read(eleGrp, 0.5);
       };
-
     };
 
     return viscWrap;
@@ -244,32 +244,17 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets pipe diameter of a block (usually a conduit).
-   * ---------------------------------------- */
-  const _pipeDiam = function(blk_gn) {
-    let blk = MDL_content._ct(blk_gn, "blk");
-
-    return blk == null ? 50.0 : DB_block.db["param"]["pipeDiam"].read(blk.name, 50.0);
-  };
-  exports._pipeDiam = _pipeDiam;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Gets the maximum pressure allowed in a block.
    * ---------------------------------------- */
   const _presRes = function(blk_gn) {
-    var res = 5.0;
+    let res = 5.0;
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return res;
 
     res = DB_block.db["param"]["presRes"].read(blk.name);
     if(res == null) {
       let matGrp = _matGrp(blk);
-      if(matGrp == null) {res = 5.0} else {
-        res = DB_block.db["grpParam"]["presRes"].read(matGrp, 5.0);
-      };
+      res = matGrp == null ? 5.0 : DB_block.db["grpParam"]["presRes"].read(matGrp, 5.0);
     };
 
     return res;
@@ -283,16 +268,14 @@
    * Gets the maximum vacuum allowed in a block.
    * ---------------------------------------- */
   const _vacRes = function(blk_gn) {
-    var res = -5.0;
+    let res = -5.0;
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return res;
 
     res = DB_block.db["param"]["vacRes"].read(blk.name);
     if(res == null) {
       let matGrp = _matGrp(blk);
-      if(matGrp == null) {res = -5.0} else {
-        res = DB_block.db["grpParam"]["vacRes"].read(matGrp, -5.0);
-      };
+      res = matGrp == null ? -5.0 : DB_block.db["grpParam"]["vacRes"].read(matGrp, -5.0);
     };
 
     return res;
@@ -307,11 +290,10 @@
    * Can be negative which is for vacuum.
    * ---------------------------------------- */
   const _pres = function(b) {
-    if(b.presTmp != null) return b.presTmp;
-    if(b.ex_getPresTmp != null) return b.ex_getPresTmp();
-    if(b.liquids != null) return b.liquids.get(VARGEN.auxPres) - b.liquids.get(VARGEN.auxVac);
-
-    return 0.0;
+    return tryFun(
+      b.ex_getPresTmp, b,
+      b.liquids == null ? 0.0 : b.liquids.get(VARGEN.auxPres) - b.liquids.get(VARGEN.auxVac)
+    );
   };
   exports._pres = _pres;
 
@@ -325,16 +307,14 @@
    * Gets corrosion power of a fluid.
    * ---------------------------------------- */
   const _corPow = function(liq_gn) {
-    var corPow = 0.0;
+    let corPow = 0.0;
     let liq = MDL_content._ct(liq_gn, "rs");
     if(liq == null) return corPow;
 
     corPow = DB_fluid.db["param"]["corrosion"].read(liq.name);
     if(corPow == null) {
       let eleGrp = _eleGrp(liq);
-      if(eleGrp == null) {corPow = 0.0} else {
-        corPow = DB_fluid.db["grpParam"]["corrosion"].read(eleGrp, 0.0);
-      };
+      corPow = eleGrp == null ? 0.0 : corPow = DB_fluid.db["grpParam"]["corrosion"].read(eleGrp, 0.0);
     };
 
     return corPow;
@@ -348,21 +328,19 @@
    * Gets multiplier on corrosion damage based on fluid and material of the block.
    * ---------------------------------------- */
   const _corMtp = function(blk_gn, liq_gn) {
-    var corMtp = 1.0;
+    let corMtp = 1.0;
     let blk = MDL_content._ct(blk_gn, "blk");
     let liq = MDL_content._ct(liq_gn, "rs");
     if(blk == null || liq == null) return corMtp;
-
-    let eleGrp = _eleGrp(liq);
-    let matGrp = _matGrp(blk);
+    let eleGrp = tryFun(liq.ex_getEleGrp, liq, null);
+    let matGrp = tryFun(blk.ex_getMatGrp, blk, null);
     if(eleGrp == null || matGrp == null) return corMtp;
 
     let matEleSclArr = DB_fluid.db["grpParam"]["matEleScl"][matGrp];
     corMtp = matEleSclArr == null ? 1.0 : matEleSclArr.read(eleGrp, 1.0);
-
-    var tagMtp;
-    _fTags(liq).forEachFast(tag => {
-      let matFTagSclArr = DB_fluid.db["grpParam"]["matFTagScl"][matGrp];
+    let tagMtp, matFTagSclArr;
+    tryFun(liq.ex_getFTags, liq, Array.air).forEachFast(tag => {
+      matFTagSclArr = DB_fluid.db["grpParam"]["matFTagScl"][matGrp];
       tagMtp = matFTagSclArr == null ? 1.0 : matFTagSclArr.read(tag, 1.0);
       corMtp *= tagMtp;
     });
@@ -378,7 +356,7 @@
    * Gets corrosion resistence of the block.
    * ---------------------------------------- */
   const _corRes = function(blk_gn) {
-    var corRes = 1.0;
+    let corRes = 1.0;
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return corRes;
 
@@ -402,7 +380,7 @@
    * Gets the maximum heat that this block can withstand.
    * ---------------------------------------- */
   const _heatRes = function(blk_gn) {
-    var heatRes = Infinity;
+    let heatRes = Infinity;
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return heatRes;
 
@@ -423,11 +401,10 @@
    * Gets heat in a building.
    * ---------------------------------------- */
   const _heat_b = function(b) {
-    if(b == null) return 0.0;
-    if(b.ex_getHeat != null) return b.ex_getHeat();
-    if(b.liquids != null) return b.liquids.get(VARGEN.auxHeat) * 100.0;
-
-    return 0.0;
+    return tryFun(
+      b.ex_getHeatTmp, b,
+      b.liquids == null ? 0.0 : b.liquids.get(VARGEN.auxHeat) * 100.0,
+    );
   };
   exports._heat_b = _heat_b;
 
@@ -438,22 +415,22 @@
    * Gets spared heat in nearby buildings.
    * ---------------------------------------- */
   const _heatSpare_b = function(b, applyCons) {
-    var val = 0.0;
-    if(b == null) return val;
+    let val = 0.0;
+    let sideAmt, rate;
     b.proximity.each(ob => {
       if((!ob.block.rotate ?
         true :
         ob.relativeTo(b) === ob.rotation
       ) && ob.liquids != null) {
-        let sideAmt = 0;
+        sideAmt = 0;
         (ob.block.rotate ?
           MDL_pos._tsRot(ob.tile, ob.rotation, ob.block.size) :
           MDL_pos._tsEdge(ob.tile, ob.block.size)
         ).forEachFast(ot => {
           if(ot.build === b) sideAmt++;
         });
-        let rate = MDL_recipeDict._prodAmt(VARGEN.auxHeat, ob.block) * 60.0 * sideAmt / ob.block.size;
 
+        rate = MDL_recipeDict._prodAmt(VARGEN.auxHeat, ob.block) * 60.0 * sideAmt / ob.block.size;
         !applyCons ?
           val += rate :
           val += FRAG_fluid.addLiquid(ob, b, VARGEN.auxHeat, -rate);
@@ -470,20 +447,17 @@
    *
    * Gets current fluid heat in a building.
    * ---------------------------------------- */
-  const _fHeat_b = function(b, forceCalculation) {
-    let def = tryVal(PARAM.glbHeat, 26.0);
-    if(b == null) return def;
-
-    if(!forceCalculation) {
-      if(b.fHeatCur != null) return b.fHeatCur;
+  const _fHeat_b = function(b, forceCalc) {
+    let def = PARAM.glbHeat;
+    if(!forceCalc) {
       if(b.ex_getFHeatCur != null) return b.ex_getFHeatCur();
     };
     if(b.liquids == null) return def;
 
     let liqCur = b.liquids.current();
-    var amt = b.liquids.get(liqCur);
+    let amt = b.liquids.get(liqCur);
     if(amt < 0.01) return def;
-    var cap = b.block.liquidCapacity;
+    let cap = b.block.liquidCapacity;
     if(cap < 0.0001) return def;
     let fHeatBase = DB_fluid.db["param"]["fHeat"].read(liqCur.name, def);
 
@@ -500,13 +474,18 @@
   const _rHeat = function(t) {
     if(t == null) return 0.0;
 
-    var rHeat = t.build == null ? 0.0 : (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + tryVal(PARAM.glbHeat, 26.0));
+    // Heat from building and global heat
+    let rHeat = t.build == null ?
+      0.0 :
+      (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + PARAM.glbHeat);
+    // Heat from attribute
     rHeat += t.floor().attributes.get(Attribute.get("lovec-attr0env-heat")) * 100.0;
-    for(let i = 0; i < 4; i++) {
-      let ot = t.nearby(i);
-      if(ot == null || ot.build == null) continue;
-      rHeat += _heat_b(ot.build);
-    };
+    // Heat from nearby buildings
+    let ot;
+    (4)._it(1, ind => {
+      ot = t.nearby(ind);
+      if(ot != null && ot.build != null) rHeat += _heat_b(ot.build);
+    });
 
     return rHeat;
   };

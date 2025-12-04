@@ -33,6 +33,7 @@
    * If {colorMod} is {"new"}, this will create a new color object.
    * ---------------------------------------- */
   const _color = function(color_gn, colorMod) {
+    if(color_gn === "null") return null;
     if(colorMod == null) colorMod = tmpColors[9];
     if(color_gn == null) return colorMod === "new" ? Color.white.cpy() : Color.white;
 

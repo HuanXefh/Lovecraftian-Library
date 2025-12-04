@@ -1,7 +1,10 @@
 const db = {
 
 
-  "param": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  param: {
 
 
     /* ----------------------------------------
@@ -11,17 +14,17 @@ const db = {
      * Format (item): {nm, [fuelPon, fuelLvl]}.
      * Format (fluid): {nm, [consRate, fuelLvl]}.
      * ---------------------------------------- */
-    "fuel": {
+    fuel: {
 
 
-      "item": [
+      item: [
 
         "coal", [8.0, 8.0],
 
       ],
 
 
-      "fluid": [],
+      fluid: [],
 
 
     },
@@ -34,25 +37,28 @@ const db = {
      * Will overwrite the value defined anywhere else.
      * Required for proper recipe generation.
      * ---------------------------------------- */
-    "hardness": [],
+    hardness: [],
 
 
     /* ----------------------------------------
      * NOTE:
      *
      * The temperature for sintering process, used for recipe generation.
-     * Can be applied to ore items only.
+     * Applied to ore items only.
      * ---------------------------------------- */
-    "sintTemp": [],
+    sintTemp: [],
 
 
   },
 
 
-  "map": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
-    "attr": {
+  map: {
+
+
+    attr: {
 
 
       /* ----------------------------------------
@@ -60,7 +66,7 @@ const db = {
        *
        * Maps an attribute to some resource obtained by a bush harvester.
        * ---------------------------------------- */
-      "bush": [],
+      bush: [],
 
 
       /* ----------------------------------------
@@ -68,7 +74,7 @@ const db = {
        *
        * Maps an attribute to some resource obtained by a depth liquid pump.
        * ---------------------------------------- */
-      "dpliq": [],
+      dpliq: [],
 
 
       /* ----------------------------------------
@@ -76,7 +82,7 @@ const db = {
        *
        * Maps an attribute to some resource obtained by a quarry.
        * ---------------------------------------- */
-      "rock": [],
+      rock: [],
 
 
       /* ----------------------------------------
@@ -84,7 +90,7 @@ const db = {
        *
        * Maps an attribute to some resource obtained by a tree tap.
        * ---------------------------------------- */
-      "tree": [],
+      tree: [],
 
 
       /* ----------------------------------------
@@ -92,13 +98,13 @@ const db = {
        *
        * Maps an attribute to some resource obtained by a vent collector.
        * ---------------------------------------- */
-      "vent": [],
+      vent: [],
 
 
     },
 
 
-    "recipe": {
+    recipe: {
 
 
       /* ----------------------------------------
@@ -107,7 +113,7 @@ const db = {
        * Maps an item together with temperature to its alloying ingredents, ratios and final probability.
        * Supports alternative inputs.
        * ---------------------------------------- */
-      "alloying": [],
+      alloying: [],
 
 
       /* ----------------------------------------
@@ -115,7 +121,7 @@ const db = {
        *
        * Maps an item to its brick baking recipe target and the temperature required.
        * ---------------------------------------- */
-      "brickBaking": [],
+      brickBaking: [],
 
 
       /* ----------------------------------------
@@ -123,7 +129,7 @@ const db = {
        *
        * Maps an item to its casting ingredent array and the temperature required.
        * ---------------------------------------- */
-      "casting": [],
+      casting: [],
 
 
       /* ----------------------------------------
@@ -131,7 +137,7 @@ const db = {
        *
        * Maps an item to its forging ingredent array and the temperature required.
        * ---------------------------------------- */
-      "forging": [],
+      forging: [],
 
 
       /* ----------------------------------------
@@ -140,7 +146,7 @@ const db = {
        * Maps an item to its mixing ingredents, ratios and final probability.
        * Supports alternative inputs.
        * ---------------------------------------- */
-      "mixing": [],
+      mixing: [],
 
 
       /* ----------------------------------------
@@ -148,7 +154,7 @@ const db = {
        *
        * Like {"mixing"} but carried out in a ball mill.
        * ---------------------------------------- */
-      "ballMillMixing": [],
+      ballMillMixing: [],
 
 
       /* ----------------------------------------
@@ -156,7 +162,7 @@ const db = {
        *
        * Maps an ore item to its possible side products and chances.
        * ---------------------------------------- */
-      "purificationI": [],
+      purificationI: [],
 
 
       /* ----------------------------------------
@@ -164,7 +170,7 @@ const db = {
        *
        * Like {"purificationI"} but used for advanced separation (like a classifier).
        * ---------------------------------------- */
-      "purificationII": [],
+      purificationII: [],
 
 
       /* ----------------------------------------
@@ -172,7 +178,7 @@ const db = {
        *
        * Like {"purificationI"} but for magnetic separators only.
        * ---------------------------------------- */
-      "purificationMagnetic": [],
+      purificationMagnetic: [],
 
 
       /* ----------------------------------------
@@ -181,7 +187,7 @@ const db = {
        * Variant of {"purificationII"} used for floatation.
        * TODO: Define the format.
        * ---------------------------------------- */
-      "purificationFloat": [],
+      purificationFloat: [],
 
 
       /* ----------------------------------------
@@ -189,7 +195,7 @@ const db = {
        *
        * Maps an item to its roasting recipe target and the temperature required.
        * ---------------------------------------- */
-      "roasting": [],
+      roasting: [],
 
 
       /* ----------------------------------------
@@ -197,7 +203,7 @@ const db = {
        *
        * Variant of {"roasting"} used for concentrate items.
        * ---------------------------------------- */
-      "concentrateRoasting": [],
+      concentrateRoasting: [],
 
 
     },
@@ -206,7 +212,24 @@ const db = {
   },
 
 
-  "group": {
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
+
+
+  group: {
+
+
+    fuel: {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Biotic fuels like timber.
+       * ---------------------------------------- */
+      biotic: [],
+
+
+    },
 
 
     /* ----------------------------------------
@@ -214,7 +237,7 @@ const db = {
      *
      * Items here are not mineable by regular drills by default, a sand miner is required.
      * ---------------------------------------- */
-    "sand": [],
+    sand: [],
 
 
     /* ----------------------------------------
@@ -224,7 +247,7 @@ const db = {
      * Used for recipe generation.
      * Format: {nmItm, reqAmtMtp}.
      * ---------------------------------------- */
-    "aggregate": [],
+    aggregate: [],
 
 
     /* ----------------------------------------
@@ -232,7 +255,7 @@ const db = {
      *
      * Items considered acidic.
      * ---------------------------------------- */
-    "acidic": [],
+    acidic: [],
 
 
     /* ----------------------------------------
@@ -240,7 +263,7 @@ const db = {
      *
      * Items considered basic.
      * ---------------------------------------- */
-    "basic": [],
+    basic: [],
 
 
     /* ----------------------------------------
@@ -248,10 +271,13 @@ const db = {
      *
      * Items like sodium, which react with water and explode.
      * ---------------------------------------- */
-    "sodium": [],
+    sodium: [],
 
 
   },
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
   /* ----------------------------------------
@@ -262,7 +288,7 @@ const db = {
    * Icon tags will only be shown when the tag sprites are found.
    * For your own mod, you need create your own "sprites/icons/rs0tag" folder and put sprites there.
    * ---------------------------------------- */
-  "intmdTag": [
+  intmdTag: [
 
     "rs-p1",
     "rs-p2",
@@ -280,6 +306,9 @@ const db = {
     "rs-crdg",
 
   ],
+
+
+  /* <------------------------------ CHUNK SPLITTER ------------------------------ */
 
 
 };
