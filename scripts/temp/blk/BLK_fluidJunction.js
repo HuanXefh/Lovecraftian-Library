@@ -107,6 +107,16 @@
       }),
 
 
+      ex_processData: function(wr0rd, lovecRevi) {
+        // Do nothing
+      }
+      .setProp({
+        noSuper: true,
+        override: true,
+        argLen: 2,
+      }),
+
+
     }),
 
 

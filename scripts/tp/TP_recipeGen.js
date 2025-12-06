@@ -39,34 +39,20 @@
       pO = readParam(paramObj, "pO", 1.0),
       maxTemp = readParam(paramObj, "maxTemp", Infinity);
 
-    DB_item.db["map"]["recipe"]["alloying"].forEachRow(3, (nmItm, tempReq, arr) => {
+    DB_item.db["map"]["recipe"]["alloying"].forEachRow(2, (nmItm, paramObj) => {
+      let
+        tempReq = readParam(paramObj, "tempReq", 0.0),
+        rawBi = readParam(paramObj, "bi", Array.air);
+
       let itm = MDL_content._ct(nmItm, "rs");
       if(itm == null) return;
       if(!boolF(itm) || tempReq > maxTemp) return;
-
-      let amt = amtO * pO;
-      let bi = [];
-      arr.forEachRow(3, (tmp, frac, p) => {
-        if(!(tmp instanceof Array)) {
-          let tmp1 = MDL_content._ct(tmp, "rs");
-          if(tmp1 == null) return;
-          bi.push(tmp1.name, Math.round(amt * frac * (1.0 / p)), p);
-        } else {
-          let subBi = [];
-          tmp.forEachRow(3, (tmp1, frac1, p1) => {
-            let tmp2 = MDL_content._ct(tmp1, "rs");
-            if(tmp2 == null) return;
-            subBi.push(tmp2.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
-          });
-          bi.push(subBi, -1.0, -1.0);
-        };
-      });
 
       this.addRc(
         rc, itm.name, "alloying", null,
         obj => {obj.tempReq = tempReq; objF(obj)},
         new CLS_recipeBuilder()
-        .__bi(bi)
+        .__bi(this.parseRawBi(rawBi, amtO, pO))
         .__bo([itm.name, amtO, pO])
         .build(),
       );
@@ -91,19 +77,23 @@
       pO = readParam(paramObj, "pO", 1.0),
       maxTemp = readParam(paramObj, "maxTemp", Infinity);
 
-    DB_item.db["map"]["recipe"]["brickBaking"].forEachRow(2, (nmItm, tup) => {
+    DB_item.db["map"]["recipe"]["brickBaking"].forEachRow(2, (nmItm, paramObj) => {
+      let
+        tempReq = readParam(paramObj, "tempReq", 0.0),
+        nmItmTg = readParam(paramObj, "itmTg", null);
+
       let itm = MDL_content._ct(nmItm, "rs");
       if(itm == null) return;
-      let itmTg = MDL_content._ct(tup[0], "rs");
+      let itmTg = MDL_content._ct(nmItmTg, "rs");
       if(itmTg == null) return;
-      if(!boolF(itm, itmTg) || tup[1] > maxTemp) return;
+      if(!boolF(itm, itmTg) || tempReq > maxTemp) return;
 
       this.addRc(
         rc, itm.name, "brick-baking", null,
-        obj => {obj["tempReq"] = tup[1]; objF(obj)},
+        obj => {obj.tempReq = tempReq; objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([itm, amtI, pI])
-        .__bo([itmTg, amtO, pO])
+        .__bi([itm.name, amtI, pI])
+        .__bo([itmTg.name, amtO, pO])
         .build(),
       );
     });
@@ -123,38 +113,33 @@
       boolF = readParam(paramObj, "boolF", Function.airTrue),
       amtO = readParam(paramObj, "amtO", 1),
       pO = readParam(paramObj, "pO", 1.0),
+      payAmtO = readParam(paramObj, "payAmtO", amtO),
       maxTemp = readParam(paramObj, "maxTemp", Infinity);
 
-    DB_item.db["map"]["recipe"]["casting"].forEachRow(2, (nmItm, tup) => {
-      let itm = MDL_content._ct(nmItm, "rs");
-      if(itm == null) return;
-      if(!boolF(itm) || tup[1] > maxTemp) return;
+    DB_item.db["map"]["recipe"]["casting"].forEachRow(2, (nmCt, paramObj) => {
+      let
+        isPayTg = readParam(paramObj, "isPayTg", false),
+        tempReq = readParam(paramObj, "tempReq", 0.0),
+        rawBi = readParam(paramObj, "bi", Array.air),
+        rawPayi = readParam(paramObj, "payi", Array.air);
 
-      let amt = amtO * pO;
-      let bi = [];
-      tup[0].forEachRow(3, (tmp, frac, p) => {
-        if(!(tmp instanceof Array)) {
-          let tmp1 = MDL_content._ct(tmp, "rs");
-          if(tmp1 == null) return;
-          bi.push(tmp1.name, Math.round(amt * frac * (1.0 / p)), p);
-        } else {
-          let subBi = [];
-          tmp.forEachRow(3, (tmp1, frac1, p1) => {
-            let tmp2 = MDL_content._ct(tmp1, "rs");
-            if(tmp2 == null) return;
-            subBi.push(tmp2.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
-          });
-          bi.push(subBi, -1.0, -1.0);
-        };
-      });
+      let ct = MDL_content._ct(nmCt, null, true);
+      if(ct == null) return;
+      if(!boolF(ct) || tempReq > maxTemp) return;
+
+      let rcBuilder = new CLS_recipeBuilder();
+      !isPayTg ?
+        rcBuilder.__bi(this.parseRawBi(rawBi, amtO, pO)) :
+        rcBuilder.__bi(this.parseRawBi(rawBi, payAmtO, 1.0));
+      rcBuilder.__payi(this.parseRawPayi(rawPayi, payAmtO));
+      !isPayTg ?
+        rcBuilder.__bo([ct.name, amtO, pO]) :
+        rcBuilder.__payo([ct.name, payAmtO]);
 
       this.addRc(
-        rc, itm.name, "casting", null,
-        obj => {obj["tempReq"] = tup[1]; objF(obj)},
-        new CLS_recipeBuilder()
-        .__bi(bi)
-        .__bo([itm, amtO, pO])
-        .build(),
+        rc, ct.name, "casting", null,
+        obj => {obj.tempReq = tempReq; objF(obj)},
+        rcBuilder.build(),
       );
     });
   });
@@ -173,38 +158,33 @@
       boolF = readParam(paramObj, "boolF", Function.airTrue),
       amtO = readParam(paramObj, "amtO", 1),
       pO = readParam(paramObj, "pO", 1.0),
+      payAmtO = readParam(paramObj, "payAmtO", amtO),
       maxTemp = readParam(paramObj, "maxTemp", Infinity);
 
-    DB_item.db["map"]["recipe"]["forging"].forEachRow(2, (nmItm, tup) => {
-      let itm = MDL_content._ct(nmItm, "rs");
-      if(itm == null) return;
-      if(!boolF(itm) || tup[1] > maxTemp) return;
+    DB_item.db["map"]["recipe"]["forging"].forEachRow(2, (nmCt, paramObj) => {
+      let
+        isPayTg = readParam(paramObj, "isPayTg", false),
+        tempReq = readParam(paramObj, "tempReq", 0.0),
+        rawBi = readParam(paramObj, "bi", Array.air),
+        rawPayi = readParam(paramObj, "payi", Array.air);
 
-      let amt = amtO * pO;
-      let bi = [];
-      tup[0].forEachRow(3, (tmp, frac, p) => {
-        if(!(tmp instanceof Array)) {
-          let tmp1 = MDL_content._ct(tmp, "rs");
-          if(tmp1 == null) return;
-          bi.push(tmp1.name, Math.round(amt * frac * (1.0 / p)), p);
-        } else {
-          let subBi = [];
-          tmp.forEachRow(3, (tmp1, frac1, p1) => {
-            let tmp2 = MDL_content._ct(tmp1, "rs");
-            if(tmp2 == null) return;
-            subBi.push(tmp2.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
-          });
-          bi.push(subBi, -1.0, -1.0);
-        };
-      });
+      let ct = MDL_content._ct(nmCt, null, true);
+      if(ct == null) return;
+      if(!boolF(ct) || tempReq > maxTemp) return;
+
+      let rcBuilder = new CLS_recipeBuilder();
+      !isPayTg ?
+        rcBuilder.__bi(this.parseRawBi(rawBi, amtO, pO)) :
+        rcBuilder.__bi(this.parseRawBi(rawBi, payAmtO, 1.0));
+      rcBuilder.__payi(this.parseRawPayi(rawPayi, payAmtO));
+      !isPayTg ?
+        rcBuilder.__bo([ct.name, amtO, pO]) :
+        rcBuilder.__payo([ct.name, payAmtO]);
 
       this.addRc(
-        rc, itm.name, "forging", null,
-        obj => {obj["tempReq"] = tup[1]; objF(obj)},
-        new CLS_recipeBuilder()
-        .__bi(bi)
-        .__bo([itm, amtO, pO])
-        .build(),
+        rc, ct.name, "forging", null,
+        obj => {obj.tempReq = tempReq; objF(obj)},
+        rcBuilder.build(),
       );
     });
   });
@@ -253,10 +233,10 @@
       } else {
         this.addRc(
           rc, ct.name, "heating", null,
-          obj => {obj["tempReq"] = fuelLvl * 100.0 - 50.0; objF(obj)},
+          obj => {obj.tempReq = fuelLvl * 100.0 - 50.0; objF(obj)},
           new CLS_recipeBuilder()
           .__ci(ct.name, fuelPon * mtpI)
-          .__co([VARGEN.auxHeat, fuelLvl / 60.0 * mtpO])
+          .__co([VARGEN.auxHeat.name, fuelLvl / 60.0 * mtpO])
           .build(),
         );
       };
@@ -282,35 +262,20 @@
       maxHardness = readParam(paramObj, "maxHardness", Infinity),
       abrasionFactor = readParam(paramObj, "abrasionFactor", 1.0);
 
-    DB_item.db["map"]["recipe"][isBallMill ? "ballMillMixing" : "mixing"].forEachRow(2, (nmItm, arr) => {
+    DB_item.db["map"]["recipe"][isBallMill ? "ballMillMixing" : "mixing"].forEachRow(2, (nmItm, paramObj) => {
+      let
+        rawBi = readParam(paramObj, "bi", Array.air);
+
       let itm = MDL_content._ct(nmItm, "rs");
       if(itm == null) return;
       if(!boolF(itm)) return;
 
-      let amt = amtO * pO;
-      let hardness = 0;
-      let bi = [];
-      arr.forEachRow(3, (tmp, frac, p) => {
-        if(!(tmp instanceof Array)) {
-          let tmp1 = MDL_content._ct(tmp, "rs");
-          if(tmp1 == null) return;
-          if(isBallMill && tmp1 instanceof Item && tmp1.hardness > hardness) hardness = tmp1.hardness;
-          bi.push(tmp1.name, Math.round(amt * frac * (1.0 / p)), p);
-        } else {
-          let subBi = [];
-          tmp.forEachRow(3, (tmp1, frac1, p1) => {
-            let tmp2 = MDL_content._ct(tmp1, "rs");
-            if(tmp2 == null) return;
-            if(isBallMill && tmp2 instanceof Item && tmp2.hardness > hardness) hardness = tmp2.hardness;
-            subBi.push(tmp2.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
-          });
-          bi.push(subBi, -1.0, -1.0);
-        };
-      });
+      let bi = this.parseRawBi(rawBi, amtO, pO);
+      let hardness = Math.max.apply(null, bi.flatten().pullAll(-1.0).readCol(3, 0).inSituMap(nmRs => MDL_content._ct(nmRs, "rs").hardness).pullAll(undefined).unshiftAll(0.0));
 
       this.addRc(
         rc, itm.name, isBallMill ? "ball-mill-mixing" : "mixing", null,
-        obj => {if(isBallMill) obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
+        obj => {if(isBallMill) obj.durabDecMtp = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
         new CLS_recipeBuilder()
         .__bi(bi)
         .__bo([itm.name, amtO, pO])
@@ -334,25 +299,20 @@
       amtI = readParam(paramObj, "amtI", 1),
       pI = readParam(paramObj, "pI", 1.0);
 
-    DB_item.db["map"]["recipe"]["purificationMagnetic"].forEachRow(2, (nmItm, arr) => {
+    DB_item.db["map"]["recipe"]["purificationMagnetic"].forEachRow(2, (nmItm, paramObj) => {
+      let
+        rawBo = readParam(paramObj, "bo", Array.air);
+
       let itm = MDL_content._ct(nmItm, "rs");
       if(itm == null) return;
       if(!boolF(itm)) return;
-
-      let amt = amtI * pI;
-      let bo = [];
-      arr.forEachRow(3, (nmRs, frac, p) => {
-        let rs = MDL_content._ct(nmRs, "rs");
-        if(rs == null) return;
-        bo.push(rs, Math.round(amt * frac * (1.0 / p)), p);
-      });
 
       this.addRc(
         rc, itm.name, "purification", null,
         objF,
         new CLS_recipeBuilder()
         .__bi([itm.name, amtI, pI])
-        .__bo(bo)
+        .__bo(this.parseRawBo(rawBo, amtI, pI))
         .build(),
       );
     });
@@ -385,7 +345,7 @@
 
       this.addRc(
         rc, itm.name, "rock-crushing", null,
-        obj => {obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
+        obj => {obj.durabDecMtp = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
         new CLS_recipeBuilder()
         .__bi([itmParent.name, amtI, pI])
         .__bo([itm.name, amtO, pO])
@@ -432,10 +392,10 @@
       if(!boolF(itm) || hardness < minHardness || hardness > maxHardness) return;
 
       this.addRc(
-        rc, nmItm, "aggregate-crushing", null,
-        obj => {obj["durabDecMtp"] = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
+        rc, itm.name, "aggregate-crushing", null,
+        obj => {obj.durabDecMtp = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([nmItm, Math.round(amtI * Math.max(mtp, 1.0)), pI * Math.min(mtp, 1.0)])
+        .__bi([itm.name, Math.round(amtI * Math.max(mtp, 1.0)), pI * Math.min(mtp, 1.0)])
         .__bo(["loveclab-item0buil-coarse-aggregate", amtO, pO])
         .build(),
       );
@@ -469,7 +429,7 @@
 
       this.addRc(
         rc, itm.name, "pulverization", null,
-        obj => {obj["durabDecMtp"] = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
+        obj => {obj.durabDecMtp = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
         new CLS_recipeBuilder()
         .__bi([itmParent.name, amtI, pI])
         .__bo([itm.name, amtO, pO])
@@ -490,6 +450,7 @@
     let
       objF = readParam(paramObj, "objF", Function.air),
       boolF = readParam(paramObj, "boolF", Function.airTrue),
+      isConcentrate = readParam(paramObj, "isConcentrate", false),
       amtI = readParam(paramObj, "amtI", 1),
       pI = readParam(paramObj, "pI", 1.0),
       amtO = readParam(paramObj, "amtO", 1),
@@ -497,19 +458,23 @@
       maxTemp = readParam(paramObj, "maxTemp", Infinity),
       maxFlam = readParam(paramObj, "maxFlam", Infinity);
 
-    DB_item.db["map"]["recipe"]["roasting"].forEachRow(2, (nmItm, tup) => {
+    DB_item.db["map"]["recipe"][!isConcentrate ? "roasting" : "concentrateRoasting"].forEachRow(2, (nmItm, paramObj) => {
+      let
+        tempReq = readParam(paramObj, "tempReq", 0.0),
+        nmItmTg = readParam(paramObj, "itmTg", null);
+
       let itm = MDL_content._ct(nmItm, "rs");
       if(itm == null) return;
-      let itmTg = MDL_content._ct(tup[0], "rs");
+      let itmTg = MDL_content._ct(nmItmTg, "rs");
       if(itmTg == null) return;
-      if(!boolF(itm, itmTg) || tup[1] > maxTemp || itm.flammability > maxFlam || itmTg.flammability > maxFlam) return;
+      if(!boolF(itm, itmTg) || tempReq > maxTemp || itm.flammability > maxFlam || itmTg.flammability > maxFlam) return;
 
       this.addRc(
         rc, itm.name, "roasting", null,
-        obj => {obj["tempReq"] = tup[1]; objF(obj)},
+        obj => {obj.tempReq = tempReq; objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([itm, amtI, pI])
-        .__bo([itmTg, amtO, pO])
+        .__bi([itm.name, amtI, pI])
+        .__bo([itmTg.name, amtO, pO])
         .build(),
       );
     });
@@ -543,7 +508,7 @@
 
         this.addRc(
           rc, itm.name, "sintering", null,
-          obj => {obj["tempReq"] = tempReq; objF(obj)},
+          obj => {obj.tempReq = tempReq; objF(obj)},
           new CLS_recipeBuilder()
           .__bi([itm.name, amtI, pI])
           .__bo([itmParent.name, amtO, pO])
@@ -561,7 +526,7 @@
 
         this.addRc(
           rc, itmTg.name, "concentrate-sintering", null,
-          obj => {obj["tempReq"] = tempReq; objF(obj)},
+          obj => {obj.tempReq = tempReq; objF(obj)},
           new CLS_recipeBuilder()
           .__bi([itm.name, amtI, pI])
           .__bo([itmTg.name, amtO, pO])

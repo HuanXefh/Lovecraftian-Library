@@ -17,6 +17,72 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Writes an object that maps string to number.
+   * ---------------------------------------- */
+  const _wr_objStrNum = function(wr, obj) {
+    let keys = Object.keys(obj);
+    let i = 0, iCap = keys.iCap();
+    wr.i(iCap);
+    while(i < iCap) {
+      wr.str(String(keys[i]));
+      wr.f(Number(obj[keys[i]]));
+      i++;
+    };
+  };
+  exports._wr_objStrNum = _wr_objStrNum;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an object that maps string to number.
+   * ---------------------------------------- */
+  const _rd_objStrNum = function(rd, obj) {
+    let i = 0, iCap = rd.i();
+    while(i < iCap) {
+      obj[rd.str()] = rd.f();
+      i++;
+    };
+  };
+  exports._rd_objStrNum = _rd_objStrNum;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes an object with string only.
+   * ---------------------------------------- */
+  const _wr_objStrStr = function(wr, obj) {
+    let keys = Object.keys(obj);
+    let i = 0, iCap = keys.iCap();
+    wr.i(iCap);
+    while(i < iCap) {
+      wr.str(String(keys[i]));
+      wr.str(String(obj[keys[i]]));
+      i++;
+    };
+  };
+  exports._wr_objStrStr = _wr_objStrStr;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an object with string only.
+   * ---------------------------------------- */
+  const _rd_objStrStr = function(rd, obj) {
+    let i = 0, iCap = rd.i();
+    while(i < iCap) {
+      obj[rd.str()] = rd.str();
+      i++;
+    };
+  };
+  exports._rd_objStrStr = _rd_objStrStr;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Writes an array of integers.
    * ---------------------------------------- */
   const _wr_ints = function(wr, ints) {
@@ -43,6 +109,37 @@
     };
   };
   exports._rd_ints = _rd_ints;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Writes an array of floats.
+   * ---------------------------------------- */
+  const _wr_fs = function(wr, fs) {
+    let i = 0, iCap = fs.iCap();
+    wr.i(iCap);
+    while(i < iCap) {
+      wr.i(fs[i]);
+      i++;
+    };
+  };
+  exports._wr_fs = _wr_fs;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Reads an array of floats.
+   * ---------------------------------------- */
+  const _rd_fs = function(rd, fs) {
+    let i = 0, iCap = rd.i();
+    while(i < iCap) {
+      fs[i] = rd.f();
+      i++;
+    };
+  };
+  exports._rd_fs = _rd_fs;
 
 
   /* ----------------------------------------

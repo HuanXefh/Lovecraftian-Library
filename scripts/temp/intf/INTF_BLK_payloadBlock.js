@@ -236,7 +236,11 @@
         isPayCarried: false,
       }),
       __GETTER_SETTER__: () => [
+        "payVec",
+      ],
+      __ACCESSOR_SETTER__: () => [
         "payCur",
+        "payRot",
       ],
 
 

@@ -37,9 +37,12 @@
 
   const MDL_attr = require("lovec/mdl/MDL_attr");
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_event = require("lovec/mdl/MDL_event");
+  const MDL_io = require("lovec/mdl/MDL_io");
+  const MDL_payload = require("lovec/mdl/MDL_payload");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -84,11 +87,33 @@
   };
 
 
+  function comp_onProximityUpdate(b) {
+    b.ex_updatePaySite();
+  };
+
+
+  function comp_pickedUp(b) {
+    b.payInputBs.clear();
+    b.payOutputBs.clear();
+  };
+
+
   function comp_updateTile(b) {
     if(PARAM.updateSuppressed) return;
 
     b.ex_updateRcParam(b.block.ex_getRcMdl(), b.rcHeader, false);
     if(b.scrTup != null) b.ex_onRcUpdate();
+
+    if(b.hasPayInput && TIMER.secHalf) {
+      b.payInputBs.forEachCond(
+        ob => b.ex_rcAcceptPay(ob, ob.getPayload()),
+        ob => {
+          let pay = MDL_payload.takeAt(ob);
+          b.payReqObj[pay.content().name] = tryVal(b.payReqObj[pay.content().name], 0) + 1;
+          MDL_effect.showBetween_payloadDeposit(ob.x, ob.y, b.x, b.y, pay.content());
+        },
+      );
+    };
 
     if(b.efficiency < 0.0001 || !b.shouldConsume()) {
       b.warmup = Mathf.approachDelta(b.warmup, 0.0, b.block.warmupSpeed);
@@ -114,6 +139,27 @@
     b.totalProgress += b.warmup * b.edelta();
     if(!b.block.ex_getDisableDump()) {
       FRAG_recipe.dump(b, b.co, b.dumpTup);
+    };
+
+    // Payload dumping is not affected by {blk.disableDump}
+    if(b.hasPayOutput && TIMER.secHalf && b.payOutputBs.length > 0) {
+      if(b.lastDumpPay == null) {
+        let nmCt = Object.randKey(b.payStockObj);
+        if(nmCt != null) {
+          b.lastDumpPay = MDL_payload._pay(nmCt, b.team);
+        };
+      } else {
+        let b_t = b.payOutputBs[b.payDumpIncre % b.payOutputBs.length];
+        b.payDumpIncre++;
+        if(b_t.added && MDL_payload.produceAt(b_t, b.lastDumpPay)) {
+          MDL_effect.showBetween_payloadDeposit(b.x, b.y, b_t.x, b_t.y, b.lastDumpPay.content());
+          b.payStockObj[b.lastDumpPay.content().name] = tryVal(b.payStockObj[b.lastDumpPay.content().name], 0) - 1;
+          if(b.payStockObj[b.lastDumpPay.content().name] <= 0) {
+            delete b.payStockObj[b.lastDumpPay.content().name];
+          };
+          b.lastDumpPay = null;
+        };
+      };
     };
   };
 
@@ -160,6 +206,21 @@
     FRAG_recipe.produce_itm(b, b.bo, b.ex_calcFailP(), b.fo);
     FRAG_recipe.consume_itm(b, b.bi, b.opt);
     MDL_effect.showAt(b.x, b.y, b.block.craftEffect, 0.0);
+
+    if(b.hasPayInput) {
+      let i = 0, iCap = b.payi.iCap();
+      while(i < iCap) {
+        b.payReqObj[b.payi[i]] = tryVal(b.payReqObj[b.payi[i]], 0) - b.payi[i + 1];
+        i += 2;
+      };
+    };
+    if(b.hasPayOutput) {
+      let i = 0, iCap = b.payo.iCap();
+      while(i < iCap) {
+        b.payStockObj[b.payo[i]] = tryVal(b.payStockObj[b.payo[i]], 0) + b.payo[i + 1];
+        i += 2;
+      };
+    };
 
     b.ex_onRcCraft();
   };
@@ -217,6 +278,17 @@
       };
       MDL_table.__reqMultiRs(tb, b, thisFun.tmpArr);
     };
+
+    // PAYI
+    if(b.hasPayInput) {
+      i = 0, iCap = b.payi.iCap();
+      while(i < iCap) {
+        let tmp = MDL_content._ct(b.payi[i], null, true);
+        let amt = b.payi[i + 1];
+        MDL_table.__reqCt(tb, tmp, amt, () => tryVal(b.payReqObj[tmp.name], 0));
+        i += 2;
+      };
+    };
   }
   .setProp({
     tmpArr: [],
@@ -231,6 +303,14 @@
         () => Mathf.clamp(b.attrEffc),
       )).growX();
       tb.row();
+    };
+
+    if(b.hasPayOutput) {
+      tb.add(new Bar(
+        prov(() => Core.bundle.format("bar.lovec-bar-pay-cap-amt", (Object.mapMax(b.payStockObj) / b.block.ex_getPayAmtCap()).perc(0))),
+        prov(() => Pal.items),
+        () => Mathf.clamp(Object.mapMax(b.payStockObj) / b.block.ex_getPayAmtCap()),
+      ));
     };
 
     if(thisFun.tmpB !== b) {
@@ -305,10 +385,12 @@
     b.aux = MDL_recipe._aux(rcMdl, rcHeader, b.aux);
     b.reqOpt = MDL_recipe._reqOpt(rcMdl, rcHeader);
     b.opt = MDL_recipe._opt(rcMdl, rcHeader, b.opt);
+    b.payi = MDL_recipe._payi(rcMdl, rcHeader, b.payi);
     b.co = MDL_recipe._co(rcMdl, rcHeader, b.co);
     b.bo = MDL_recipe._bo(rcMdl, rcHeader, b.bo);
     b.failP = MDL_recipe._failP(rcMdl, rcHeader);
     b.fo = MDL_recipe._fo(rcMdl, rcHeader, b.fo);
+    b.payo = MDL_recipe._payo(rcMdl, rcHeader, b.payo);
     b.rcIconNm = MDL_recipe._iconNm(rcMdl, rcHeader);
     b.rcTimeScl = MDL_recipe._timeScl(rcMdl, rcHeader);
     b.ignoreItemFullness = MDL_recipe._ignoreItemFullness(rcMdl, rcHeader);
@@ -321,10 +403,18 @@
     b.scrTup = MDL_recipe._scrTup(rcMdl, rcHeader, b.scrTup);
 
     Time.run(1.0, () => {
+      b.hasPayInput = FRAG_recipe._hasInput_pay(b.payi);
+      b.hasPayOutput = FRAG_recipe._hasOutput_pay(b.payo);
       b.attrEffc = b.attr == null ?
         1.0 :
         Mathf.clamp(MATH_interp.lerp(0.0, 1.0, MDL_attr._sum_rect(b.tile, 0, b.block.size, b.attr, "floor"), b.attrMin, b.attrMax) * b.attrBoostScl, 0.0, b.attrBoostCap);
     });
+  };
+
+
+  function comp_ex_updatePaySite(b) {
+    MDL_payload._bsPayInput(b, b.payInputBs);
+    MDL_payload._bsPayOutput(b, b.payOutputBs);
   };
 
 
@@ -357,7 +447,7 @@
 
 
   function comp_ex_calcRcEffcTg(b) {
-    return FRAG_recipe._effc(b, b.ci, b.bi, b.aux, b.reqOpt, b.opt) * b.attrEffc;
+    return b.hasPayInput && Object.mapSomeSmallerThan(b.payReqObj, b.payi, false) ? 0.0 : FRAG_recipe._effc(b, b.ci, b.bi, b.aux, b.reqOpt, b.opt) * b.attrEffc;
   };
 
 
@@ -382,10 +472,13 @@
         rcSourceMod: null,
         // @PARAM: Whether this recipe block cannot actively dump resources.
         disableDump: false,
+        // @PARAM: How many payloads of each type this block can hold.
+        payAmtCap: 10,
       }),
       __GETTER_SETTER__: () => [
         "rcMdl",
         "disableDump",
+        "payAmtCap",
       ],
       __PARAM_PARSER_SETTER__: () => [
         "rcMdl", function(val) {
@@ -450,10 +543,12 @@
         aux: prov(() => []),
         reqOpt: false,
         opt: prov(() => []),
+        payi: prov(() => []),
         co: prov(() => []),
         bo: prov(() => []),
         failP: 0.0,
         fo: prov(() => []),
+        payo: prov(() => []),
         rcIconNm: "error",
         rcTimeScl: 1.0,
         ignoreItemFullness: false,
@@ -465,6 +560,14 @@
         validTup: null,
         scrTup: null,
         dumpTup: null,
+        hasPayInput: false,
+        hasPayOutput: false,
+        payReqObj: prov(() => ({})),
+        payStockObj: prov(() => ({})),
+        payInputBs: prov(() => []),
+        payOutputBs: prov(() => []),
+        lastDumpPay: null,
+        payDumpIncre: 0,
         rcEffc: 0.0,
         attrEffc: 0.0,
         lastProgInc: 0.0,
@@ -480,6 +583,16 @@
 
       created: function() {
         comp_created(this);
+      },
+
+
+      onProximityUpdate: function() {
+        comp_onProximityUpdate(this);
+      },
+
+
+      pickedUp: function() {
+        comp_pickedUp(this);
       },
 
 
@@ -519,7 +632,7 @@
 
 
       shouldConsume: function() {
-        return this.enabled && this.lastCanAdd;
+        return this.enabled && this.lastCanAdd && (!this.hasPayOutput ? true : Object.mapMax(this.payStockObj) < this.block.ex_getPayAmtCap());
       }
       .setProp({
         noSuper: true,
@@ -663,6 +776,23 @@
       }),
 
 
+      ex_updatePaySite: function() {
+        comp_ex_updatePaySite(this);
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
+      ex_rcAcceptPay: function(b_f, pay) {
+        return pay != null && this.payi.read(pay.content().name, 0) > 0 && this.block.ex_getPayAmtCap() - tryVal(this.payReqObj[pay.content().name], 0) > 0;
+      }
+      .setProp({
+        noSuper: true,
+        argLen: 2,
+      }),
+
+
       ex_calcProgInc: function(time) {
         return comp_ex_calcProgInc(this, time);
       }
@@ -717,11 +847,18 @@
           (wr, revi) => {
             wr.str(this.rcHeader);
             wr.bool(this.hasStopped);
+            MDL_io._wr_objStrNum(wr, this.payReqObj);
+            MDL_io._wr_objStrNum(wr, this.payStockObj);
           },
 
           (rd, revi) => {
             this.rcHeader = rd.str();
             this.hasStopped = rd.bool();
+
+            if(revi >= 2) {
+              MDL_io._rd_objStrNum(rd, this.payReqObj);
+              MDL_io._rd_objStrNum(rd, this.payStockObj);
+            };
           },
         );
       }

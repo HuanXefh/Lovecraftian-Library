@@ -119,7 +119,7 @@
    * ---------------------------------------- */
   const addFldProdTerm = function(blk_gn, liq_gn, amt, data) {
     if(!rcDict.hasInit) ERROR_HANDLER.recipeDictionaryNotInitialized();
-    
+
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
     let liq = MDL_content._ct(liq_gn, "rs");

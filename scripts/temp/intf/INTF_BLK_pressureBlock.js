@@ -58,7 +58,7 @@
     blk.addBar("lovec-pressure", b => new Bar(
       prov(() => Core.bundle.format("bar.lovec-bar-pressure-amt", Strings.fixed(b.ex_getPresTmp(), 2))),
       prov(() => b.ex_getPresTmp() > 0.0 ? VARGEN.auxPres.color : VARGEN.auxVac.color),
-      () => Mathf.clamp(Math.abs(b.ex_getPresTmp()) / Math.max(b.ex_getPresTmp() > 0.0 ? blk.presRes : -blk.vacRes, 0.0001)),
+      () => Mathf.clamp(Math.abs(b.ex_getPresTmp() + b.ex_getPresExtra()) / Math.max(b.ex_getPresTmp() > 0.0 ? blk.presRes : -blk.vacRes, 0.0001)),
     ));
   };
 
@@ -105,12 +105,12 @@
     if(
       !PARAM.updateDeepSuppressed && TIMER.secQuarter && Mathf.chance(0.25)
         && (
-          b.presTmp > 0.0 ?
-            b.presTmp > b.block.ex_getPresRes() + 0.5 :
-            b.presTmp < b.block.ex_getVacRes() - 0.5
+          (b.presTmp + b.presExtra) > 0.0 ?
+            (b.presTmp + b.presExtra) > b.block.ex_getPresRes() + 0.5 :
+            (b.presTmp + b.presExtra) < b.block.ex_getVacRes() - 0.5
         )
     ) {
-      b.damagePierce(Time.delta * (b.maxHealth * VAR.blk_presDmgFrac + VAR.blk_presDmgMin) * (
+      b.damagePierce((b.maxHealth * VAR.blk_presDmgFrac + VAR.blk_presDmgMin) * (
         b.presTmp > 0.0 ?
           b.presTmp / Math.max(b.block.ex_getPresRes(), 0.0001) :
           -b.presTmp / Math.max(-b.block.ex_getVacRes(), 0.0001)
@@ -121,11 +121,11 @@
     b.presBase -= b.presBase.fEqual(0.0, 0.005) ? b.presBase : b.presBase * 0.01666667 * Time.delta;
 
     // Occasionally supply abstract fluid
-    if(TIMER.liq && b.presSupplyTgs.length > 0 && !b.presTmp.fEqual(0.0, 0.005)) {
+    if(TIMER.liq && !b.block.ex_getSkipPresSupply() && b.presSupplyTgs.length > 0 && !b.presTmp.fEqual(0.0, 0.005)) {
       b.presSupplyIncre++;
       let b_t = b.presSupplyTgs[b.presSupplyIncre % b.presSupplyTgs.length];
       if(b_t.added) {
-        FRAG_fluid.addLiquid(b_t, null, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Math.abs(b.presTmp.roundFixed(0)) / 60.0 * VAR.time_liqIntv);
+        FRAG_fluid.addLiquid(b_t, null, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Math.abs(b.presTmp.roundFixed(0)) / 60.0 * VAR.time_liqIntv, false, false, true);
       };
     };
   };
@@ -180,7 +180,7 @@
     b.presTg = b.presBase;
     b.presFetchTgs.forEachFast(ob => {
       if(!ob.added) return;
-      b.presTg += ob.ex_getPresTmp();
+      b.presTg += ob.ex_getPresTmp() * tryFun(ob.ex_getPresTransScl, ob, 1.0, b);
     });
   };
 
@@ -202,12 +202,15 @@
       __PARAM_OBJ_SETTER__: () => ({
         // @PARAM: Pressure required for this block to operate, can be negative for vacuum requirement.
         presThr: 0.0,
+        // @PARAM: Whether this block should not supply pressure/vacuum for consumers.
+        skipPresSupply: false,
 
         presRes: 0.0,
         vacRes: 0.0,
       }),
       __GETTER_SETTER__: () => [
         "presThr",
+        "skipPresSupply",
         "presRes",
         "vacRes",
       ],
@@ -239,12 +242,14 @@
         presBase: 0.0,
         presTmp: 0.0,
         presTg: 0.0,
+        presExtra: 0.0,
         presFetchTgs: prov(() => []),
         presSupplyTgs: prov(() => []),
         presSupplyIncre: 0,
       }),
       __GETTER_SETTER__: () => [
         "presTmp",
+        "presExtra",
       ],
       __ACCESSOR_SETTER__: () => [
         "presBase",
@@ -308,6 +313,22 @@
       }
       .setProp({
         noSuper: true,
+      }),
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * @LATER
+       * Extra multiplier on the pressure transfered to another pressure block.
+       * Rarely used.
+       * ---------------------------------------- */
+      ex_getPresTransScl: function(b_t) {
+        return 1.0;
+      }
+      .setProp({
+        noSuper: true,
+        argLen: 1,
       }),
 
 

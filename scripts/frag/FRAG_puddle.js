@@ -26,17 +26,20 @@
    * Use {boolF} to filter out tiles to spread to.
    * Use {scr} to set what will happen if tile (that can be spread to) is beneath the puddle.
    * ---------------------------------------- */
-  const spreadPuddle = function(puddle, amtDepos, boolF, scr) {
+  const spreadPuddle = function thisFun(puddle, amtDepos, boolF, scr) {
     if(puddle == null) return;
     if(amtDepos == null) amtDepos = 0.5;
 
-    MDL_pos._tsRect(puddle.tile, 1).forEachFast(ot => {
+    MDL_pos._tsRect(puddle.tile, 1, 0, thisFun.tmpTs).forEachFast(ot => {
       if(boolF != null && boolF(ot)) {
         Puddles.deposit(ot, puddle.liquid, Time.delta * amtDepos);
         if(ot === puddle.tile && scr != null) scr(ot);
       };
     });
-  };
+  }
+  .setProp({
+    tmpTs: [],
+  });
   exports.spreadPuddle = spreadPuddle;
 
 

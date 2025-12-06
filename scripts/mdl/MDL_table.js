@@ -203,13 +203,15 @@
       tryVal(step, 1),
       tryVal(def, tryVal(min, 0)),
       tryVal(valCaller, Function.air),
-    );
+    ).left();
     if(w != null) {
       sliderCell.width(w);
       sliderCell.get().width = w;
     };
 
     tb.row();
+
+    return sliderCell;
   };
   exports.__slider = __slider;
 
@@ -221,9 +223,9 @@
    * ---------------------------------------- */
   const __sliderCfg = function(tb, b, strGetter, min, max, step, def, w) {
     return tb.table(Styles.none, tb1 => {
-      tb1.add("").get().setText(prov(() => strGetter(b)));
+      tb1.add("").left().get().setText(prov(() => strGetter(b)));
       tb1.row();
-      __slider(tb1, val => b.configure(val), min, max, step, def, w);
+      __slider(tb1, val => b.configure(val.toF()), min, max, step, def, w !== undefined ? w : 260.0);
     }).growX();
   };
   exports.__sliderCfg = __sliderCfg;
@@ -294,6 +296,22 @@
     return btnCell;
   };
   exports.__ct = __ct;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Used by recipe factories to replace consumer-based table.
+   * ---------------------------------------- */
+  const __reqCt = function(tb, ct, amt, amtGetter) {
+    let reqImg = new ReqImage(
+      StatValues.stack(ct, amt),
+      () => amtGetter() >= amt,
+    );
+
+    return tb.add(reqImg).size(32.0);
+  };
+  exports.__reqCt = __reqCt;
 
 
   /* ----------------------------------------
@@ -904,9 +922,11 @@
         let bi = MDL_recipe._bi(rcMdl, rcHeader);
         let aux = MDL_recipe._aux(rcMdl, rcHeader);
         let opt = MDL_recipe._opt(rcMdl, rcHeader);
+        let payi = MDL_recipe._payi(rcMdl, rcHeader);
         let co = MDL_recipe._co(rcMdl, rcHeader);
         let bo = MDL_recipe._bo(rcMdl, rcHeader);
         let fo = MDL_recipe._fo(rcMdl, rcHeader);
+        let payo = MDL_recipe._payo(rcMdl, rcHeader);
 
         // @TABLE: recipe root
         rcRoot.table(Tex.whiteui, tb1 => {
@@ -914,9 +934,9 @@
 
           buildOrder(tb1, i);
           tb1.table(Styles.none, tb2 => {}).left().width(36.0).growY();
-          buildInput(tb1, ci, bi, aux, opt);
+          buildInput(tb1, ci, bi, aux, opt, payi);
           tb1.table(Styles.none, tb2 => {}).left().width(48.0).growX().growY();
-          buildOutput(tb1, co, bo, fo);
+          buildOutput(tb1, co, bo, fo, payo);
           buildRcStats(tb1, rcMdl, rcHeader);
         }).left().growX().row();
         __bar(rcRoot, Color.valueOf("303030"), null, 1.0);
@@ -936,23 +956,25 @@
       }).left().growY();
     };
 
-    const buildInput = (tb, ci, bi, aux, opt) => {
+    const buildInput = (tb, ci, bi, aux, opt, payi) => {
       tb.table(Styles.none, tb1 => {
         tb1.left();
         if(bi.length > 0) buildBi(tb1, bi);
         if(ci.length > 0) buildCi(tb1, ci);
         if(aux.length > 0) buildAux(tb1, aux);
         if(opt.length > 0) buildOpt(tb1, opt);
+        if(payi.length > 0) buildPayi(tb1, payi);
         tb1.table(Styles.none, tb2 => {}).left().width(24.0).growX().growY();
       }).left().growY();
     };
 
-    const buildOutput = (tb, co, bo, fo) => {
+    const buildOutput = (tb, co, bo, fo, payo) => {
       tb.table(Styles.none, tb1 => {
         tb1.left();
         if(bo.length > 0) buildBo(tb1, bo);
         if(co.length > 0) buildCo(tb1, co);
         if(fo.length > 0) buildFo(tb1, fo);
+        if(payo.length > 0) buildPayo(tb1, payo);
       }).left().growY();
     };
 
@@ -1013,6 +1035,19 @@
       }).left().marginRight(24.0);
     };
 
+    const buildPayi = (tb, payi) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("PAYI:").left().tooltip(MDL_bundle._term("lovec", "payi"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          payi.forEachRow(2, (nm, amt) => {
+            __rcCt(tb2, MDL_content._ct(nm, null, true), amt, 1.0, true);
+          });
+        });
+      }).left().marginRight(24.0);
+    };
+
     const buildBo = (tb, bo) => {
       tb.table(Styles.none, tb1 => {
         tb1.left();
@@ -1047,6 +1082,19 @@
         tb1.table(Styles.none, tb2 => {
           bo.forEachRow(3, (tmp, amt, p) => {
             __rcCt(tb2, tmp, amt, p, true);
+          });
+        });
+      }).left().marginRight(24.0);
+    };
+
+    const buildPayo = (tb, payo) => {
+      tb.table(Styles.none, tb1 => {
+        tb1.left();
+        __margin(tb1);
+        tb1.add("PAYO:").left().tooltip(MDL_bundle._term("lovec", "payo"), true).row();
+        tb1.table(Styles.none, tb2 => {
+          payo.forEachRow(2, (nm, amt) => {
+            __rcCt(tb2, MDL_content._ct(nm, null, true), amt, 1.0, true);
           });
         });
       }).left().marginRight(24.0);

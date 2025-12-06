@@ -103,7 +103,7 @@
 
     let rHeat = MDL_flow._rHeat(unit.tileOn());
     let rHeatRes = MDL_flow._rHeatRes(utp);
-    let dmg = Time.delta * Mathf.maxZero(rHeat - rHeatRes) * 0.65;
+    let dmg = Mathf.maxZero(rHeat - rHeatRes) * 0.65;
     if(dmg < 0.0001) return;
     let dmg_fi = Math.min(dmg, VAR.dmg_heatMaxDmg);
     let staStackAmt = Math.round((dmg - dmg_fi) / VAR.dmg_overheatedConversionDmg);

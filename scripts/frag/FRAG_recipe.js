@@ -87,6 +87,17 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether the multi-crafter has any payload input.
+   * ---------------------------------------- */
+  const _hasInput_pay = function(payi) {
+    return payi.length > 0;
+  };
+  exports._hasInput_pay = _hasInput_pay;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether {rs_gn} is an output in the multi-crafter.
    * ---------------------------------------- */
   const _hasOutput = function(rs_gn, co, bo, fo) {
@@ -190,6 +201,17 @@
     return false;
   };
   exports._hasOutput_liq = _hasOutput_liq;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether the multi-crafter has any payload output.
+   * ---------------------------------------- */
+  const _hasOutput_pay = function(payo) {
+    return payo.length > 0;
+  };
+  exports._hasOutput_pay = _hasOutput_pay;
 
 
   /* ----------------------------------------

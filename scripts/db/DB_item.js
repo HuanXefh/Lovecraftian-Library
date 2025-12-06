@@ -110,8 +110,11 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Maps an item together with temperature to its alloying ingredents, ratios and final probability.
-       * Supports alternative inputs.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * tempReq
+       * bi
        * ---------------------------------------- */
       alloying: [],
 
@@ -119,7 +122,11 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Maps an item to its brick baking recipe target and the temperature required.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * tempReq
+       * itmTg
        * ---------------------------------------- */
       brickBaking: [],
 
@@ -127,7 +134,13 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Maps an item to its casting ingredent array and the temperature required.
+       * Format: {nmCt, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * isPayTg
+       * tempReq
+       * bi
+       * payi
        * ---------------------------------------- */
       casting: [],
 
@@ -135,7 +148,13 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Maps an item to its forging ingredent array and the temperature required.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * isPayTg
+       * tempReq
+       * bi
+       * payi
        * ---------------------------------------- */
       forging: [],
 
@@ -143,8 +162,10 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Maps an item to its mixing ingredents, ratios and final probability.
-       * Supports alternative inputs.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * bi
        * ---------------------------------------- */
       mixing: [],
 
@@ -152,7 +173,10 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Like {"mixing"} but carried out in a ball mill.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * bi
        * ---------------------------------------- */
       ballMillMixing: [],
 
@@ -160,7 +184,10 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Maps an ore item to its possible side products and chances.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * bi
        * ---------------------------------------- */
       purificationI: [],
 
@@ -168,7 +195,10 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Like {"purificationI"} but used for advanced separation (like a classifier).
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * bi
        * ---------------------------------------- */
       purificationII: [],
 
@@ -176,7 +206,10 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Like {"purificationI"} but for magnetic separators only.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * bi
        * ---------------------------------------- */
       purificationMagnetic: [],
 
@@ -184,8 +217,10 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Variant of {"purificationII"} used for floatation.
-       * TODO: Define the format.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * bi
        * ---------------------------------------- */
       purificationFloat: [],
 
@@ -193,7 +228,11 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Maps an item to its roasting recipe target and the temperature required.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * tempReq
+       * itmTg
        * ---------------------------------------- */
       roasting: [],
 
@@ -201,7 +240,11 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * Variant of {"roasting"} used for concentrate items.
+       * Format: {nmItm, paramObj}.
+       *
+       * Keys for {paramObj}:
+       * tempReq
+       * itmTg
        * ---------------------------------------- */
       concentrateRoasting: [],
 

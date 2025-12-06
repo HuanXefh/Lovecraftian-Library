@@ -187,6 +187,20 @@
   exports._hasInput = _hasInput;
 
 
+  const _hasAnyInput_pay = function thisFun(rcMdl) {
+    let payi;
+    return _rcHeaders(rcMdl).some(rcHeader => {
+      payi = _payi(rcMdl, rcHeader, thisFun.tmpArr);
+
+      return FRAG_recipe._hasInput_pay(payi);
+    });
+  }
+  .setProp({
+    tmpArr: [],
+  });
+  exports._hasAnyInput_pay = _hasAnyInput_pay;
+
+
   const _hasOutput = function thisFun(rs_gn, rcMdl) {
     let co, bo, fo;
     return _rcHeaders(rcMdl).some(rcHeader => {
@@ -245,6 +259,20 @@
     tmpArr1: [],
   });
   exports._hasAnyOutput_liq = _hasAnyOutput_liq;
+
+
+  const _hasAnyOutput_pay = function thisFun(rcMdl) {
+    let payo;
+    return _rcHeaders(rcMdl).some(rcHeader => {
+      payo = _payo(rcMdl, rcHeader, thisFun.tmpArr);
+
+      return FRAG_recipe._hasOutput_pay(payo);
+    });
+  }
+  .setProp({
+    tmpArr: [],
+  });
+  exports._hasAnyOutput_pay = _hasAnyOutput_pay;
 
 
   /* <---------- recipe ----------> */
@@ -575,10 +603,12 @@
       _bi(rcMdl, rcHeader, null, blkInit, timeScl);
       _aux(rcMdl, rcHeader, null, blkInit);
       _opt(rcMdl, rcHeader, null, blkInit);
+      _payi(rcMdl, rcHeader, null, blkInit);
       _co(rcMdl, rcHeader, null, blkInit);
       let failP = _failP(rcMdl, rcHeader);
       _bo(rcMdl, rcHeader, null, blkInit, timeScl, failP);
       _fo(rcMdl, rcHeader, null, blkInit, timeScl, failP);
+      _payo(rcMdl, rcHeader, null, blkInit);
     });
   };
   exports.initRc = initRc;
@@ -764,6 +794,35 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Converts the payload input list from a recipe object.
+   * ---------------------------------------- */
+  const _payi = function(rcMdl, rcHeader, contArr, blkInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
+    let raw = _rcVal(rcMdl, rcHeader, "payi", Array.air).concat(_rcBaseVal(rcMdl, "basePayi", Array.air));
+    let i = 0, iCap = raw.iCap();
+    while(i < iCap) {
+      let tmp = MDL_content._ct(raw[i], null, true);
+      if(tmp == null) {
+        i += 2;
+        continue;
+      };
+      let amt = raw[i + 1];
+      arr.push(tmp.name, amt);
+      if(blkInit != null) {
+        // TODO: Payload recipe dictionary.
+      };
+      i += 2;
+    };
+
+    return arr;
+  };
+  exports._payi = _payi;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Converts the continuous output list from a recipe object.
    * ---------------------------------------- */
   const _co = function(rcMdl, rcHeader, contArr, blkInit) {
@@ -869,6 +928,35 @@
     return arr;
   };
   exports._fo = _fo;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Converts the payload output list from a recipe object.
+   * ---------------------------------------- */
+  const _payo = function(rcMdl, rcHeader, contArr, blkInit) {
+    const arr = contArr != null ? contArr.clear() : [];
+
+    let raw = _rcVal(rcMdl, rcHeader, "payo", Array.air).concat(_rcBaseVal(rcMdl, "basePayo", Array.air));
+    let i = 0, iCap = raw.iCap();
+    while(i < iCap) {
+      let tmp = MDL_content._ct(raw[i], null, true);
+      if(tmp == null) {
+        i += 2;
+        continue;
+      };
+      let amt = raw[i + 1];
+      arr.push(tmp.name, amt);
+      if(blkInit != null) {
+        // TODO: Payload recipe dictionary.
+      };
+      i += 2;
+    };
+
+    return arr;
+  };
+  exports._payo = _payo;
 
 
   /* ----------------------------------------

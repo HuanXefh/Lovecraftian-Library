@@ -673,7 +673,7 @@
     x, y, rs_gn,
     size, z
   ) {
-    let rs = MDL_content._ct(rs_gn, "rs");
+    let rs = MDL_content._ct(rs_gn, null, true);
     if(rs == null) return;
     if(size == null) size = 1;
     if(z == null) z = Layer.effect + VAR.lay_offDraw;

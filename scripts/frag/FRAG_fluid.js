@@ -46,13 +46,23 @@
    * Use negative {rate} for consumption.
    * Set {returnFrac} to {true} for efficiency calculation.
    * ---------------------------------------- */
-  const addLiquid = function(b, b_f, liq, rate, forced, returnFrac) {
+  const addLiquid = function(b, b_f, liq, rate, forced, returnFrac, noDelta) {
     let amtTrans = 0.0;
     if(b.liquids == null || (!forced && rate > 0.0 && !b.acceptLiquid(tryVal(b_f, b), liq))) return amtTrans;
     if(rate == null) rate = 0.0;
     if(Math.abs(rate) < 0.0001) return amtTrans;
 
-    let delta = b_f == null ? Time.delta : b_f.edelta();
+    let delta = noDelta ?
+      (
+        b_f == null ?
+        1.0 :
+        b_f.efficiency * b.timeScale
+      ) :
+      (
+        b_f == null ?
+          Time.delta :
+          b_f.edelta()
+      );
     amtTrans = rate > 0.0 ?
       Math.min(rate * delta, b.block.liquidCapacity - b.liquids.get(liq)) :
       -Math.min(-rate * delta, b.liquids.get(liq));

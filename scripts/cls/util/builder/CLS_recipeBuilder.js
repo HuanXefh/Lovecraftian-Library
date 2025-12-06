@@ -67,6 +67,13 @@ ptp.__opt = function(arr) {
 };
 
 
+ptp.__payi = function(arr) {
+  this.builderObj["payi"] = tryVal(arr, Array.air);
+
+  return this;
+};
+
+
 ptp.__co = function(arr) {
   this.builderObj["co"] = tryVal(arr, Array.air);
 
@@ -90,6 +97,13 @@ ptp.__failP = function(frac) {
 
 ptp.__fo = function(arr) {
   this.builderObj["fo"] = tryVal(arr, Array.air);
+
+  return this;
+};
+
+
+ptp.__payo = function(arr) {
+  this.builderObj["payo"] = tryVal(arr, Array.air);
 
   return this;
 };

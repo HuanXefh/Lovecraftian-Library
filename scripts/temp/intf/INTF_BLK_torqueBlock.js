@@ -158,7 +158,7 @@
 
 
   function comp_ex_updateRpmDmg(b, ob, rateAdd, rateCons) {
-    if(rateCons < 0.0001 || rateAdd <= rateCons * 2.5) return;
+    if(rateCons < 0.0001 || rateAdd <= rateCons * 3.0) return;
 
     FRAG_attack.damage(ob, ob.maxHealth * (VAR.blk_rpmDmgFrac + (rateAdd - rateCons * 3.0) / rateCons));
   };
@@ -210,9 +210,6 @@
     };
 
     if(val < 0.0001) {
-      // For test only.
-      /*val = b.rpmCur;*/
-
       i = 0, iCap = b.torTransTgs.iCap();
       while(i < iCap) {
         ob = b.torTransTgs[i];

@@ -539,13 +539,39 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * These blocks by default cannot hold auxiliay fluids.
+       * Maps a class to its payload key name.
        * ---------------------------------------- */
-      nonAux: [
+      payloadKey: [
 
-        LiquidBlock,
+        PayloadBlock, "payload",
+        PayloadConveyor, "item",
 
       ],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * These blocks will be treated as payload I/O sites.
+       * ---------------------------------------- */
+      payloadSite: {
+
+
+        fixed: [
+
+          PayloadConveyor,
+
+        ],
+
+
+        dynamic: [
+
+          PayloadRouter,
+
+        ],
+
+
+      },
 
 
     },

@@ -520,7 +520,7 @@
   .setProp({
     eff: new Effect(20.0, eff => {
       let e = eff.data[1];
-      
+
       MDL_draw._reg_normal(e.x, e.y, eff.data[0], e.drawrot(), 1.0, eff.color, eff.color.a * eff.fout(), Layer.effect + VAR.lay_offDrawOver, 1.0);
     }),
   })
@@ -760,3 +760,21 @@
   })
   .setAnno(ANNO.$NON_HEADLESS$);
   exports.showBetween_pointLaser = showBetween_pointLaser;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Generalized vanilla payload deposit effect.
+   * ---------------------------------------- */
+  const showBetween_payloadDeposit = function(x1, y1, x2, y2, ct_gn) {
+    let ct = MDL_content._ct(ct_gn, null, true);
+    if(ct == null) return;
+
+    Fx.payloadDeposit.at(x1, y1, Angles.angle(x1, y1, x2, y2), new UnitAssembler.YeetData(
+      Tmp.v4.set(x2, y2).cpy(),
+      ct,
+    ));
+  }
+  .setAnno(ANNO.$NON_HEADLESS$);
+  exports.showBetween_payloadDeposit = showBetween_payloadDeposit;

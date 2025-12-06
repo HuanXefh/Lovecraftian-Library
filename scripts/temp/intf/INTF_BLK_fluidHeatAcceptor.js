@@ -81,7 +81,7 @@
     let heatRes = b.block.ex_getHeatRes();
     if(!isFinite(heatRes) || b.fHeatCur - heatRes < 0.0001) return;
 
-    b.damagePierce(b.edelta() * 2.0 * b.fHeatCur / heatRes);
+    b.damagePierce(2.0 * b.fHeatCur / heatRes);
     MDL_effect.showAt(b.x, b.y, EFF.heatSmog, 0.0);
   };
 

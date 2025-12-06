@@ -15,6 +15,128 @@
 */
 
 
+  /* <---------- object ----------> */
+
+
+  var cls = Object;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the maximum value in a mapper object.
+   * ---------------------------------------- */
+  cls.mapMax = function(obj) {
+    let val = 0.0;
+    Object._it(obj, (key, val1) => {
+      if(val1 > val) val = val1;
+    });
+
+    return val;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the minimum value in a mapper object.
+   * ---------------------------------------- */
+  cls.mapMin = function(obj) {
+    let val = Number.n8;
+    Object._it(obj, (key, val1) => {
+      if(val1 < val) val = val1;
+    });
+
+    return val;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Mapper object comparison.
+   * ---------------------------------------- */
+  cls.mapSomeLargerThan = newMultiFunction(
+    ["object", "object", "boolean"], function(obj1, obj2, includeEqual) {
+      for(let key in obj1) {
+        if(includeEqual ? tryVal(obj1[key], 0.0) >= tryVal(obj2[key], 0.0) : tryVal(obj1[key], 0.0) > tryVal(obj2[key], 0.0)) return true;
+      };
+
+      return false;
+    },
+    ["object", "number", "boolean"], function(obj, num, includeEqual) {
+      for(let key in obj) {
+        if(includeEqual ? tryVal(obj[key], 0.0) >= num : tryVal(obj[key], 0.0) > num) return true;
+      };
+
+      return false;
+    },
+    ["object", Array, "boolean"], function(obj, arr, includeEqual) {
+      for(let key in obj) {
+        if(includeEqual ? tryVal(obj[key], 0.0) >= arr.read(key, 0.0) : tryVal(obj[key], 0.0) > arr.read(key, 0.0)) return true;
+      };
+
+      return false;
+    },
+  );
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Mapper object comparison.
+   * ---------------------------------------- */
+  cls.mapAllLargerThan = function(obj1, obj2, includeEqual) {
+    return !Object.mapSomeSmallerThan(obj1, obj2, !includeEqual);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Mapper object comparison.
+   * ---------------------------------------- */
+  cls.mapSomeSmallerThan = newMultiFunction(
+    ["object", "object", "boolean"], function(obj1, obj2, includeEqual) {
+      let i = 0;
+      for(let key in obj1) {
+        if(includeEqual ? tryVal(obj1[key], 0.0) <= tryVal(obj2[key], 0.0) : tryVal(obj1[key], 0.0) < tryVal(obj2[key], 0.0)) return true;
+        i++;
+      };
+
+      return i === 0;
+    },
+    ["object", "number", "boolean"], function(obj, num, includeEqual) {
+      let i = 0;
+      for(let key in obj) {
+        if(includeEqual ? tryVal(obj[key], 0.0) <= num : tryVal(obj[key], 0.0) < num) return true;
+        i++;
+      };
+
+      return i === 0;
+    },
+    ["object", Array, "boolean"], function(obj, arr, includeEqual) {
+      let i = 0;
+      for(let key in obj) {
+        if(includeEqual ? tryVal(obj[key], 0.0) <= arr.read(key, 0.0) : tryVal(obj[key], 0.0) < arr.read(key, 0.0)) return true;
+        i++;
+      };
+
+      return i === 0;
+    },
+  );
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Mapper object comparison.
+   * ---------------------------------------- */
+  cls.mapAllSmallerThan = function(obj1, obj2, includeEqual) {
+    return !Object.mapSomeLargerThan(obj1, obj2, !includeEqual);
+  };
+
+
   /* <---------- number ----------> */
 
 

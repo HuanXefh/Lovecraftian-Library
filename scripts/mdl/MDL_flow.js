@@ -413,8 +413,12 @@
    * NOTE:
    *
    * Gets spared heat in nearby buildings.
+   * ----------------------------------------
+   * TODO:
+   *
+   * Replace this with better heat block interface.
    * ---------------------------------------- */
-  const _heatSpare_b = function(b, applyCons) {
+  const _heatSpare_b = function(b, applyCons, noDelta) {
     let val = 0.0;
     let sideAmt, rate;
     b.proximity.each(ob => {
@@ -433,7 +437,7 @@
         rate = MDL_recipeDict._prodAmt(VARGEN.auxHeat, ob.block) * 60.0 * sideAmt / ob.block.size;
         !applyCons ?
           val += rate :
-          val += FRAG_fluid.addLiquid(ob, b, VARGEN.auxHeat, -rate);
+          val += FRAG_fluid.addLiquid(ob, b, VARGEN.auxHeat, -rate, false, false, true);
       };
     });
 

@@ -70,6 +70,9 @@
 
   function comp_load(blk) {
     blk.fuelHeatReg = fetchRegion(blk, "-fuel-heat", "-heat");
+    if(!blk.fuelHeatReg.found()) {
+      blk.fuelHeatReg = null;
+    };
   };
 
 
@@ -173,9 +176,9 @@
     if(fuel instanceof Item) {
       if(b.fuelPonCur < 1.0 && pon > 0.0 && FRAG_item.consumeItem(b, fuel, 1)) b.fuelPonCur += pon;
       if(b.fuelPonCur < 1.0) b.fuelEffc = 0.0;
-      b.fuelPonCur = Mathf.maxZero(b.fuelPonCur - b.delta() / 60.0 * VAR.time_heatIntv * b.block.ex_getFuelConsMtp());
+      b.fuelPonCur = Mathf.maxZero(b.fuelPonCur - VAR.time_heatIntv / 60.0 * b.block.ex_getFuelConsMtp());
     } else {
-      b.fuelPonCur = FRAG_fluid.addLiquid(b, b, fuel, pon * b.block.ex_getFuelConsMtp() * b.delta() * VAR.time_heatIntv);
+      b.fuelPonCur = FRAG_fluid.addLiquid(b, b, fuel, pon * b.block.ex_getFuelConsMtp() * VAR.time_heatIntv, false, false, true);
       b.fuelEffc = Math.min(b.fuelPonCur, 1.0);
     };
   };

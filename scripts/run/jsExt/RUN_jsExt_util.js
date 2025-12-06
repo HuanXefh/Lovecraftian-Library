@@ -24,6 +24,16 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Gets a random key in {obj}.
+   * ---------------------------------------- */
+  cls.randKey = function(obj) {
+    return Object.keys(obj).readRand();
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Converts array to object.
    * This also works on function arguments.
    * ---------------------------------------- */
@@ -120,7 +130,7 @@
           let fun = !funCur.override ?
             (
               funPrev.final ?
-                funPrev :                
+                funPrev :
                 funCur.boolMode === "and" ?
                   function() {
                     return funPrev.apply(this, arguments) && funCur.apply(this, arguments);
