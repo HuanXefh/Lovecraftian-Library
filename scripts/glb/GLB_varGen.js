@@ -137,6 +137,9 @@
   MDL_event._c_onLoad(() => {
 
 
+    /* team */
+
+
     exports.mainTeams = [
       Team.sharded,
       Team.crux,
@@ -147,7 +150,13 @@
     ].pushAll(DB_env.db["extraMainTeam"]);
 
 
+    /* planet */
+
+
     exports.lovecPlas = Vars.content.planets().select(pla => pla.accessible && (pla.minfo.mod == null ? "" : pla.minfo.mod.name) === "loveclab").toArray();
+
+
+    /* weather */
 
 
     exports.weaEns = (function() {
@@ -161,9 +170,10 @@
     })();
 
 
+    /* resource */
+
+
     exports.rss = Vars.content.items().toArray().concat(Vars.content.liquids().toArray());
-
-
     exports.sandItms = (function() {
       const arr = [];
       DB_item.db["group"]["sand"].forEachFast(nm => {
@@ -172,8 +182,6 @@
       });
       return arr;
     })();
-
-
     exports.hotFlds = (function() {
       const arr = [];
       let li = DB_fluid.db["param"]["fHeat"];
@@ -185,11 +193,8 @@
         };
         i += 2;
       };
-
       return arr;
     })();
-
-
     exports.fuelItms = (function() {
       const arr = [];
       DB_item.db["param"]["fuel"]["item"].forEachRow(2, (nm, params) => {
@@ -214,8 +219,6 @@
       });
       return arr;
     })();
-
-
     exports.intmds = (function() {
       const obj = {};
       DB_item.db["intmdTag"].forEachFast(tag => obj[tag] = []);
@@ -223,23 +226,39 @@
       Vars.content.liquids().each(liq => MDL_content._intmdTags(liq).forEachFast(tag => obj[tag].push(liq)));
       return obj;
     })();
-
-
     exports.wasItms = Vars.content.items().select(itm => MDL_cond._isWaste(itm)).toArray();
     exports.wasFlds = Vars.content.liquids().select(liq => MDL_cond._isWaste(liq)).toArray();
 
 
-    exports.vanillaUtps = Vars.content.units().select(utp => MDL_content._mod(utp) === "vanilla");
-    exports.lovecUtps = Vars.content.units().select(utp => MDL_cond._isLovecUnit(utp));
+    /* block */
+
+
+    exports.nonEnvBlks = Vars.content.blocks().select(blk => blk.synthetic()).toArray();
+    Time.run(1.0, () => {
+      exports.payMatBlks = module.exports.nonEnvBlks.filter(blk => global.lovec.mdl_recipeDict.rcDict.cons.block[blk.id].length > 0 || global.lovec.mdl_recipeDict.rcDict.prod.block[blk.id].length > 0);
+    });
+
+
+    /* unit type */
+
+
+    exports.buildaleUtps = Vars.content.units().select(utp => !utp.internal && (TechTree.all.find(node => node.content === utp && node.requirements.length > 0) != null || tryVal(utp.getRequirements(null, null), Array.air).length > 0)).toArray();
+    exports.vanillaUtps = Vars.content.units().select(utp => MDL_content._mod(utp) === "vanilla").toArray();
+    exports.lovecUtps = Vars.content.units().select(utp => MDL_cond._isLovecUnit(utp)).toArray();
     exports.bioticUtps = Vars.content.units().select(utp => MDL_cond._isNonRobot(utp)).toArray();
     exports.navalUtps = Vars.content.units().select(utp => utp.naval).toArray();
     exports.missileUtps = Vars.content.units().select(utp => utp instanceof MissileUnitType).toArray();
+
+
+    /* status effect */
 
 
     exports.fadeStas = Vars.content.statusEffects().select(sta => MDL_cond._isFadeStatus(sta)).toArray();
     exports.deathStas = Vars.content.statusEffects().select(sta => MDL_cond._isDeathStatus(sta)).toArray();
     exports.stackStas = Vars.content.statusEffects().select(sta => MDL_cond._isStackStatus(sta)).toArray();
 
+
+    /* misc */
 
 
     exports.factions = (function() {
@@ -250,8 +269,6 @@
       });
       return obj;
     })();
-
-
     exports.facFamis = (function() {
       const obj = {};
       MDL_content._facFamisDefined().forEachFast(fami => obj[fami] = MDL_content._facFamiBlks(fami));

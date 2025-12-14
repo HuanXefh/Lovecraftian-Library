@@ -142,7 +142,7 @@
    * ---------------------------------------- */
   const _pix_ctStack = function(pix0, ct_gn) {
     let ct = global.lovecUtil.fun._ct(ct_gn);
-    if(ct == null) ERROR_HANDLER.noContent(ct_gn);
+    if(ct == null) ERROR_HANDLER.throw("noContentFound", ct_gn);
     let pixCt = Core.atlas.getPixmap(ct instanceof Block ? _regBlk(ct) : ct.fullIcon);
     let pixCtStack = new Pixmap(pix0.width, pix0.height);
     pixCtStack.draw(pixCt, pixCtStack.width * 0.5, pixCtStack.height * 0.5, pixCtStack.width * 0.5, pixCtStack.height * 0.5);
@@ -163,7 +163,7 @@
     if(w == null) w = 32;
     let hw = w / 2;
     let ct = global.lovecUtil.fun._ct(ct_gn);
-    if(ct == null) ERROR_HANDLER.noContent(ct_gn);
+    if(ct == null) ERROR_HANDLER.throw("noContentFound", ct_gn);
     let reg = ct instanceof Block ? _regBlk(ct) : Core.atlas.find(ct.name);
     let pixCt = Core.atlas.getPixmap(reg);
     let wCt = pixCt.width;
@@ -187,9 +187,9 @@
 
   const comp_createIcons_ctTag = function(ct, packer, ctUnd_gn, ctOv_gn, suffix) {
     let ctUnd = global.lovecUtil.fun._ct(ctUnd_gn);
-    if(ctUnd == null) ERROR_HANDLER.noContent(ctUnd_gn);
+    if(ctUnd == null) ERROR_HANDLER.throw("noContentFound", ctUnd_gn);
     let ctOv = global.lovecUtil.fun._ct(ctOv_gn);
-    if(ctOv == null) ERROR_HANDLER.noContent(ctOv_gn);
+    if(ctOv == null) ERROR_HANDLER.throw("noContentFound", ctOv_gn);
     let pix = _pix_ctStack(Core.atlas.getPixmap(ctUnd.name), ctOv);
     packer.add(MultiPacker.PageType.main, ct.name + suffix, pix);
     pix.dispose();

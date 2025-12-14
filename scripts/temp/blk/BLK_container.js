@@ -24,7 +24,7 @@
 
 
   const PARENT = require("lovec/temp/blk/BLK_baseStorageBlock");
-  const INTF = require("lovec/temp/intf/INTF_BLK_itemMultiSelector");
+  const INTF = require("lovec/temp/intf/INTF_BLK_contentMultiSelector");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -45,11 +45,11 @@
 
 
   function comp_updateTile(b) {
-    if(b.rsTgs.length === 0) return;
+    if(b.ctTgs.length === 0) return;
 
     let bSpd = MDL_entity._bSpd(b);
     if(bSpd > 0.0 && b.timerDump.get(b.block.dumpTime / bSpd)) {
-      b.dump(b.rsTgs.readRand());
+      b.dump(b.ctTgs.readRand());
     };
   };
 

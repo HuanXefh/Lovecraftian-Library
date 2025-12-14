@@ -32,6 +32,7 @@
   const MATH_interp = require("lovec/math/MATH_interp");
 
 
+  const FRAG_payload = require("lovec/frag/FRAG_payload");
   const FRAG_recipe = require("lovec/frag/FRAG_recipe");
 
 
@@ -42,7 +43,6 @@
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_io = require("lovec/mdl/MDL_io");
-  const MDL_payload = require("lovec/mdl/MDL_payload");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -108,7 +108,7 @@
       b.payInputBs.forEachCond(
         ob => b.ex_rcAcceptPay(ob, ob.getPayload()),
         ob => {
-          let pay = MDL_payload.takeAt(ob);
+          let pay = FRAG_payload.takeAt(ob);
           b.payReqObj[pay.content().name] = tryVal(b.payReqObj[pay.content().name], 0) + 1;
           MDL_effect.showBetween_payloadDeposit(ob.x, ob.y, b.x, b.y, pay.content());
         },
@@ -146,12 +146,12 @@
       if(b.lastDumpPay == null) {
         let nmCt = Object.randKey(b.payStockObj);
         if(nmCt != null) {
-          b.lastDumpPay = MDL_payload._pay(nmCt, b.team);
+          b.lastDumpPay = FRAG_payload._pay(nmCt, b.team);
         };
       } else {
         let b_t = b.payOutputBs[b.payDumpIncre % b.payOutputBs.length];
         b.payDumpIncre++;
-        if(b_t.added && MDL_payload.produceAt(b_t, b.lastDumpPay)) {
+        if(b_t.added && FRAG_payload.produceAt(b_t, b.lastDumpPay)) {
           MDL_effect.showBetween_payloadDeposit(b.x, b.y, b_t.x, b_t.y, b.lastDumpPay.content());
           b.payStockObj[b.lastDumpPay.content().name] = tryVal(b.payStockObj[b.lastDumpPay.content().name], 0) - 1;
           if(b.payStockObj[b.lastDumpPay.content().name] <= 0) {
@@ -413,8 +413,8 @@
 
 
   function comp_ex_updatePaySite(b) {
-    MDL_payload._bsPayInput(b, b.payInputBs);
-    MDL_payload._bsPayOutput(b, b.payOutputBs);
+    FRAG_payload._bsPayInput(b, b.payInputBs);
+    FRAG_payload._bsPayOutput(b, b.payOutputBs);
   };
 
 
@@ -482,9 +482,9 @@
       ],
       __PARAM_PARSER_SETTER__: () => [
         "rcMdl", function(val) {
-          if(val == null) ERROR_HANDLER.nullArgument("rcMdl");
+          if(val == null) ERROR_HANDLER.throw("nullArgument", "rcMdl");
           let nmMod = this.rcSourceMod;
-          if(nmMod == null) ERROR_HANDLER.nullArgument("rcSourceMod");
+          if(nmMod == null) ERROR_HANDLER.throw("nullArgument", "rcSourceMod");
 
           return MDL_recipe._rcMdl(nmMod, val);
         },

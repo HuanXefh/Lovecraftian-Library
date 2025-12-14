@@ -12,7 +12,7 @@
 
 
   function throwDebugError() {
-    if(Core.settings.getBool("lovec-test0error-shader", false)) ERROR_HANDLER.debug("shader");
+    if(Core.settings.getBool("lovec-test0error-shader", false)) ERROR_HANDLER.throw("debug", "shader");
   };
 
 

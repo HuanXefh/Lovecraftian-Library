@@ -37,7 +37,7 @@
 
 
   function comp_init(blk) {
-    if(blk.size % 2 === 0) ERROR_HANDLER.evenSizedCogwheel(blk);
+    if(blk.size % 2 === 0) ERROR_HANDLER.throw("evenSizedCogwheel", blk.name);
 
     blk.group = BlockGroup.none;
     blk.priority = TargetPriority.transport;

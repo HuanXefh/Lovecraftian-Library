@@ -316,7 +316,7 @@
    * ---------------------------------------- */
   ptp.operWith = function(arr, scr) {
     let iCap = this.iCap();
-    if(iCap !== arr.length) ERROR_HANDLER.arrayLengthMismatch(this, arr);
+    if(iCap !== arr.length) ERROR_HANDLER.throw("arrayLengthMismatch");
 
     let i = 0;
     while(i < iCap) {

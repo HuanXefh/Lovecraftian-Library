@@ -40,7 +40,7 @@
 
 
   function comp_init(blk) {
-    if(!blk.hasLiquids) ERROR_HANDLER.noLiquidModule(blk);
+    if(!blk.hasLiquids) ERROR_HANDLER.throw("noLiquidModule", blk.name);
   };
 
 

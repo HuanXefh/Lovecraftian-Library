@@ -34,7 +34,7 @@
 
 
   function comp_init(aux) {
-    if(!aux.gas) ERROR_HANDLER.auxilliaryFluidNotGas(aux);
+    if(!aux.gas) ERROR_HANDLER.throw("auxNotGas", aux.name);
 
     if(aux.overwriteVanillaProp) {
       aux.incinerable = false;
@@ -80,6 +80,6 @@
     setStats: function() {
       comp_setStats(this);
     },
-    
+
 
   });

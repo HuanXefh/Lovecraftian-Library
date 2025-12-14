@@ -88,8 +88,9 @@
    *
    * Gets the color for some character.
    * ---------------------------------------- */
-  const _charaColor = function(nmMod, nmChara) {
-    return _color(global.lovec.db_misc.db["drama"]["chara"]["color"].read(_charaColor.tmpArgs.clear().push(nmMod, nmChara)));
+  const _charaColor = function thisFun(nmMod, nmChara) {
+    thisFun.tmpArgs.clear().push(nmMod, nmChara);
+    return _color(global.lovec.db_misc.db["drama"]["chara"]["color"].read(thisFun.tmpArgs));
   }
   .setProp({
     tmpArgs: [],

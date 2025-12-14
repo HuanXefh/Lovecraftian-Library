@@ -107,145 +107,39 @@ const db = {
     recipe: {
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * tempReq
-       * bi
-       * ---------------------------------------- */
       alloying: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * tempReq
-       * itmTg
-       * ---------------------------------------- */
       brickBaking: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmCt, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * isPayTg
-       * tempReq
-       * bi
-       * payi
-       * ---------------------------------------- */
       casting: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * isPayTg
-       * tempReq
-       * bi
-       * payi
-       * ---------------------------------------- */
       forging: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * bi
-       * ---------------------------------------- */
       mixing: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * bi
-       * ---------------------------------------- */
       ballMillMixing: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * bi
-       * ---------------------------------------- */
       purificationI: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * bi
-       * ---------------------------------------- */
       purificationII: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * bi
-       * ---------------------------------------- */
       purificationMagnetic: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * bi
-       * ---------------------------------------- */
       purificationFloat: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * tempReq
-       * itmTg
-       * ---------------------------------------- */
       roasting: [],
 
 
-      /* ----------------------------------------
-       * NOTE:
-       *
-       * Format: {nmItm, paramObj}.
-       *
-       * Keys for {paramObj}:
-       * tempReq
-       * itmTg
-       * ---------------------------------------- */
       concentrateRoasting: [],
 
 

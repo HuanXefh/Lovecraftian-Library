@@ -600,15 +600,15 @@
     _rcHeaders(rcMdl).forEachFast(rcHeader => {
       let timeScl = _timeScl(rcMdl, rcHeader);
       _ci(rcMdl, rcHeader, null, blkInit);
-      _bi(rcMdl, rcHeader, null, blkInit, timeScl);
+      _bi(rcMdl, rcHeader, null, blkInit);
       _aux(rcMdl, rcHeader, null, blkInit);
       _opt(rcMdl, rcHeader, null, blkInit);
       _payi(rcMdl, rcHeader, null, blkInit);
-      _co(rcMdl, rcHeader, null, blkInit);
       let failP = _failP(rcMdl, rcHeader);
+      _co(rcMdl, rcHeader, null, blkInit);
       _bo(rcMdl, rcHeader, null, blkInit, timeScl, failP);
       _fo(rcMdl, rcHeader, null, blkInit, timeScl, failP);
-      _payo(rcMdl, rcHeader, null, blkInit);
+      _payo(rcMdl, rcHeader, null, blkInit, timeScl);
     });
   };
   exports.initRc = initRc;
@@ -651,7 +651,7 @@
    *
    * Converts the batch input list from a recipe object.
    * ---------------------------------------- */
-  const _bi = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit) {
+  const _bi = function(rcMdl, rcHeader, contArr, blkInit) {
     const arr = contArr != null ? contArr.clear() : [];
 
     let raw = _rcVal(rcMdl, rcHeader, "bi", Array.air).concat(_rcBaseVal(rcMdl, "baseBi", Array.air));
@@ -670,11 +670,11 @@
         if(blkInit != null) {
           tmp instanceof Item ?
             MDL_recipeDict.addItmConsTerm(
-              blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p,
+              blkInit, tmp, amt, p,
               {ct: _iconNm(rcMdl, rcHeader)},
             ) :
             MDL_recipeDict.addFldConsTerm(
-              blkInit, tmp, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
+              blkInit, tmp, amt / blkInit.craftTime,
               {ct: _iconNm(rcMdl, rcHeader)},
             );
         };
@@ -693,11 +693,11 @@
           if(blkInit != null) {
             tmp1 instanceof Item ?
               MDL_recipeDict.addItmConsTerm(
-                blkInit, tmp1, amt / tryVal(timeSclInit, 1.0), p,
+                blkInit, tmp1, amt, p,
                 {ct: _iconNm(rcMdl, rcHeader)},
               ) :
               MDL_recipeDict.addFldConsTerm(
-                blkInit, tmp1, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
+                blkInit, tmp1, amt / blkInit.craftTime,
                 {ct: _iconNm(rcMdl, rcHeader)},
               );
           };
@@ -762,7 +762,7 @@
    *
    * Converts the optional input list from a recipe object.
    * ---------------------------------------- */
-  const _opt = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit) {
+  const _opt = function(rcMdl, rcHeader, contArr, blkInit) {
     const arr = contArr != null ? contArr.clear() : [];
 
     let raw = _rcVal(rcMdl, rcHeader, "opt", Array.air).concat(_rcBaseVal(rcMdl, "baseOpt", Array.air));
@@ -779,7 +779,7 @@
       arr.push(tmp, amt, p, mtp);
       if(blkInit != null) {
         MDL_recipeDict.addItmConsTerm(
-          blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p,
+          blkInit, tmp, amt, p,
           {ct: _iconNm(rcMdl, rcHeader), icon: "lovec-icon-optional"},
         );
       };
@@ -810,7 +810,10 @@
       let amt = raw[i + 1];
       arr.push(tmp.name, amt);
       if(blkInit != null) {
-        // TODO: Payload recipe dictionary.
+        MDL_recipeDict.addPayProdTerm(
+          blkInit, tmp, amt,
+          {ct: _iconNm(rcMdl, rcHeader)},
+        );
       };
       i += 2;
     };
@@ -935,7 +938,7 @@
    *
    * Converts the payload output list from a recipe object.
    * ---------------------------------------- */
-  const _payo = function(rcMdl, rcHeader, contArr, blkInit) {
+  const _payo = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit) {
     const arr = contArr != null ? contArr.clear() : [];
 
     let raw = _rcVal(rcMdl, rcHeader, "payo", Array.air).concat(_rcBaseVal(rcMdl, "basePayo", Array.air));
@@ -949,7 +952,10 @@
       let amt = raw[i + 1];
       arr.push(tmp.name, amt);
       if(blkInit != null) {
-        // TODO: Payload recipe dictionary.
+        MDL_recipeDict.addPayProdTerm(
+          blkInit, tmp, amt / tryVal(timeSclInit, 1.0),
+          {ct: _iconNm(rcMdl, rcHeader)},
+        );
       };
       i += 2;
     };

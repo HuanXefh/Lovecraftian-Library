@@ -130,7 +130,7 @@
 
 
     })
-    .setGetter("noLoot", "noReac", "canShortCircuit", "useCep"),
+    .setGetter("noLoot", "noReac", "canShortCircuit"),
 
 
     // Building

@@ -804,7 +804,7 @@
             "lovec-faction-none" :
             MDL_content._mod(ct) + "-faction-" + faction,
         )),
-        () => fetchDial("cts").ex_show(
+        () => fetchDialog("cts").ex_show(
           factionB.color(factionColor),
           VARGEN.factions[faction],
           true,
@@ -1031,7 +1031,7 @@
         tb1.left();
         __margin(tb1);
         tb1.add("OPT:").left().tooltip(MDL_bundle._term("lovec", "opt"), true).row();
-        tb1.button("?", () => fetchDial("rcOpt").ex_show(MDL_bundle._term("lovec", "opt"), opt)).size(34.0).pad(3.0);
+        tb1.button("?", () => fetchDialog("rcOpt").ex_show(MDL_bundle._term("lovec", "opt"), opt)).size(34.0).pad(3.0);
       }).left().marginRight(24.0);
     };
 

@@ -40,7 +40,7 @@
         if(b.power == null || b.power.status < 0.0001) return;
 
         TRIGGER.poweredMetalPipe.fire();
-        FRAG_attack._a_lightning(b.x, b.y, null, VAR.blk_lightningDmg * b.power.status * this.dmgMtp, null, 6, 4);
+        FRAG_attack._a_lightning(b.x, b.y, null, VAR.blk_lightningDmg * b.power.status * this.dmgMtp, null, 6, 4, null, "ground");
       },
 
 

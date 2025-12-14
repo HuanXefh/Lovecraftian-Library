@@ -60,7 +60,7 @@ CLS_dragButton.prototype.init = function() {
 
   this.load();
 
-  TRIGGER.mapChange.addListener(nmMap => {
+  TRIGGER.mapChange.addGlobalListener(nmMap => {
     this.timeScl = 1.0;
     Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0);
     this.rebuild();
@@ -134,7 +134,7 @@ ptp.rebuild = function() {
   const thisIns = this;
 
   this.root.clearChildren();
-  const btns = this.root.table(Styles.none, tb => tb.left()).left().get();
+  const btns = this.root.table(Styles.black3, tb => tb.left()).left().get();
   this.root.left().top().row();
 
   // Drag button

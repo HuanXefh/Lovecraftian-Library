@@ -24,6 +24,7 @@
     cons: {},
     prod: {},
   };
+  exports.rcDict = rcDict;
 
 
   /* ----------------------------------------
@@ -42,7 +43,7 @@
    * Adds an item consumption term to recipe dictionary.
    * ---------------------------------------- */
   const addItmConsTerm = function(blk_gn, itm_gn, amt, p, data) {
-    if(!rcDict.hasInit) ERROR_HANDLER.recipeDictionaryNotInitialized();
+    if(!rcDict.hasInit) ERROR_HANDLER.throw("recipeDictionaryNotInitialized");
 
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -68,7 +69,7 @@
    * Adds a fluid consumption term to recipe dictionary.
    * ---------------------------------------- */
   const addFldConsTerm = function(blk_gn, liq_gn, amt, data) {
-    if(!rcDict.hasInit) ERROR_HANDLER.recipeDictionaryNotInitialized();
+    if(!rcDict.hasInit) ERROR_HANDLER.throw("recipeDictionaryNotInitialized");
 
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -89,10 +90,34 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Adds a payload consumption term to recipe dictionary.
+   * ---------------------------------------- */
+  const addPayConsTerm = function(blk_gn, ct_gn, amt, data) {
+    if(!rcDict.hasInit) ERROR_HANDLER.throw("recipeDictionaryNotInitialized");
+
+    let blk = MDL_content._ct(blk_gn, "blk");
+    if(blk == null) return;
+    let ct = MDL_content._ct(ct_gn, null, true);
+    if(ct == null) return;
+    if(amt == null) amt = 0;
+    if(amt < 0.0001) return;
+
+    rcDict.cons[(ct instanceof Block ? "block" : "unit")][ct.id].push(
+      blk,
+      amt,
+      tryVal(data, Object.air),
+    );
+  };
+  exports.addPayConsTerm = addPayConsTerm;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Adds an item production term to recipe dictionary.
    * ---------------------------------------- */
   const addItmProdTerm = function(blk_gn, itm_gn, amt, p, data) {
-    if(!rcDict.hasInit) ERROR_HANDLER.recipeDictionaryNotInitialized();
+    if(!rcDict.hasInit) ERROR_HANDLER.throw("recipeDictionaryNotInitialized");
 
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -118,7 +143,7 @@
    * Adds a fluid production term to recipe dictionary.
    * ---------------------------------------- */
   const addFldProdTerm = function(blk_gn, liq_gn, amt, data) {
-    if(!rcDict.hasInit) ERROR_HANDLER.recipeDictionaryNotInitialized();
+    if(!rcDict.hasInit) ERROR_HANDLER.throw("recipeDictionaryNotInitialized");
 
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return;
@@ -139,15 +164,47 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets consumption amount of {rs_gn} by {blk_gn}.
+   * Adds a payload production term to recipe dictionary.
    * ---------------------------------------- */
-  const _consAmt = function(rs_gn, blk_gn) {
-    let val = 0.0;
-    let rs = MDL_content._ct(rs_gn, "rs");
-    let blk = MDL_content._ct(blk_gn, "blk");
-    if(rs == null || blk == null) return val;
+  const addPayProdTerm = function(blk_gn, ct_gn, amt, data) {
+    if(!rcDict.hasInit) ERROR_HANDLER.throw("recipeDictionaryNotInitialized");
 
-    const arr = rcDict.cons[rs instanceof Item ? "item" : "fluid"][rs.id];
+    let blk = MDL_content._ct(blk_gn, "blk");
+    if(blk == null) return;
+    let ct = MDL_content._ct(ct_gn, null, true);
+    if(ct == null) return;
+    if(amt == null) amt = 0;
+    if(amt < 0.0001) return;
+
+    rcDict.prod[(ct instanceof Block ? "block" : "unit")][ct.id].push(
+      blk,
+      amt,
+      tryVal(data, Object.air),
+    );
+  };
+  exports.addPayProdTerm = addPayProdTerm;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets consumption amount of {ct_gn} by {blk_gn}.
+   * ---------------------------------------- */
+  const _consAmt = function(ct_gn, blk_gn) {
+    let val = 0.0;
+    let ct = MDL_content._ct(ct_gn, null, true);
+    let blk = MDL_content._ct(blk_gn, "blk");
+    if(ct == null || blk == null) return val;
+
+    const arr = rcDict.cons[
+      ct instanceof Item ?
+        "item" :
+        ct instanceof Liquid ?
+          "fluid" :
+          ct instanceof UnitType ?
+            "unit" :
+            "block"
+    ][ct.id];
     let i = 0, iCap = arr.iCap();
     while(i < iCap) {
       if(arr[i] === blk) val = Math.max(arr[i + 1], val);
@@ -163,15 +220,23 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets production amount of {rs_gn} by {blk_gn}.
+   * Gets production amount of {ct_gn} by {blk_gn}.
    * ---------------------------------------- */
-  const _prodAmt = function(rs_gn, blk_gn) {
+  const _prodAmt = function(ct_gn, blk_gn) {
     let val = 0.0;
-    let rs = MDL_content._ct(rs_gn, "rs");
+    let ct = MDL_content._ct(ct_gn, null, true);
     let blk = MDL_content._ct(blk_gn, "blk");
-    if(rs == null || blk == null) return val;
+    if(ct == null || blk == null) return val;
 
-    const arr = rcDict.prod[rs instanceof Item ? "item" : "fluid"][rs.id];
+    const arr = rcDict.prod[
+      ct instanceof Item ?
+        "item" :
+        ct instanceof Liquid ?
+          "fluid" :
+          ct instanceof UnitType ?
+            "unit" :
+            "block"
+    ][ct.id];
     let i = 0, iCap = arr.iCap();
     while(i < iCap) {
       if(arr[i] === blk) val = Math.max(arr[i + 1], val);
@@ -187,15 +252,23 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Returns an array or 3-array of all blocks that consume the resource.
+   * Returns an array or 3-array of all blocks that consume the content.
    * ---------------------------------------- */
-  const _consumers = function(rs_gn, appendData) {
+  const _consumers = function(ct_gn, appendData) {
     const arr = [];
 
-    let rs = MDL_content._ct(rs_gn, "rs");
-    if(rs == null) return arr;
+    let ct = MDL_content._ct(ct_gn, null, true);
+    if(ct == null) return arr;
 
-    const arr1 = rcDict.cons[rs instanceof Item ? "item" : "fluid"][rs.id];
+    const arr1 = rcDict.cons[
+      ct instanceof Item ?
+        "item" :
+        ct instanceof Liquid ?
+          "fluid" :
+          ct instanceof UnitType ?
+            "unit" :
+            "block"
+    ][ct.id];
     let i = 0, iCap = arr1.iCap();
     while(i < iCap) {
       let blk = arr1[i];
@@ -218,15 +291,23 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Returns an array or 3-array of all blocks that produce the resource.
+   * Returns an array or 3-array of all blocks that produce the content.
    * ---------------------------------------- */
-  const _producers = function(rs_gn, appendData) {
+  const _producers = function(ct_gn, appendData) {
     const arr = [];
 
-    let rs = MDL_content._ct(rs_gn, "rs");
-    if(rs == null) return arr;
+    let ct = MDL_content._ct(ct_gn, null, true);
+    if(ct == null) return arr;
 
-    const arr1 = rcDict.prod[rs instanceof Item ? "item" : "fluid"][rs.id];
+    const arr1 = rcDict.prod[
+      ct instanceof Item ?
+        "item" :
+        ct instanceof Liquid ?
+          "fluid" :
+          ct instanceof UnitType ?
+            "unit" :
+            "block"
+    ][ct.id];
     let i = 0, iCap = arr1.iCap();
     while(i < iCap) {
       let blk = arr1[i];
@@ -259,8 +340,12 @@
     // Initialize
     rcDict.cons.item = {};
     rcDict.cons.fluid = {};
+    rcDict.cons.block = {};
+    rcDict.cons.unit = {};
     rcDict.prod.item = {};
     rcDict.prod.fluid = {};
+    rcDict.prod.block = {};
+    rcDict.prod.unit = {};
     Vars.content.items().each(itm => {
       rcDict.cons.item[itm.id] = [];
       rcDict.prod.item[itm.id] = [];
@@ -268,6 +353,14 @@
     Vars.content.liquids().each(liq => {
       rcDict.cons.fluid[liq.id] = [];
       rcDict.prod.fluid[liq.id] = [];
+    });
+    Vars.content.blocks().each(blk => blk.synthetic(), blk => {
+      rcDict.cons.block[blk.id] = [];
+      rcDict.prod.block[blk.id] = [];
+    });
+    Vars.content.units().each(utp => !utp.internal, utp => {
+      rcDict.cons.unit[utp.id] = [];
+      rcDict.prod.unit[utp.id] = [];
     });
     rcDict.hasInit = true;
 
@@ -277,7 +370,7 @@
      *
      * Reads consumers and output lists of blocks to build the recipe dictionary.
      * Methods used for each block class are defined in {DB_misc.db["recipe"]}.
-     * This only works for java mods, since js mods don't create classes.
+     * This only works for Java mods, since JS mods don't create classes.
      * ----------------------------------------
      * IMPORTANT:
      *
@@ -298,8 +391,19 @@
             };
             i += 2;
           };
-          if(dictCaller != null) dictCaller(blk, cons, rcDict.cons.item, rcDict.cons.fluid);
+          if(dictCaller != null) dictCaller(blk, cons, rcDict.cons.item, rcDict.cons.fluid, rcDict.cons.block, rcDict.cons.unit);
         });
+
+        let dictCaller = null;
+        i = 0, iCap = arr.iCap();
+        while(i < iCap) {
+          cls = arr[i];
+          if(blk instanceof cls) {
+            dictCaller = arr[i + 1];
+          };
+          i += 2;
+        };
+        if(dictCaller != null) dictCaller(blk, null, rcDict.cons.item, rcDict.cons.fluid, rcDict.cons.block, rcDict.cons.unit);
       };
 
       if(!DB_block.db["group"]["noRcDict"]["prod"].includes(blk.name)) {
@@ -313,7 +417,7 @@
           };
           i += 2;
         };
-        if(dictCaller != null) dictCaller(blk, rcDict.prod.item, rcDict.prod.fluid);
+        if(dictCaller != null) dictCaller(blk, rcDict.prod.item, rcDict.prod.fluid, rcDict.prod.block, rcDict.prod.unit);
       };
 
     }));

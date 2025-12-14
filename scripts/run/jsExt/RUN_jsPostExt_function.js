@@ -40,7 +40,7 @@
   ptp.setAnno = function(anno, args_p, skipVal) {
     const thisFun = this;
 
-    if(anno == null || !(anno instanceof CLS_annotation)) ERROR_HANDLER.notAnno();
+    if(anno == null || !(anno instanceof CLS_annotation)) ERROR_HANDLER.throw("notAnno", anno);
     if(args_p == null) args_p = [];
     let args = args_p instanceof Array ? args_p : [args_p];
 

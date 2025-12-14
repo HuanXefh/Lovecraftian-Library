@@ -77,7 +77,7 @@
 
     this.__IS_ABSTRACT_CLASS__ = true;
     this.prototype.init = function() {
-      ERROR_HANDLER.abstractInstance();
+      ERROR_HANDLER.throw("abstractInstance");
     };
 
     return this;
@@ -92,7 +92,7 @@
    * You can use {this.super(nmFun, ...args)} to call super methods later.
    * ---------------------------------------- */
   ptp.extendClass = function(cls) {
-    if(typeof cls !== "function" || !cls.__IS_CLASS__) ERROR_HANDLER.notClass(cls);
+    if(typeof cls !== "function" || !cls.__IS_CLASS__) ERROR_HANDLER.throw("notClass", cls);
 
     Object.assign(this, cls);
     // Clone all native objects/arrays to prevent modification of the super one
@@ -107,10 +107,10 @@
 
     this.super = function(nmFun) {
       let clsParent = this.getSuper();
-      if(clsParent === Function) ERROR_HANDLER.noSuperClass();
-      if(clsParent.__IS_ABSTRACT_CLASS__) ERROR_HANDLER.abstractSuper();
+      if(clsParent === Function) ERROR_HANDLER.throw("noSuperClass");
+      if(clsParent.__IS_ABSTRACT_CLASS__) ERROR_HANDLER.throw("abstractSuper");
       let funParent = clsParent[nmFun];
-      if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
+      if(funParent == null) ERROR_HANDLER.throw("noSuperMethod", nmFun);
 
       return funParent.apply(this, Array.from(arguments).splice(1));
     };
@@ -120,10 +120,10 @@
 
     this.prototype.super = function(nmFun) {
       let clsParent = this.getClass().getSuper();
-      if(clsParent === Function) ERROR_HANDLER.noSuperClass();
-      if(clsParent.__IS_ABSTRACT_CLASS__) ERROR_HANDLER.abstractSuper();
+      if(clsParent === Function) ERROR_HANDLER.throw("noSuperClass");
+      if(clsParent.__IS_ABSTRACT_CLASS__) ERROR_HANDLER.throw("abstractSuper");
       let funParent = clsParent.prototype[nmFun];
-      if(funParent == null) ERROR_HANDLER.noSuperMethod(nmFun);
+      if(funParent == null) ERROR_HANDLER.throw("noSuperMethod", nmFun);
 
       return funParent.apply(this, Array.from(arguments).splice(1));
     };

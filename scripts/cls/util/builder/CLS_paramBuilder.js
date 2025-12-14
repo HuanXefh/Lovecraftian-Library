@@ -1,7 +1,7 @@
 /* ----------------------------------------
  * NOTE:
  *
- * The base class for all parameter builders.
+ * The base class for most parameter builders.
  * {builderObj} should be defined in child classes.
  * ---------------------------------------- */
 
@@ -24,17 +24,11 @@ const CLS_paramBuilder = newClass().initAbstrClass();
 var ptp = CLS_paramBuilder.prototype;
 
 
-ptp.extend = function(obj) {
-  if(this.builderObj == null || obj == null) return this;
-
-  for(let key in obj) {
-    this.builderObj[key] = obj[key];
-  };
-
-  return this;
-};
-
-
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Returns the final object built.
+ * ---------------------------------------- */
 ptp.build = function() {
   return tryVal(this.builderObj, Object.air);
 };

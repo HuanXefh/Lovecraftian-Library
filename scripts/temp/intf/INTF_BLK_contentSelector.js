@@ -23,6 +23,7 @@
 
 
   const CLS_interface = require("lovec/cls/struct/CLS_interface");
+  const JAVA = require("lovec/glb/GLB_java");
 
 
   const MDL_io = require("lovec/mdl/MDL_io");
@@ -37,17 +38,19 @@
       blk.selectionColumns = 10;
     };
 
+    blk.selectionQueue.pushAll(blk.ex_findSelectionTgs());
+
     blk.configurable = true;
     blk.saveConfig = true;
     blk.clearOnDoubleTap = true;
 
-    blk.config(Item, (b, itm) => {
-      b.ex_accRsTg(itm);
+    blk.config(JAVA.STRING, (b, nmCt) => {
+      b.ex_accCtTg(MDL_content._ct(nmCt, null, true));
       b.ex_onSelectorUpdate();
     });
 
     blk.configClear(b => {
-      b.ex_accRsTg("null");
+      b.ex_accCtTg("null");
       b.ex_onSelectorUpdate();
     });
   };
@@ -60,8 +63,8 @@
 
   function comp_ex_buildSelector(b, tb) {
     MDL_table.setSelector_ct(
-      tb, b.block, Vars.content.items().toArray(),
-      () => b.ex_accRsTg("read"), val => b.configure(val), false,
+      tb, b.block, b.block.ex_getSelectionQueue(),
+      () => b.ex_accCtTg("read"), val => b.configure(val.name), false,
       b.block.selectionRows, b.block.selectionColumns,
     );
   };
@@ -81,9 +84,25 @@
     new CLS_interface({
 
 
+      __PARAM_OBJ_SETTER__: () => ({
+        selectionQueue: prov(() => []),
+      }),
+      __GETTER_SETTER__: () => [
+        "selectionQueue",
+      ],
+
+
       init: function() {
         comp_init(this);
       },
+
+
+      ex_findSelectionTgs: function() {
+        return Vars.content.items().toArray();
+      }
+      .setProp({
+        noSuper: true,
+      }),
 
 
     }),
@@ -94,10 +113,10 @@
 
 
       __PARAM_OBJ_SETTER__: () => ({
-        rsTg: null,
+        ctTg: null,
       }),
       __ACCESSOR_SETTER__: () => [
-        "rsTg",
+        "ctTg",
       ],
 
 
@@ -110,17 +129,7 @@
 
 
       config: function() {
-        return this.rsTg;
-      }
-      .setProp({
-        noSuper: true,
-      }),
-
-
-      ex_accRsTg: function(param) {
-        return param == "read" ?
-          this.rsTg :
-          (this.rsTg = param);
+        return this.ctTg;
       }
       .setProp({
         noSuper: true,
@@ -149,11 +158,11 @@
           wr0rd, lovecRevi,
 
           (wr, revi) => {
-            MDL_io._wr_ct(wr, this.rsTg);
+            MDL_io._wr_ct(wr, this.ctTg);
           },
 
           (rd, revi) => {
-            this.rsTg = MDL_io._rd_ct(rd);
+            this.ctTg = MDL_io._rd_ct(rd);
           },
         );
       }

@@ -523,18 +523,18 @@
    * NOTE:
    *
    * Creates a dialog flow (multiple texts in sequence).
-   * Format for {flowArr}: {[nmMod1, nmDial, dialInd], [nmMod2, nmChara], paramObj, charaArgs}.
+   * Format for {dialFlowArr}: {[nmMod1, nmDial, dialInd], [nmMod2, nmChara], paramObj, charaArgs}.
    * Format for {charaArgs}: {[delay, nmMod, nmChara, fracX, isDark0color, anim, animParam, customActs]}
    * ---------------------------------------- */
-  const _d_flow = function thisFun(dialKey) {
-    let flowArr = global.lovec.db_misc.db["drama"]["dial"]["flow"].read(dialKey);
-    if(flowArr == null) {
-      Log.warn("[LOVEC] Cannot find dialog flow for " + dialKey + "!");
+  const _d_flow = function thisFun(dialNm) {
+    let dialFlowArr = fetchDialogFlow(dialNm);
+    if(dialFlowArr.length === 0) {
+      Log.warn("[LOVEC] Cannot find dialog flow for " + dialNm + "!");
       return;
     };
 
-    thisFun.flowIndMap.put(flowArr, 0);
-    thisFun.callFlow(flowArr);
+    thisFun.flowIndMap.put(dialFlowArr, 0);
+    thisFun.callFlow(dialFlowArr);
   }
   .setProp({
     flowIndMap: new ObjectMap(),

@@ -351,7 +351,7 @@
     () => extend(BaseDialog, "", {
 
 
-      ex_buildList(tb, rs, rcDictArr) {
+      ex_buildList(tb, ct, rcDictArr) {
         const thisDial = this;
 
         let i = 0, iCap = rcDictArr.iCap(), j = 0;
@@ -365,7 +365,7 @@
           rcCont.table(Styles.none, tb1 => {
             let data = rcDictArr[i + 2];
             let craftTime = data.time != null ? data.time : MDL_content._craftTime(rcDictArr[i], data.icon === "lovec-icon-mining");
-            let craftRate = (!isFinite(craftTime) && rs instanceof Item) ? null : (rs instanceof Item ? (rcDictArr[i + 1] / craftTime * 60.0) : (rcDictArr[i + 1] * 60.0));
+            let craftRate = (!isFinite(craftTime) && !(ct instanceof Liquid)) ? null : (!(ct instanceof Liquid) ? (rcDictArr[i + 1] / craftTime * 60.0) : (rcDictArr[i + 1] * 60.0));
             // @TABLE: rate text
             tb1.add(MDL_text._statText(
               MDL_bundle._term("lovec", "rate"),
@@ -378,13 +378,13 @@
             tb1.table(Styles.none, tb2 => {
               tb2.left();
               // @TABLE: content icon
-              let ors = MDL_content._ct(data.ct, null, true);
-              if(ors != null) {
+              let oct = MDL_content._ct(data.ct, null, true);
+              if(oct != null) {
                 let btn = tb2.button(Tex.whiteui, Styles.clearNoneTogglei, 28.0, () => {
                   thisDial.hide();
-                  Vars.ui.content.show(ors);
+                  Vars.ui.content.show(oct);
                 }).left().get();
-                btn.getStyle().imageUp = new TextureRegionDrawable(ors.uiIcon);
+                btn.getStyle().imageUp = new TextureRegionDrawable(oct.uiIcon);
               };
               // @TABLE: tag icon
               if(data.icon != null) {
@@ -399,12 +399,12 @@
       },
 
 
-      ex_show(title, rs_gn) {
+      ex_show(title, ct_gn) {
         resetDial(this, title);
         const thisDial = this;
 
-        let rs = MDL_content._ct(rs_gn, "rs");
-        if(rs == null) return;
+        let ct = MDL_content._ct(ct_gn, null, true);
+        if(ct == null) return;
 
         // @TABLE: content
         MDL_table.__break(this.cont);
@@ -413,14 +413,14 @@
           let cont = new Table();
 
           // @TABLE: icon
-          cont.button(new TextureRegionDrawable(rs.uiIcon), 48.0, () => {
+          cont.button(new TextureRegionDrawable(ct.uiIcon), 48.0, () => {
             thisDial.hide();
-            Vars.ui.content.show(rs);
+            Vars.ui.content.show(ct);
           }).left().row();
           pn.add(cont).growX();
 
           // @TABLE: producer
-          let prodArr = MDL_recipeDict._producers(rs, true);
+          let prodArr = MDL_recipeDict._producers(ct, true);
           if(prodArr.length > 0) {
             // @TABLE: consumer title
             cont.table(Tex.whiteui, tb => {
@@ -432,12 +432,12 @@
             cont.table(Tex.whiteui, tb => {
               tb.left().setColor(Pal.darkestGray);
               MDL_table.__margin(tb);
-              this.ex_buildList(tb, rs, prodArr);
+              this.ex_buildList(tb, ct, prodArr);
             }).left().growX().row();
           };
 
           // @TABLE: consumer
-          let consArr = MDL_recipeDict._consumers(rs, true);
+          let consArr = MDL_recipeDict._consumers(ct, true);
           if(consArr.length > 0) {
             // @TABLE: consumer title
             cont.table(Tex.whiteui, tb => {
@@ -449,24 +449,26 @@
             cont.table(Tex.whiteui, tb => {
               tb.left().setColor(Pal.darkestGray);
               MDL_table.__margin(tb);
-              this.ex_buildList(tb, rs, consArr);
+              this.ex_buildList(tb, ct, consArr);
             }).left().growX().row();
           };
 
           // @TABLE: building
-          let reqBlks = MDL_content._reqBlks(rs);
-          if(reqBlks.length > 0) {
-            // @TABLE: building title
-            cont.table(Tex.whiteui, tb => {
-              tb.center().setColor(Color.darkGray);
-              MDL_table.__margin(tb, 0.5);
-              tb.add(MDL_bundle._term("lovec", "building")).pad(4.0);
-            }).left().growX().row();
-            // @TABLE: building list
-            cont.table(Tex.whiteui, tb => {
-              tb.center().setColor(Pal.darkestGray);
-              MDL_table.setDisplay_ctLi(tb, reqBlks, 48.0, null, thisDial);
-            }).left().growX().row();
+          if(ct instanceof Item) {
+            let reqBlks = MDL_content._reqBlks(ct);
+            if(reqBlks.length > 0) {
+              // @TABLE: building title
+              cont.table(Tex.whiteui, tb => {
+                tb.center().setColor(Color.darkGray);
+                MDL_table.__margin(tb, 0.5);
+                tb.add(MDL_bundle._term("lovec", "building")).pad(4.0);
+              }).left().growX().row();
+              // @TABLE: building list
+              cont.table(Tex.whiteui, tb => {
+                tb.center().setColor(Pal.darkestGray);
+                MDL_table.setDisplay_ctLi(tb, reqBlks, 48.0, null, thisDial);
+              }).left().growX().row();
+            };
           };
         }).row();
 
@@ -475,11 +477,11 @@
         MDL_table.__btnClose(this.buttons, this);
         MDL_table.__btn(this.buttons, MDL_bundle._term("lovec", "new-window"), () => {
           this.hide();
-          new CLS_window(rs.localizedName, tb => {
+          new CLS_window(ct.localizedName, tb => {
             tb.center();
-            let tmpRs = rs;
-            tb.button(new TextureRegionDrawable(tmpRs.uiIcon), 48.0, () => {
-              rcDict.ex_show(tmpRs.localizedName, tmpRs);
+            let tmpCt = ct;
+            tb.button(new TextureRegionDrawable(tmpCt.uiIcon), 48.0, () => {
+              rcDict.ex_show(tmpCt.localizedName, tmpCt);
             }).center();
           }).add();
         });

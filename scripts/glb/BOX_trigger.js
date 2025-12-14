@@ -79,7 +79,7 @@ const BOX_trigger = new CLS_objectBox({
       BOX_trigger.unitDestroy.fire(unit);
     });
 
-    return new CLS_eventTrigger("lovec-unit-destroy").setClearOnMapChange(true);
+    return new CLS_eventTrigger("lovec-unit-destroy");
   })(),
 
 
@@ -89,7 +89,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: unit
    * Triggered whenever a unit gets hidden by trees.
    * ---------------------------------------- */
-  treeHide: new CLS_eventTrigger("lovec-tree-hide").setClearOnMapChange(true),
+  treeHide: new CLS_eventTrigger("lovec-tree-hide"),
 
 
   /* ----------------------------------------
@@ -98,7 +98,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: b, itm, amt
    * Triggered whenever an item is produced in some Lovec factory.
    * ---------------------------------------- */
-  itemProduce: new CLS_eventTrigger("lovec-item-produce").setClearOnMapChange(true),
+  itemProduce: new CLS_eventTrigger("lovec-item-produce"),
 
 
   /* ----------------------------------------
@@ -107,7 +107,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: loot
    * Triggered whenever a loot unit is spawned.
    * ---------------------------------------- */
-  lootSpawn: new CLS_eventTrigger("lovec-loot-spawn").setClearOnMapChange(true),
+  lootSpawn: new CLS_eventTrigger("lovec-loot-spawn"),
 
 
   /* ----------------------------------------
@@ -116,7 +116,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: unit
    * Triggered whenever a loot unit is explicitly destroyed.
    * ---------------------------------------- */
-  lootDestroy: new CLS_eventTrigger("lovec-loot-destroy").setClearOnMapChange(true),
+  lootDestroy: new CLS_eventTrigger("lovec-loot-destroy"),
 
 
   /* ----------------------------------------
@@ -134,7 +134,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: x, y, dmg, rad
    * Triggered whenever an impact wave is created (before creation).
    * ---------------------------------------- */
-  impactWave: new CLS_eventTrigger("lovec-impact-wave").setClearOnMapChange(true),
+  impactWave: new CLS_eventTrigger("lovec-impact-wave"),
 
 
   /* ----------------------------------------
@@ -143,7 +143,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: x, y, unit
    * Triggered whenever a unit is killed by impact wave.
    * ---------------------------------------- */
-  impactWaveDeath: new CLS_eventTrigger("lovec-impact-wave-death").setClearOnMapChange(true),
+  impactWaveDeath: new CLS_eventTrigger("lovec-impact-wave-death"),
 
 
   /* ----------------------------------------
@@ -152,7 +152,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: b, unit
    * Triggered whenever a unit touches powered wire.
    * ---------------------------------------- */
-  wireTouch: new CLS_eventTrigger("lovec-wire-touch").setClearOnMapChange(true),
+  wireTouch: new CLS_eventTrigger("lovec-wire-touch"),
 
 
   /* ----------------------------------------
@@ -161,7 +161,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: b, unit
    * Triggered every second when a unit is rotated by a cogwheel.
    * ---------------------------------------- */
-  cogwheelUnitSpin: new CLS_eventTrigger("lovec-cogwheel-unit-spin").setClearOnMapChange(true),
+  cogwheelUnitSpin: new CLS_eventTrigger("lovec-cogwheel-unit-spin"),
 
 
   /* ----------------------------------------
@@ -170,7 +170,7 @@ const BOX_trigger = new CLS_objectBox({
    * @ARGS: b
    * Triggered whenever a building explodes due to nearby fire.
    * ---------------------------------------- */
-  buildingFireExplosion: new CLS_eventTrigger("lovec-building-fire-explosion").setClearOnMapChange(true),
+  buildingFireExplosion: new CLS_eventTrigger("lovec-building-fire-explosion"),
 
 
   /* VERY SPECIAL ZONE */

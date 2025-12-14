@@ -17,7 +17,7 @@ const CLS_contentTemplate = newClass().initClass();
 
 
 CLS_contentTemplate.prototype.init = function() {
-  ERROR_HANDLER.contentTemplateInstance();
+  ERROR_HANDLER.throw("contentTemplateInstance");
 };
 
 
@@ -126,9 +126,11 @@ cls.setTags = function() {
  * Uses properties of {fun}:
  * fun.noSuper: bool                @PARAM: Whether {this.super$xxx} should be skipped.
  * fun.override: bool                @PARAM: Whether to skip methods from the parent template.
+ * fun.final: bool                @PARAM: Whether the method is fixed and cannot be mixed when inherited later.
  * fun.boolMode: str                @PARAM: Used for functions that return a boolean. Possible values: "none", "and", "or".
  * fun.superBoolMode: str                @PARAM: Like {boolMode} but for {super$xxx}, same as {boolMode} by default.
  * fun.argLen: int                @PARAM: The expected argument length of final Java method.
+ * fun.funPrev: *DO NOT SET*                @PARAM: The method from parent template before mixing, for advanced use.
  * ---------------------------------------- */
 cls.setMethod = function(nmFunObj) {
   const thisCls = this;
@@ -276,7 +278,7 @@ cls.getParent = function() {
 cls.build = function(paramObj) {
   const obj = {};
 
-  if(this.getParent() == null) ERROR_HANDLER.contentTemplateNoParentClass();
+  if(this.getParent() == null) ERROR_HANDLER.throw("contentTemplateNoParentJavaClass");
 
   Object._it(this.paramObj, (nm, def) => {
     // Skip template parent, or an error jumps out of nowhere

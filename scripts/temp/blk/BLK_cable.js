@@ -41,7 +41,7 @@
 
 
   function comp_init(blk) {
-    if(blk.size !== 1) ERROR_HANDLER.notSingleSized(blk);
+    if(blk.size !== 1) ERROR_HANDLER.throw("notSingleSized", blk.name);
 
     if(blk.overwriteVanillaProp) {
       blk.conductivePower = true;
@@ -87,7 +87,7 @@
   function comp_unitOn(b, unit) {
     if(b.power == null || b.power.status < 0.1 || !Mathf.chance(0.03) || !MDL_cond._isWet(unit)) return;
 
-    FRAG_attack._a_lightning(b.x, b.y, null, null, null, 6, 4);
+    FRAG_attack._a_lightning(b.x, b.y, null, null, null, 6, 4, null, "ground");
     TRIGGER.wetStepOnCable.fire();
   };
 

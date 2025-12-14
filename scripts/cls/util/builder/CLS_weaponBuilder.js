@@ -31,6 +31,11 @@ CLS_weaponBuilder.prototype.init = function() {
 var ptp = CLS_weaponBuilder.prototype;
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Weapon name.
+ * ---------------------------------------- */
 ptp.__name = function(nm) {
   this.builderObj.name = tryVal(nm, "");
 
@@ -38,6 +43,11 @@ ptp.__name = function(nm) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database stats.
+ * ---------------------------------------- */
 ptp.__stat = function(shouldDisplay, showSprite) {
   this.builderObj.display = tryVal(shouldDisplay, true);
   this.builderObj.showStatSprite = tryVal(showSprite, true);
@@ -46,6 +56,11 @@ ptp.__stat = function(shouldDisplay, showSprite) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Controllable properties.
+ * ---------------------------------------- */
 ptp.__control = function(controllable, aiControllable) {
   this.builderObj.controllable = tryVal(controllable, true);
   this.builderObj.aiControllable = tryVal(aiControllable, true);
@@ -54,6 +69,11 @@ ptp.__control = function(controllable, aiControllable) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Hidden ammo system.
+ * ---------------------------------------- */
 ptp.__ammo = function(useAmmo, ammoItm) {
   this.builderObj.useAmmo = tryVal(useAmmo, true);
 
@@ -61,6 +81,11 @@ ptp.__ammo = function(useAmmo, ammoItm) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Positions to draw and shoot from.
+ * ---------------------------------------- */
 ptp.__pos = function(x, y, shootX, shootY, randX, randY) {
   this.builderObj.x = tryVal(x, 0.0);
   this.builderObj.y = tryVal(y, 0.0);
@@ -73,6 +98,11 @@ ptp.__pos = function(x, y, shootX, shootY, randX, randY) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Properties related to draw.
+ * ---------------------------------------- */
 ptp.__draw = function(offZ, isTop, radSha) {
   this.builderObj.layerOffset = tryVal(offZ, 0.0);
   this.builderObj.top = tryVal(isTop, true);
@@ -82,6 +112,11 @@ ptp.__draw = function(offZ, isTop, radSha) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Weapon effect. Most effects are defined in bullet types.
+ * ---------------------------------------- */
 ptp.__effect = function(shouldParentize, ejectEff) {
   this.builderObj.shouldParentize = tryVal(shouldParentize, true);
   this.builderObj.ejectEffect = tryVal(ejectEff, Fx.none);
@@ -90,6 +125,11 @@ ptp.__effect = function(shouldParentize, ejectEff) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Weapon sound.
+ * ---------------------------------------- */
 ptp.__sound = function(shootSeStr, chargeSeStr, noAmmoSeStr) {
   this.builderObj.shootSound = shootSeStr == null ? Sounds.none : Vars.tree.loadSound(shootSeStr);
   this.builderObj.chargeSound = chargeSeStr == null ? Sounds.none : Vars.tree.loadSound(chargeSeStr);
@@ -99,6 +139,11 @@ ptp.__sound = function(shootSeStr, chargeSeStr, noAmmoSeStr) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Parameters for sound.
+ * ---------------------------------------- */
 ptp.__soundExt = function(minPitch, maxPitch) {
   this.builderObj.soundPitchMin = tryVal(minPitch, 0.8);
   this.builderObj.soundPitchMax = tryVal(maxPitch, 1.0);
@@ -107,6 +152,11 @@ ptp.__soundExt = function(minPitch, maxPitch) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Double gun.
+ * ---------------------------------------- */
 ptp.__mirror = function(shouldMirror, shouldAlternate) {
   this.builderObj.mirror = tryVal(shouldMirror, false);
   this.builderObj.alternate = tryVal(shouldAlternate, false);
@@ -115,6 +165,11 @@ ptp.__mirror = function(shouldMirror, shouldAlternate) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Weapon rotation.
+ * ---------------------------------------- */
 ptp.__rotate = function(canRot, rotSpd, baseRot, rotLimit) {
   this.builderObj.rotate = tryVal(canRot, false);
   this.builderObj.rotateSpeed = tryVal(rotSpd, 20.0);
@@ -125,6 +180,11 @@ ptp.__rotate = function(canRot, rotSpd, baseRot, rotLimit) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * If it's not a real weapon, don't use attack range.
+ * ---------------------------------------- */
 ptp.__range = function(useAttackRange) {
   this.builderObj.useAttackRange = tryVal(useAttackRange, true);
 
@@ -132,6 +192,11 @@ ptp.__range = function(useAttackRange) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Various shoot properties.
+ * ---------------------------------------- */
 ptp.__shoot = function(cone, pattern, minVel, sta, staDur) {
   this.builderObj.shootCone = tryVal(cone, 5.0);
   this.builderObj.shootPattern = tryVal(pattern, new ShootPattern());
@@ -143,6 +208,11 @@ ptp.__shoot = function(cone, pattern, minVel, sta, staDur) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Advanced uses for shoot.
+ * ---------------------------------------- */
 ptp.__shootExt = function(noAttack, shootOnDeath, alwaysShooting, ignoreRot) {
   this.builderObj.noAttack = tryVal(noAttack, false);
   this.builderObj.shootOnDeath = tryVal(shootOnDeath, false);
@@ -153,6 +223,11 @@ ptp.__shootExt = function(noAttack, shootOnDeath, alwaysShooting, ignoreRot) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Faster pew pew.
+ * ---------------------------------------- */
 ptp.__reload = function(reload) {
   this.builderObj.reload = tryVal(reload, 1.0);
 
@@ -160,6 +235,11 @@ ptp.__reload = function(reload) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Visual only knockback.
+ * ---------------------------------------- */
 ptp.__recoil = function(shake, recoil, time, pow, recoils) {
   this.builderObj.shake = tryVal(shake, 0.0);
   this.builderObj.recoil = tryVal(recoil, 1.5);
@@ -171,6 +251,11 @@ ptp.__recoil = function(shake, recoil, time, pow, recoils) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Visual only heat.
+ * ---------------------------------------- */
 ptp.__heat = function(cdTime, heatColor) {
   this.builderObj.cooldownTime = tryVal(cdTime, tryVal(this.builderObj.reload, 0.0) * 1.2);
   this.builderObj.heatColor = tryVal(heatColor, Pal.turretHeat);
@@ -179,6 +264,11 @@ ptp.__heat = function(cdTime, heatColor) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Targeting behavior.
+ * ---------------------------------------- */
 ptp.__target = function(autoTarget, predictTarget, aimChangeSpd) {
   this.builderObj.autoTarget = tryVal(autoTarget, false);
   this.builderObj.predictTarget = tryVal(predictTarget, true);
@@ -188,6 +278,11 @@ ptp.__target = function(autoTarget, predictTarget, aimChangeSpd) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Interval used for targeting. Do I really need these???
+ * ---------------------------------------- */
 ptp.__targetItnv = function(intv, switchIntv) {
   this.builderObj.targetInterval = tryVal(intv, 40.0);
   this.builderObj.targetSwitchInterval = tryVal(switchIntv, 70.0);
@@ -196,6 +291,11 @@ ptp.__targetItnv = function(intv, switchIntv) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Anything warmed up.
+ * ---------------------------------------- */
 ptp.__warmup = function(minWarmup, isLinear, partWarmupSpd, partReloadSpd) {
   this.builderObj.minWarmup = tryVal(minWarmup, 0.0);
   this.builderObj.linearWarmup = tryVal(isLinear, false);
@@ -206,13 +306,23 @@ ptp.__warmup = function(minWarmup, isLinear, partWarmupSpd, partReloadSpd) {
 };
 
 
-ptp.__part = function(partArr) {
-  this.builderObj.parts = tryVal(partArr, []).toSeq();
+/* ----------------------------------------
+ * NOTE:
+ *
+ * How to make a weapon fancy.
+ * ---------------------------------------- */
+ptp.__part = function(parts) {
+  this.builderObj.parts = tryVal(parts, []).toSeq();
 
   return this;
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Without this it's not a weapon.
+ * ---------------------------------------- */
 ptp.__bullet = function(btp) {
   this.builderObj.bullet = tryVal(btp, Bullets.placeholder);
 
@@ -220,6 +330,11 @@ ptp.__bullet = function(btp) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Only for some types of weapon.
+ * ---------------------------------------- */
 ptp.__continuous = function(isContinuous, alwaysContinuous) {
   this.builderObj.continuous = tryVal(isContinuous, false);
   this.builderObj.alwaysContinuous = tryVal(alwaysContinuous, false);
@@ -228,6 +343,11 @@ ptp.__continuous = function(isContinuous, alwaysContinuous) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * For more randomness.
+ * ---------------------------------------- */
 ptp.__bulVel = function(randVelFrac, addVelFrac) {
   this.builderObj.velocityRnd = tryVal(randVelFrac, 0.0);
   this.builderObj.extraVelocity = tryVal(addVelFrac, 0.0);

@@ -27,7 +27,7 @@ const CLS_achievement = newClass().initClass();
 CLS_achievement.prototype.init = function(nm, icon, trigger, listener) {
   const thisIns = this;
 
-  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.notUniqueName("achievement");
+  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.throw("notUniqueName", nm, "achievement");
   insNms.push(nm);
   this.name = nm;
 

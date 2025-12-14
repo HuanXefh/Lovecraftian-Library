@@ -289,7 +289,7 @@
   .setAnno(ANNO.$INIT$, function() {
     const thisFun = this;
 
-    TRIGGER.mapChange.addListener(() => {
+    TRIGGER.mapChange.addGlobalListener(() => {
       thisFun.sumScl = null;
     });
   });

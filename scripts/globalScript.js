@@ -128,52 +128,32 @@
    * NOTE:
    *
    * Collection of some errors that may frequently occur.
+   * Errors are registered in {TP_error}.
    * ---------------------------------------- */
-  (function() {
-    ERROR_HANDLER = {};
+  ERROR_HANDLER = {
 
-    ERROR_HANDLER.debug = info => {throw new Error("[$1] sucks.".format(tryVal(info, "JavaScript").firstUpperCase()))};
 
-    ERROR_HANDLER.nullArgument = nm => {throw new Error("Argument [$1] cannot be null!".format(nm))};
-    ERROR_HANDLER.arrayLengthMismatch = (arr1, arr2) => {throw new Error("Array arguments are expected to have same length!\n[$1]\n\n[$2]".format(JSON.stringify(arr1), JSON.stringify(arr2)))};
-    ERROR_HANDLER.not3dArray = (arr) => {throw new Error("Expected a 3D array! Errored array:\n[$1]".format(JSON.stringify(arr)))};
-    ERROR_HANDLER.functionLengthOutOfBound = len => {throw new Error("Wrapped function length ([$1]) is out of bound!".format(len))};
-    ERROR_HANDLER.notProv = arg => {throw new Error("[$1] is not an instance of Prov!".format(arg))};
-    ERROR_HANDLER.notClass = arg => {throw new Error("[$1] is not a function class!".format(arg))};
-    ERROR_HANDLER.noSuperClass = () => {throw new Error("Can't call super when there's no parent class!")};
-    ERROR_HANDLER.noSuperMethod = nmFun => {throw new Error("Method [$1] is not defined in super class!".format(nmFun))};
-    ERROR_HANDLER.abstractInstance = () => {throw new Error("Cannot create instances of an abstract class.")};
-    ERROR_HANDLER.abstractSuper = () => {throw new Error("Calling super methods from an abstract class is not allowed.")};
-    ERROR_HANDLER.classNoInit = () => {throw new Error("{class.prototype.init} is required for a class!")};
-    ERROR_HANDLER.notAnno = () => {throw new Error("Annotation argument is not an annotation!")};
-    ERROR_HANDLER.notInterface = () => {throw new Error("Interface argument is not an interface!")};
-    ERROR_HANDLER.duplicateInterface = () => {throw new Error("Don't implement the same interface twice!")};
-    ERROR_HANDLER.interfaceNonFunctionValue = (key, val) => {throw new Error("Interface should only hold functions! Found exception ([$1]):\n".format(key) + val)};
-    ERROR_HANDLER.interfaceMethodConflict = nmFun => {throw new Error("Can't implement interface on a class due to name conflict: " + nmFun)};
-    ERROR_HANDLER.headerConfict = (header, tp) => {throw new Error("A header name [$1]conflicts with existing headers: ".format(tp == null ? "" : "(type: [$1]) ".format(tp)) + header)};
-    ERROR_HANDLER.contentTemplateInstance = () => {throw new Error("Do not create instances of a content template!")};
-    ERROR_HANDLER.contentTemplateNoParentClass = () => {throw new Error("Cannot build the object when a template has no parent Java class!")};
+    __ERR_MAP__: new ObjectMap(),
 
-    ERROR_HANDLER.notVector = arg => {throw new Error("[$1] is not a vector!".format(arg))};
-    ERROR_HANDLER.notSquareMatrix = arg => {throw new Error("[$1] is not a square matrix!".format(arg))};
-    ERROR_HANDLER.matrixSizeMismatch = () => {throw new Error("Operation is invalid for matrices with different sizes!")};
-    ERROR_HANDLER.matrixMultiplicationInvalid = () => {throw new Error("The given matrices cannot multiply with each other!")};
-    ERROR_HANDLER.validOnlyFor3dVector = () => {throw new Error("Operation is valid only for 3-dimensional vectors!")};
-    ERROR_HANDLER.ArcVectorConversionFail = arg => {throw new Error("Cannot handle [$1], Arc vectors should be 2D or 3D only!".format(arg))};
 
-    ERROR_HANDLER.notUniqueName = info => {throw new Error("A unique name must be assigned to [$1]!".format(info))};
-    ERROR_HANDLER.noContent = nm => {throw new Error("Content is not found for [$1]!".format(nm))};
-    ERROR_HANDLER.contentMissingMethod = (ct, nmFun) => {throw new Error("[$1] is not defined for [$2]!".format(nmFun, ct.name))};
-    ERROR_HANDLER.auxilliaryFluidNotGas = aux => {throw new Error("Abstract fluid [$1] should be a gas!".format(aux.name))};
-    ERROR_HANDLER.noItemModule = blk => {throw new Error(blk.name + " has no item module!")};
-    ERROR_HANDLER.noLiquidModule = blk => {throw new Error(blk.name + " has no liquid module!")};
-    ERROR_HANDLER.noItemDrop = blk => {throw new Error("No item drop found for: " + blk.name)};
-    ERROR_HANDLER.noLiquidDrop = blk => {throw new Error("No liquid drop found for: " + blk.name)};
-    ERROR_HANDLER.notSingleSized = blk => {throw new Error("Block [$1] is expected to have size of 1!".format(blk.name))}
-    ERROR_HANDLER.evenSizedCogwheel = blk => {throw new Error("Size of a cogwheel ([$1]) cannot be even!".format(blk.name))};
-    ERROR_HANDLER.planetMeshLoadFail = (pla, tp) => {throw new Error("Failed to load mesh [$1]for [$2].".format(tp == null ? "" : "(type: [$1]) ".format(tp), pla.name))};
-    ERROR_HANDLER.recipeDictionaryNotInitialized = () => {throw new Error("Recipe dictionary has not been initialized yet! Don't modify it before or just on CLIENT LOAD.")};
-  })();
+    add(nm, str) {
+      ERROR_HANDLER.__ERR_MAP__.put(nm, str);
+    },
+
+
+    throw(nm) {
+      let str = ERROR_HANDLER.__ERR_MAP__.get(nm);
+      if(str == null) return;
+
+      if(arguments.length === 1) {
+        throw new Error(str);
+      } else {
+        throw new Error(str.format(Array.from(arguments).splice(1)));
+      };
+    },
+
+
+  };
 
 
   /* <---------- modification ----------> */
@@ -322,7 +302,7 @@
     return function() {
       this.init != null ?
         this.init.apply(this, arguments) :
-        ERROR_HANDLER.classNoInit();
+        ERROR_HANDLER.throw("noInitForClassPrototype");
     };
   };
 
@@ -433,7 +413,7 @@
   TMP_Z = 0;
   TMP_Z_A = 0;
   TMP_Z_B = 0;
-  TMP_REG = null;
+  TMP_REG = new TextureRegion();
   TRIGGER_BACKGROUND = false;
   TRIGGER_MUSIC = false;
 
@@ -578,7 +558,7 @@
    * Used when {def} is very costy to get.
    * ---------------------------------------- */
   tryValProv = function(val, defProv) {
-    if(!(defProv instanceof Prov)) ERROR_HANDLER.notProv(defProv);
+    if(!(defProv instanceof Prov)) ERROR_HANDLER.throw("notProv", defProv);
 
     return val == null ? defProv.get() : val;
   };
@@ -616,10 +596,36 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Used when setting up a lot of properties.
+   * Don't use arrow function here!
+   * ---------------------------------------- */
+  batchCall = function(thisVal, fun) {
+    return fun.apply(thisVal, Array.from(arguments).splice(2));
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * {tryVal} but used for parameter objects.
    * ---------------------------------------- */
   readParam = function(paramObj, nmProp, def) {
     return (paramObj == null || paramObj[nmProp] == null) ? def : paramObj[nmProp];
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {readParam} but the value returned is immediately used if found.
+   * ---------------------------------------- */
+  readParamAndCall = function(paramObj, nmProp, scr, def) {
+    let val = readParam(paramObj, nmProp);
+    if(val !== undefined) {
+      scr(val);
+    } else if(def !== undefined) {
+      scr(def);
+    };
   };
 
 
@@ -769,8 +775,18 @@
    *
    * Gets a dialog by name from registered ones.
    * ---------------------------------------- */
-  fetchDial = function(nm) {
+  fetchDialog = function(nm) {
     return global.lovecUtil.db.dialogGetter.read(nm, global.lovecUtil.db.dialogGetter.read("def"));
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a dialog flow by name from registered ones.
+   * ---------------------------------------- */
+  fetchDialogFlow = function(nm) {
+    return global.lovecUtil.db.dialFlow.read(nm, Array.air);
   };
 
 
@@ -929,6 +945,19 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Registers a dialog flow.
+   * ---------------------------------------- */
+  newDialogFlow = function(nm, dialFlowArr) {
+    Events.run(ContentInitEvent, () => {
+      if(global.lovecUtil.db.dialFlow.includes(nm)) return;
+      global.lovecUtil.db.dialFlow.push(nm, dialFlowArr);
+    });
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Used to overwrite block flags.
    * ---------------------------------------- */
   resetBlockFlag = function(blk, flags) {
@@ -1030,6 +1059,7 @@
 
 
     lovec = global.lovec;
+    lovecUtil = global.lovecUtil;
 
 
     /* <---------- debug ----------> */
@@ -1040,7 +1070,7 @@
      *
      * Prints liquid info for building at (tx, ty).
      * ---------------------------------------- */
-    printLiq = function(tx, ty) {
+    _cmd_printLiq = function(tx, ty) {
       lovec.mdl_test._i_liq(tx, ty);
     };
 
@@ -1050,35 +1080,35 @@
      *
      * Used to test some draw function in game quickly.
      * ---------------------------------------- */
-    drawTest = {
+    DRAW_TEST = {
       enabled: false, safe: false,
       xGetter: Function.airZero, yGetter: Function.airZero, radGetter: Function.airZero, colorGetter: Function.airWhite,
       drawF: Function.air,
       reset() {
-        drawTest.enabled = false;
-        drawTest.safe = false;
-        drawTest.xGetter = Function.airZero;
-        drawTest.yGetter = Function.airZero;
-        drawTest.radGetter = Function.airZero;
-        drawTest.colorGetter = Function.airWhite;
-        drawTest.drawF = Function.air;
+        DRAW_TEST.enabled = false;
+        DRAW_TEST.safe = false;
+        DRAW_TEST.xGetter = Function.airZero;
+        DRAW_TEST.yGetter = Function.airZero;
+        DRAW_TEST.radGetter = Function.airZero;
+        DRAW_TEST.colorGetter = Function.airWhite;
+        DRAW_TEST.drawF = Function.air;
       },
       toggle(bool) {
         if(bool == null) {
-          drawTest.enabled = !drawTest.enabled;
+          DRAW_TEST.enabled = !DRAW_TEST.enabled;
         } else {
-          drawTest.enabled = Boolean(bool);
+          DRAW_TEST.enabled = Boolean(bool);
         };
       },
       setGetter(xGetter, yGetter, radGetter, colorGetter) {
-        drawTest.safe = false;
-        if(xGetter != null && typeof xGetter === "function") drawTest.xGetter = xGetter;
-        if(yGetter != null && typeof yGetter === "function") drawTest.yGetter = yGetter;
-        if(radGetter != null && typeof radGetter === "function") drawTest.radGetter = radGetter;
-        if(colorGetter != null && typeof colorGetter === "function") drawTest.colorGetter = colorGetter;
+        DRAW_TEST.safe = false;
+        if(xGetter != null && typeof xGetter === "function") DRAW_TEST.xGetter = xGetter;
+        if(yGetter != null && typeof yGetter === "function") DRAW_TEST.yGetter = yGetter;
+        if(radGetter != null && typeof radGetter === "function") DRAW_TEST.radGetter = radGetter;
+        if(colorGetter != null && typeof colorGetter === "function") DRAW_TEST.colorGetter = colorGetter;
       },
       setGetter_playerPos(radGetter, colorGetter) {
-        drawTest.setGetter(
+        DRAW_TEST.setGetter(
           () => Vars.player.unit() == null ? -9999.0 : Vars.player.unit().x,
           () => Vars.player.unit() == null ? -9999.0 : Vars.player.unit().y,
           radGetter,
@@ -1087,21 +1117,22 @@
       },
       setDrawF(drawF) {
         if(drawF == null || typeof drawF !== "function") return;
-        drawTest.safe = false;
-        drawTest.drawF = drawF;
+        DRAW_TEST.safe = false;
+        DRAW_TEST.drawF = drawF;
       },
       draw() {
-        if(drawTest.safe) {
-          drawTest.drawF(drawTest.xGetter(), drawTest.yGetter(), drawTest.radGetter(), drawTest.colorGetter());
+        if(DRAW_TEST.safe) {
+          DRAW_TEST.drawF(DRAW_TEST.xGetter(), DRAW_TEST.yGetter(), DRAW_TEST.radGetter(), DRAW_TEST.colorGetter());
         } else {
+          // Try only once to save memory used
           try {
-            drawTest.drawF(drawTest.xGetter(), drawTest.yGetter(), drawTest.radGetter(), drawTest.colorGetter());
+            DRAW_TEST.drawF(DRAW_TEST.xGetter(), DRAW_TEST.yGetter(), DRAW_TEST.radGetter(), DRAW_TEST.colorGetter());
           } catch(err) {
-            drawTest.reset();
+            DRAW_TEST.reset();
             Log.err("[LOVEC] Failed to implement the draw function: \n" + err);
             return;
           };
-          drawTest.safe = true;
+          DRAW_TEST.safe = true;
         };
       },
     };
@@ -1113,8 +1144,12 @@
     /* ----------------------------------------
      * NOTE:
      *
+     * Whether cheat is allowed now.
      * I won't ban these for single player, you decide how to play.
      * ---------------------------------------- */
+    checkCheatState = function() {
+      return Groups.player.size === 0 && !Vars.net.client();
+    };
 
 
     /* ----------------------------------------
@@ -1122,10 +1157,13 @@
      *
      * Kills your unit or someone's instead.
      * ---------------------------------------- */
-    kill = function(nm) {
-      if(Vars.net.client()) return;
+    _cmd_kill = function(nm) {
+      if(!checkCheatState()) return;
       let unit = lovec.mdl_pos._unit_plNm(nm);
-      if(unit == null) return;
+      if(unit == null) {
+        Log.info("[LOVEC] No player found with name [$1].".format(nm));
+        return;
+      };
 
       Call.unitDestroy(unit.id);
     };
@@ -1136,8 +1174,8 @@
      *
      * Literally toggles invincibility.
      * ---------------------------------------- */
-    toggleInvincible = function() {
-      if(Vars.net.client()) return;
+    _cmd_toggleInvincible = function() {
+      if(!checkCheatState()) return;
       let unit = Vars.player.unit();
       if(unit == null) return;
 
@@ -1153,35 +1191,39 @@
     /* ----------------------------------------
      * NOTE:
      *
+     * Toggles invincibility of cores.
+     * ---------------------------------------- */
+    _cmd_toggleCoreInvincible = function thisFun() {
+      thisFun.isOn = !thisFun.isOn;
+      Time.run(2.0, () => {
+        Log.info("[LOVEC] Core invincibility: " + (thisFun.isOn ? "ON" : "OFF").color(Pal.accent));
+      });
+    }
+    .setProp({
+      isOn: (function() {
+        Events.run(Trigger.update, () => {
+          if(_cmd_toggleCoreInvincible.isOn) Vars.player.team().data().cores.each(ob => ob.iframes = Math.max(ob.iframes, 60.0));
+        });
+        return false;
+      })(),
+    });
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
      * Changes your team.
      * ---------------------------------------- */
-    changeTeam = function(nmTeam) {
-      if(Vars.net.client()) return;
-      // Just in case
-      if(nmTeam instanceof Team) {
-        Vars.player.team(nmTeam);
-        return;
+    _cmd_changeTeam = function(team) {
+      if(!checkCheatState()) return;
+      if(typeof team === "string") {
+        try {
+          team = Team[team];
+        } catch(err) {
+          team = null;
+        };
       };
-
-      let team;
-      switch(nmTeam) {
-        case "yellow" :
-          team = Team.sharded;
-          break;
-        case "red" :
-          team = Team.crux;
-          break;
-        case "purple" :
-          team = Team.malis;
-          break;
-        default :
-          try {
-            team = Team[nmTeam]
-          } catch(err) {
-            team = null;
-          };
-      };
-      if(team == null) return;
+      if(!(team instanceof Team)) return;
 
       Vars.player.team(team);
     };
@@ -1193,13 +1235,12 @@
      * Spawns some unit at your unit.
      * Internal units are banned, which may lead to crash.
      * ---------------------------------------- */
-    spawnUnit = function(nmUtp) {
-      if(Vars.net.client()) return;
-      if(typeof nmUtp !== "string" || nmUtp.equalsAny(spawnUnit.blacklist)) return;
+    _cmd_spawnUnit = function(utp_gn) {
+      if(!checkCheatState()) return;
       let unit = Vars.player.unit();
       if(unit == null) return;
-      let utp = lovec.mdl_content._ct(nmUtp, "utp");
-      if(utp == null || utp.internal) return;
+      if(typeof utp_gn === "string" && utp_gn.equalsAny(_cmd_spawnUnit.blacklist)) return;
+      let utp = lovec.mdl_content._ct(utp_gn, "utp");
 
       lovec.mdl_call.spawnUnit(unit.x, unit.y, utp, unit.team);
     }

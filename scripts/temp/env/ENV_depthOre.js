@@ -27,7 +27,6 @@
   const INTF = require("lovec/temp/intf/INTF_ENV_depthOverlay");
 
 
-  const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_text = require("lovec/mdl/MDL_text");
 
@@ -38,10 +37,10 @@
   function comp_init(blk) {
     blk.playerUnmineable = true;
 
-    if(blk.itemDrop == null) ERROR_HANDLER.noItemDrop(blk);
+    if(blk.itemDrop == null) ERROR_HANDLER.throw("noItemDrop", blk.name);
     MDL_content.rename(
       blk,
-      blk.itemDrop.localizedName + MDL_text._space() + "(" + MDL_bundle._term("lovec", "depth-ore") + ")",
+      blk.itemDrop.localizedName + MDL_text._space() + "(" + blk.ex_getDepthName() + ")",
     );
   };
 

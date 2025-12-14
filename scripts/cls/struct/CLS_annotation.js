@@ -25,7 +25,7 @@ const CLS_annotation = newClass().initClass();
 
 
 CLS_annotation.prototype.init = function(nm, funCaller, loadScr, funArgCaller) {
-  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.notUniqueName("annotation");
+  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.throw("notUniqueName", nm, "annotation");
   insNms.push(nm);
   this.name = nm;
 

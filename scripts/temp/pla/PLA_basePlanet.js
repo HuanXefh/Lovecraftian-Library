@@ -84,7 +84,7 @@
     .setProp({
       noSuper: true,
     }),
-    
+
 
   });
 
@@ -104,7 +104,7 @@
 
     if(jsonVal.has("mesh") && !pla.skipMeshParse) {
       let mesh = jsonVal.get("mesh");
-      if(!mesh.isObject() && !mesh.isArray()) ERROR_HANDLER.planetMeshLoadFail(pla);
+      if(!mesh.isObject() && !mesh.isArray()) ERROR_HANDLER.throw("planetMeshLoadFail", "base", pla.name);
       jsonVal.remove("mesh");
       pla.meshLoader = prov(() => {
         try {
@@ -120,7 +120,7 @@
 
     if(jsonVal.has("cloudMesh") && !pla.skipCloudMeshParse) {
       let mesh = jsonVal.get("cloudMesh");
-      if(!mesh.isObject() && !mesh.isArray()) ERROR_HANDLER.planetMeshLoadFail(pla, "cloud");
+      if(!mesh.isObject() && !mesh.isArray()) ERROR_HANDLER.throw("planetMeshLoadFail", "cloud", pla.name);
       jsonVal.remove("cloudMesh");
       pla.cloudMeshLoader = prov(() => {
         try {

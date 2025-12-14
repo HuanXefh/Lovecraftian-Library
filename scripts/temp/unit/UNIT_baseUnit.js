@@ -43,6 +43,8 @@
 
 
   function comp_init(utp) {
+    //utp.entityTemplate = utp.entityTemplate();
+
     FRAG_faci.comp_init_outline(utp);
   };
 
@@ -81,7 +83,8 @@
     // @PARAM: Whether to enable health-based status effects.
     useLovecDamagePenalty: true,
 
-    entityName: "flying",
+    entityName: "flying",                // Entity used by the type, do not change unless you know it well
+    entityTemplate: null,
   })
   .setMethod({
 
@@ -106,20 +109,23 @@
 
   // Resolves entity mapping for the unit type
   module.exports.initUnit = function(utp) {
-    let tup = DB_unit.db["map"]["entity"]["type"].read(utp.entityName, [UnitEntity, null]);
-
-    if(tup[1] == null) {
-      utp.constructor = () => extend(tup[0], {});
+    let entityVal = DB_unit.db["map"]["entity"]["type"].read(utp.entityName, UnitEntity);
+    if(typeof entityVal !== "number") {
+      utp.constructor = () => extend(entityVal, {});
     } else {
-      if(EntityMapping.idMap[tup[1]] == null) {
-        let lambda = prov(() => extend(tup[0], (function() {
-          let obj = Object.create(DB_unit.db["map"]["entity"]["entityDef"].read(tup[1], Object.air));
-          obj.classId = function() {return tup[1]};
-          return obj;
-        })()));
-        EntityMapping.idMap[tup[1]] = lambda;
+      if(EntityMapping.idMap[entityVal] == null) {
+        let templateGetter = DB_unit.db["map"]["entity"]["entityDef"].read(entityVal);
+        if(templateGetter == null) throw new Error("Entity ([$1]) is not defined yet!".format(entityVal));
+        utp.entityTemplate = templateGetter();
+
+        let entityProv = prov(() => extend(utp.entityTemplate.getParent(), mergeObj(utp.entityTemplate.build(), {
+          classId: function() {
+            return entityVal;
+          },
+        })));
+        EntityMapping.idMap[entityVal] = entityProv;
       };
-      EntityMapping.nameMap.put(utp.entityName, EntityMapping.idMap[tup[1]]);
+      EntityMapping.nameMap.put(utp.entityName, EntityMapping.idMap[entityVal]);
       utp.constructor = EntityMapping.map(utp.entityName);
     };
   };

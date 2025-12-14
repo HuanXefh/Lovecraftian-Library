@@ -34,7 +34,7 @@
 
 
   function comp_init(blk) {
-    if(blk.attrRsMap == null) ERROR_HANDLER.nullArgument("attrRsMap");
+    if(blk.attrRsMap == null) ERROR_HANDLER.throw("nullArgument", "attrRsMap");
   };
 
 

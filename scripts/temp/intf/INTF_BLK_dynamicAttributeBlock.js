@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Used for blocks that outputs resource dynamically base on attribute.
+   * Used for blocks that outputs resource dynamically based on attribute.
    * ---------------------------------------- */
 
 

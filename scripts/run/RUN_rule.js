@@ -88,7 +88,7 @@
 
 
 
-  TRIGGER.mapChange.addListener(nmMap => {
+  TRIGGER.mapChange.addGlobalListener(nmMap => {
     hasInit = false;
     PARAM.forceLoadParam();
     MDL_backend.setWinTitle(

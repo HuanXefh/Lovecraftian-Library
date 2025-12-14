@@ -34,6 +34,12 @@
   const MDL_texture = require("lovec/mdl/MDL_texture");
 
 
+  const TP_stat = require("lovec/tp/TP_stat");
+
+
+  const DB_misc = require("lovec/db/DB_misc");
+
+
   /* <---------- component ----------> */
 
 
@@ -48,20 +54,25 @@
       blk.drawnMap.clear();
     });
 
-    let prevZ;
     MDL_event._c_onDraw(() => {
       if(!Vars.state.isGame() || (!Vars.state.isEditor() && !PARAM.drawScannerResult)) return;
 
-      prevZ = Draw.z();
-      Draw.z(VAR.lay_dporeRevealed);
+      processZ(VAR.lay_dporeRevealed);
+
       Draw.alpha(0.65);
       blk.drawnMap.each((t, cond) => {
         if(!cond || !MDL_cond._posVisible(t.worldx(), t.worldy(), 8.0)) return;
         Draw.rect(MDL_texture._regVari(blk, t), t.worldx(), t.worldy());
       });
       Draw.color();
-      Draw.z(prevZ);
+
+      processZ(VAR.lay_dporeRevealed);
     });
+  };
+
+
+  function comp_setStats(blk) {
+    blk.stats.add(TP_stat.blk0env_depthLvl, blk.depthLvl);
   };
 
 
@@ -88,6 +99,11 @@
   };
 
 
+  function comp_ex_getDepthName(blk) {
+    return MDL_bundle._term.apply(null, DB_misc.db["block"]["depthName"].read(blk.depthLvl, ["lovec", "unknown"]))
+  };
+
+
   function comp_ex_accRevealed(blk, t, param) {
     return param === "read" ?
       blk.drawnMap.get(t, false) :
@@ -106,12 +122,23 @@
 
 
     __PARAM_OBJ_SETTER__: () => ({
+      // @PARAM: How deep the overlay is, related to scanner tier.
+      depthLvl: 0,
+
       drawnMap: prov(() => new ObjectMap()),
     }),
+    __GETTER_SETTER__: () => [
+      "depthLvl",
+    ],
 
 
     init: function() {
       comp_init(this);
+    },
+
+
+    setStats: function() {
+      comp_setStats(this);
     },
 
 
@@ -134,6 +161,14 @@
 
     getDisplayName: function(t) {
       return comp_getDisplayName(this, t);
+    }
+    .setProp({
+      noSuper: true,
+    }),
+
+
+    ex_getDepthName: function() {
+      return comp_ex_getDepthName(this);
     }
     .setProp({
       noSuper: true,

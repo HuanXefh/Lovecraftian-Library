@@ -126,6 +126,48 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Jet units always fly when moving.
+   * ---------------------------------------- */
+  const comp_updateUnit_jet = function(unit) {
+    unit.updateBoosting(true);
+  };
+  exports.comp_updateUnit_jet = comp_updateUnit_jet;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * @NOSUPER
+   * This unit will be forced to fly when moving.
+   * ---------------------------------------- */
+  const comp_updateBoosting_jet = function(unit, shouldBoost) {
+    if(!unit.type.canBoost || unit.dead) return;
+    unit.elevation = Mathf.approachDelta(
+      unit.elevation,
+      Math.max(
+        Mathf.num(unit.onSolid() || (unit.isFlying() && !unit.canLand())),
+        unit.speed() / unit.type.speed,
+        unit.type.riseSpeed,
+      ),
+    );
+  };
+  exports.comp_updateBoosting_jet = comp_updateBoosting_jet;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Jet units can only attack when flying.
+   * ---------------------------------------- */
+  const comp_canShoot_jet = function(unit) {
+    return !unit.disarmed && unit.type.canBoost && unit.isFlying();
+  };
+  exports.comp_canShoot_jet = comp_canShoot_jet;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * @NOSUPER
    * This unit will collide with darkness like a leg unit if in a cave map, see {DB_env.db["group"]["map"]["cave"]}.
    * ---------------------------------------- */

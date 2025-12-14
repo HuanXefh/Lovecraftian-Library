@@ -41,7 +41,7 @@
       blk.placeableLiquid = true;
     };
 
-    if(blk.itemDrop == null) ERROR_HANDLER.noItemDrop(blk);
+    if(blk.itemDrop == null) ERROR_HANDLER.throw("noItemDrop", blk.name);
     MDL_content.rename(
       blk,
       blk.itemDrop.localizedName + MDL_text._space() + "(" + MDL_bundle._term("lovec", "deposit") + ")",
@@ -66,6 +66,6 @@
     init: function() {
       comp_init(this);
     },
-    
+
 
   });

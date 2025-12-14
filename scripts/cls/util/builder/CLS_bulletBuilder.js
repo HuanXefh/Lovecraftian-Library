@@ -34,6 +34,11 @@ CLS_bulletBuilder.prototype.init = function() {
 var ptp = CLS_bulletBuilder.prototype;
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Anything related to final range.
+ * ---------------------------------------- */
 ptp.__range = function(rad, vel, keepVel) {
   this.builderObj.lifetime = tryVal(rad / vel, 1.0);
   this.builderObj.range = tryVal(rad, 1.0);
@@ -44,6 +49,11 @@ ptp.__range = function(rad, vel, keepVel) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Advanced use.
+ * ---------------------------------------- */
 ptp.__rangeExtra = function(drag, accel) {
   this.builderObj.drag = tryVal(drag, 0.0);
   this.builderObj.accel = tryVal(accel, 0.0);
@@ -52,6 +62,11 @@ ptp.__rangeExtra = function(drag, accel) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * That's a lot of damage.
+ * ---------------------------------------- */
 ptp.__damage = function(dmg, sDmg, sDmgRad, shouldPierce, isScaled) {
   this.builderObj.dmg = tryVal(dmg, 0.0);
   this.builderObj.splashDamage = tryVal(sDmg, -1.0);
@@ -63,6 +78,11 @@ ptp.__damage = function(dmg, sDmg, sDmgRad, shouldPierce, isScaled) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * We need more multipliers.
+ * ---------------------------------------- */
 ptp.__multiplier = function(bDmgMtp, shieldDmgMtp) {
   this.builderObj.buildingDamageMultiplier = tryVal(bDmgMtp, 1.0);
   this.builderObj.shieldDamageMultiplier = tryVal(shieldDmgMtp, 1.0);
@@ -71,6 +91,11 @@ ptp.__multiplier = function(bDmgMtp, shieldDmgMtp) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * I don't wanna explain more.
+ * ---------------------------------------- */
 ptp.__collide = function(hits, hitsAir, hitsGround, hitsTerrain, isWaterborne, isUnitOnly) {
   this.builderObj.collides = tryVal(hits, true);
   this.builderObj.collidesAir = tryVal(hitsAir, true);
@@ -84,6 +109,11 @@ ptp.__collide = function(hits, hitsAir, hitsGround, hitsTerrain, isWaterborne, i
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * On bullet collision with something.
+ * ---------------------------------------- */
 ptp.__hit = function(hitSize, despawnHit, fragHit) {
   this.builderObj.hitSize = tryVal(hitSize, 6.0);
   this.builderObj.despawnHit = tryVal(despawnHit, true);
@@ -93,6 +123,11 @@ ptp.__hit = function(hitSize, despawnHit, fragHit) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Don't try this for non-basic bullet type bullets.
+ * ---------------------------------------- */
 ptp.__visual = function(spr, lay, color1, color2, w, h, shrinkX, shrinkY, spin) {
   this.builderObj.sprite = tryVal(spr, "circle");
   this.builderObj.layer = tryVal(lay, VAR.lay_bulBase);
@@ -108,6 +143,11 @@ ptp.__visual = function(spr, lay, color1, color2, w, h, shrinkX, shrinkY, spin) 
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Most bullets in ProjReind don't emit light.
+ * ---------------------------------------- */
 ptp.__light = function(hasLight, color) {
   this.builderObj.lightOpacity = hasLight ? 0.65 : 0.0;
   this.builderObj.lightColor = tryVal(color, Pal.powerLight);
@@ -116,6 +156,11 @@ ptp.__light = function(hasLight, color) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Hey don't abuse shake.
+ * ---------------------------------------- */
 ptp.__shake = function(despawnShake, hitShake) {
   this.builderObj.despawnShake = tryVal(despawnShake, 0.0);
   this.builderObj.hitShake = tryVal(hitSize, 0.0);
@@ -124,6 +169,11 @@ ptp.__shake = function(despawnShake, hitShake) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * How to make a mess on your screen.
+ * ---------------------------------------- */
 ptp.__effect = function(color, despawnEff, hitEff, shootEff, smokeEff, chargeEff) {
   this.builderObj.hitColor = tryVal(color, Pal.accent);
   this.builderObj.despawnEffect = tryVal(despawnEff, Fx.none);
@@ -136,14 +186,24 @@ ptp.__effect = function(color, despawnEff, hitEff, shootEff, smokeEff, chargeEff
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Noise is fun.
+ * ---------------------------------------- */
 ptp.__sound = function(despawnSeStr, hitSeStr) {
-  this.builderObj.despawnSound = despawnSeStr == null ? Sounds.none : Vars.tree.loadSound(despawnSeStr);
-  this.builderObj.hitSound = hitSeStr == null ? Sounds.none : Vars.tree.loadSound(hitSeStr);
+  this.builderObj.despawnSound = fetchSound(despawnSeStr);
+  this.builderObj.hitSound = fetchSound(hitSeStr);
 
   return this;
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Huh.
+ * ---------------------------------------- */
 ptp.__trail = function(color, len, w, minVel) {
   this.builderObj.trailColor = tryVal(color, Color.missileYellowBack);
   this.builderObj.trailLength = tryVal(len, -1);
@@ -154,6 +214,11 @@ ptp.__trail = function(color, len, w, minVel) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Torpedo.
+ * ---------------------------------------- */
 ptp.__trailOsc = function(mag, scl) {
   this.builderObj.trailSinMag = tryVal(mag, 0.0);
   this.builderObj.trailSinScl = tryVal(mag, 3.0);
@@ -162,6 +227,11 @@ ptp.__trailOsc = function(mag, scl) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * More effects.
+ * ---------------------------------------- */
 ptp.__trailEffect = function(trailEff, intv, shouldRot, interp) {
   this.builderObj.trailEffect = tryVal(trailEff, Fx.none);
   this.builderObj.trailInterval = tryVal(intv, 1.0);
@@ -172,6 +242,11 @@ ptp.__trailEffect = function(trailEff, intv, shouldRot, interp) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * No ranged knockback, go to {MDL_call}.
+ * ---------------------------------------- */
 ptp.__knockback = function(knockback, shouldImpact, recoil) {
   this.builderObj.knockback = tryVal(knockback, 0.0);
   this.builderObj.impact = tryVal(shouldImpact, false);
@@ -181,6 +256,11 @@ ptp.__knockback = function(knockback, shouldImpact, recoil) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Don't call this if no pierce.
+ * ---------------------------------------- */
 ptp.__pierce = function(cap, piercesBuilding, dmgFactor) {
   this.builderObj.pierce = true
   this.builderObj.pierceCap = tryVal(cap, -1);
@@ -191,6 +271,11 @@ ptp.__pierce = function(cap, piercesBuilding, dmgFactor) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Frog.
+ * ---------------------------------------- */
 ptp.__frag = function(fragBtp, amt, offSpd, offLifetime) {
   this.builderObj.fragBullet = fragBtp;
   this.builderObj.fragBullets = tryVal(amt, 7);
@@ -203,6 +288,11 @@ ptp.__frag = function(fragBtp, amt, offSpd, offLifetime) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Barrage dodging game.
+ * ---------------------------------------- */
 ptp.__fragShape = function(randomSpread, uniformSpread, ang) {
   this.builderObj.fragRandomSpread = tryVal(randomSpread, 360.0);
   this.builderObj.fragSpread = tryVal(uniformSpread, 0.0);
@@ -212,6 +302,11 @@ ptp.__fragShape = function(randomSpread, uniformSpread, ang) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Afflict.
+ * ---------------------------------------- */
 ptp.__intv = function(intvBtp, intv, amt) {
   this.builderObj.intervalBullet = intvBtp;
   this.builderObj.bulletInterval = tryVal(intv, 20.0);
@@ -221,6 +316,11 @@ ptp.__intv = function(intvBtp, intv, amt) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Afflict.
+ * ---------------------------------------- */
 ptp.__intvShape = function(randomSpread, uniformSpread, ang) {
   this.builderObj.intervalRandomSpread = tryVal(randomSpread, 360.0);
   this.builderObj.intervalSpread = tryVal(uniformSpread, 0.0);
@@ -230,6 +330,11 @@ ptp.__intvShape = function(randomSpread, uniformSpread, ang) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * How does silicon do this?
+ * ---------------------------------------- */
 ptp.__homing = function(pow, rad, delay, followCursorSpd) {
   this.builderObj.homingPower = tryVal(pow, 0.0);
   this.builderObj.homingRange = tryVal(rad, 50.0);
@@ -240,6 +345,11 @@ ptp.__homing = function(pow, rad, delay, followCursorSpd) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * I don't get it.
+ * ---------------------------------------- */
 ptp.__circle = function(spdMtp, rad, smoothRad) {
   this.builderObj.circleShooter = true;
   this.builderObj.circleShooterRotateSpeed = tryVal(spdMtp, 0.3);
@@ -250,6 +360,11 @@ ptp.__circle = function(spdMtp, rad, smoothRad) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Pyromania in ProjReind is dangerous.
+ * ---------------------------------------- */
 ptp.__fire = function(createsFire, rad, amt, p) {
   this.builderObj.makeFire = tryVal(createsFire, false);
   this.builderObj.incendSpread = tryVal(rad, 8.0);
@@ -260,6 +375,11 @@ ptp.__fire = function(createsFire, rad, amt, p) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * For liquid bullet type only.
+ * ---------------------------------------- */
 ptp.__puddle = function(liq_gn, rad, amt, puddleAmt) {
   this.builderObj.puddleLiquid = tryVal(MDL_content._ct(liq_gn, "rs"), Liquids.water);
   this.builderObj.puddleRange = tryVal(rad, 30.0);
@@ -270,6 +390,11 @@ ptp.__puddle = function(liq_gn, rad, amt, puddleAmt) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Kinda overpowered.
+ * ---------------------------------------- */
 ptp.__suppress = function(rad, dur, color, pScl) {
   this.builderObj.suppressionRange = tryVal(rad, -1.0);
   this.builderObj.suppressionDuration = tryVal(dur, 480.0);
@@ -280,6 +405,11 @@ ptp.__suppress = function(rad, dur, color, pScl) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * It sticks to the enemy for some time.
+ * ---------------------------------------- */
 ptp.__sticky = function(lifetimeExt) {
   this.builderObj.sticky = true;
   this.builderObj.stickyExtraLifetime = tryVal(lifetimeExt, 0.0);
@@ -288,6 +418,11 @@ ptp.__sticky = function(lifetimeExt) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Sublimate.
+ * ---------------------------------------- */
 ptp.__trueDamage = function() {
   this.builderObj.pierceArmor = true;
 
@@ -295,6 +430,11 @@ ptp.__trueDamage = function() {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Spiroct.
+ * ---------------------------------------- */
 ptp.__lifesteal = function(frac) {
   this.builderObj.lifesteal = tryVal(frac, 0.0);
 
@@ -302,7 +442,13 @@ ptp.__lifesteal = function(frac) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Nova.
+ * ---------------------------------------- */
 ptp.__heal = function(amt, perc, color) {
+  this.builderObj.collidesTeam = true;
   this.builderObj.healAmount = tryVal(amt, 0.0);
   this.builderObj.healPercent = tryVal(perc, 0.0);
   this.builderObj.healColor = tryVal(color, Pal.heal);
@@ -311,6 +457,11 @@ ptp.__heal = function(amt, perc, color) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Corvus.
+ * ---------------------------------------- */
 ptp.__status = function(sta_gn, dur) {
   this.builderObj.status = tryVal(MDL_content._ct(sta_gn, "sta"), StatusEffects.none);
   this.builderObj.statusDuration = tryVal(dur, 480.0);
@@ -319,6 +470,11 @@ ptp.__status = function(sta_gn, dur) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * For unit missile?
+ * ---------------------------------------- */
 ptp.__spawnUnit = function(utp) {
   this.builderObj.instantDisappear = true;
   this.builderObj.spawnUnit = utp;
@@ -327,6 +483,11 @@ ptp.__spawnUnit = function(utp) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Bug spawner.
+ * ---------------------------------------- */
 ptp.__despawnUnit = function(utp, amt, p, rad, outwards) {
   this.builderObj.despawnUnit = utp;
   this.builderObj.despawnUnitCount = tryVal(amt, 1);
@@ -338,18 +499,11 @@ ptp.__despawnUnit = function(utp, amt, p, rad, outwards) {
 };
 
 
-ptp.__paramLaser1 = function(len, w, falloff, sideLen, sideW, sideAng) {
-  this.builderObj.length = tryVal(len, 160.0);
-  this.builderObj.width = tryVal(w, 15.0);
-  this.builderObj.lengthFalloff = tryVal(falloff, 0.5);
-  this.builderObj.sideLength = tryVal(sideLen, 30.0);
-  this.builderObj.sideWidth = tryVal(sideW, 0.7);
-  this.builderObj.sideAngle = tryVal(sideAng, 90.0);
-
-  return this;
-};
-
-
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Flak bullet type.
+ * ---------------------------------------- */
 ptp.__paramFlak = function(flakIntv, flakDelay, exploR, exploDelay) {
   this.builderObj.flakInterval = tryVal(flakIntv, 6.0);
   this.builderObj.flakDelay = tryVal(flakDelay, 0.0);
@@ -360,6 +514,11 @@ ptp.__paramFlak = function(flakIntv, flakDelay, exploR, exploDelay) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Fire bullet type.
+ * ---------------------------------------- */
 ptp.__paramFire1 = function(rad, minVel, maxVel) {
   this.builderObj.radius = tryVal(rad, 3.0);
   this.builderObj.velMin = tryVal(minVel, 0.6);
@@ -369,6 +528,11 @@ ptp.__paramFire1 = function(rad, minVel, maxVel) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Fire bullet type.
+ * ---------------------------------------- */
 ptp.__paramFire2 = function(color_f, color_m, color_t, pScl) {
   this.builderObj.colorFrom = tryVal(color_f, Pal.lightFlame);
   this.builderObj.colorMid = tryVal(color_m, Pal.darkFlame);
@@ -381,6 +545,11 @@ ptp.__paramFire2 = function(color_f, color_m, color_t, pScl) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Liquid bullet type.
+ * ---------------------------------------- */
 ptp.__paramLiquid = function(liq_gn, sizePuddle, sizeOrb, timeBoil) {
   this.builderObj.liquid = tryVal(MDL_content._ct(liq_gn, "rs"), null);
   this.builderObj.puddleSize = tryVal(sizePuddle, 6.0);
@@ -391,6 +560,11 @@ ptp.__paramLiquid = function(liq_gn, sizePuddle, sizeOrb, timeBoil) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Lightning bullet type.
+ * ---------------------------------------- */
 ptp.__paramLightning = function(len, randLen, color) {
   this.builderObj.lightningLength = tryVal(len, 25);
   this.builderObj.lightningLengthRand = tryVal(randLen, 5);
@@ -400,6 +574,28 @@ ptp.__paramLightning = function(len, randLen, color) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Laser bullet type.
+ * ---------------------------------------- */
+ptp.__paramLaser1 = function(len, w, falloff, sideLen, sideW, sideAng) {
+  this.builderObj.length = tryVal(len, 160.0);
+  this.builderObj.width = tryVal(w, 15.0);
+  this.builderObj.lengthFalloff = tryVal(falloff, 0.5);
+  this.builderObj.sideLength = tryVal(sideLen, 30.0);
+  this.builderObj.sideWidth = tryVal(sideW, 0.7);
+  this.builderObj.sideAngle = tryVal(sideAng, 90.0);
+
+  return this;
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Laser bullet type.
+ * ---------------------------------------- */
 ptp.__paramLaser2 = function(colors, laserEff) {
   this.builderObj.colors = tryVal(colors, []);
   this.builderObj.laserEffect = tryVal(laserEff, Fx.lancerLaserShootSmoke);
@@ -408,6 +604,11 @@ ptp.__paramLaser2 = function(colors, laserEff) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Laser bullet type.
+ * ---------------------------------------- */
 ptp.__paramLaser3 = function(arcDelay, arcSpacing, arcRandAng) {
   this.builderObj.lightningDelay = tryVal(arcDelay, 0.1);
   this.builderObj.lightningSpacing = tryVal(arcSpacing, -1.0);
@@ -417,6 +618,11 @@ ptp.__paramLaser3 = function(arcDelay, arcSpacing, arcRandAng) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Sap bullet type.
+ * ---------------------------------------- */
 ptp.__paramSap1 = function(len, randLen, w, sapFrac) {
   this.builderObj.length = tryVal(len, 100.0);
   this.builderObj.lengthRand = tryVal(randLen, 0.0);
@@ -427,6 +633,11 @@ ptp.__paramSap1 = function(len, randLen, w, sapFrac) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Sap bullet type.
+ * ---------------------------------------- */
 ptp.__paramSap2 = function(color, spr) {
   this.builderObj.color = tryVal(color, Color.white.cpy());
   this.builderObj.spr = tryVal(spr, "laser");
@@ -435,6 +646,11 @@ ptp.__paramSap2 = function(color, spr) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Rail bullet type.
+ * ---------------------------------------- */
 ptp.__paramRail1 = function(len) {
   this.builderObj.length = tryVal(len, 100.0);
 
@@ -442,6 +658,11 @@ ptp.__paramRail1 = function(len) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Rail bullet type.
+ * ---------------------------------------- */
 ptp.__paramRail2 = function(lineEff, pointEff, pointEffSpacing, pierceEff, endEff) {
   this.builderObj.lineEffect = tryVal(lineEff, Fx.none);
   this.builderObj.pointEffect = tryVal(pointEff, Fx.none);
@@ -453,6 +674,11 @@ ptp.__paramRail2 = function(lineEff, pointEff, pointEffSpacing, pierceEff, endEf
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Continuous laser bullet type.
+ * ---------------------------------------- */
 ptp.__paramContinuousLaser1 = function(len, w, lenFront, lenBack, stroke_f, stroke_t, pointyScl) {
   this.builderObj.length = tryVal(len, 150.0);
   this.builderObj.width = tryVal(w, 9.0);
@@ -466,6 +692,11 @@ ptp.__paramContinuousLaser1 = function(len, w, lenFront, lenBack, stroke_f, stro
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Continuous laser bullet type.
+ * ---------------------------------------- */
 ptp.__paramContinuousLaser2 = function(colors, shake, timeFade, strokeLight, oscScl, oscMag) {
   this.builderObj.colors = tryVal(colors, []);
   this.builderObj.shake = tryVal(shake, 0.0);
@@ -478,6 +709,11 @@ ptp.__paramContinuousLaser2 = function(colors, shake, timeFade, strokeLight, osc
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Continuous flame bullet type.
+ * ---------------------------------------- */
 ptp.__paramContinuousFlame1 = function(len, w, interp) {
   this.builderObj.length = tryVal(len, 150.0);
   this.builderObj.width = tryVal(w, 3.7);
@@ -487,6 +723,11 @@ ptp.__paramContinuousFlame1 = function(len, w, interp) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Continuous flame bullet type.
+ * ---------------------------------------- */
 ptp.__paramContinuousFlame2 = function(colors, strokeLight, oscScl, oscMag) {
   this.builderObj.colors = tryVal(colors, []);
   this.builderObj.lightStroke = tryVal(strokeLight, 40.0);
@@ -497,6 +738,11 @@ ptp.__paramContinuousFlame2 = function(colors, strokeLight, oscScl, oscMag) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Continuous flame bullet type.
+ * ---------------------------------------- */
 ptp.__paramContinuousFlame3 = function(shouldDrawFlare, color, w, len, innerScl, innerLenScl, shouldRot, rotSpd, z) {
   this.builderObj.drawFlare = tryVal(shouldDrawFlare, true);
   this.builderObj.flareColor = tryVal(color, Color.valueOf("e189f5"));
@@ -512,6 +758,11 @@ ptp.__paramContinuousFlame3 = function(shouldDrawFlare, color, w, len, innerScl,
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * EMP bullet type.
+ * ---------------------------------------- */
 ptp.__paramEmp1 = function(rad, dur, incMtp, decMtp) {
   this.builderObj.radius = tryVal(rad, 100.0);
   this.builderObj.timeDuration = tryVal(dur, 600.0);
@@ -522,6 +773,11 @@ ptp.__paramEmp1 = function(rad, dur, incMtp, decMtp) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * EMP bullet type.
+ * ---------------------------------------- */
 ptp.__paramEmp2 = function(applyEff, hitEff, chainEff) {
   this.builderObj.applyEffect = tryVal(applyEff, Fx.heal);
   this.builderObj.hitPowerEffect = tryVal(hitEff, Fx.hitEmpSpark);
@@ -531,6 +787,11 @@ ptp.__paramEmp2 = function(applyEff, hitEff, chainEff) {
 };
 
 
+/* ----------------------------------------
+ * NOTE:
+ *
+ * EMP bullet type.
+ * ---------------------------------------- */
 ptp.__paramEmp3 = function(powDmgMtp, hitsUnit, unitDmgMtp) {
   this.builderObj.powerDamageScl = tryVal(powDmgMtp, 2.0);
   this.builderObj.hitUnits = tryVal(hitsUnit, true);

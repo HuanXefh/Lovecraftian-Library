@@ -125,13 +125,13 @@
 
 MDL_event._c_onLoad(() => {
 
-  TRIGGER.majorIter.start.addListener(() => {
+  TRIGGER.majorIter.start.addGlobalListener(() => {
     basePol = 0.0;
   });
-  TRIGGER.majorIter.building.addListener((b, isActive) => {
+  TRIGGER.majorIter.building.addGlobalListener((b, isActive) => {
     if(isActive && Mathf.chance(VAR.p_polUpdateP)) basePol += _blkPol(b.block);
   });
-  TRIGGER.majorIter.end.addListener(() => {
+  TRIGGER.majorIter.end.addGlobalListener(() => {
     basePol /= VAR.p_polUpdateP;
   });
 

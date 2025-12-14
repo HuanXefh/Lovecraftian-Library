@@ -49,11 +49,9 @@
 
 
   function comp_getLiquidDestination(b, b_f, liq) {
-    return b.isOn ?
+    return !b.enabled || b.isOn || MDL_cond._isAuxilliaryFluid(liq) ?
       b :
-      MDL_cond._isAuxilliaryFluid(liq) ?
-        b :
-        b.super$getLiquidDestination(b_f, liq);
+      b.super$getLiquidDestination(b_f, liq);
   };
 
 

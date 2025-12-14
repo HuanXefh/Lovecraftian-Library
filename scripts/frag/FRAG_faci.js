@@ -175,18 +175,18 @@
   MDL_event._c_onLoad(() => {
 
     let cepCapObj = {}, cepUseObj = {};
-    TRIGGER.majorIter.start.addListener(() => {
+    TRIGGER.majorIter.start.addGlobalListener(() => {
       VARGEN.mainTeams.forEachFast(team => {
         cepCapObj[team] = 0.0;
         cepUseObj[team] = 0.0;
       });
     });
-    TRIGGER.majorIter.building.addListener((b, isActive) => {
+    TRIGGER.majorIter.building.addGlobalListener((b, isActive) => {
       if(!isActive) return;
       cepCapObj[b.team] += _cepProv(b.block);
       cepUseObj[b.team] += _cepUse(b.block);
     });
-    TRIGGER.majorIter.end.addListener(() => {
+    TRIGGER.majorIter.end.addGlobalListener(() => {
       VARGEN.mainTeams.forEachFast(team => {
         cepCapMap.put(team, cepCapObj[team]);
         cepUseMap.put(team, cepUseObj[team]);

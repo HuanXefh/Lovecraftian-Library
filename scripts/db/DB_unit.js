@@ -223,19 +223,22 @@ const db = {
        * ---------------------------------------- */
       type: [
 
-        "flying", [UnitEntity, null],
-        "mech", [MechUnit, null],
-        "legs", [LegsUnit, null],
-        "naval", [UnitWaterMove, null],
-        "payload", [PayloadUnit, null],
-        "missile", [TimedKillUnit, null],
-        "tank", [TankUnit, null],
-        "hover", [ElevationMoveUnit, null],
-        "tether", [BuildingTetherPayloadUnit, null],
-        "crawl", [CrawlUnit, null],
+        "base", UnitEntity,
+        "flying", UnitEntity,
+        "mech", MechUnit,
+        "legs", LegsUnit,
+        "naval", UnitWaterMove,
+        "payload", PayloadUnit,
+        "missile", TimedKillUnit,
+        "tank", TankUnit,
+        "hover", ElevationMoveUnit,
+        "tether", BuildingTetherPayloadUnit,
+        "crawl", CrawlUnit,
 
-        "lovec-air", [UnitEntity, 80],
-        "lovec-mech", [MechUnit, 81],
+        "lovec-air", 80,
+        "lovec-mech", 81,
+        "lovec-tether-air", 82,
+        "lovec-jet", 83,
 
       ],
 
@@ -244,29 +247,21 @@ const db = {
        * NOTE:
        *
        * Used to define new entity types.
-       * Format: {id, obj}.
+       * Format: {id, templateGetter}.
        * ---------------------------------------- */
       entityDef: [
 
         // lovec-air
-        80, {
-          solidity() {
-            return global.lovec.frag_unit.comp_solidity_flying(this);
-          },
-          validMine(t, checkDst) {
-            return global.lovec.frag_unit.comp_validMine_miner(this, t, checkDst);
-          },
-        },
+        80, () => require("lovec/temp/unit/entity/ENTITY_baseAirUnit"),
 
         // lovec-mech
-        81, {
-          solidity() {
-            return global.lovec.frag_unit.comp_solidity_flying(this);
-          },
-          validMine(t, checkDst) {
-            return global.lovec.frag_unit.comp_validMine_miner(this, t, checkDst);
-          },
-        },
+        81, () => require("lovec/temp/unit/entity/ENTITY_mech"),
+
+        // lovec-tether-air
+        82, () => require("lovec/temp/unit/entity/ENTITY_tetheredAirUnit"),
+
+        // lovec-jet
+        83, () => require("lovec/temp/unit/entity/ENTITY_jet"),
 
       ],
 

@@ -42,12 +42,14 @@
       blk.selectionColumns = 10;
     };
 
+    blk.selectionQueue.pushAll(blk.ex_findSelectionTgs());
+
     blk.configurable = true;
     blk.saveConfig = false;
     blk.clearOnDoubleTap = false;
 
     blk.config(JAVA.STRING, (b, str) => {
-      b.ex_accRsTgs(str, false);
+      b.ex_accCtTgs(str, false);
       EFF.squareFadePack[b.block.size].at(b);
       b.ex_onSelectorUpdate();
     });
@@ -57,8 +59,8 @@
         case "selectorBlock" :
           let i = 1, iCap = cfgArr.iCap();
           while(i < iCap) {
-            let rs = MDL_content._ct(nmRs, "rs");
-            if(rs != null) b.ex_accRsTgs(rs, true);
+            let ct = MDL_content._ct(cfgArr[i], null, true);
+            if(ct != null) b.ex_accCtTgs(ct, true);
             i++;
           };
           EFF.squareFadePack[b.block.size].at(b);
@@ -66,7 +68,7 @@
           break;
 
         case "selector" :
-          b.ex_accRsTgs(cfgArr[1], cfgArr[2]);
+          b.ex_accCtTgs(cfgArr[1], cfgArr[2]);
           EFF.squareFadePack[b.block.size].at(b);
           b.ex_onSelectorUpdate();
           break;
@@ -88,8 +90,8 @@
 
   function comp_ex_buildSelector(b, tb) {
     MDL_table.setSelector_ctMulti(
-      tb, b.block, Vars.content.items().toArray(),
-      () => b.ex_accRsTgs("read", false), val => b.configure(val), false,
+      tb, b.block, b.block.ex_getSelectionQueue(),
+      () => b.ex_accCtTgs("read", false), val => b.configure(val), false,
       b.block.selectionRows, b.block.selectionColumns,
     );
   };
@@ -109,9 +111,25 @@
     new CLS_interface({
 
 
+      __PARAM_OBJ_SETTER__: () => ({
+        selectionQueue: prov(() => []),
+      }),
+      __GETTER_SETTER__: () => [
+        "selectionQueue",
+      ],
+
+
       init: function() {
         comp_init(this);
       },
+
+
+      ex_findSelectionTgs: function() {
+        return Vars.content.items().toArray();
+      }
+      .setProp({
+        noSuper: true,
+      }),
 
 
     }),
@@ -122,7 +140,7 @@
 
 
       __PARAM_OBJ_SETTER__: () => ({
-        rsTgs: prov(() => []),
+        ctTgs: prov(() => []),
       }),
 
 
@@ -136,7 +154,7 @@
 
       config: function() {
         return ["selectorBlock"]
-        .pushAll(this.rsTgs.map(rs => rs == null ? "null" : rs.name))
+        .pushAll(this.ctTgs.map(ct => ct == null ? "null" : ct.name))
         .toJavaArr();
       }
       .setProp({
@@ -144,17 +162,17 @@
       }),
 
 
-      ex_accRsTgs: function(param, isAdd) {
+      ex_accCtTgs: function(param, isAdd) {
         switch(param) {
           case "read" :
-            return this.rsTgs;
+            return this.ctTgs;
           case "clear" :
             this.block.lastConfig = "clear";
-            return this.rsTgs.clear();
+            return this.ctTgs.clear();
           default :
             return isAdd ?
-              this.rsTgs.pushUnique(param) :
-              this.rsTgs.remove(param);
+              this.ctTgs.pushUnique(param) :
+              this.ctTgs.remove(param);
         };
       }
       .setProp({
@@ -193,11 +211,11 @@
           wr0rd, lovecRevi,
 
           (wr, revi) => {
-            MDL_io._wr_cts(wr, this.rsTgs);
+            MDL_io._wr_cts(wr, this.ctTgs);
           },
 
           (rd, revi) => {
-            MDL_io._rd_cts(rd, this.rsTgs);
+            MDL_io._rd_cts(rd, this.ctTgs);
           },
         );
       }

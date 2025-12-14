@@ -34,7 +34,7 @@
 
 
   function comp_init(blk) {
-    if(blk.size !== 1) ERROR_HANDLER.notSingleSized(blk);
+    if(blk.size !== 1) ERROR_HANDLER.throw("notSingleSized", blk.name);
 
     if(blk.overwriteVanillaProp) {
       blk.solid = false;
@@ -44,7 +44,7 @@
 
 
   function comp_getLiquidDestination(b, b_f, liq) {
-    return MDL_cond._isAuxilliaryFluid(liq) ?
+    return !b.enabled || MDL_cond._isAuxilliaryFluid(liq) ?
       b :
       b.super$getLiquidDestination(b_f, liq);
   };

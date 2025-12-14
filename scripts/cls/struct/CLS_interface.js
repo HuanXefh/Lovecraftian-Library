@@ -20,7 +20,7 @@ const CLS_interface = newClass().initClass();
 
 CLS_interface.prototype.init = function(obj) {
   Object._it(obj, (key, val) => {
-    if(typeof val !== "function") ERROR_HANDLER.interfaceNonFunctionValue(key, val);
+    if(typeof val !== "function") ERROR_HANDLER.throw("nonFunctionInInterface", key);
   });
 
   this.interfaceObj = obj;

@@ -50,7 +50,8 @@
 
   exports.blk0env_ventSize = newIns_stat("blk0env-ventsize", StatCat.general);
   exports.blk0env_treeType = newIns_stat("blk0env-treetype", StatCat.general);
-  exports.blk0env_rsLvl = newIns_stat("blk0env-rsLvl", StatCat.general);
+  exports.blk0env_rsLvl = newIns_stat("blk0env-rslvl", StatCat.general);
+  exports.blk0env_depthLvl = newIns_stat("blk0env-depthlvl", StatCat.general);
 
 
   /* block (miner) */
@@ -62,6 +63,7 @@
   exports.blk0min_depthMtp = newIns_stat("blk0min-depthmtp", StatCat.crafting);
   exports.blk0min_blockedItms = newIns_stat("blk0min-blockeditms", StatCat.crafting);
   exports.blk0min_allowedItms = newIns_stat("blk0min-alloweditms", StatCat.crafting);
+  exports.blk0min_scanTier = newIns_stat("blk0min-scantier", StatCat.crafting);
 
 
   /* block (factory) */
@@ -122,6 +124,7 @@
   exports.blk0misc_repairR = newIns_stat("blk0misc-repairr");
   exports.blk0misc_repairIntv = newIns_stat("blk0misc-repairintv");
   exports.blk0misc_status = newIns_stat("blk0misc-status");
+  exports.blk0misc_blkTg = newIns_stat("blk0misc-blktg");
 
 
   /* resource */

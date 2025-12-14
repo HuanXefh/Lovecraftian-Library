@@ -23,7 +23,7 @@
 
 
   const PARENT = require("lovec/temp/blk/BLK_baseItemBlock");
-  const INTF = require("lovec/temp/intf/INTF_BLK_itemMultiSelector");
+  const INTF = require("lovec/temp/intf/INTF_BLK_contentMultiSelector");
   const TRIGGER = require("lovec/glb/BOX_trigger");
 
 
@@ -81,9 +81,9 @@
 
 
   function comp_acceptItem(b, b_f, itm) {
-    return b.rsTgs.length === 0 ?
+    return b.ctTgs.length === 0 ?
       b.items.total() < b.block.itemCapacity :
-      b.rsTgs.includes(itm) && b.items.total() < b.block.itemCapacity;
+      b.ctTgs.includes(itm) && b.items.total() < b.block.itemCapacity;
   };
 
 

@@ -40,6 +40,7 @@
 
 
   // NOTE: Keep these at top! The order matters!
+  const TP_error = require("lovec/tp/TP_error");
   const RUN_methodExt = require("lovec/run/RUN_methodExt");
   const CLS_annotation = require("lovec/cls/struct/CLS_annotation");
   const RUN_methodPostExt = require("lovec/run/RUN_methodPostExt");
@@ -78,6 +79,7 @@
   const TP_ai = require("lovec/tp/TP_ai");
   const TP_cons = require("lovec/tp/TP_cons");
   const TP_dial = require("lovec/tp/TP_dial");
+  const TP_dialFlow = require("lovec/tp/TP_dialFlow");
   const TP_drawer = require("lovec/tp/TP_drawer");
   const TP_keyBind = require("lovec/tp/TP_keyBind");
   const TP_stat = require("lovec/tp/TP_stat");
@@ -296,11 +298,13 @@
 
 
     // Set up recipe dictionary stat
-    VARGEN.rss.forEachFast(rs => {
-      rs.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
-        tb.row();
-        MDL_table.__btnSmall(tb, "?", () => fetchDial("rcDict").ex_show(rs.localizedName, rs)).left().padLeft(28.0).row();
-      }));
+    Time.run(5.0, () => {
+      VARGEN.rss.concat(VARGEN.payMatBlks).concat(VARGEN.buildaleUtps).forEachFast(ct => {
+        ct.stats.add(TP_stat.spec_fromTo, newStatValue(tb => {
+          tb.row();
+          MDL_table.__btnSmall(tb, "?", () => fetchDialog("rcDict").ex_show(ct.localizedName, ct)).left().padLeft(28.0).row();
+        }));
+      });
     });
 
 

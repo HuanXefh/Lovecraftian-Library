@@ -16,6 +16,7 @@
 
 
   const MDL_content = require("lovec/mdl/MDL_content");
+  const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_fuel = require("lovec/mdl/MDL_fuel");
 
 
@@ -50,10 +51,10 @@
 
       this.addRc(
         rc, itm.name, "alloying", null,
-        obj => {obj.tempReq = tempReq; objF(obj)},
+        obj => {this.setBaseParam(obj, paramObj); objF(obj)},
         new CLS_recipeBuilder()
         .__bi(this.parseRawBi(rawBi, amtO, pO))
-        .__bo([itm.name, amtO, pO])
+        .__bo(this.processBo(itm, amtO, pO, paramObj))
         .build(),
       );
     });
@@ -90,10 +91,10 @@
 
       this.addRc(
         rc, itm.name, "brick-baking", null,
-        obj => {obj.tempReq = tempReq; objF(obj)},
+        obj => {this.setBaseParam(obj, paramObj); objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([itm.name, amtI, pI])
-        .__bo([itmTg.name, amtO, pO])
+        .__bi(this.processBi(itm, amtI, pI, paramObj))
+        .__bo(this.processBo(itmTg, amtO, pO, paramObj))
         .build(),
       );
     });
@@ -114,7 +115,8 @@
       amtO = readParam(paramObj, "amtO", 1),
       pO = readParam(paramObj, "pO", 1.0),
       payAmtO = readParam(paramObj, "payAmtO", amtO),
-      maxTemp = readParam(paramObj, "maxTemp", Infinity);
+      maxTemp = readParam(paramObj, "maxTemp", Infinity),
+      sizeCap = readParam(paramObj, "sizeCap", Infinity);
 
     DB_item.db["map"]["recipe"]["casting"].forEachRow(2, (nmCt, paramObj) => {
       let
@@ -125,7 +127,7 @@
 
       let ct = MDL_content._ct(nmCt, null, true);
       if(ct == null) return;
-      if(!boolF(ct) || tempReq > maxTemp) return;
+      if(!boolF(ct) || MDL_entity._size(ct) > sizeCap || tempReq > maxTemp) return;
 
       let rcBuilder = new CLS_recipeBuilder();
       !isPayTg ?
@@ -133,12 +135,12 @@
         rcBuilder.__bi(this.parseRawBi(rawBi, payAmtO, 1.0));
       rcBuilder.__payi(this.parseRawPayi(rawPayi, payAmtO));
       !isPayTg ?
-        rcBuilder.__bo([ct.name, amtO, pO]) :
-        rcBuilder.__payo([ct.name, payAmtO]);
+        rcBuilder.__bo(this.processBo(ct, amtO, pO, paramObj)) :
+        rcBuilder.__payo(this.processPayo(ct, payAmtO, paramObj));
 
       this.addRc(
         rc, ct.name, "casting", null,
-        obj => {obj.tempReq = tempReq; objF(obj)},
+        obj => {this.setBaseParam(obj, paramObj); objF(obj)},
         rcBuilder.build(),
       );
     });
@@ -159,7 +161,8 @@
       amtO = readParam(paramObj, "amtO", 1),
       pO = readParam(paramObj, "pO", 1.0),
       payAmtO = readParam(paramObj, "payAmtO", amtO),
-      maxTemp = readParam(paramObj, "maxTemp", Infinity);
+      maxTemp = readParam(paramObj, "maxTemp", Infinity),
+      sizeCap = readParam(paramObj, "sizeCap", Infinity);
 
     DB_item.db["map"]["recipe"]["forging"].forEachRow(2, (nmCt, paramObj) => {
       let
@@ -170,7 +173,7 @@
 
       let ct = MDL_content._ct(nmCt, null, true);
       if(ct == null) return;
-      if(!boolF(ct) || tempReq > maxTemp) return;
+      if(!boolF(ct) || MDL_entity._size(ct) > sizeCap || tempReq > maxTemp) return;
 
       let rcBuilder = new CLS_recipeBuilder();
       !isPayTg ?
@@ -178,12 +181,12 @@
         rcBuilder.__bi(this.parseRawBi(rawBi, payAmtO, 1.0));
       rcBuilder.__payi(this.parseRawPayi(rawPayi, payAmtO));
       !isPayTg ?
-        rcBuilder.__bo([ct.name, amtO, pO]) :
-        rcBuilder.__payo([ct.name, payAmtO]);
+        rcBuilder.__bo(this.processBo(ct, amtO, pO, paramObj)) :
+        rcBuilder.__payo(this.processPayo(ct, payAmtO, paramObj));
 
       this.addRc(
         rc, ct.name, "forging", null,
-        obj => {obj.tempReq = tempReq; objF(obj)},
+        obj => {this.setBaseParam(obj, paramObj); objF(obj)},
         rcBuilder.build(),
       );
     });
@@ -235,8 +238,8 @@
           rc, ct.name, "heating", null,
           obj => {obj.tempReq = fuelLvl * 100.0 - 50.0; objF(obj)},
           new CLS_recipeBuilder()
-          .__ci(ct.name, fuelPon * mtpI)
-          .__co([VARGEN.auxHeat.name, fuelLvl / 60.0 * mtpO])
+          .__ci(this.processCi(ct, fuelPon * mtpI))
+          .__co(this.processCo(VARGEN.auxHeat, fuelLvl * 60.0 * mtpO))
           .build(),
         );
       };
@@ -275,10 +278,10 @@
 
       this.addRc(
         rc, itm.name, isBallMill ? "ball-mill-mixing" : "mixing", null,
-        obj => {if(isBallMill) obj.durabDecMtp = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
+        obj => {if(isBallMill) obj.durabDecMtp = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); this.setBaseParam(obj, paramObj); objF(obj)},
         new CLS_recipeBuilder()
         .__bi(bi)
-        .__bo([itm.name, amtO, pO])
+        .__bo(this.processBo(itm, amtO, pO, paramObj))
         .build(),
       );
     });
@@ -311,7 +314,7 @@
         rc, itm.name, "purification", null,
         objF,
         new CLS_recipeBuilder()
-        .__bi([itm.name, amtI, pI])
+        .__bi(this.processBi(itm, amtI, pI, paramObj))
         .__bo(this.parseRawBo(rawBo, amtI, pI))
         .build(),
       );
@@ -347,8 +350,8 @@
         rc, itm.name, "rock-crushing", null,
         obj => {obj.durabDecMtp = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([itmParent.name, amtI, pI])
-        .__bo([itm.name, amtO, pO])
+        .__bi(this.processBi(itmParent, amtI, pI))
+        .__bo(this.processBo(itm, amtO, pO))
         .build(),
       );
     });
@@ -380,8 +383,8 @@
       rc, "loveclab-item0buil-coarse-aggregate", "aggregate-crushing", null,
       objF,
       new CLS_recipeBuilder()
-      .__bi(["loveclab-item0buil-coarse-aggregate", amtI, pI])
-      .__bo(["loveclab-item0buil-fine-aggregate", amtO, pO])
+      .__bi(this.processBi("loveclab-item0buil-coarse-aggregate", amtI, pI))
+      .__bo(this.processBo("loveclab-item0buil-fine-aggregate", amtO, pO))
       .build(),
     );
 
@@ -395,8 +398,8 @@
         rc, itm.name, "aggregate-crushing", null,
         obj => {obj.durabDecMtp = Mathf.lerp(1.0, 2.0 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([itm.name, Math.round(amtI * Math.max(mtp, 1.0)), pI * Math.min(mtp, 1.0)])
-        .__bo(["loveclab-item0buil-coarse-aggregate", amtO, pO])
+        .__bi(this.processBi(itm, Math.round(amtI * Math.max(mtp, 1.0)), pI * Math.min(mtp, 1.0)))
+        .__bo(this.processBo("loveclab-item0buil-coarse-aggregate", amtO, pO))
         .build(),
       );
     });
@@ -431,8 +434,8 @@
         rc, itm.name, "pulverization", null,
         obj => {obj.durabDecMtp = Mathf.lerp(1.0, 1.5 * abrasionFactor, Mathf.maxZero(hardness - minHardness) / 10.0); objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([itmParent.name, amtI, pI])
-        .__bo([itm.name, amtO, pO])
+        .__bi(this.processBi(itmParent, amtI, pI))
+        .__bo(this.processBo(itm, amtO, pO))
         .build(),
       );
     });
@@ -471,10 +474,10 @@
 
       this.addRc(
         rc, itm.name, "roasting", null,
-        obj => {obj.tempReq = tempReq; objF(obj)},
+        obj => {this.setBaseParam(obj, paramObj); objF(obj)},
         new CLS_recipeBuilder()
-        .__bi([itm.name, amtI, pI])
-        .__bo([itmTg.name, amtO, pO])
+        .__bi(this.processBi(itm, amtI, pI))
+        .__bo(this.processBo(itmTg, amtO, pO))
         .build(),
       );
     });
@@ -510,8 +513,8 @@
           rc, itm.name, "sintering", null,
           obj => {obj.tempReq = tempReq; objF(obj)},
           new CLS_recipeBuilder()
-          .__bi([itm.name, amtI, pI])
-          .__bo([itmParent.name, amtO, pO])
+          .__bi(this.processBi(itm, amtI, pI))
+          .__bo(this.processBo(itmParent, amtO, pO))
           .build(),
         );
       });
@@ -528,8 +531,8 @@
           rc, itmTg.name, "concentrate-sintering", null,
           obj => {obj.tempReq = tempReq; objF(obj)},
           new CLS_recipeBuilder()
-          .__bi([itm.name, amtI, pI])
-          .__bo([itmTg.name, amtO, pO])
+          .__bi(this.processBi(itm, amtI, pI))
+          .__bo(this.processBo(itmTg, amtO, pO))
           .build(),
         );
       });

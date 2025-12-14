@@ -18,7 +18,7 @@
    * ---------------------------------------- */
   const __packetHandler = function thisFun(mode, header, payloadCaller) {
     if(header == null) return;
-    if(thisFun.headers.includes(header)) ERROR_HANDLER.headerConfict(header, "packet");
+    if(thisFun.headers.includes(header)) ERROR_HANDLER.throw("headerConflict", header);
     if(mode == null) mode = "client";
     if(!mode.equalsAny(thisFun.modes)) return;
     if(payloadCaller == null) payloadCaller = Function.air;

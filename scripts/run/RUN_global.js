@@ -231,7 +231,7 @@
 
     Time.run(1.0, () => {
       MDL_event._c_onDraw(() => {
-        if(drawTest.enabled) drawTest.draw();
+        if(DRAW_TEST.enabled) DRAW_TEST.draw();
       });
     });
 

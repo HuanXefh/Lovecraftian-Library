@@ -77,6 +77,107 @@ ptp.addRc = function(rc, nmCt, categ, tag, objF, rcBuilderObj) {
 /* ----------------------------------------
  * NOTE:
  *
+ * Used by some generators for better control.
+ * ---------------------------------------- */
+ptp.setBaseParam = function(rcObj, paramObj) {
+  readParamAndCall(paramObj, "validGetter", val => rcObj.validGetter = val);
+  readParamAndCall(paramObj, "lockedBy", val => rcObj.lockedBy = val);
+  readParamAndCall(paramObj, "timeScl", val => rcObj.timeScl = val);
+  readParamAndCall(paramObj, "ignoreItemFullness", val => rcObj.ignoreItemFullness = val);
+  readParamAndCall(paramObj, "attr", val => rcObj.attr = val);
+  readParamAndCall(paramObj, "attrMin", val => rcObj.attrMin = val);
+  readParamAndCall(paramObj, "attrMax", val => rcObj.attrMax = val);
+  readParamAndCall(paramObj, "attrBoostScl", val => rcObj.attrBoostScl = val);
+  readParamAndCall(paramObj, "attrBoostCap", val => rcObj.attrBoostCap = val);
+  readParamAndCall(paramObj, "tooltip", val => rcObj.tooltip = val);
+  readParamAndCall(paramObj, "tempReq", val => rcObj.tempReq = val);
+  readParamAndCall(paramObj, "tempAllowed", val => rcObj.tempAllowed = val);
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Used to set up CI.
+ * ---------------------------------------- */
+ptp.processCi = function(ct_gn, amtI, paramObj) {
+  return [
+    ct_gn instanceof UnlockableContent ? ct_gn.name : ct_gn,
+    readParam(paramObj, "amtI", amtI * readParam(paramObj, "amtIScl", 1.0)),
+  ];
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Used to set up BI.
+ * ---------------------------------------- */
+ptp.processBi = function(ct_gn, amtI, pI, paramObj) {
+  return [
+    ct_gn instanceof UnlockableContent ? ct_gn.name : ct_gn,
+    readParam(paramObj, "amtI", Math.round(amtI * readParam(paramObj, "amtIScl", 1.0))),
+    pI,
+  ];
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Used to set up PAYI.
+ * ---------------------------------------- */
+ptp.processPayi = function(ct_gn, payAmtI, paramObj) {
+  return [
+    ct_gn instanceof UnlockableContent ? ct_gn.name : ct_gn,
+    readParam(paramObj, "payAmtI", Math.round(payAmtI * readParam(paramObj, "amtIScl", 1.0))),
+  ];
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Used to set up CO.
+ * ---------------------------------------- */
+ptp.processCo = function(ct_gn, amtO, paramObj) {
+  return [
+    ct_gn instanceof UnlockableContent ? ct_gn.name : ct_gn,
+    readParam(paramObj, "amtO", amtO * readParam(paramObj, "amtOScl", 1.0)),
+  ];
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Used to set up BO.
+ * ---------------------------------------- */
+ptp.processBo = function(ct_gn, amtO, pO, paramObj) {
+  return [
+    ct_gn instanceof UnlockableContent ? ct_gn.name : ct_gn,
+    readParam(paramObj, "amtO", Math.round(amtO * readParam(paramObj, "amtOScl", 1.0))),
+    pO,
+  ];
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Used to set up PAYO.
+ * ---------------------------------------- */
+ptp.processPayo = function(ct_gn, payAmtO, paramObj) {
+  return [
+    ct_gn instanceof UnlockableContent ? ct_gn.name : ct_gn,
+    readParam(paramObj, "payAmtO", Math.round(payAmtO * readParam(paramObj, "amtOScl", 1.0))),
+  ];
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
  * Parses raw BI data, returns the array used in recipe object.
  * ---------------------------------------- */
 ptp.parseRawBi = function(rawBi, amtO, pO) {

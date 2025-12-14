@@ -50,7 +50,7 @@
   })
   .setAnno(ANNO.$INIT$, function() {
     MDL_event._c_onLoad(() => {
-      TRIGGER.mapChange.addListener(nmMap => callOnce.idCurMap.clear());
+      TRIGGER.mapChange.addGlobalListener(nmMap => callOnce.idCurMap.clear());
     }, 10777892);
   });
   exports.callOnce = callOnce;
@@ -178,7 +178,7 @@
    * Spawns a loot unit.
    * It's item on the ground which can be picked up by player units.
    * ---------------------------------------- */
-  const spawnLoot_server = function thisFun(x, y, itm_gn, amt, rad, repeat) {
+  const spawnLoot_server = function(x, y, itm_gn, amt, rad, repeat) {
     if(!PARAM.modded) return;
     let itm = MDL_content._ct(itm_gn, "rs");
     if(itm == null) return;
@@ -187,124 +187,13 @@
     if(rad == null) rad = VAR.rad_unitLootRad;
     if(repeat == null) repeat = 1;
 
-    spawnUnit_server(x, y, thisFun.lootUtp, Vars.player.team(), rad, null, repeat, false, unit => {
+    spawnUnit_server(x, y, Vars.content.unit("loveclab-unit0misc-loot"), Vars.player.team(), rad, null, repeat, false, unit => {
       unit.addItem(itm, amt);
       MDL_effect.showAt_global(unit.x, unit.y, EFF.circlePulseDynamic, 5.0, Pal.accent);
       MDL_effect.showBetween_line(x, y, null, unit, Pal.accent);
       Core.app.post(() => TRIGGER.lootSpawn.fire(unit));
     });
   }
-  .setProp({
-    lootUtp: (function() {
-      if(!PARAM.modded) return null;
-
-      const tmp = extend(UnitType, "unit0misc-loot", {
-
-
-        envEnabled: Env.any, envDisabled: Env.none, fogRadius: 0,
-        createWreck: false, createScorch: false, deathShake: 0.0, fallEffect: Fx.none, fallEngineEffect: Fx.none, deathExplosionEffect: Fx.none, deathSound: Sounds.none,
-        hoverable: false, drawMiniMap: false,
-        isEnemy: false, canAttack: false, hittable: false, targetable: false, allowedInPayloads: false,
-        hidden: true, internal: true, useUnitCap: false, physics: false, bounded: false,
-        playerControllable: false, logicControllable: false,
-        speed: 0.0, rotateSpeed: 0.0,
-        itemCapacity: 9999,
-        lifetime: VAR.time_lootLifetime * 2.0,
-
-
-        init() {
-          this.super$init();
-          DB_status.db["group"]["lootImmune"].forEachFast(sta_gn => {
-            let sta = MDL_content._ct(sta_gn, "sta", true);
-            if(sta != null) this.immunities.add(sta);
-          });
-        },
-
-
-        update(unit) {
-          if(unit.fin() > 0.5) unit.remove();
-          if(MDL_cond._isLootProtected(unit)) return;
-
-          // Create explosion if damaged somehow
-          if(unit.health < 10.0) {
-            let lootTg = unit.item();
-            if(lootTg != null) {
-              let lootAmt = unit.stack.amount;
-              let explo = lootTg.explosiveness * lootAmt * 1.53;
-              let flam = lootTg.flammability * lootAmt / 1.9;
-              let charge = lootTg.charge * Mathf.pow(lootAmt, 1.11) * 160.0;
-              Damage.dynamicExplosion(unit.x, unit.y, flam, explo, charge, 28.0, Vars.state.rules.damageExplosions, lootTg.flammability > 0.9, null, Fx.none, 0.0);
-            };
-            unit.remove();
-          };
-
-          // Prevent drowning to death
-          if(unit.drownTime > 0.98) unit.remove();
-
-          // Randomly merge loots with the same item
-          if(Mathf.chance(0.005)) {
-            let loot = MDL_pos._loot(unit.x, unit.y, VAR.rad_lootMergeRad, unit);
-            if(loot != null && loot.item() === unit.item()) {
-              unit.stack.amount += loot.stack.amount;
-              loot.remove();
-            };
-          };
-        },
-
-
-        draw(unit) {
-          let itm = unit.item();
-          if(itm == null) return;
-          let amt = unit.stack.amount;
-          var regScl = PARAM.drawStaticLoot ? 1.0 : 1.0 + Math.sin(Time.time * 0.065) * 0.15;
-          var sizeScl = Math.log(amt + 1.0) * 0.4;
-
-          Draw.z(VAR.lay_unitRemains + 0.2 + sizeScl / 100.0);
-          // Draw soft shadow
-          Draw.color(Color.black);
-          Draw.alpha(unit.lastDrownFloor == null ? 0.4 * (1.0 - Interp.pow10In.apply(unit.fin() * 2.0)) : 0.4 * (1.0 - Interp.pow10In.apply(unit.fin() * 2.0) - Interp.pow3In.apply(unit.drownTime)));
-          Draw.rect(this.softShadowRegion, unit.x, unit.y, 10.0 * regScl * sizeScl, 10.0 * regScl * sizeScl, 0.0);
-          // Draw item circle
-          if(!PARAM.drawStaticLoot) {
-            if(unit.lastDrownFloor == null) {
-              Draw.color(Pal.accent);
-              Draw.alpha(1.0 - Interp.pow10In.apply(unit.fin() * 2.0));
-            } else {
-              Draw.color(Pal.accent, Tmp.c2.set(unit.lastDrownFloor.mapColor).mul(0.83), unit.drownTime * 0.9);
-              Draw.alpha(1.0 - Interp.pow10In.apply(unit.fin() * 2.0) - Interp.pow2In.apply(unit.drownTime));
-            };
-            Lines.stroke(1.0);
-            Lines.circle(unit.x, unit.y, 4.5 * regScl * sizeScl);
-          };
-          // Draw item icon
-          if(unit.lastDrownFloor == null) {
-            Draw.color(Color.white);
-            Draw.alpha(1.0 - Interp.pow10In.apply(unit.fin() * 2.0));
-          } else {
-            Draw.color(Color.white, Tmp.c3.set(unit.lastDrownFloor.mapColor).mul(0.83), unit.drownTime * 0.9);
-            Draw.alpha(1.0 - Interp.pow10In.apply(unit.fin() * 2.0) - Interp.pow3In.apply(unit.drownTime));
-          };
-          Draw.rect(itm.uiIcon, unit.x, unit.y, 5.0 * regScl * sizeScl, 5.0 * regScl * sizeScl, unit.rotation);
-          if(MDL_cond._isHot(unit)) {
-            Draw.blend(Blending.additive);
-            Draw.mixcol(Color.valueOf("ff3838"), 1.0);
-            Draw.alpha((0.5 + Mathf.absin(10.0, 0.5)) * 0.75);
-            Draw.rect(itm.uiIcon, unit.x, unit.y, 5.0 * regScl * sizeScl, 5.0 * regScl * sizeScl, unit.rotation);
-            Draw.blend();
-          };
-          Draw.reset();
-
-          // Draw amount text
-          if(PARAM.drawLootAmount && Mathf.dst(Core.input.mouseWorldX(), Core.input.mouseWorldY(), unit.x, unit.y) < Math.max(8.0 * sizeScl, 6.0)) MDL_draw._d_text(unit.x, unit.y - 4.0, String(amt), 0.85, Pal.accent);
-        },
-
-
-      });
-      tmp.constructor = () => extend(TimedKillUnit, {});
-
-      return tmp;
-    })(),
-  })
   .setAnno(ANNO.$SERVER$);
   exports.spawnLoot_server = spawnLoot_server;
 

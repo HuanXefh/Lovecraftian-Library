@@ -8,7 +8,7 @@ hidden: true
 
 author: MaboroshiX
 repo: HuanXefh/Lovecraftian-Library
-minGameVersion: 152
+minGameVersion: 154
 dependencies: []
 softDependencies: []
 
@@ -18,4 +18,4 @@ description:
 A JavaScript library for my other mods.
 '''
 
-version: 100.25120501
+version: 100.25121401

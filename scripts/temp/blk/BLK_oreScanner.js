@@ -36,6 +36,9 @@
   const MDL_table = require("lovec/mdl/MDL_table");
 
 
+  const TP_stat = require("lovec/tp/TP_stat");
+
+
   /* <---------- component ----------> */
 
 
@@ -61,11 +64,12 @@
 
   function comp_setStats(blk) {
     blk.stats.add(Stat.range, blk.blkRad / Vars.tilesize, StatUnit.blocks);
+    blk.stats.add(TP_stat.blk0min_scanTier, blk.scanTier);
   };
 
 
   function comp_ex_getRevealTgs(blk, tx, ty, rot) {
-    return MDL_pos._tsCircle(Vars.world.tile(tx, ty), blk.blkRad / Vars.tilesize, blk.size).filter(ot => MDL_cond._isScannerTarget(ot.overlay()));
+    return MDL_pos._tsCircle(Vars.world.tile(tx, ty), blk.blkRad / Vars.tilesize, blk.size).inSituFilter(ot => MDL_cond._isScannerTarget(ot.overlay()) && blk.scanTier >= ot.overlay().ex_getDepthLvl());
   };
 
 
@@ -155,6 +159,8 @@
     .setParent(GenericCrafter)
     .setTags("blk-min", "blk-scan")
     .setParam({
+      // @PARAM: How deep the scanner is possible to scan.
+      scanTier: 0,
       // @PARAM: Color used for scan effects.
       scanColor: Pal.techBlue,
       // @PARAM: Sound played when the scanner scans (crafts).

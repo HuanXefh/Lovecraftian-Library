@@ -28,7 +28,6 @@
 
 
   const MDL_attr = require("lovec/mdl/MDL_attr");
-  const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_text = require("lovec/mdl/MDL_text");
 
@@ -47,10 +46,10 @@
 
   function comp_init(blk) {
     blk.rsDrop = MDL_attr._dynaAttrRs(dynaAttrMap, blk);
-    if(blk.rsDrop == null) ERROR_HANDLER.noLiquidDrop(blk);
+    if(blk.rsDrop == null) ERROR_HANDLER.throw("noLiquidDrop", blk.name);
     MDL_content.rename(
       blk,
-      blk.rsDrop.localizedName + MDL_text._space() + "(" + MDL_bundle._term("lovec", "depth-liquid") + ")",
+      blk.rsDrop.localizedName + MDL_text._space() + "(" + blk.ex_getDepthName() + ")",
     );
   };
 

@@ -44,7 +44,7 @@
 
 
   function comp_init(blk) {
-    if(blk.size !== 1) ERROR_HANDLER.notSingleSized(blk);
+    if(blk.size !== 1) ERROR_HANDLER.throw("notSingleSized", blk.name);
 
     if(blk.overwriteVanillaProp) {
       blk.lightRadius = 24.0;

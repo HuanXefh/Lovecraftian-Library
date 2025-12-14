@@ -32,13 +32,13 @@
   ptp.implement = function(intf) {
     const thisCls = this;
 
-    if(intf == null || !(intf instanceof CLS_interface)) ERROR_HANDLER.notInterface();
-    if(intf.children.includes(this)) ERROR_HANDLER.duplicateInterface();
+    if(intf == null || !(intf instanceof CLS_interface)) ERROR_HANDLER.throw("notInterface", intf);
+    if(intf.children.includes(this)) ERROR_HANDLER.throw("duplicateInterface");
 
     if(!thisCls.__IS_CONTENT_TEMPLATE__) {
       Object._it(intf.interfaceObj, (nm, fun) => {
         thisCls[nm] !== undefined ?
-          ERROR_HANDLER.interfaceMethodConflict(nm) :
+          ERROR_HANDLER.throw("interfaceMethodNameConflict", nm) :
           thisCls[nm] = fun;
       });
     } else {

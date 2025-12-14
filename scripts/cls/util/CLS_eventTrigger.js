@@ -17,29 +17,25 @@ const MDL_event = require("lovec/mdl/MDL_event");
 const CLS_eventTrigger = newClass().initClass();
 
 
-CLS_eventTrigger.prototype.init = function(nm, scr) {
-  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.notUniqueName("event trigger");
+CLS_eventTrigger.prototype.init = function(nm) {
+  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.throw("notUniqueName", nm, "event trigger");
   insNms.push(nm);
   this.name = nm;
 
-  this.updateScr = tryVal(scr, null);
-
-  this.idListenerArr = [];
-  this.listenerIds = [];
+  this.listeners = [];
   this.glbListeners = [];
+  this.onceListeners = [];
+  this.idListenerMap = new ObjectMap();
 
   this.tmpMap = "";
-  this.clearOnMapChange = false;
-  this.clearOnFire = false;
 
   MDL_event._c_onUpdate(() => {
     if(this.tmpMap !== global.lovecUtil.fun._mapCur()) {
       this.tmpMap = global.lovecUtil.fun._mapCur();
-      if(this.clearOnMapChange) this.clearListener();
+      this.clearListener();
+      this.clearOnceListener();
       global.lovec.trigger.mapChange.fire(this.tmpMap);
     };
-
-    if(this.updateScr != null) this.updateScr();
   }, "eventTrigger: [$1]".format(nm));
 };
 
@@ -60,15 +56,22 @@ var ptp = CLS_eventTrigger.prototype;
  * NOTE:
  *
  * Adds a listener to the trigger.
+ * Will be cleared on map change.
  * ---------------------------------------- */
-ptp.addListener = function(listener, id) {
+ptp.addListener = function(listener, id, shouldOverwrite) {
   if(id == null) {
-    this.idListenerArr.push(null, listener);
+    this.listeners.push(listener);
   } else {
-    if(this.listenerIds.includes(id)) return this;
-
-    this.idListenerArr.push(id, listener);
-    this.listenerIds.push(id);
+    if(this.idListenerMap.containsKey(id)) {
+      if(shouldOverwrite) {
+        this.listeners.remove(this.idListenerMap.get(id));
+        this.listeners.push(listener);
+        this.idListenerMap.put(id, listener);
+      };
+    } else {
+      this.listeners.push(listener);
+      this.idListenerMap.put(id, listener);
+    };
   };
 
   return this;
@@ -78,7 +81,7 @@ ptp.addListener = function(listener, id) {
 /* ----------------------------------------
  * NOTE:
  *
- * Adds a global listener which cannot be removed.
+ * Adds a global listener which cannot be removed by ID.
  * ---------------------------------------- */
 ptp.addGlobalListener = function(listener) {
   this.glbListeners.push(listener);
@@ -90,13 +93,22 @@ ptp.addGlobalListener = function(listener) {
 /* ----------------------------------------
  * NOTE:
  *
+ * Adds a one-time listener which cannot be removed by ID.
+ * ---------------------------------------- */
+ptp.addOnceListener = function(listener) {
+  this.onceListeners.push(listener);
+
+  return this;
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
  * Removes a listener from the trigger, which should be added with id given beforehand.
  * ---------------------------------------- */
 ptp.removeListener = function(id) {
-  if(id == null) return this;
-
-  this.idListenerArr.removeFormatRow(id);
-  this.listenerIds.remove(id);
+  this.listeners.remove(this.idListenerMap.remove(id));
 
   return this;
 };
@@ -108,8 +120,8 @@ ptp.removeListener = function(id) {
  * Removes all listeners from the trigger.
  * ---------------------------------------- */
 ptp.clearListener = function() {
-  this.idListenerArr.clear();
-  this.listenerIds.clear();
+  this.listeners.clear();
+  this.idListenerMap.clear();
 
   return this;
 };
@@ -118,22 +130,10 @@ ptp.clearListener = function() {
 /* ----------------------------------------
  * NOTE:
  *
- * If {true}, listeners will be cleared when map is changed.
+ * Removes all one-time listeners from the trigger.
  * ---------------------------------------- */
-ptp.setClearOnMapChange = function(bool) {
-  this.clearOnMapChange = bool;
-
-  return this;
-};
-
-
-/* ----------------------------------------
- * NOTE:
- *
- * If {true}, listeners will be cleared when the trigger is fired.
- * ---------------------------------------- */
-ptp.setClearOnFire = function(bool) {
-  this.clearOnFire = bool;
+ptp.clearOnceListener = function() {
+  this.onceListeners.clear();
 
   return this;
 };
@@ -145,10 +145,11 @@ ptp.setClearOnFire = function(bool) {
  * Calls all listeners of the trigger with the arguments passed down.
  * ---------------------------------------- */
 ptp.fire = function() {
-  this.idListenerArr.forEachRow(2, (id, listener) => listener.apply(null, arguments));
+  this.listeners.forEachFast(listener =>listener.apply(null, arguments));
   this.glbListeners.forEachFast(listener => listener.apply(null, arguments));
+  this.onceListeners.forEachFast(listener => listener.apply(null, arguments));
 
-  if(this.clearOnFire) this.clearListener();
+  this.clearOnceListener();
 };
 
 

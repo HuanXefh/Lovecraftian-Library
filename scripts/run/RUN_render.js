@@ -59,7 +59,7 @@
 
 
 
-  TRIGGER.gameLoad.addListener(() => {
+  TRIGGER.gameLoad.addGlobalListener(() => {
 
 
     MDL_ui._d_fade(0.0, Color.black, 0.0, 2.0, 0.5);

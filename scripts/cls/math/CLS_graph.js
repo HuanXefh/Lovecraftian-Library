@@ -1,7 +1,7 @@
 /* ----------------------------------------
  * NOTE:
  *
- * Graph as a mathematical concept.
+ * Graph as a mathematical concept, undirected.
  * ---------------------------------------- */
 
 
@@ -20,6 +20,7 @@ CLS_graph.prototype.init = function() {
   this.edges = [];
   this.dataMap = new ObjectMap();
   this.neighborMap = new ObjectMap();
+  this.weightArr = [];
 };
 
 
@@ -83,6 +84,16 @@ ptp.getDegree = function(id) {
 /* ----------------------------------------
  * NOTE:
  *
+ * Gets weight of some edge.
+ * ---------------------------------------- */
+ptp.getWeight = function(id1, id2) {
+  return this.weightArr.read([id1, id2], 1.0, true);
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
  * Called to inform a change in structure.
  * ---------------------------------------- */
 ptp.notifyChange = function() {
@@ -120,7 +131,7 @@ ptp.addNode = function(id, data) {
  *
  * Adds an edge to the graph.
  * ---------------------------------------- */
-ptp.addEdge = function(id1, id2) {
+ptp.addEdge = function(id1, id2, weight) {
   if(this.hasEdge(ind1, ind2)) return this;
 
   this.edges.push([id1, id2]);
@@ -128,6 +139,9 @@ ptp.addEdge = function(id1, id2) {
   if(!this.neighborMap.containsKey(id2)) this.neighborMap.put(id2, []);
   this.neighborMap.get(id1).push(id2);
   this.neighborMap.get(id2).push(id1);
+  if(weight != null) {
+    this.weightArr.write([id1, id2], weight, true);
+  };
   this.notifyChange();
 
   return this;

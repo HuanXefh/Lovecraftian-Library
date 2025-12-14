@@ -43,10 +43,10 @@
   function comp_init(blk) {
     blk.ovCog = MDL_content._ct(blk.ovCog, "blk");
     if(!MDL_cond._isCogwheel(blk.ovCog)) blk.ovCog = null;
-    if(blk.ovCog == null) ERROR_HANDLER.nullArgument("ovCog");
+    if(blk.ovCog == null) ERROR_HANDLER.throw("nullArgument", "ovCog");
     blk.undCog = MDL_content._ct(blk.undCog, "blk");
     if(!MDL_cond._isCogwheel(blk.undCog)) blk.undCog = null;
-    if(blk.undCog == null) ERROR_HANDLER.nullArgument("undCog");
+    if(blk.undCog == null) ERROR_HANDLER.throw("nullArgument", "undCog");
 
     blk.size = blk.undCog.size;
 

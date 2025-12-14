@@ -151,7 +151,7 @@
         dmg = ob.maxHealth * VAR.blk_shortCircuitDmgFrac / 60.0;
         ob.damagePierce(dmg);
         if(Mathf.chance(0.15)) MDL_effect.showAt(ob.x, ob.y, EFF.heatSmog);
-        if(Mathf.chance(0.05)) FRAG_attack._a_lightning(ob.x, ob.y, null, null, null, 6, 4);
+        if(Mathf.chance(0.05)) FRAG_attack._a_lightning(ob.x, ob.y, null, null, null, 6, 4, null, "ground");
       });
     };
 

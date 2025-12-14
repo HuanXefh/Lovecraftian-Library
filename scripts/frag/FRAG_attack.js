@@ -116,6 +116,32 @@
   exports.heal = heal;
 
 
+  const _dmgTagMtp = function(mode, mtp) {
+    switch(mode) {
+      case "infantry" : return !MDL_cond._isInfantryUnit(e.type) ? 1.0 : mtp;
+      case "vehicle" : return !MDL_cond._isVehicleUnit(e.type) ? 1.0 : mtp;
+      case "heavy-vehicle" : return !MDL_cond._isHeavyVehicleUnit(e.type) ? 1.0 : mtp;
+      case "drone" : return !MDL_cond._isDroneUnit(e.type) ? 1.0 : mtp;
+      case "experimental" : return !MDL_cond._isExperimentalUnit(e.type) ? 1.0 : mtp;
+      default : return 1.0;
+    };
+  };
+  exports._dmgTagMtp = _dmgTagMtp;
+
+
+  const damage_tagMtp = function(e, dmg, modeMtpArr) {
+    if(modeMtpArr == null || modeMtpArr.length === 0) damage(e, dmg);
+
+    let i = 0, iCap = modeMtpArr.iCap(), mtp = 1.0;
+    while(i < iCap) {
+      mtp *= _dmgTagMtp(modeMtpArr[i], modeMtpArr[i + 1]);
+      i += 2;
+    };
+    damage(e, dmg * mtp);
+  };
+  exports.damage_tagMtp = damage_tagMtp;
+
+
   /* <---------- ranged ----------> */
 
 
@@ -219,7 +245,7 @@
    * ---------------------------------------- */
   const _a_lightning = function(
     x, y, team, dmg, amt,
-    r, offR, color_gn, noSound
+    r, offR, color_gn, hitMode, noSound
   ) {
     if(team == null) team = Team.derelict;
     if(dmg == null) dmg = VAR.blk_lightningDmg;
@@ -228,12 +254,24 @@
     if(r == null) r = 5;
     if(offR == null) offR = 2;
 
+    let btp;
+    switch(hitMode) {
+      case "ground" :
+        btp = Bullets.damageLightningGround;
+        break;
+      case "air" :
+        btp = Bullets.damageLightningAir;
+        break;
+      default :
+        btp = Bullets.damageLightning;
+    };
+
     let i = 0;
     let r_fi, color = MDL_color._color(tryVal(color_gn, Pal.accent));
     while(i < amt) {
       r_fi = Math.round(r + Mathf.random() * offR);
       Lightning.create(
-        team, color, dmg,
+        btp, team, color, dmg,
         x, y, Mathf.random(360.0), r_fi,
       );
       i++;
