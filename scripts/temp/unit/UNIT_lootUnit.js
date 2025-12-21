@@ -120,7 +120,7 @@
     // Heat
     if(MDL_cond._isHot(unit)) {
       Draw.blend(Blending.additive);
-      Draw.mixcol(Tmp.c2.set("ff3838"), 1.0);
+      Draw.mixcol(Color.valueOf(Tmp.c2, "ff3838"), 1.0);
       Draw.alpha((0.5 + Mathf.absin(10.0, 0.5)) * 0.75);
       Draw.rect(unit.item().uiIcon, unit.x, unit.y, regW, regW, unit.rotation);
       Draw.blend();

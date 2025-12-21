@@ -467,7 +467,7 @@
             Draw.tint(this.color, this.tint, 0.5) :
             !this.isHot ?
               Draw.color(this.color) :
-              Draw.color(Tmp.c1.set("ea8878").lerp(this.color, Interp.pow2Out.apply(this.fin())), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
+              Draw.color(Color.valueOf(Tmp.c1, "ea8878").lerp(this.color, Interp.pow2Out.apply(this.fin())), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
           Draw.rect(this.region, x, y, this.rotation);
           if(this.cellRegion != null) {
             Draw.color(Tmp.c2.set(this.color).mul(this.team.color), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
@@ -476,7 +476,7 @@
           Draw.color();
           if(this.isHot) {
             Draw.blend(Blending.additive);
-            Draw.mixcol(Tmp.c3.set("ff3838"), 1.0);
+            Draw.mixcol(Color.valueOf(Tmp.c3, "ff3838"), 1.0);
             Draw.alpha((0.5 + Mathf.absin(10.0, 0.5)) * !this.isHot ? 0.0 : !this.shouldFadeHeat ? (0.5 - Mathf.curve(this.fin(), 0.98) * 0.5) : (0.5 - Interp.pow2Out.apply(this.fin()) * 0.5));
             Draw.rect(this.region, x, y, this.rotation);
             Draw.blend();

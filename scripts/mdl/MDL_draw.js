@@ -765,17 +765,50 @@
    * ---------------------------------------- */
   const _l_disk = function(
     x, y, warmup,
-    rad, size, sinScl, sinMag, color_gn, a
+    rad, size, color_gn, a,
+    sinScl, sinMag
   ) {
-    if(rad == null) rad = 40.0;
-    if(size == null) size = 1;
-    if(sinScl == null) sinScl = 16.0;
-    if(sinMag == null) sinMag = 6.0;
-    if(a == null) a = 0.65;
-
-    Drawf.light(x, y, (rad + Mathf.absin(sinScl, sinMag)) * warmup * size, MDL_color._color(tryVal(color_gn, "ffc999")), a);
+    Drawf.light(x, y, (tryVal(rad, 40.0) + Mathf.absin(tryVal(sinScl, 16.0), tryVal(sinMag, 6.0))) * tryVal(warmup, 0.0) * tryVal(size, 1), MDL_color._color(tryVal(color_gn, "ffc999")), tryVal(a, 0.65));
   };
   exports._l_disk = _l_disk;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws conical light.
+   * ---------------------------------------- */
+  const _l_arc = function thisFun(
+    x, y, warmup,
+    rad, coneScl, ang, color_gn, a
+  ) {
+    if(Vars.renderer == null || thisFun.lightReg == null) return;
+    if(rad == null) rad = 40.0;
+    if(coneScl == null) coneScl = 1.0;
+    if(ang == null) ang = 0.0;
+    if(a == null) a = 0.65;
+
+    let
+      fBits = MDL_color._color(color_gn).toFloatBits(),
+      w = rad * thisFun.lightReg.scl() * Vars.tilesize * coneScl,
+      h = rad * thisFun.lightReg.scl() * Vars.tilesize;
+    Vars.renderer.lights.add(() => {
+      Draw.color(fBits);
+      Draw.alpha(a);
+      Draw.rect(thisFun.lightReg, x, y, w, h, ang);
+      Draw.color();
+    });
+  }
+  .setProp({
+    lightReg: null,
+  })
+  .setAnno(ANNO.$INIT$, function() {
+    MDL_event._c_onLoad(() => {
+      this.lightReg = Core.atlas.find("lovec-efr-shadow-cone");
+      if(!this.lightReg.found()) this.lightReg = null;
+    });
+  });
+  exports._l_arc = _l_arc;
 
 
   /* <---------- p3d ----------> */

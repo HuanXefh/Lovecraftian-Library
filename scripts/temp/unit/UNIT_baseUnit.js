@@ -30,6 +30,7 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_pollution = require("lovec/mdl/MDL_pollution");
 
 
@@ -63,6 +64,15 @@
   };
 
 
+  function comp_drawLight(utp, unit) {
+    if(!utp.useConicalLight) {
+      utp.super$drawLight(unit);
+    } else {
+      MDL_draw._l_arc(unit.x, unit.y, 1.0, utp.lightRadius, utp.lightConeScl, unit.rotation - 90.0, utp.lightColor, utp.lightOpacity);
+    };
+  };
+
+
 /*
   ========================================
   Section: Application
@@ -80,6 +90,10 @@
     overwriteVanillaProp: true,
     // @PARAM: Whether to enable health-based status effects.
     useLovecDamagePenalty: true,
+    // @PARAM: Whether to use conical unit light instead of vanilla circular one.
+    useConicalLight: true,
+    // @PARAM: Affects cone angle of the light.
+    lightConeScl: 0.325,
 
     entityName: "flying",                // Entity used by the type, do not change unless you know it well
     entityTemplate: null,
@@ -100,6 +114,14 @@
     update: function(unit) {
       comp_update(this, unit);
     },
+
+
+    drawLight: function(unit) {
+      comp_drawLight(this, unit);
+    }
+    .setProp({
+      noSuper: true,
+    }),
 
 
   });
