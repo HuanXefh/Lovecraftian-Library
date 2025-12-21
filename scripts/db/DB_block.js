@@ -29,7 +29,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Corrosion resistence for the block.
+     * Corrosion resistance for the block.
      * If unset, group parameter will be used.
      * ---------------------------------------- */
     corRes: [],
@@ -38,7 +38,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Heat resistence for the block.
+     * Heat resistance for the block.
      * If unset, group parameter will be used.
      * ---------------------------------------- */
     heatRes: [],
@@ -327,7 +327,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Base pressure resistence for each material group.
+     * Base pressure resistance for each material group.
      * ---------------------------------------- */
     presRes: [
 
@@ -348,7 +348,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Base vacuum resistence for each material group.
+     * Base vacuum resistance for each material group.
      * ---------------------------------------- */
     vacRes: [
 
@@ -369,7 +369,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Base corrosion resistence for each material group.
+     * Base corrosion resistance for each material group.
      * ---------------------------------------- */
     corRes: [
 
@@ -390,7 +390,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Base heat resistence for each material group.
+     * Base heat resistance for each material group.
      * ---------------------------------------- */
     heatRes: [
 

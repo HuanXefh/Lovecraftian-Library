@@ -23,6 +23,8 @@ const db = {
      * ---------------------------------------- */
     migration: [
 
+      "projreind-fac0heat-resistence-heater", "projreind-fac0heat-resistance-heater",
+
       "lovec-unit0misc-loot", "loveclab-unit0misc-loot",
 
     ],

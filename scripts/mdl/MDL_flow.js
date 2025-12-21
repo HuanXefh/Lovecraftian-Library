@@ -353,7 +353,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets corrosion resistence of the block.
+   * Gets corrosion resistance of the block.
    * ---------------------------------------- */
   const _corRes = function(blk_gn) {
     let corRes = 1.0;
@@ -499,7 +499,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets the range heat resistence for a unit type.
+   * Gets the range heat resistance for a unit type.
    * ---------------------------------------- */
   const _rHeatRes = function(utp) {
     return Math.sqrt(utp.health) * utp.hitSize * 0.5;

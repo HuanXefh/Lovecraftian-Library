@@ -92,7 +92,7 @@
 
   function comp_created(b) {
     if(b.tempCur == null) b.tempCur = PARAM.glbHeat;
-    if(b.tempRiseTg == null) b.tempRiseTg = PARAM.glbHeat;
+    if(b.tempRiseTg == null) b.tempRiseTg = 0.0;
   };
 
 
