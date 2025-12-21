@@ -283,7 +283,7 @@
    *
    * Returns generalized craft time for the block. See {DB_misc}.
    * ---------------------------------------- */
-  const _craftTime = function(blk_gn, isDrillTime) {
+  const _craftTime = function(blk_gn, isDrillTime, ct_gn) {
     const arr = DB_block.db["class"]["map"]["craftTime"];
     let val = Infinity;
     let blk = _ct(blk_gn, "blk");
@@ -297,7 +297,7 @@
       if(blk instanceof cls) valCaller = arr[i + 1];
       i += 2;
     };
-    if(valCaller != null) val = valCaller(blk, isDrillTime);
+    if(valCaller != null) val = valCaller(blk, isDrillTime, _ct(ct_gn, null, true));
 
     return val;
   };

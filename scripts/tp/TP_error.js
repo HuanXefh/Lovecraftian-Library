@@ -49,10 +49,13 @@
     this.add("matrixMultiplicationInvalid", "Two matrix arguments cannot multiply with each other!");
 
 
+    this.add("noModFound", "Mod [$1] is not found!");
     this.add("noContentFound", "Content [$1] is not found!");
+    this.add("noTemplateFound", "No content template found for [$1]!");
     this.add("auxNotGas", "Abstract fluid must be gas! Exception: [$1]");
     this.add("noItemModule", "[$1] has no item module!");
     this.add("noLiquidModule", "[$1] has no liquid module!");
+    this.add("noPowerModule", "[$1] has no power module!");
     this.add("noItemDrop", "[$1] has no item drop!");
     this.add("noLiquidDrop", "[$1] has no liquid drop!");
     this.add("notSingleSized", "[$1] is expected to have size of 1!");

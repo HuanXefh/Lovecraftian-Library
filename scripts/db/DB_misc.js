@@ -311,6 +311,7 @@ const db = {
     "draw0aux-router", useScl => Core.settings.getBool("lovec-draw0aux-router", true),
     "draw0aux-scanner", useScl => Core.settings.getBool("lovec-draw0aux-scanner", true),
     "draw0aux-fluid-heat", useScl => Core.settings.getBool("lovec-draw0aux-fluid-heat", true),
+    "draw0aux-furnace-heat", useScl => Core.settings.getBool("lovec-draw0aux-furnace-heat", true),
 
     "icontag-flicker", useScl => Core.settings.getBool("lovec-icontag-flicker", true),
     "icontag-interval", useScl => Core.settings.getInt("lovec-icontag-interval", 4) * (useScl ? 10.0 : 1.0),

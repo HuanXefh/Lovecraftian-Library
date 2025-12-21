@@ -24,12 +24,14 @@ const MDL_ui = require("lovec/mdl/MDL_ui");
 const CLS_achievement = newClass().initClass();
 
 
-CLS_achievement.prototype.init = function(nm, icon, trigger, listener) {
+CLS_achievement.prototype.init = function(nmMod, nm, icon, trigger, listener) {
   const thisIns = this;
 
   if(nm == null || insNms.includes(nm)) ERROR_HANDLER.throw("notUniqueName", nm, "achievement");
   insNms.push(nm);
-  this.name = nm;
+  if(fetchMod(nmMod, true) == null) ERROR_HANDLER.throw("noModFound", nmMod);
+  this.name = nmMod + "-" + nm;
+  this.mod = nmMod;
 
   this.icon = tryVal(icon, VARGEN.icons.ohno);
   listener == null ?
@@ -82,7 +84,14 @@ cls.clear = function() {
 var ptp = CLS_achievement.prototype;
 
 
-/* util */
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Returns mod of this achievement.
+ * ---------------------------------------- */
+ptp.getMod = function() {
+  return fetchMod(this.mod);
+};
 
 
 /* ----------------------------------------

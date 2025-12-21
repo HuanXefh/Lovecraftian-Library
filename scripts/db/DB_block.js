@@ -467,27 +467,27 @@ const db = {
        * ---------------------------------------- */
       craftTime: [
 
-        Drill, blk => blk.drillTime,
-        BeamDrill, blk => blk.drillTime,
-        WallCrafter, (blk, isDrillTime) => isDrillTime ? blk.drillTime : blk.boostItemUseTime,
+        Drill, (blk, isDrillTime, ct) => blk.drillTime,
+        BeamDrill, (blk, isDrillTime, ct) => blk.drillTime,
+        WallCrafter, (blk, isDrillTime, ct) => isDrillTime ? blk.drillTime : blk.boostItemUseTime,
 
-        Pump, blk => blk.consumeTime,
-        Fracker, blk => blk.itemUseTime,
+        Pump, (blk, isDrillTime, ct) => blk.consumeTime,
+        Fracker, (blk, isDrillTime, ct) => blk.itemUseTime,
 
-        ConsumeGenerator, blk => blk.itemDuration,
-        NuclearReactor, blk => blk.itemDuration,
-        ImpactReactor, blk => blk.itemDuration,
+        ConsumeGenerator, (blk, isDrillTime, ct) => blk.itemDuration * blk.itemDurationMultipliers.get(ct, 1.0),
+        NuclearReactor, (blk, isDrillTime, ct) => blk.itemDuration,
+        ImpactReactor, (blk, isDrillTime, ct) => blk.itemDuration,
 
-        GenericCrafter, blk => blk.craftTime,
+        GenericCrafter, (blk, isDrillTime, ct) => blk.craftTime,
 
-        Reconstructor, blk => blk.constructTime,
+        Reconstructor, (blk, isDrillTime, ct) => blk.constructTime,
 
-        MendProjector, blk => blk.useTime,
-        RegenProjector, blk => blk.optionalUseTime,
-        OverdriveProjector, blk => blk.useTime,
-        ForceProjector, blk => blk.phaseUseTime,
+        MendProjector, (blk, isDrillTime, ct) => blk.useTime,
+        RegenProjector, (blk, isDrillTime, ct) => blk.optionalUseTime,
+        OverdriveProjector, (blk, isDrillTime, ct) => blk.useTime,
+        ForceProjector, (blk, isDrillTime, ct) => blk.phaseUseTime,
 
-        LandingPad, blk => blk.cooldownTime,
+        LandingPad, (blk, isDrillTime, ct) => blk.cooldownTime,
 
       ],
 

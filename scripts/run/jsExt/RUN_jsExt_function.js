@@ -97,6 +97,32 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * For test, monitors function time cost.
+   * ---------------------------------------- */
+  ptp.setTimeTest = function(dataAmt) {
+    const thisFun = this;
+
+    let meanWin = new WindowedMean(tryVal(dataAmt, 60));
+    let fun = function() {
+      Time.mark();
+      let returnVal = thisFun.apply(this, arguments);
+      meanWin.add(Time.elapsed());
+      if(meanWin.hasEnoughData()) {
+        Log.info("[LOVEC] Method cost: [$1] ms.".format(meanWin.mean()));
+        meanWin.clear();
+      };
+
+      return returnVal;
+    };
+    fun.cloneProp(thisFun);
+
+    return fun;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * For test, monitors behaviour of some function.
    * ---------------------------------------- */
   ptp.setSpy = function thisDecor() {

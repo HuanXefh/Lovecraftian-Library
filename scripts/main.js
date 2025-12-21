@@ -9,6 +9,10 @@
   Core.settings.put("console", true);
 
 
+  // Log Lovec version in case that someone sends me a crash log from a very outdated version
+  Log.info("[LOVEC] Loaded Lovec version: " + Vars.mods.locateMod("lovec").meta.version);
+
+
   // Load global scripts before everything
   (function() {
     let findGlbScr = mod => {
@@ -304,6 +308,7 @@
           tb.row();
           MDL_table.__btnSmall(tb, "?", () => fetchDialog("rcDict").ex_show(ct.localizedName, ct)).left().padLeft(28.0).row();
         }));
+        VARGEN.rcDictCts.push(ct);
       });
     });
 
@@ -394,6 +399,7 @@
         tb.checkPref("lovec-draw0aux-bridge", true);
         tb.checkPref("lovec-draw0aux-router", true);
         tb.checkPref("lovec-draw0aux-fluid-heat", true);
+        tb.checkPref("lovec-draw0aux-furnace-heat", true);
       });
       // Misc settings
       settings.addCategory(MDL_bundle._term("lovec", "settings-misc"), tb => {

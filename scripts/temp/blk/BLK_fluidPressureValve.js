@@ -65,11 +65,12 @@
 
 
   function comp_buildConfiguration(b, tb) {
-    tb.table(Styles.black6, tb1 => {
+    tb.row();
+    tb.table(Styles.black3, tb1 => {
       tb1.left();
       MDL_table.__margin(tb1);
       MDL_table.__sliderCfg(tb1, b, () => "[$1]: [$2]".format(MDL_bundle._term("lovec", b.presTmp < 0.0 ? "vacuum" : "pressure"), b.presAllowFrac.perc(0)), 0.0, 1.0, 0.05, b.presAllowFrac);
-    });
+    }).left().growX();
   };
 
 

@@ -129,6 +129,7 @@
       exports.drawRouterHeresy = MDL_util._cfg("draw0aux-router");
       exports.drawScannerResult = MDL_util._cfg("draw0aux-scanner");
       exports.drawFluidHeat = MDL_util._cfg("draw0aux-fluid-heat");
+      exports.drawFurnaceHeat = MDL_util._cfg("draw0aux-furnace-heat");
 
 
       exports.flickerIconTag = MDL_util._cfg("icontag-flicker");

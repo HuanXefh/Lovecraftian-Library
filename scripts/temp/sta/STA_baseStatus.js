@@ -35,9 +35,6 @@
 
 
   function comp_init(sta) {
-    sta.effect = sta.eff;
-    sta.effP = sta.effP;
-
     DB_status.db["map"]["affinity"].read(sta.name, Array.air).forEachRow(2, (nmSta, scr) => {
       let osta = MDL_content._ct(nmSta, "sta");
       if(osta != null) sta.affinity(osta, scr);
@@ -67,11 +64,11 @@
     overwriteVanillaStat: true,
     // @PARAM: See {RS_baseResource}.
     overwriteVanillaProp: true,
-    // @PARAM: {sta.effect}.
-    eff: Fx.none,
-    // @PARAM: {sta.effectChance}.
-    effP: 0.02,
   })
+  .setParamAlias([
+    "eff", "effect", Fx.none,
+    "effP", "effectChance", 0.02,
+  ])
   .setMethod({
 
 

@@ -30,6 +30,12 @@
   /* <---------- component ----------> */
 
 
+  function comp_init(blk) {
+    // Forced to {true} for proper blending
+    blk.outputsLiquid = true;
+  };
+
+
 /*
   ========================================
   Section: Application
@@ -43,9 +49,17 @@
     // Block
     newClass().extendClass(PARENT[0]).implement(INTF[0]).initClass()
     .setParent(GenericCrafter)
-    .setTags("blk-fac")
+    .setTags("blk-fac", "blk-pump")
     .setParam({})
-    .setMethod({}),
+    .setMethod({
+
+
+      init: function() {
+        comp_init(this);
+      },
+
+
+    }),
 
 
     // Building

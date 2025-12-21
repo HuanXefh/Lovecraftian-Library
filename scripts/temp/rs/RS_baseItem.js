@@ -26,7 +26,9 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_fuel = require("lovec/mdl/MDL_fuel");
+  const MDL_table = require("lovec/mdl/MDL_table");
 
 
   const DB_item = require("lovec/db/DB_item");
@@ -64,6 +66,13 @@
       itm.stats.add(TP_stat.rs0fuel_point, MDL_fuel._fuelPon(itm));
       itm.stats.add(TP_stat.rs0fuel_level, MDL_fuel._fuelLvl(itm));
     };
+
+    // Sometimes non-ore items can be mined in some way
+    let oreBlks = MDL_content._oreBlks(itm);
+    if(oreBlks.length > 0) itm.stats.add(TP_stat.rs_blockRelated, newStatValue(tb => {
+      tb.row();
+      MDL_table.setDisplay_ctLi(tb, oreBlks, 48.0);
+    }));
   };
 
 

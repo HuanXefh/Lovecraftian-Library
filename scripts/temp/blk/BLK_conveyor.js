@@ -56,12 +56,12 @@
         || (b_s1 != null && b_s1.block instanceof Conveyor && b_s1.team === b.team && b_s1.nearby(b_s1.rotation) === b)
         || (b_s2 != null && b_s2.block instanceof Conveyor && b_s2.team === b.team && b_s2.nearby(b_s2.rotation) === b)
     );
-    b.shouldDrawSide2 = !(b_t != null && b_t.team === b.team && b_t.items != null);
+    b.shouldDrawSide2 = !(b_t != null && b_t.team === b.team && b_t.items != null && !MDL_cond._isCable(b_t.block));
   };
 
 
   function comp_pickedUp(b) {
-    // Well I don't see any need doing this
+    // Is it even possible to see the payload???
     b.shouldDrawSide1 = b.shouldDrawSide2 = true;
   };
 

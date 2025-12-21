@@ -28,6 +28,7 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_draw = require("lovec/mdl/MDL_draw");
   const MDL_io = require("lovec/mdl/MDL_io");
 
 
@@ -35,23 +36,30 @@
 
 
   function comp_load(blk) {
-    blk.liqReg = fetchRegion(blk, "-liquid");
+    blk.topReg = fetchRegion(blk, "-top");
   };
 
 
   function comp_getLiquidDestination(b, b_f, liq) {
-    return !b.enabled || liq !== b.liqTg || MDL_cond._isAuxilliaryFluid(liq) ?
+    return !b.enabled || liq !== b.ctTg || MDL_cond._isAuxilliaryFluid(liq) ?
       b :
       b.super$getLiquidDestination(b_f, liq);
   };
 
 
   function comp_draw(b) {
-    if(b.ctTg == null) return;
+    b.drawTeamTop();
 
-    Draw.color(b.ctTg.color);
-    Draw.rect(b.block.ex_getLiqReg(), b.x, b.y);
-    Draw.color();
+    Draw.rect(b.block.region, b.x, b.y);
+    if(b.ctTg != null) {
+      LiquidBlock.drawTiledFrames(b.block.size, b.x, b.y, 1.0, 1.0, 1.0, 1.0, b.ctTg, 1.0);
+    };
+    Draw.rect(b.block.ex_getTopReg(), b.x, b.y);
+  };
+
+
+  function comp_drawSelect(b) {
+    MDL_draw._reg_rsIcon(b.x, b.y, b.ctTg, b.block.size);
   };
 
 
@@ -70,7 +78,7 @@
     .setParent(LiquidJunction)
     .setTags("blk-liq", "blk-gate")
     .setParam({
-      liqReg: null,
+      topReg: null,
     })
     .setMethod({
 
@@ -90,7 +98,7 @@
 
 
     })
-    .setGetter("liqReg"),
+    .setGetter("topReg"),
 
 
     // Building
@@ -109,15 +117,31 @@
       }),
 
 
+      config: function() {
+        return this.ctTg;
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
       draw: function() {
         comp_draw(this);
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
+      drawSelect: function() {
+        comp_drawSelect(this);
       },
 
 
       write: function(wr) {
         let lovecRevi = processRevision(wr);
         this.ex_processData(wr, lovecRevi);
-        MDL_io._wr_ct(wr, this.liqTg);
+        MDL_io._wr_ct(wr, this.ctTg);
       }
       .setProp({
         override: true,
@@ -127,7 +151,7 @@
       read: function(rd, revi) {
         let lovecRevi = processRevision(rd);
         this.ex_processData(rd, lovecRevi);
-        this.liqTg = MDL_io._rd_ct(rd);
+        this.ctTg = MDL_io._rd_ct(rd);
       }
       .setProp({
         override: true,

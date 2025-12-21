@@ -30,6 +30,7 @@
   const FRAG_attack = require("lovec/frag/FRAG_attack");
 
 
+  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_draw = require("lovec/mdl/MDL_draw");
 
 
@@ -80,6 +81,12 @@
   };
 
 
+  function comp_conductsTo(b, ob) {
+    // Don't cause short circuit for pipes
+    return !MDL_cond._isFluidConduit(ob.block);
+  };
+
+
   function comp_drawSelect(b) {
     if(b.block.explosionDamage > 0) {
       MDL_draw._d_diskWarning(b.x, b.y, b.block.explosionRadius * Vars.tilesize);
@@ -108,6 +115,7 @@
     .setParamAlias([
       "genEff", "generateEffect", Fx.none,
       "genEffP", "effectChance", 0.02,
+      "genEffRad", "generateEffectRange", 3.0,                // Only used for {ConsumeGenerator}, I don't know why
       "exploEff", "explodeEffect", Fx.none,
     ])
     .setMethod({
@@ -141,6 +149,14 @@
       createExplosion: function() {
         comp_createExplosion(this);
       },
+
+
+      conductsTo: function(ob) {
+        return comp_conductsTo(this, ob);
+      }
+      .setProp({
+        boolMode: "and",
+      }),
 
 
       drawSelect: function() {

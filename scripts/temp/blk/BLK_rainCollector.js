@@ -8,8 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Vanilla attribute crafter.
-   * To be honest I don't like this as a pure factory.
+   * Dynamically outputs liquid based on current weather.
    * ---------------------------------------- */
 
 
@@ -31,13 +30,27 @@
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
 
 
+  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
 
 
   const TP_stat = require("lovec/tp/TP_stat");
 
 
   /* <---------- component ----------> */
+
+
+  function comp_init(blk) {
+    MDL_event._c_onLoad(() => {
+      Core.app.post(() => {
+        Vars.content.weathers().each(
+          wea => wea instanceof RainWeather,
+          wea => MDL_recipeDict.addFldProdTerm(blk, wea.liquid, blk.liqProdRate),
+        );
+      });
+    });
+  };
 
 
   function comp_setStats(blk) {
@@ -58,7 +71,7 @@
   const comp_updateTile = function thisFun(b) {
     if(TIMER.secFive) b.rsTg = b.block.ex_findWeatherLiquid();
 
-    if(b.rsTg !== null {
+    if(b.rsTg !== null) {
       FRAG_fluid.addLiquid(b, b, b.rsTg, b.block.ex_getLiqProdRate(), true);
       // Spill liquid if full
       if(b.efficiency > 0.0 && Mathf.chanceDelta(0.04) && b.liquids.get(b.rsTg) > b.block.liquidCapacity * 0.98) {
@@ -66,6 +79,8 @@
           if(Mathf.chance(0.5)) Puddles.deposit(ot, b.rsTg, 4.0);
         });
       };
+
+      b.dumpLiquid(b.rsTg, 2.0);
     };
   }
   .setProp({
@@ -104,6 +119,11 @@
       liqProdRate: 0.1,
     })
     .setMethod({
+
+
+      init: function() {
+        comp_init(this);
+      },
 
 
       setStats: function() {

@@ -300,12 +300,10 @@
    * Whether the multi-crafter can add resource any more.
    * ---------------------------------------- */
   const _canAdd = function(b, ignoreItemFullness, co, bo, fo) {
-    let noItm = b.items == null;
-    let noLiq = b.liquids == null;
     let i, iCap, tmp, amt, p;
 
     // CO
-    if(!noLiq) {
+    if(b.liquids != null) {
       let allFull = true;
       i = 0;
       iCap = co.iCap();
@@ -329,17 +327,17 @@
       tmp = bo[i];
       amt = bo[i + 1];
       p = bo[i + 2];
-      if(!noItm && tmp instanceof Item) {
+      if(b.items != null && tmp instanceof Item) {
         if(!ignoreItemFullness && b.items.get(tmp) > b.getMaximumAccepted(tmp) - amt * p) return false;
       };
-      if(!noLiq && tmp instanceof Liquid) {
+      if(b.liquids != null && tmp instanceof Liquid) {
         if(!b.block.ignoreLiquidFullness && b.liquids.get(tmp) / b.block.liquidCapacity > 0.98) return false;
       };
       i += 3;
     };
 
     // FO
-    if(!noItm) {
+    if(b.items != null) {
       i = 0;
       iCap = fo.iCap();
       while(i < iCap) {
@@ -368,30 +366,25 @@
   const _dumpTup = function(b, contTup, bo, fo) {
     const tup = contTup != null ? contTup : [[], []];
 
-    let
-      itms = tup[0].clear(),
-      liqs = tup[1].clear(),
-      noItm = b.items == null,
-      noLiq = b.liquids == null,
-      i, iCap;
+    let i, iCap;
 
     // BO
     i = 0;
     iCap = bo.iCap();
     while(i < iCap) {
       let tmp = bo[i];
-      if(!noItm && tmp instanceof Item) itms.pushUnique(tmp);
-      if(!noLiq && tmp instanceof Liquid) liqs.pushUnique(tmp);
+      if(b.items != null && tmp instanceof Item) tup[0].pushUnique(tmp);
+      if(b.liquids != null && tmp instanceof Liquid) tup[1].pushUnique(tmp);
       i += 3;
     };
 
     // FO
-    if(!noItm) {
+    if(b.items != null) {
       i = 0;
       iCap = fo.iCap();
       while(i < iCap) {
         let tmp = fo[i];
-        itms.pushUnique(tmp);
+        tup[0].pushUnique(tmp);
         i += 3;
       };
     };
@@ -411,7 +404,7 @@
     if(b.items == null) return null;
 
     let tup = [];
-    var tmpMtp = 0.0;
+    let tmpMtp = 0.0;
     let i, iCap;
 
     i = 0;
@@ -439,17 +432,12 @@
    * Returns current efficiency of the multi-crafter.
    * ---------------------------------------- */
   const _effc = function(b, ci, bi, aux, reqOpt, opt) {
-    var effc = 1.0;
-    var mtp = 1.0;
-    let noItm = b.items == null;
-    let noLiq = b.liquids == null;
-
+    let effc = 1.0, mtp = 1.0;
     if(b.power != null) effc *= b.power.status;
-
     let i, iCap, j, jCap, tmp, tmp1, amt, allAbsent;
 
     // CI
-    if(!noLiq) {
+    if(b.liquids != null) {
       i = 0;
       iCap = ci.iCap();
       while(i < iCap) {
@@ -465,41 +453,43 @@
     };
 
     // BI
-    i = 0;
-    iCap = bi.iCap();
-    while(i < iCap) {
-      if(effc < 0.0001) return 0.0;
-      tmp = bi[i];
-      if(!(tmp instanceof Array)) {
-        amt = bi[i + 1];
-        if(!noItm && tmp instanceof Item) {
-          if(b.items.get(tmp) < amt) effc = 0.0;
-        };
-        if(!noLiq && tmp instanceof Liquid) {
-          if(b.liquids.get(tmp) < amt) effc = 0.0;
-        };
-      } else {
-        allAbsent = true;
-        j = 0;
-        jCap = tmp.iCap();
-        while(j < jCap) {
-          tmp1 = tmp[j];
-          amt = tmp[j + 1];
-          if(!noItm && tmp1 instanceof Item) {
-            if(b.items.get(tmp1) >= amt) allAbsent = false;
+    if((b.items != null && b.items.any()) || b.liquids != null) {
+      i = 0;
+      iCap = bi.iCap();
+      while(i < iCap) {
+        if(effc < 0.0001) return 0.0;
+        tmp = bi[i];
+        if(!(tmp instanceof Array)) {
+          amt = bi[i + 1];
+          if(b.items != null && tmp instanceof Item) {
+            if(b.items.get(tmp) < amt) effc = 0.0;
           };
-          if(!noLiq && tmp1 instanceof Liquid) {
-            if(b.liquids.get(tmp1) > amt - 0.0001) allAbsent = false;
+          if(b.liquids != null && tmp instanceof Liquid) {
+            if(b.liquids.get(tmp) < amt) effc = 0.0;
           };
-          j += 3;
+        } else {
+          allAbsent = true;
+          j = 0;
+          jCap = tmp.iCap();
+          while(j < jCap) {
+            tmp1 = tmp[j];
+            amt = tmp[j + 1];
+            if(b.items != null && tmp1 instanceof Item) {
+              if(b.items.get(tmp1) >= amt) allAbsent = false;
+            };
+            if(b.liquids != null && tmp1 instanceof Liquid) {
+              if(b.liquids.get(tmp1) > amt - 0.0001) allAbsent = false;
+            };
+            j += 3;
+          };
+          if(allAbsent) effc = 0.0;
         };
-        if(allAbsent) effc = 0.0;
+        i += 3;
       };
-      i += 3;
     };
 
     // AUX
-    if(!noLiq) {
+    if(b.liquids != null) {
       i = 0;
       iCap = aux.iCap();
       while(i < iCap) {
@@ -524,8 +514,7 @@
       };
     };
 
-    if(effc < 0.0) effc = 0.0;
-    return effc;
+    return Mathf.maxZero(effc);
   };
   exports._effc = _effc;
 
@@ -539,8 +528,7 @@
    * Lets a multi-crafter consume items.
    * ---------------------------------------- */
   const consume_itm = function(b, bi, opt) {
-    let noItm = b.items == null;
-    let noLiq = b.liquids == null;
+    if((b.items == null || !b.items.any()) && b.liquids == null) return;
 
     let i, iCap, j, jCap, tmp, tmp1, amt, p;
 
@@ -552,10 +540,10 @@
       if(!(tmp instanceof Array)) {
         amt = bi[i + 1];
         p = bi[i + 2];
-        if(!noItm && tmp instanceof Item) {
+        if(b.items != null && tmp instanceof Item) {
           FRAG_item.consumeItem(b, tmp, amt, p);
         };
-        if(!noLiq && tmp instanceof Liquid) {
+        if(b.liquids != null && tmp instanceof Liquid) {
           FRAG_fluid.addLiquidBatch(b, b, tmp, -amt);
         };
       } else {
@@ -565,10 +553,10 @@
           tmp1 = tmp[j];
           amt = tmp[j + 1];
           p = tmp[j + 2];
-          if(!noItm && tmp1 instanceof Item && FRAG_item.consumeItem(b, tmp1, amt, p)) {
+          if(b.items != null && tmp1 instanceof Item && FRAG_item.consumeItem(b, tmp1, amt, p)) {
             break;
           };
-          if(!noLiq && tmp1 instanceof Liquid && FRAG_fluid.addLiquidBatch(b, b, tmp1, -amt) > 0.0) {
+          if(b.liquids != null && tmp1 instanceof Liquid && FRAG_fluid.addLiquidBatch(b, b, tmp1, -amt) > 0.0) {
             break;
           };
           j += 3;
@@ -626,8 +614,6 @@
    * Lets a multi-crafter produce items.
    * ---------------------------------------- */
   const produce_itm = function(b, bo, failP, fo) {
-    let noItm = b.items == null;
-    let noLiq = b.liquids == null;
     let failed = Mathf.chance(failP);
 
     let i, iCap, tmp, amt, p;
@@ -640,10 +626,10 @@
         tmp = bo[i];
         amt = bo[i + 1];
         p = bo[i + 2];
-        if(!noItm && tmp instanceof Item && b.items.get(tmp) < b.getMaximumAccepted(tmp)) {
+        if(b.items != null && tmp instanceof Item && b.items.get(tmp) < b.getMaximumAccepted(tmp)) {
           FRAG_item.produceItem(b, tmp, amt, p);
         };
-        if(!noLiq && tmp instanceof Liquid) {
+        if(b.liquids != null && tmp instanceof Liquid) {
           FRAG_fluid.addLiquidBatch(b, b, tmp, amt, true);
         };
         i += 3;
@@ -651,7 +637,7 @@
     };
 
     // FO
-    if(!noItm && failed) {
+    if(b.items != null && failed) {
       i = 0;
       iCap = fo.iCap();
       for(let j = 0; j < 3; j++) {EFF.blackSmog.at(b)};
@@ -708,9 +694,11 @@
         b.dumpLiquid(tmp, 2.0, dir);
         i += 2;
       };
-    };
 
-    dumpTup[0].forEachFast(itm => b.dump(itm));
-    dumpTup[1].forEachFast(liq => b.dumpLiquid(liq, 2.0));
+      dumpTup[1].forEachFast(liq => b.dumpLiquid(liq, 2.0));
+    };
+    if(b.items != null && b.items.any()) {
+      dumpTup[0].forEachFast(itm => b.dump(itm));
+    };
   };
   exports.dump = dump;

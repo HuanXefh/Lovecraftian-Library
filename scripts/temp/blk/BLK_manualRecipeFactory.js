@@ -42,8 +42,7 @@
           MDL_ui.show_fadeInfo("lovec", "paused-manual-click") :
           b.configure(true);
       }, Icon.crafting, 72.0);
-    });
-    tb.row();
+    }).center();
   };
 
 
@@ -77,12 +76,7 @@
 
       buildConfiguration: function thisFun(tb) {
         comp_buildConfiguration(this, tb);
-        thisFun.funPrev.apply(this, [tb]);
-      }
-      .setProp({
-        noSuper: true,
-        override: true,
-      }),
+      },
 
 
       ex_getTimerEffcState: function() {

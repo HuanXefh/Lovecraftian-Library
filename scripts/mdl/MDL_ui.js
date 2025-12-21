@@ -526,10 +526,10 @@
    * Format for {dialFlowArr}: {[nmMod1, nmDial, dialInd], [nmMod2, nmChara], paramObj, charaArgs}.
    * Format for {charaArgs}: {[delay, nmMod, nmChara, fracX, isDark0color, anim, animParam, customActs]}
    * ---------------------------------------- */
-  const _d_flow = function thisFun(dialNm) {
-    let dialFlowArr = fetchDialogFlow(dialNm);
+  const _d_flow = function thisFun(nmDialFlow) {
+    let dialFlowArr = fetchDialogFlow(nmDialFlow);
     if(dialFlowArr.length === 0) {
-      Log.warn("[LOVEC] Cannot find dialog flow for " + dialNm + "!");
+      Log.warn("[LOVEC] Cannot find dialog flow for " + nmDialFlow + "!");
       return;
     };
 

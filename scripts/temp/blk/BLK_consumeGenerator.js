@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Blocks that are mostly treated as payloads.
+   * Vanilla {ConsumeGenerator}.
    * ---------------------------------------- */
 
 
@@ -22,16 +22,10 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/temp/blk/BLK_materialBlock");
+  const PARENT = require("lovec/temp/blk/BLK_baseGenerator");
 
 
   /* <---------- component ----------> */
-
-
-  function comp_init(blk) {
-    blk.rebuildable = false;
-    blk.placeablePlayer = false;
-  };
 
 
 /*
@@ -46,34 +40,18 @@
 
     // Block
     newClass().extendClass(PARENT[0]).initClass()
-    .setParent(Wall)
-    .setTags()
+    .setParent(ConsumeGenerator)
+    .setTags("blk-pow", "blk-pow0gen")
     .setParam({})
-    .setMethod({
-
-
-      init: function() {
-        comp_init(this);
-      },
-
-
-      canPlaceOn: function(t, team, rot) {
-        // Should never be placed by player, without this someone may build it using schematics
-        return false;
-      }
-      .setProp({
-        noSuper: true,
-        override: true,
-        final: true,
-      }),
-
-
-    }),
+    .setParamAlias([
+      "consEff", "consumeEffect", Fx.none,
+    ])
+    .setMethod({}),
 
 
     // Building
     newClass().extendClass(PARENT[1]).initClass()
-    .setParent(Wall.WallBuild)
+    .setParent(ConsumeGenerator.ConsumeGeneratorBuild)
     .setParam({})
     .setMethod({}),
 

@@ -29,11 +29,13 @@
   const VARGEN = require("lovec/glb/GLB_varGen");
 
 
+  const FRAG_attack = require("lovec/frag/FRAG_attack");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_flow = require("lovec/mdl/MDL_flow");
+  const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
 
 
   const TP_stat = require("lovec/tp/TP_stat");
@@ -99,6 +101,15 @@
     if(TIMER.secQuarter) {
       b.ex_updatePresTg();
       b.presTmp = (b.presTmp + b.presTg) * 0.5;
+      if(Math.abs(b.presTmp) < 0.005) b.presTmp = 0.0;
+    };
+    if(Math.abs(b.presTmp) > 0.0) {
+      b.noSleep();
+      if(b.next() != null) b.next().noSleep();
+    };
+
+    if(TIMER.sec && Math.abs(b.presTmp) > 0.0) {
+      b.ex_updatePresSupplyTgs();
     };
 
     // Apply damage if over limit
@@ -121,11 +132,15 @@
     b.presBase -= b.presBase.fEqual(0.0, 0.005) ? b.presBase : b.presBase * 0.01666667 * Time.delta;
 
     // Occasionally supply abstract fluid
-    if(TIMER.liq && !b.block.ex_getSkipPresSupply() && b.presSupplyTgs.length > 0 && !b.presTmp.fEqual(0.0, 0.005)) {
+    if(TIMER.liq && !b.block.ex_getSkipPresSupply() && b.presSupplyTgs.length > 0 && Math.abs(b.presTmp) > 0.0) {
       b.presSupplyIncre++;
       let b_t = b.presSupplyTgs[b.presSupplyIncre % b.presSupplyTgs.length];
       if(b_t.added) {
-        FRAG_fluid.addLiquid(b_t, null, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, Math.abs(b.presTmp.roundFixed(0)) / 60.0 * VAR.time_liqIntv, false, false, true);
+        let addAmt = Math.abs(b.presTmp.roundFixed(0)) / 60.0;
+        FRAG_fluid.addLiquid(b_t, null, b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, addAmt * VAR.time_liqIntv, false, false, true);
+        if(addAmt > (MDL_recipeDict._consAmt(b.presTmp > 0.0 ? VARGEN.auxPres : VARGEN.auxVac, b_t.block) + 5.5 / 60.0)) {
+          b_t.damagePierce(b_t.maxHealth * VAR.blk_presDmgFrac + VAR.blk_presDmgMin) / 5.0;
+        };
       };
     };
   };

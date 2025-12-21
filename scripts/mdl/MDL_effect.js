@@ -437,11 +437,13 @@
 
 
       draw() {
-        var x = this.x + (!this.shouldFloat ? 0.0 : Math.sin((Time.time + this.offTime) * 0.01) * 0.35 * Vars.tilesize);
-        var y = this.y + (!this.shouldFloat ? 0.0 : Math.cos((Time.time + this.offTime) * 0.05 + 32.0) * 0.15 * Vars.tilesize);
+        let
+          x = this.x + (!this.shouldFloat ? 0.0 : Math.sin((Time.time + this.offTime) * 0.01) * 0.35 * Vars.tilesize),
+          y = this.y + (!this.shouldFloat ? 0.0 : Math.cos((Time.time + this.offTime) * 0.05 + 32.0) * 0.15 * Vars.tilesize);
         if(this.shouldFloat && Mathf.chanceDelta(0.01)) showAt_ripple(x, y, this.hitSize * 1.2);
 
-        Draw.z(this.z - 1.0);
+        processZ(this.z - 1.0);
+
         Draw.color(Color.black, this.aSha);
         this.softShadowRegion == null ?
           Draw.rect("square-shadow", x, y, this.hitSize * 2.1, this.hitSize * 2.1, this.rotation) :
@@ -465,7 +467,7 @@
             Draw.tint(this.color, this.tint, 0.5) :
             !this.isHot ?
               Draw.color(this.color) :
-              Draw.color(Tmp.c1.set(Color.valueOf("ea8878")).lerp(this.color, Interp.pow2Out.apply(this.fin())), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
+              Draw.color(Tmp.c1.set("ea8878").lerp(this.color, Interp.pow2Out.apply(this.fin())), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
           Draw.rect(this.region, x, y, this.rotation);
           if(this.cellRegion != null) {
             Draw.color(Tmp.c2.set(this.color).mul(this.team.color), this.a - Mathf.curve(this.fin(), 0.98) * this.a);
@@ -474,13 +476,15 @@
           Draw.color();
           if(this.isHot) {
             Draw.blend(Blending.additive);
-            Draw.mixcol(Color.valueOf("ff3838"), 1.0);
-            Draw.alpha((0.5 + Mathf.absin(10.0, 0.5)) * (!this.shouldFadeHeat ? (0.5 - Mathf.curve(this.fin(), 0.98) * 0.5) : (0.5 - Interp.pow2Out.apply(this.fin()) * 0.5)));
+            Draw.mixcol(Tmp.c3.set("ff3838"), 1.0);
+            Draw.alpha((0.5 + Mathf.absin(10.0, 0.5)) * !this.isHot ? 0.0 : !this.shouldFadeHeat ? (0.5 - Mathf.curve(this.fin(), 0.98) * 0.5) : (0.5 - Interp.pow2Out.apply(this.fin()) * 0.5));
             Draw.rect(this.region, x, y, this.rotation);
             Draw.blend();
           };
         };
         Draw.reset();
+
+        processZ(this.z - 1.0);
       },
 
 
@@ -662,7 +666,7 @@
     if(color_gn == null) color_gn = Pal.accent;
 
     showAt(x, y, Fx.chainLightning, 0.0, MDL_color._color(color_gn), e);
-    if(hasSound) playAt(x, y, Sounds.spark);
+    if(hasSound) playAt(x, y, Sounds.shootArc);
   }
   .setAnno(ANNO.$NON_HEADLESS$);
   exports.showBetween_lightning = showBetween_lightning;
@@ -685,7 +689,7 @@
       i++;
     };
 
-    if(hasSound) playAt(x, y, Sounds.spark);
+    if(hasSound) playAt(x, y, Sounds.shootArc);
   }
   .setProp({
     tmpVec: new Vec2(),

@@ -600,7 +600,7 @@
     _rcHeaders(rcMdl).forEachFast(rcHeader => {
       let timeScl = _timeScl(rcMdl, rcHeader);
       _ci(rcMdl, rcHeader, null, blkInit);
-      _bi(rcMdl, rcHeader, null, blkInit);
+      _bi(rcMdl, rcHeader, null, blkInit, timeScl);
       _aux(rcMdl, rcHeader, null, blkInit);
       _opt(rcMdl, rcHeader, null, blkInit);
       _payi(rcMdl, rcHeader, null, blkInit);
@@ -651,7 +651,7 @@
    *
    * Converts the batch input list from a recipe object.
    * ---------------------------------------- */
-  const _bi = function(rcMdl, rcHeader, contArr, blkInit) {
+  const _bi = function(rcMdl, rcHeader, contArr, blkInit, timeSclInit) {
     const arr = contArr != null ? contArr.clear() : [];
 
     let raw = _rcVal(rcMdl, rcHeader, "bi", Array.air).concat(_rcBaseVal(rcMdl, "baseBi", Array.air));
@@ -670,11 +670,11 @@
         if(blkInit != null) {
           tmp instanceof Item ?
             MDL_recipeDict.addItmConsTerm(
-              blkInit, tmp, amt, p,
+              blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p,
               {ct: _iconNm(rcMdl, rcHeader)},
             ) :
             MDL_recipeDict.addFldConsTerm(
-              blkInit, tmp, amt / blkInit.craftTime,
+              blkInit, tmp, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
               {ct: _iconNm(rcMdl, rcHeader)},
             );
         };
@@ -693,11 +693,11 @@
           if(blkInit != null) {
             tmp1 instanceof Item ?
               MDL_recipeDict.addItmConsTerm(
-                blkInit, tmp1, amt, p,
+                blkInit, tmp1, amt / tryVal(timeSclInit, 1.0), p,
                 {ct: _iconNm(rcMdl, rcHeader)},
               ) :
               MDL_recipeDict.addFldConsTerm(
-                blkInit, tmp1, amt / blkInit.craftTime,
+                blkInit, tmp1, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
                 {ct: _iconNm(rcMdl, rcHeader)},
               );
           };

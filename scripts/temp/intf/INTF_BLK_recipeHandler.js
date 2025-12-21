@@ -310,7 +310,8 @@
         prov(() => Core.bundle.format("bar.lovec-bar-pay-cap-amt", (Object.mapMax(b.payStockObj) / b.block.ex_getPayAmtCap()).perc(0))),
         prov(() => Pal.items),
         () => Mathf.clamp(Object.mapMax(b.payStockObj) / b.block.ex_getPayAmtCap()),
-      ));
+      )).growX();
+      tb.row();
     };
 
     if(thisFun.tmpB !== b) {

@@ -26,6 +26,7 @@
   const JAVA = require("lovec/glb/GLB_java");
 
 
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_io = require("lovec/mdl/MDL_io");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -50,7 +51,7 @@
     });
 
     blk.configClear(b => {
-      b.ex_accCtTg("null");
+      b.ex_accCtTg(null);
       b.ex_onSelectorUpdate();
     });
   };
@@ -64,7 +65,7 @@
   function comp_ex_buildSelector(b, tb) {
     MDL_table.setSelector_ct(
       tb, b.block, b.block.ex_getSelectionQueue(),
-      () => b.ex_accCtTg("read"), val => b.configure(val.name), false,
+      () => b.ex_accCtTg("read"), val => b.configure(val == null ? null : val.name), false,
       b.block.selectionRows, b.block.selectionColumns,
     );
   };

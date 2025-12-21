@@ -352,6 +352,24 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Used to set weapons for some unit in JS.
+   * Format for {getter}: {wpsOld => wpsNew}.
+   * ---------------------------------------- */
+  setWeapon = function(utp, getter) {
+    Events.run(ContentInitEvent, () => {
+      let wps = utp.weapons.toArray();
+      try{
+        utp.weapons = getter(wps).pullAll(null).flatten().toSeq();
+      } catch(err) {
+        Log.err("[LOVEC] Failed to set weapons for [$1]\n".format(utp.name.color(Pal.accent)) + err);
+      };
+    });
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Used to set abilities of some unit in JS.
    * Format for {getter}: {abisOld => abisNew}.
    * ---------------------------------------- */
@@ -400,6 +418,7 @@
       let drawers = blk.drawer instanceof DrawMulti ? blk.drawer.drawers.slice() : [blk.drawer];
       try {
         blk.drawer = new DrawMulti(getter(drawers).pullAll(null).flatten().toSeq());
+        if(!Vars.headless) blk.drawer.load(blk);
       } catch(err) {
         Log.err("[LOVEC] Failed to set drawers for [$1]:\n".format(blk.name.color(Pal.accent)) + err);
       };
@@ -733,6 +752,30 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Gets a weapon from registered weapon templates.
+   * ---------------------------------------- */
+  fetchWeapon = function(nm, paramObj) {
+    let temp = global.lovecUtil.db.weaponTemplate.read(nm);
+    if(temp == null) ERROR_HANDLER.throw("noTemplateFound", nm);
+    return temp.build(paramObj);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a bullet type from registered bullet templates.
+   * ---------------------------------------- */
+  fetchBullet = function(nm, paramObj) {
+    let temp = global.lovecUtil.db.bulletTemplate.read(nm);
+    if(temp == null) ERROR_HANDLER.throw("noTemplateFound", nm);
+    return temp.build(paramObj);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Gets an ability from registered ability getter functions.
    * ---------------------------------------- */
   fetchAbility = function(nm, paramObj) {
@@ -857,8 +900,32 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Registers a weapon template.
+   * Format for {tempGetter}: {() => temp}.
+   * ---------------------------------------- */
+  newWeapon = function(nm, tempGetter) {
+    if(global.lovecUtil.db.weaponTemplate.includes(nm)) return;
+    global.lovecUtil.db.weaponTemplate.push(nm, tempGetter());
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Registers a bullet template.
+   * Format for {tempGetter}: {() => temp}.
+   * ---------------------------------------- */
+  newBullet = function(nm, tempGetter) {
+    if(global.lovecUtil.db.bulletTemplate.includes(nm)) return;
+    global.lovecUtil.db.bulletTemplate.push(nm, tempGetter());
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Registers an ability setter.
-   * Format for {getter}: {(paramObj) => abi}.
+   * Format for {getter}: {paramObj => abi}.
    * ---------------------------------------- */
   newAbility = function(nm, getter) {
     Events.on(ContentInitEvent, () => {
@@ -872,7 +939,7 @@
    * NOTE:
    *
    * Registers an AI controller setter.
-   * Format for {getter}: {(paramObj) => ctrl}.
+   * Format for {getter}: {paramObj => ctrl}.
    * ---------------------------------------- */
   newAi = function(nm, getter) {
     Events.on(ContentInitEvent, () => {
@@ -886,7 +953,7 @@
    * NOTE:
    *
    * Registers a drawer.
-   * Format for {getter}: {(paramObj) => drawer}.
+   * Format for {getter}: {paramObj => drawer}.
    * ---------------------------------------- */
   newDrawer = function(nm, getter) {
     Events.on(ContentInitEvent, () => {
@@ -900,7 +967,7 @@
    * NOTE:
    *
    * Registers a consumer.
-   * Format for {getter}: {(paramObj) => cons}.
+   * Format for {getter}: {paramObj => cons}.
    * ---------------------------------------- */
   newConsumer = function(nm, getter) {
     Events.on(ContentInitEvent, () => {
@@ -1148,7 +1215,7 @@
      * I won't ban these for single player, you decide how to play.
      * ---------------------------------------- */
     checkCheatState = function() {
-      return Groups.player.size === 0 && !Vars.net.client();
+      return Groups.player.size() === 1 && !Vars.net.client();
     };
 
 

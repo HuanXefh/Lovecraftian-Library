@@ -134,6 +134,8 @@
       dialFlow: [],
 
 
+      weaponTemplate: [],
+      bulletTemplate: [],
       abilitySetter: [],
       aiSetter: [],
       drawerSetter: [],

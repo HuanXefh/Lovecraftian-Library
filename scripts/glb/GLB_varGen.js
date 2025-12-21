@@ -173,7 +173,7 @@
     /* resource */
 
 
-    exports.rss = Vars.content.items().toArray().concat(Vars.content.liquids().toArray());
+    exports.rss = Vars.content.items().toArray().concat(Vars.content.liquids().toArray()).inSituFilter(rs => !rs.hidden);
     exports.sandItms = (function() {
       const arr = [];
       DB_item.db["group"]["sand"].forEachFast(nm => {
@@ -274,6 +274,7 @@
       MDL_content._facFamisDefined().forEachFast(fami => obj[fami] = MDL_content._facFamiBlks(fami));
       return obj;
     })();
+    exports.rcDictCts = [];
 
 
   }, 79532268);

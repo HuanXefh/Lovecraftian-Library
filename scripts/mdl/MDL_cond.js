@@ -508,6 +508,17 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether this block is an armored cable.
+   * ---------------------------------------- */
+  const _isArmoredCable = function(blk_gn) {
+    return matchTag(blk_gn, "blk-arm0cable", "blk");
+  };
+  exports._isArmoredCable = _isArmoredCable;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether this block is a power relay.
    * ---------------------------------------- */
   const _isPowerRelay = function(blk_gn) {

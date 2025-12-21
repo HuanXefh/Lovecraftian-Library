@@ -223,10 +223,11 @@
    * ---------------------------------------- */
   const __sliderCfg = function(tb, b, strGetter, min, max, step, def, w) {
     return tb.table(Styles.none, tb1 => {
+      tb1.left();
       tb1.add("").left().get().setText(prov(() => strGetter(b)));
       tb1.row();
       __slider(tb1, val => b.configure(val.toF()), min, max, step, def, w !== undefined ? w : 260.0);
-    }).growX();
+    }).left().growX();
   };
   exports.__sliderCfg = __sliderCfg;
 
@@ -1173,6 +1174,11 @@
   exports.setDisplay_recipe = setDisplay_recipe;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Sets recipe selector for {BLK_recipeFactory}.
+   * ---------------------------------------- */
   const setSelector_recipe = function(tb, b, headerGetter, cfgCaller, closeSelect, colAmt) {
     if(closeSelect == null) closeSelect = true;
     if(colAmt == null) colAmt = 4;
@@ -1184,9 +1190,12 @@
 
     tb.button("?", () => Vars.ui.content.show(b.block)).left().size(42.0).row();
 
-    const cont = new Table().background(Styles.black6);
+    const cont = new Table().background(Styles.black3).left();
     cont.margin(4.0);
-    tb.top().add(cont);
+    const contCell = tb.top().add(cont).left().growX();
+    // Method and field sharing the same name, great
+    Reflect.set(Cell, contCell, "minWidth", (200.0).toF());
+
     const rebuildCont = () => {
       btnGrp.clear();
       cont.clearChildren();

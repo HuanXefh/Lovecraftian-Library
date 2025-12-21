@@ -75,18 +75,15 @@
     };
     if(thisFun.tmpCd > 0.0) return;
 
-    let
-      x = t.build == null ? t.worldx() : t.build.x,
-      y = t.build == null ? t.worldy() : t.build.y,
-      offX = !PARAM.drawBuildStat || t.build == null ? 0.0 : ((VAR.r_offBuildStat + t.build.block.size * 0.5) * Vars.tilesize - 8.0),
-      offY = -(!PARAM.drawBuildStat || t.build == null ? 10.0 : ((VAR.r_offBuildStat + t.build.block.size * 0.5) * Vars.tilesize + 2.0));
-
     if(thisFun.tmpStr == null) {
       thisFun.tmpStr = "";
       DB_misc.db["block"]["extraInfo"].forEachFast(strGetter => thisFun.tmpStr += tryVal(strGetter(t, t.build), ""));
     };
 
-    _d_text(x + offX, y + offY, thisFun.tmpStr, 0.8, Color.white, Align.left, 0.0, 0.0, 10.0);
+    _d_text(
+      (t.build == null ? t.worldx() : t.build.x) + (!PARAM.drawBuildStat || t.build == null ? 0.0 : ((VAR.r_offBuildStat + t.build.block.size * 0.5) * Vars.tilesize - 8.0)),
+      (t.build == null ? t.worldy() : t.build.y) + (-(!PARAM.drawBuildStat || t.build == null ? 10.0 : ((VAR.r_offBuildStat + t.build.block.size * 0.5) * Vars.tilesize + 2.0))),
+      thisFun.tmpStr, 0.8, Color.white, Align.left, 0.0, 0.0, 10.0);
   }.setProp({
     tmpT: null,
     tmpCd: 0.0,
@@ -158,17 +155,18 @@
     if(regScl == null) regScl = 1.0;
     if(a == null) a = 1.0;
 
-    let
-      w = reg.width * 2.0 * regScl / Vars.tilesize,
-      h = reg.height * 2.0 * regScl / Vars.tilesize;
-
     processZ(z);
 
     mixcolA != null ?
       Draw.mixcol(MDL_color._color(color_gn), mixcolA) :
       Draw.color(MDL_color._color(color_gn));
     Draw.alpha(a);
-    Draw.rect(reg, x, y, w, h, ang);
+    Draw.rect(
+      reg, x, y,
+      reg.width * reg.scl() * regScl,
+      reg.height * reg.scl() * regScl,
+      ang,
+    );
     Draw.reset();
 
     processZ(z);
@@ -215,15 +213,16 @@
     if(regScl == null) regScl = 1.0;
     if(a == null) a = 1.0;
 
-    let
-      w = reg.width * 2.0 * regScl / Vars.tilesize,
-      h = reg.height * 2.0 * regScl / Vars.tilesize;
-
     processZ(z);
 
     Draw.color(MDL_color._color(color_gn), a);
     Draw.shader(shader);
-    Draw.rect(reg, x, y, w, h, ang);
+    Draw.rect(
+      reg, x, y,
+      reg.width * reg.scl() * regScl,
+      reg.height * reg.scl() * regScl,
+      ang,
+    );
     Draw.shader();
     Draw.color();
 
@@ -242,19 +241,17 @@
     ang, regScl, color_gn, a, z
   ) {
     if(reg == null) return;
-    if(flipAng == null) flipAng = 0.0;
-    if(ang == null) ang = 0.0;
     if(regScl == null) regScl = 1.0;
-    if(a == null) a = 1.0;
-
-    let
-      w = reg.width * 2.0 * regScl / Vars.tilesize * Mathf.cos(Mathf.wrapAngleAroundZero(flipAng * Mathf.degressToRadians)),
-      h = reg.height * 2.0 * regScl / Vars.tilesize;
 
     processZ(z);
 
-    Draw.color(MDL_color._color(color_gn), a);
-    Draw.rect(reg, x, y, w, h, ang);
+    Draw.color(MDL_color._color(color_gn), tryVal(a, 1.0));
+    Draw.rect(
+      reg, x, y,
+      reg.width * reg.scl() * regScl * Mathf.cos(Mathf.wrapAngleAroundZero(tryVal(flipAng, 0.0) * Mathf.degressToRadians)),
+      reg.height * reg.scl() * regScl,
+      tryVal(ang, 0.0),
+    );
     Draw.color();
 
     processZ(z);
@@ -281,11 +278,48 @@
 
     _reg_normal(
       t.worldx(), t.worldy(),
-      regs[Math.floor(Mathf.randomSeed(t.pos() + 114514 + off2, 0, regs.iCap()))],
+      regs[Math.floor(Mathf.randomSeed(t.pos() + 114514 + off2, 0, regs.length))],
       0.0, 1.0, Color.white, 1.0, VAR.lay_randOv,
     );
   };
   exports._reg_randOv = _reg_randOv;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {DrawFrame}.
+   * ---------------------------------------- */
+  const _reg_frame = function(
+    x, y, regs, tProg, intv,
+    ang, offInd
+  ) {
+    if(regs == null || regs.length === 0) return;
+
+    Draw.rect(x, y, regs[Mathf.mod(Math.floor(tProg / intv) + tryVal(offInd, 0), regs.length)], tryVal(ang, 0.0));
+  };
+  exports._reg_frame = _reg_frame;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {DrawFrame} but the previous frame gradually fades into the next frame.
+   * ---------------------------------------- */
+  const _reg_frameFade = function(
+    x, y, regs, tProg, intv,
+    ang, offInd
+  ) {
+    if(regs == null || regs.length === 0) return;
+    let a = Mathf.mod(tProg, intv) / intv;
+
+    Draw.alpha(1.0 - a);
+    _reg_frame(x, y, regs, tProg, intv, ang, offInd);
+    Draw.alpha(a);
+    _reg_frame(x, y, regs, tProg, intv, ang, offInd + 1);
+    Draw.color();
+  };
+  exports._reg_frameFade = _reg_frameFade;
 
 
   /* ----------------------------------------
@@ -433,8 +467,8 @@
     if(a == null) a = 1.0;
 
     let
-      w = reg.width * 2.0 * regScl / Vars.tilesize,
-      h = reg.width * 2.0 * regScl / Vars.tilesize,
+      w = reg.width * reg.scl() * regScl,
+      h = reg.width * reg.scl() * regScl,
       ang_fd = 360.0 / sideAmt,
       ang_fi = Mathf.mod(rotProg * spd + ang, ang_fd);
 
@@ -641,8 +675,8 @@
 
     let
       regScl_fi = regScl * (0.825 + Math.sin(Time.globalTime * 0.65) * 0.075),
-      w = reg.width * 2.0 * regScl_fi / Vars.tilesize,
-      h = reg.height * 2.0 * regScl_fi / Vars.tilesize;
+      w = reg.width * reg.scl() * regScl_fi,
+      h = reg.height * reg.scl() * regScl_fi;
 
     processZ(Layer.power - 0.01);
 
@@ -680,14 +714,16 @@
 
     let
       x_fi = x - Vars.tilesize * 0.5 * size,
-      y_fi = y + Vars.tilesize * 0.5 * size;
+      y_fi = y + Vars.tilesize * 0.5 * size,
+      w = rs.uiIcon.width * rs.uiIcon.scl() * 0.75,
+      h = rs.uiIcon.height * rs.uiIcon.scl() * 0.75;
 
     processZ(z);
 
     Draw.mixcol(Color.darkGray, 1.0);
-    Draw.rect(rs.uiIcon, x_fi, y_fi - 1.0, 6.0, 6.0);
+    Draw.rect(rs.uiIcon, x_fi, y_fi - 1.0, w, h);
     Draw.mixcol();
-    Draw.rect(rs.uiIcon, x_fi, y_fi, 6.0, 6.0);
+    Draw.rect(rs.uiIcon, x_fi, y_fi, w, h);
 
     processZ(z);
   };
@@ -701,19 +737,21 @@
    * ---------------------------------------- */
   const _reg_rs = function(
     x, y, rs_gn,
-    size, z
+    size, regScl, z
   ) {
     let rs = MDL_content._ct(rs_gn, "rs");
     if(rs == null) return;
     if(size == null) size = 1;
+    if(regScl == null) regScl = 1.0;
 
     let
       off = size % 2 === 0 ? 4.0 : 0.0,
-      w = size * Vars.tilesize;
+      w = size * regScl * Vars.tilesize * (rs.uiIcon.width > rs.uiIcon.height ? 1.0 : (rs.uiIcon.width / rs.uiIcon.height)),
+      h = size * regScl * Vars.tilesize * (rs.uiIcon.height > rs.uiIcon.width ? 1.0 : (rs.uiIcon.height / rs.uiIcon.width));
 
     processZ(z);
 
-    Draw.rect(rs.uiIcon, x + off, y + off, w, w);
+    Draw.rect(rs.uiIcon, x + off, y + off, w, h);
 
     processZ(z);
   };
@@ -862,8 +900,8 @@
     if(regScl == null) regScl = 1.0;
 
     let
-      w = reg.width * 2.0 * regScl / Vars.tilesize,
-      h = reg.height * 2.0 * regScl / Vars.tilesize;
+      w = reg.width * reg.scl() * regScl,
+      h = reg.height * reg.scl() * regScl;
 
     processZ(z);
 
@@ -886,8 +924,8 @@
     if(color_gn == null) color_gn = "565666";
 
     let
-      w = reg.width * 2.0 * regScl / Vars.tilesize,
-      h = reg.height * 2.0 * regScl / Vars.tilesize;
+      w = reg.width * reg.scl() * regScl,
+      h = reg.height * reg.scl() * regScl;
 
     processZ(z);
 
@@ -986,17 +1024,12 @@
     if(scl == null) scl = 1.0;
     if(z == null) z = Layer.effect + VAR.lay_offDraw;
 
-    let
-      amtSeg = !isDashed ? 0 : Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0),
-      scl_fi = scl * 15.0,
-      a = 0.35 + Math.sin(Time.globalTime / scl_fi) * 0.25;
-
     processZ(z);
 
     Lines.stroke(stroke, MDL_color._color(tryVal(color_gn, Pal.accent)));
-    Draw.alpha(a);
+    Draw.alpha(0.35 + Math.sin(Time.globalTime / scl * 15.0) * 0.25);
     isDashed ?
-      Lines.dashLine(x1, y1, x2, y2, amtSeg) :
+      Lines.dashLine(x1, y1, x2, y2, !isDashed ? 0 : Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0)) :
       Lines.line(x1, y1, x2, y2);
     Draw.reset();
 

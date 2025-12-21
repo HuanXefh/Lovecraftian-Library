@@ -115,7 +115,7 @@
     processZ(z1);
     processZ(z2);
 
-    Draw.alpha(1.0);
+    Draw.alpha(0.5);
     Draw.rect(b.block.ex_getOvShaReg(), b.x, b.y);
     if(b.isInv) {
       Draw.alpha(ang / 90.0 * ovA);

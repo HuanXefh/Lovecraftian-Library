@@ -277,6 +277,6 @@
       i++;
     };
 
-    if(!noSound) MDL_effect.playAt(x, y, Sounds.spark);
+    if(!noSound) MDL_effect.playAt(x, y, Sounds.shootArc);
   };
   exports._a_lightning = _a_lightning;

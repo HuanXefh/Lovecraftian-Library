@@ -150,6 +150,11 @@
   );
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A dialog for achievements, see {CLS_achievement}.
+   * ---------------------------------------- */
   newDialog(
     "achievement",
     () => extend(BaseDialog, MDL_bundle._term("lovec", "achievement"), {
@@ -173,18 +178,30 @@
         // @TABLE: list
         this.cont.pane(pn => {
           MDL_table.__margin(pn);
-          let iCap = VARGEN.achievements.iCap();
-          if(iCap === 0) {
+          if(VARGEN.achievements.length === 0) {
             MDL_table.__textNothing(pn);
           } else {
-            let colAmt = 10;
-            for(let i = 0, j = 0; i < iCap; i++) {
-              (function(i) {
-                thisDial.ex_buildBox(pn, VARGEN.achievements[i]);
-              })(i);
-              if(j % colAmt === colAmt - 1) pn.row();
-              j++;
-            };
+            let tmpObj = {};
+            let i, iCap, j, colAmt = 10;
+            VARGEN.achievements.forEachFast(achievement => {
+              let nmMod = achievement.getMod().name;
+              if(tmpObj[nmMod] === undefined) tmpObj[nmMod] = [];
+              tmpObj[nmMod].push(achievement);
+            });
+            Object._it(tmpObj, (nmMod, arr) => {
+              pn.add(fetchMod(nmMod, true).meta.displayName).left().fontScale(1.1).color(Pal.accent).row();
+              pn.table(Styles.none, tb => {
+                i = 0, iCap = arr.iCap(), j = 0;
+                while(i < iCap) {
+                  (function(i) {
+                    thisDial.ex_buildBox(tb, arr[i]);
+                  })(i);
+                  if(j % colAmt === colAmt - 1) tb.row();
+                  j++;
+                  i++;
+                };
+              }).left().row();
+            });
           };
         }).width(MDL_ui._uiW() * 1.25).row();
 
@@ -364,7 +381,7 @@
           // @TABLE: recipe text
           rcCont.table(Styles.none, tb1 => {
             let data = rcDictArr[i + 2];
-            let craftTime = data.time != null ? data.time : MDL_content._craftTime(rcDictArr[i], data.icon === "lovec-icon-mining");
+            let craftTime = data.time != null ? data.time : MDL_content._craftTime(rcDictArr[i], data.icon === "lovec-icon-mining", ct);
             let craftRate = (!isFinite(craftTime) && !(ct instanceof Liquid)) ? null : (!(ct instanceof Liquid) ? (rcDictArr[i + 1] / craftTime * 60.0) : (rcDictArr[i + 1] * 60.0));
             // @TABLE: rate text
             tb1.add(MDL_text._statText(

@@ -283,10 +283,7 @@ cls.build = function(paramObj) {
   Object._it(this.paramObj, (nm, def) => {
     // Skip template parent, or an error jumps out of nowhere
     if(nm === "tempParent") return;
-
     obj[nm] = (paramObj == null || paramObj[nm] === undefined) ? def : paramObj[nm];
-    // When the property is a {Prov}, get the content
-    if(obj[nm] instanceof Prov) obj[nm] = obj[nm].get();
   });
   this.paramAliasArr.forEachRow(3, (nmPropNew, nmPropOld, def) => {
     // Migrate alias properties to real ones
@@ -301,8 +298,11 @@ cls.build = function(paramObj) {
     };
   });
   this.paramParserArr.forEachRow(2, (nmProp, parser) => {
-    if(obj[nmProp] === undefined) return;
     obj[nmProp] = parser.apply(obj, [obj[nmProp]]);
+  });
+  Object._it(obj, (nm, prop) => {
+    // When the property is a {Prov}, use the content instead
+    if(prop instanceof Prov) obj[nm] = prop.get();
   });
   Object._it(this.funObj, (nm, fun) => {
     // Get the final method and wrap its length

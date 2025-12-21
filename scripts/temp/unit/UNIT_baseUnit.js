@@ -43,8 +43,6 @@
 
 
   function comp_init(utp) {
-    //utp.entityTemplate = utp.entityTemplate();
-
     FRAG_faci.comp_init_outline(utp);
   };
 

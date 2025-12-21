@@ -50,7 +50,7 @@
   function comp_updateTile(b) {
     if(
       b.block.ex_getIsExposed()
-        && b.items != null && b.block.itemCapacity > 0 && !b.block.ex_getNoReac()
+        && b.items != null && b.items.any() && !b.block.ex_getNoReac()
         && Mathf.chance(0.025)
     ) {
       b.items.each(itm => MDL_reaction.handleReaction(itm, "GROUP: air", 40.0, b));

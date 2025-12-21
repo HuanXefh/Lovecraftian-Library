@@ -173,7 +173,7 @@ ptp.rebuild = function() {
       tb.add("").get().setText(prov(() => Strings.fixed(thisIns.timeScl, 2) + "x"));
       tb.row();
       MDL_table.__slider(tb, val => {
-        if(Groups.player.size() < 2) Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0 * val);
+        if(Groups.player.size() === 1) Time.setDeltaProvider(() => Core.graphics.getDeltaTime() * 60.0 * val);
         thisIns.timeScl = val;
       }, 0.25, 3.0, 0.25, thisIns.timeScl, thisIns.prefW);
     }).left().row();

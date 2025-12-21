@@ -110,6 +110,7 @@
 
 
   exports.blk0pow_powLoss = newIns_stat("blk0pow-powloss", StatCat.power);
+  exports.blk0pow_powUsePer100HU = newIns_stat("blk0pow-powuseper100hu", StatCat.power);
 
 
   /* block (misc) */
@@ -196,9 +197,7 @@
 
 
   exports.blk_perBlock = newIns_statUnit("blk-perblock", true);
-
-
-  exports.blk_polUnits = newIns_statUnit("rs-polunits");
+  exports.blk_polUnits = newIns_statUnit("blk-polunits");
 
 
   /* resource */

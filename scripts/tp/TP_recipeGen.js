@@ -251,6 +251,35 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Recipe generator: electric heater.
+   * For heaters that consume power only (or not).
+   * ---------------------------------------- */
+  const _g_electricHeater = new CLS_recipeGenerator(function(rc, paramObj) {
+    let
+      objF = readParam(paramObj, "objF", Function.air),
+      mtpO = readParam(paramObj, "mtpO", 1.0),
+      minTemp = readParam(paramObj, "minTemp", 50.0),
+      maxTemp = readParam(paramObj, "maxTemp", 2000.0),
+      heatGap = readParam(paramObj, "heatGap", 50.0);
+
+    (maxTemp + heatGap)._it(heatGap, temp => {
+      if(temp < minTemp) return;
+
+      this.addRc(
+        rc, "loveclab-aux0aux-heat", "heating", String(temp + " HU"),
+        obj => {obj.tempReq = temp; objF(obj)},
+        new CLS_recipeBuilder()
+        .__co(this.processCo(VARGEN.auxHeat, temp / 100.0 / 60.0 * mtpO))
+        .build(),
+      );
+    });
+  });
+  exports._g_electricHeater = _g_electricHeater;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Recipe generator: mixer.
    * Mixes materials into blend.
    * ---------------------------------------- */

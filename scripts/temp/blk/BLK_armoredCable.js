@@ -23,7 +23,7 @@
   /* <---------- import ----------> */
 
 
-  const PARENT = require("lovec/temp/blk/BLK_basePowerTransmitter");
+  const PARENT = require("lovec/temp/blk/BLK_cable");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -58,7 +58,9 @@
 
 
   function comp_conductsTo(b, ob) {
-    return b.front() === ob || b.back() === ob;
+    return !MDL_cond._isArmoredCable(ob.block) ?
+      (b.front() === ob || b.back() === ob) :
+      (b.front() === ob || ob.front() === b);
   };
 
 
@@ -75,7 +77,7 @@
     // Block
     newClass().extendClass(PARENT[0]).initClass()
     .setParent(ArmoredConveyor)
-    .setTags("blk-pow", "blk-pow0trans", "blk-cable")
+    .setTags("blk-pow", "blk-pow0trans", "blk-cable", "blk-arm0cable")
     .setParam({})
     .setMethod({
 

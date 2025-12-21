@@ -81,33 +81,29 @@
 
 
   function comp_drawBase(blk, t) {
-    let a = PARAM.treeAlpha;
-    if(a < 0.0001) return;
+    if(PARAM.treeAlpha < 0.0001) return;
 
-    let ang = Mathf.randomSeed(t.pos(), 0.0, 360.0);
-    if(PARAM.checkTreeDst && Mathf.dst(t.worldx(), t.worldy(), MDL_pos._playerX(), MDL_pos._playerY()) < blk.region.width * VAR.rad_treeScl) {
-      a *= 0.37;
-    };
+    processZ(blk.drawTup[0]);
 
-    let z = Draw.z();
     if(blk.shadow.found()) {
       Draw.z(blk.drawTup[0] - 0.0005);
-      Draw.rect(blk.shadow, t.worldx() + blk.shadowOffset, t.worldy() + blk.shadowOffset, ang);
+      Draw.rect(blk.shadow, t.worldx() + blk.shadowOffset, t.worldy() + blk.shadowOffset, Mathf.randomSeed(t.pos(), 0.0, 360.0));
     };
-    Draw.alpha(a);
+    Draw.alpha(PARAM.treeAlpha * (PARAM.checkTreeDst && Mathf.dst(t.worldx(), t.worldy(), MDL_pos._playerX(), MDL_pos._playerY()) < blk.region.width * VAR.rad_treeScl ? 0.37 : 1.0));
     !PARAM.drawWobble ?
-      Draw.rect(blk.region, t.worldx(), t.worldy(), ang) :
+      Draw.rect(blk.region, t.worldx(), t.worldy(), Mathf.randomSeed(t.pos(), 0.0, 360.0)) :
       Draw.rectv(
         blk.region, t.worldx(), t.worldy(),
         blk.region.width * blk.region.scl(), blk.region.height * blk.region.scl(),
-        ang + Mathf.sin(Time.time + t.worldx(), 50.0, 0.5) + Mathf.sin(Time.time - t.worldy(), 65.0, 0.9) + Mathf.sin(Time.time + t.worldy() - t.worldx(), 85.0, 0.9),
+        Mathf.randomSeed(t.pos(), 0.0, 360.0) + Mathf.sin(Time.time + t.worldx(), 50.0, 0.5) + Mathf.sin(Time.time - t.worldy(), 65.0, 0.9) + Mathf.sin(Time.time + t.worldy() - t.worldx(), 85.0, 0.9),
         vec2 => vec2.add(
           (Mathf.sin(vec2.y * 3.0 + Time.time, 60.0 * blk.drawTup[1], 0.5 * blk.drawTup[2]) + Mathf.sin(vec2.x * 3.0 - Time.time, 70.0 * blk.drawTup[1], 0.8 * blk.drawTup[2])) * 1.5 * blk.drawTup[3],
           (Mathf.sin(vec2.x * 3.0 + Time.time + 8.0, 66.0 * blk.drawTup[1], 0.55 * blk.drawTup[2]) + Mathf.sin(vec2.y * 3.0 - Time.time, 50.0 * blk.drawTup[1], 0.2 * blk.drawTup[2])) * 1.5 * blk.drawTup[3],
         ),
       );
     Draw.color();
-    Draw.z(z);
+
+    processZ(blk.drawTup[0]);
   };
 
 

@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * This block cannot be placed when the same block exists in range.
+   * This block cannot be placed when any block of the same type exists in range.
    * Does not draw the range.
    * ---------------------------------------- */
 
