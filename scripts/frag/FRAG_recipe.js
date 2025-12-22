@@ -453,7 +453,7 @@
     };
 
     // BI
-    if((b.items != null && b.items.any()) || b.liquids != null) {
+    if(b.items != null || b.liquids != null) {
       i = 0;
       iCap = bi.iCap();
       while(i < iCap) {
@@ -462,10 +462,10 @@
         if(!(tmp instanceof Array)) {
           amt = bi[i + 1];
           if(b.items != null && tmp instanceof Item) {
-            if(b.items.get(tmp) < amt) effc = 0.0;
+            if(b.items.get(tmp) < amt) return 0.0;
           };
           if(b.liquids != null && tmp instanceof Liquid) {
-            if(b.liquids.get(tmp) < amt) effc = 0.0;
+            if(b.liquids.get(tmp) < amt) return 0.0;
           };
         } else {
           allAbsent = true;
@@ -482,7 +482,7 @@
             };
             j += 3;
           };
-          if(allAbsent) effc = 0.0;
+          if(allAbsent) return 0.0;
         };
         i += 3;
       };
@@ -507,7 +507,7 @@
     // OPT
     if(effc > 0.0) {
       let optTup = _optTup(b, opt);
-      if(reqOpt && optTup == null) effc = 0.0;
+      if(reqOpt && optTup == null) return 0.0;
       if(optTup != null) {
         effc *= optTup[3];
         optTup.clear();

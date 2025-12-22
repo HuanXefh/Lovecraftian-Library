@@ -27,6 +27,11 @@
   /* <---------- base ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets default pressure explosion radius.
+   * ---------------------------------------- */
   const _presExploRad = function(size) {
     if(size == null) size = 1;
 
@@ -35,6 +40,11 @@
   exports._presExploRad = _presExploRad;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets default pressure explosion damage.
+   * ---------------------------------------- */
   const _presExploDmg = function(size) {
     if(size == null) size = 1;
 
@@ -43,6 +53,11 @@
   exports._presExploDmg = _presExploDmg;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets default impact damage.
+   * ---------------------------------------- */
   const _impactDmg = function(size, intv) {
     if(size == null) size = 1;
     if(intv == null) intv = 0.0;
@@ -52,6 +67,11 @@
   exports._impactDmg = _impactDmg;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets default impact status duration.
+   * ---------------------------------------- */
   const _impactDur = function(intv) {
     if(intv == null) intv = 0.0;
 
@@ -60,6 +80,11 @@
   exports._impactDur = _impactDur;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets default impact minimum radius that impact can be absorbed by liquid floor.
+   * ---------------------------------------- */
   const _impactMinRad = function(size) {
     if(size == null) size = 1;
 
@@ -68,6 +93,11 @@
   exports._impactMinRad = _impactMinRad;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets default impact radius for dust effect.
+   * ---------------------------------------- */
   const _impactDustRad = function(size) {
     if(size == null) size = 1;
 
@@ -79,6 +109,11 @@
   /* <---------- damage ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Applies damage (triggers damage display).
+   * ---------------------------------------- */
   const damage = function(e, dmg, pierceArmor, mode_ow) {
     if(e == null) return false;
     if(dmg < 0.0001) return false;
@@ -97,6 +132,11 @@
   exports.damage = damage;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Applies heal (triggers damage display).
+   * ---------------------------------------- */
   const heal = function(e, healAmt) {
     if(e == null) return false;
     if(healAmt < 0.0001) return false;
@@ -116,6 +156,11 @@
   exports.heal = heal;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Finds the multiplier on final damage based on type affinity.
+   * ---------------------------------------- */
   const _dmgTagMtp = function(mode, mtp) {
     switch(mode) {
       case "infantry" : return !MDL_cond._isInfantryUnit(e.type) ? 1.0 : mtp;
@@ -129,6 +174,11 @@
   exports._dmgTagMtp = _dmgTagMtp;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Applies damage with type affinity included.
+   * ---------------------------------------- */
   const damage_tagMtp = function(e, dmg, modeMtpArr) {
     if(modeMtpArr == null || modeMtpArr.length === 0) damage(e, dmg);
 
@@ -169,6 +219,11 @@
   exports._a_explosion = _a_explosion;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A variant of {_a_explosion} for sync.
+   * ---------------------------------------- */
   const _a_explosion_global = function(
     x, y, dmg,
     rad, shake, noSound

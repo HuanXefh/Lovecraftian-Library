@@ -8,6 +8,9 @@
   /* <---------- import ----------> */
 
 
+  const PARAM = require("lovec/glb/GLB_param");
+
+
   const FRAG_item = require("lovec/frag/FRAG_faci");
 
 
@@ -24,9 +27,9 @@
    * It's private and no class allowed in JS, I have to do this.
    * ---------------------------------------- */
   const _tg = function(ctrl) {
-    if(ctrl == null) return null;
-
-    return Reflect.get(AIController, ctrl, "target");
+    return ctrl == null ?
+      null :
+      Reflect.get(AIController, ctrl, "target");
   };
   exports._tg = _tg;
 
@@ -34,12 +37,17 @@
   /* <---------- action ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a unit move to some position straightly.
+   * ---------------------------------------- */
   const moveTo = function(unit, posIns, dst, smooth, keepDst) {
-    if(unit == null || posIns == null) return;
+    if(unit.isPlayer()) return;
 
     MDL_entity._ctrl(unit).moveTo(
       posIns,
-      tryVal(dst, 0.0),
+      tryVal(dst, 4.0),
       tryVal(smooth, unit.flying ? 30.0 : 2.0),
       tryVal(keepDst, true),
       null,
@@ -48,26 +56,62 @@
   exports.moveTo = moveTo;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a unit move to some position by pathfinding.
+   * ---------------------------------------- */
+  const pathfindTo = function(unit, vecDest, vecOut, blockedTup, dst, smooth, keepDst) {
+    if(unit.isPlayer()) return;
+    if(unit.isFlying() && !PARAM.isCaveMap) {
+      moveTo(unit, vecDest, dst, smooth, keepDst);
+      return;
+    };
+    if(!Vars.controlPath.getPathPosition(unit, vecDest, vecOut, tryVal(blockedTup, null))) return;
+
+    !vecOut.epsilonEquals(vecDest, 4.0) ?
+      moveTo(unit, vecOut, 0.0, null, false) :
+      moveTo(unit, vecOut, dst, smooth, keepDst);
+    lookAt(unit, vecOut.x, vecOut.y);
+  };
+  exports.pathfindTo = pathfindTo;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a unit circle some position.
+   * ---------------------------------------- */
   const circle = function(unit, posIns, dst) {
-    if(unit == null || posIns == null) return;
+    if(unit.isPlayer()) return;
 
     MDL_entity._ctrl(unit).circle(posIns, tryVal(dst, unit.type.range / 1.8));
   };
   exports.circle = circle;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a unit look at some position.
+   * ---------------------------------------- */
   const lookAt = function(unit, x, y, noAim) {
-    if(unit == null) return;
+    if(unit.isPlayer()) return;
 
-    noAim ?
+    noAim || _tg(MDL_entity._ctrl(unit)) != null ?
       unit.lookAt(x, y) :
       unit.aimLook(x, y);
   };
   exports.lookAt = lookAt;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a unit shoot at some position.
+   * ---------------------------------------- */
   const shootAt = function(unit, x, y, bool) {
-    if(unit == null) return;
+    if(unit.isPlayer()) return;
 
     if(!bool) {
       unit.controlWeapons(false);
@@ -80,17 +124,43 @@
   exports.shootAt = shootAt;
 
 
-  const moveShoot = function(unit, posIns, keepDst) {
-    if(unit == null) return;
-    if(posIns == null) {
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lets a unit approach some position, and shoot if in range.
+   * ---------------------------------------- */
+  const moveShoot = function(unit, tg, keepDst) {
+    if(unit.isPlayer()) return;
+    if(tg == null || (tg.added != null && !tg.added)) {
       unit.controlWeapons(false);
       return;
     };
 
-    moveTo(unit, posIns, unit.range() * 0.8, null, keepDst);
-    shootAt(unit, posIns.x, posIns.y, posIns.within(unit, unit.range()));
+    moveTo(unit, tg, unit.range() * 0.8, null, keepDst);
+    shootAt(unit, tg.x, tg.y, tg.within(unit, unit.range()));
   };
   exports.moveShoot = moveShoot;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Like {moveShoot} but using pathfinding.
+   * ---------------------------------------- */
+  const pathfindShoot = function thisFun(unit, tg, vecOut, blockedTup, keepDst) {
+    if(unit.isPlayer()) return;
+    if(tg == null || (tg.added != null && !tg.added)) {
+      unit.controlWeapons(false);
+      return;
+    };
+
+    pathfindTo(unit, thisFun.tmpVec.set(tg), vecOut, blockedTup, unit.range() * 0.8, null, keepDst);
+    shootAt(unit, tg.x, tg.y, tg.within(unit, unit.range()));
+  }
+  .setProp({
+    tmpVec: new Vec2(),
+  });
+  exports.pathfindShoot = pathfindShoot;
 
 
   /* <---------- component ----------> */
@@ -99,7 +169,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * {updateMovement} here may return boolean, which means whether the action is done.
+   * {updateMovement} here may return boolean, which means whether the movement is active.
    * Used for decision.
    * ---------------------------------------- */
 
@@ -109,20 +179,24 @@
    *
    * Moves to the current target if armed.
    * ---------------------------------------- */
-  const comp_updateMovement_attack = function(ctrl, unit) {
+  const comp_updateMovement_attack = function thisFun(ctrl, unit) {
     if(!unit.hasWeapons()) return false;
     let tg = _tg(ctrl);
     if(tg == null) return false;
 
-    if(unit.type.circleTarget) {
-      ctrl.circleAttack(110.0 + unit.hitSize * 0.5);
+    lookAt(unit, tg.x, tg.y);
+    if(!tg.within(unit, unit.range() * 0.8)) {
+      pathfindTo(unit, thisFun.tmpVec.set(tg), thisFun.tmpVec1(), null, unit.range() * 0.8);
     } else {
-      moveTo(unit, tg, unit.range() * 0.8);
-      lookAt(unit, tg.x, tg.y);
+      if(unit.type.circleTarget) ctrl.circleAttack(110.0 + unit.hitSize * 0.5);
     };
 
     return true;
-  };
+  }
+  .setProp({
+    tmpVec: new Vec2(),
+    tmpVec1: new Vec2(),
+  });
   exports.comp_updateMovement_attack = comp_updateMovement_attack;
 
 
@@ -131,14 +205,22 @@
    *
    * Follows an assigned target.
    * ---------------------------------------- */
-  const comp_updateMovement_follow = function(ctrl, unit, followTg) {
-    if(followTg == null) return false;
+  const comp_updateMovement_follow = function thisFun(ctrl, unit, followTg) {
+    if(followTg == null || (followTg.added != null && !followTg.added)) return false;
 
-    let dst = (followTg instanceof Sized ? tryProp(followTg.hitSize, followTg) * 0.55 : 0.0) + unit.hitSize * 0.5 + 15.0;
-    moveTo(unit, followTg, dst);
+    thisFun.blockedTup[0] = false;
+    pathfindTo(
+      unit, thisFun.tmpVec.set(followTg), thisFun.tmpVec1, thisFun.blockedTup,
+      (followTg instanceof Sized ? tryProp(followTg.hitSize, followTg) * 0.55 : 0.0) + unit.hitSize * 0.5 + 15.0,
+    );
 
-    return true;
-  };
+    return !thisFun.blockedTup[0];
+  }
+  .setProp({
+    tmpVec: new Vec2(),
+    tmpVec1: new Vec2(),
+    blockedTup: [],
+  });
   exports.comp_updateMovement_follow = comp_updateMovement_follow;
 
 
@@ -148,16 +230,22 @@
    * @FIELD: ctrl.timerUnload
    * Unloads items into some building.
    * ---------------------------------------- */
-  const comp_updateMovement_unload = function(ctrl, unit, b) {
-    if(!unit.hasItem() || b == null || !b.acceptItem(unit.item()) || b.isPayload()) return false;
+  const comp_updateMovement_unload = function thisFun(ctrl, unit, b) {
+    if(!unit.hasItem() || b == null || !b.added || !b.acceptItem(unit.item()) || b.isPayload()) return false;
 
-    moveTo(unit, b);
-    if(unit.within(b, 20.0) && ctrl.timerUnload.get(90.0)) {
+    thisFun.blockedTup[0] = false;
+    pathfindTo(unit, thisFun.tmpVec.set(b), thisFun.tmpVec1, thisFun.blockedTup, Vars.logicItemTransferRange * 0.8);
+    if(unit.within(b, Vars.logicItemTransferRange) && ctrl.timerUnload.get(90.0)) {
       FRAG_item.dropBuildItem(unit, b);
     };
 
-    return true;
-  };
+    return !thisFun.blockedTup[0];
+  }
+  .setProp({
+    tmpVec: new Vec2(),
+    tmpVec1: new Vec2(),
+    blockedTup: [],
+  });
   exports.comp_updateMovement_unload = comp_updateMovement_unload;
 
 
@@ -165,29 +253,32 @@
    * NOTE:
    *
    * @FIELD: ctrl.timerFind, ctrl.isMining, ctrl.oreT
-   * Miner AI.
+   * Miner AI where {b} is the building bound to.
    * ---------------------------------------- */
-  const comp_updateMovement_mine = function(ctrl, unit, b, itm, rad) {
+  const comp_updateMovement_mine = function thisFun(ctrl, unit, b, itm, rad) {
     if(!unit.canMine()) return false;
     if(rad == null) rad = Infinity;
 
     if(!unit.validMine(unit.mineTile)) unit.mineTile = null;
 
+    this.blockedTup[0] = false;
     if(!ctrl.isMining) {
       unit.mineTile = null;
       // Ready to mine or not
-      if(unit.stack.amount === 0) {
+      if(!unit.hasItem()) {
         ctrl.isMining = true;
         return true;
       };
       // Drop item to {b}
-      if(unit.within(b, unit.range())) {
+      if(unit.within(b, Vars.logicItemTransferRange)) {
         if(b.acceptStack(unit.item(), unit.stack.amount, unit) > 0) FRAG_item.dropBuildItem(unit, b);
         unit.clearItem();
         ctrl.isMining = true;
       };
       // Move to {b}
-      circle(unit, b, unit.range() * 0.6);
+      !unit.within(b, Vars.logicItemTransferRange * 0.8) ?
+        pathfindTo(unit, thisFun.tmpVec.set(b), thisFun.tmpVec1, this.blockedTup, Vars.logicItemTransferRange * 0.6) :
+        circle(unit, b, Vars.logicItemTransferRange * 0.6);
     } else {
       // Do nothing if {b} is full
       if(b.acceptStack(itm, 1, unit) === 0) {
@@ -208,14 +299,22 @@
         };
         // Move to ore
         if(ctrl.oreT != null) {
-          moveTo(unit, ctrl.oreT, unit.type.mineRange * 0.5);
-          if(unit.within(ctrl.oreT, unit.type.mineRange) && unit.validMine(ctrl.oreT)) unit.mineTile = ctrl.oreT;
+          if(!unit.within(ctrl.oreT, unit.type.mineRange)) {
+            pathfindTo(unit, thisFun.tmpVec.set(ctrl.oreT), thisFun.tmpVec1, thisFun.blockedTup, unit.type.mineRange * 0.5);
+          } else {
+            if(unit.validMine(ctrl.oreT)) unit.mineTile = ctrl.oreT;
+          };
         };
       };
     };
 
-    return true;
-  };
+    return !thisFun.blockedTup[0];
+  }
+  .setProp({
+    tmpVec: new Vec2(),
+    tmpVec1: new Vec2(),
+    blockedTup: [],
+  });
   exports.comp_updateMovement_mine = comp_updateMovement_mine;
 
 
@@ -224,8 +323,11 @@
    *
    * @FIELD: ctrl.timerFind, ctrl.repairTg
    * Repair AI.
+   * No pathfinding for this one, cauz that it easily gets stuck.
    * ---------------------------------------- */
   const comp_updateMovement_repair = function(ctrl, unit, b) {
+    if(!unit.type.canHeal) return false;
+
     if(ctrl.timerFind.get(15.0)) {
       let repairTg = Units.findDamagedTile(unit.team, unit.x, unit.y);
       if(repairTg instanceof ConstructBlock.ConstructBuild) repairTg = null;
@@ -233,7 +335,7 @@
     };
 
     if(ctrl.repairTg == null) {
-      let bTg = (b != null && !b.dead) ? b : unit.closestCore();
+      let bTg = (b != null && !b.added) ? b : unit.closestCore();
       if(bTg != null && !unit.within(bTg, 48.0)) {
         moveTo(unit, bTg, 48.0);
       } else return false;

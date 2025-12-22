@@ -57,6 +57,7 @@
   const FRAG_unit = require("lovec/frag/FRAG_unit");
 
 
+  const MDL_ai = require("lovec/mdl/MDL_ai");
   const MDL_backend = require("lovec/mdl/MDL_backend");
   const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_color = require("lovec/mdl/MDL_color");
@@ -151,6 +152,7 @@
       frag_unit: FRAG_unit,
 
 
+      mdl_ai: MDL_ai,
       mdl_backend: MDL_backend,
       mdl_call: MDL_call,
       mdl_color: MDL_color,
@@ -159,6 +161,7 @@
       mdl_draw: MDL_draw,
       mdl_effect: MDL_effect,
       mdl_entity: MDL_entity,
+      mdl_event: MDL_event,
       mdl_file: MDL_file,
       mdl_json: MDL_json,
       mdl_market: MDL_market,
