@@ -166,6 +166,7 @@
       }
       .setProp({
         noSuper: true,
+        override: true,
       }),
 
 
@@ -174,6 +175,7 @@
       }
       .setProp({
         noSuper: true,
+        override: true,
       }),
 
 
@@ -182,6 +184,16 @@
       }
       .setProp({
         noSuper: true,
+        override: true,
+      }),
+
+
+      handlePayload: function(b_f, pay) {
+        if(this.handlePayload != null) this.linkCenter.handlePayload(b_f, pay);
+      }
+      .setProp({
+        noSuper: true,
+        override: true,
       }),
 
 
@@ -190,7 +202,7 @@
       }
       .setProp({
         noSuper: true,
-        boolMode: "and",
+        override: true,
       }),
 
 
@@ -199,7 +211,16 @@
       }
       .setProp({
         noSuper: true,
-        boolMode: "and",
+        override: true,
+      }),
+
+
+      acceptPayload: function(b_f, pay) {
+        return this.linkCenter == null ? false : this.linkCenter.acceptPayload(b_f, pay);
+      }
+      .setProp({
+        noSuper: true,
+        override: true,
       }),
 
 
@@ -208,7 +229,7 @@
       }
       .setProp({
         noSuper: true,
-        boolMode: "and",
+        override: true,
       }),
 
 
@@ -217,6 +238,7 @@
       }
       .setProp({
         noSuper: true,
+        override: true,
       }),
 
 

@@ -25,6 +25,7 @@
 
   const PARENT = require("lovec/temp/blk/BLK_lootHopper");
   const INTF = require("lovec/temp/intf/INTF_BLK_radiusDisplay");
+  const VAR = require("lovec/glb/GLB_var");
 
 
   const MDL_draw = require("lovec/mdl/MDL_draw");
@@ -69,15 +70,12 @@
 
 
   function comp_draw(b) {
-    MDL_draw._reg_glow(b.x, b.y, b.block.ex_getGlowReg(), 0.0, Color.white, b.glowHeat * 0.7);
-
+    MDL_draw._reg_fade(b.x, b.y, b.block.ex_getGlowReg(), 0.0, 1.0, 1.0, Color.white, b.glowHeat * 0.7);
+    
     if(b.glowHeat > 0.01) {
-      Lines.stroke(2.0, Color.white);
-      Draw.alpha(0.3 * b.glowHeat);
       b.pullTgs.forEachFast(loot => {
-        if(loot.added) Lines.line(loot.x, loot.y, b.x, b.y);
+        if(loot.added) MDL_draw._d_arrowLine(loot.x, loot.y, b.x, b.y, 2.0, 1.0, Color.white, 0.35 * b.glowHeat, VAR.lay_effFlr);
       });
-      Draw.reset();
     };
   };
 

@@ -72,6 +72,7 @@
   new CLS_settingTerm("damagedisplay-min", useScl => Core.settings.getInt("lovec-damagedisplay-min", 0) * (useScl ? 20.0 : 1.0)).setDialSetter("lovec", "misc", tb => tb.sliderPref("lovec-damagedisplay-min", 0, 0, 50, val => Strings.fixed(val * 20.0, 2)));
   new CLS_settingTerm("unit0stat-show", useScl => Core.settings.getBool("lovec-unit0stat-show", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-unit0stat-show", true));
   new CLS_settingTerm("unit0stat-range", useScl => Core.settings.getBool("lovec-unit0stat-range", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-unit0stat-range", true));
+  new CLS_settingTerm("unit0stat-range-alpha", useScl => Core.settings.getInt("lovec-unit0stat-range-alpha", 7) * (useScl ? 0.05 : 1.0)).setDialSetter("lovec", "misc", tb => tb.sliderPref("lovec-unit0stat-range-alpha", 7, 1, 20, val => Strings.fixed(val * 5.0, 0) + "%"));
   new CLS_settingTerm("unit0stat-player", useScl => Core.settings.getBool("lovec-unit0stat-player", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-unit0stat-player", true));
   new CLS_settingTerm("unit0stat-reload", useScl => Core.settings.getBool("lovec-unit0stat-reload", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-unit0stat-reload", true));
   new CLS_settingTerm("unit0stat-missile", useScl => Core.settings.getBool("lovec-unit0stat-missile", false)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-unit0stat-missile", false));

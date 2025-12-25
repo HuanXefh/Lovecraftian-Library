@@ -269,11 +269,11 @@
      * Spawns some unit at your unit.
      * Internal units are banned, which may lead to crash.
      * ---------------------------------------- */
-    _cmd_spawnUnit = function(utp_gn) {
+    _cmd_spawnUnit = function thisFun(utp_gn) {
       if(!checkCheatState()) return;
       let unit = Vars.player.unit();
       if(unit == null) return;
-      if(typeof utp_gn === "string" && utp_gn.equalsAny(_cmd_spawnUnit.blacklist)) return;
+      if(typeof utp_gn === "string" && utp_gn.equalsAny(thisFun.blacklist)) return;
       let utp = lovec.mdl_content._ct(utp_gn, "utp");
 
       lovec.mdl_call.spawnUnit(unit.x, unit.y, utp, unit.team);

@@ -1107,9 +1107,46 @@
     x1, y1, x2, y2,
     strokeScl
   ) {
-    Drawf.laser(VARGEN.laserRegs.lineReg, VARGEN.laserRegs.endReg, x1, y1, x2, y2, tryVal(strokeScl, 1.0));
+    Drawf.laser(VARGEN.miscRegs.laserLine, VARGEN.miscRegs.laserEnd, x1, y1, x2, y2, tryVal(strokeScl, 1.0));
   };
   exports._d_laserV = _d_laserV;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A line with a moving arrow.
+   * ---------------------------------------- */
+  const _d_arrowLine = function(
+    x1, y1, x2, y2,
+    strokeScl, scl, color_gn, a, z
+  ) {
+    if(strokeScl == null) strokeScl = 1.0;
+    if(a == null) a = 1.0;
+    if(z == null) z = Layer.effect + VAR.lay_offDraw;
+
+    let
+      frac1 = Time.globalTime / tryVal(scl, 1.0) % 100.0 / 100.0,
+      frac2 = (frac1 + 0.5) % 1.0,
+      ang = Mathf.angle(x2 - x1, y2 - y1);
+
+    processZ(z);
+
+    Lines.stroke(1.0 * strokeScl, MDL_color._color(tryVal(color_gn, Pal.accent)));
+    Draw.alpha(a);
+    LCDraw.line(x1, y1, x2, y2, false);
+    Tmp.v1.set(x1, y1).lerp(x2, y2, frac1);
+    processScl(strokeScl * Interp.pow2Out.apply(1.0 - frac1));
+    Draw.rect(VARGEN.miscRegs.arrow, Tmp.v1.x, Tmp.v1.y, ang);
+    Tmp.v1.set(x1, y1).lerp(x2, y2, frac2);
+    processScl(strokeScl * Interp.pow2Out.apply(1.0 - frac2));
+    Draw.rect(VARGEN.miscRegs.arrow, Tmp.v1.x, Tmp.v1.y, ang);
+    processScl();
+    Draw.reset();
+
+    processZ(z);
+  };
+  exports._d_arrowLine = _d_arrowLine;
 
 
   /* ----------------------------------------
@@ -1727,7 +1764,7 @@
     if(offW == null) offW = 0.0;
     if(offTy == null) offTy = 0;
     if(segScl == null) segScl = 1.0;
-    if(z == null) z = Layer.effect + VAR.lay_offDraw + 1.0;
+    if(z == null) z = Layer.playerName - 0.44;
 
     let
       frac = Mathf.clamp(healthFrac),

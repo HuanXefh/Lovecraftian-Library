@@ -56,23 +56,6 @@
   exports.sizeOffsetPon2s = sizeOffsetPon2s;
 
 
-  /* <---------- base ----------> */
-
-
-  const _playerX = function() {
-    var unit_pl = Vars.player.unit();
-    return unit_pl == null ? Infinity : unit_pl.x;
-  };
-  exports._playerX = _playerX;
-
-
-  const _playerY = function() {
-    var unit_pl = Vars.player.unit();
-    return unit_pl == null ? Infinity : unit_pl.y;
-  };
-  exports._playerY = _playerY;
-
-
   /* <---------- distance ----------> */
 
 
@@ -317,13 +300,11 @@
   /* <---------- coordinate ----------> */
 
 
-  const setCoord_back = function(x, y, size, rot, xSetter, ySetter) {
-    if(size == null) size = 1;
-    if(rot == null) rot = 0;
-
-    let off = (size + 0.5) * Vars.tilesize * 0.5;
-    let tgX = x;
-    let tgY = y;
+  const _coordsBack = function thisFun(x, y, size, rot) {
+    let
+      off = (tryVal(size, 1) + 0.5) * Vars.tilesize * 0.5,
+      tgX = x,
+      tgY = y;
     switch(rot) {
       case 0 :
         tgX = x - off;
@@ -341,12 +322,32 @@
         tgX = x;
         tgY = y + off;
         break;
+      default :
+        ERROR_HANDLER.throw("nullArgument", "rot");
     };
+    thisFun.tmpTup.clear().push(tgX, tgY);
 
-    xSetter(tgX);
-    ySetter(tgY);
-  };
-  exports.setCoord_back = setCoord_back;
+    return thisFun.tmpTup;
+  }
+  .setProp({
+    tmpTup: [],
+  });
+  exports._coordsBack = _coordsBack;
+
+
+  const _coordsPlayer = function thisFun() {
+    let unit = Vars.player.unit();
+    thisFun.tmpTup.clear();
+    unit == null ?
+      thisFun.tmpTup.push(Number.n12, Number.n12) :
+      thisFun.tmpTup.push(unit.x, unit.y);
+
+    return thisFun.tmpTup;
+  }
+  .setProp({
+    tmpTup: [],
+  });
+  exports._coordsPlayer = _coordsPlayer;
 
 
   /* <---------- tile ----------> */
@@ -374,6 +375,38 @@
     return t.nearby(Geometry.d4[rot]);
   };
   exports._tRot = _tRot;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a tile by rotation from {t}, with {tCenter} as the center.
+   * ---------------------------------------- */
+  const _tCenterRot = function(t, tCenter, rot, size, sizeCenter) {
+    let off = tryVal(size, 1) % 2 === 0 ? 0.5 : 0.0;
+    let offCenter = tryVal(sizeCenter, 1) % 2 === 0 ? 0.5 : 0.0;
+
+    Tmp.v1.set(t.x + off - tCenter.x - offCenter, t.y + off - tCenter.y - offCenter);
+    switch(rot) {
+      case 0 :
+        Tmp.v2.set(Tmp.v1.x, Tmp.v1.y);
+        break;
+      case 1 :
+        Tmp.v2.set(-Tmp.v1.y, Tmp.v1.x);
+        break;
+      case 2 :
+        Tmp.v2.set(-Tmp.v1.x, -Tmp.v1.y);
+        break;
+      case 3 :
+        Tmp.v2.set(Tmp.v1.y, -Tmp.v1.x);
+        break;
+      default:
+        ERROR_HANDLER.throw("nullArgument", "rot");
+    };
+
+    return Vars.world.tile(Tmp.v2.x - off, Tmp.v2.y - off);
+  };
+  exports._tCenterRot = _tCenterRot;
 
 
   /* ----------------------------------------
@@ -603,7 +636,6 @@
 
     if(t == null) return arr;
     if(r == null) r = 0;
-    if(rot == null) rot = 0;
     if(size == null) size = 1;
 
     let px = 0, py = 0;
@@ -620,6 +652,8 @@
       case 3 :
         py = (size % 2 === 0) ? -(r + size) + 1 : -(r + size);
         break;
+      default :
+        ERROR_HANDLER.throw("nullArgument", "rot");
     };
     let ot = t.nearby(px, py);
 

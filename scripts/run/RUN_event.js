@@ -112,7 +112,7 @@
                     wp.noAttack ?
                       Color.white :
                       unit.team.color,
-                0.12,
+                PARAM.unitRangeAlpha,
               );
               Fill.arc(mtX, mtY, wp.range(), wp.shootCone / 180.0, rot + mt.rotation + 90.0 - wp.shootCone);
             } else if(
@@ -125,13 +125,13 @@
               Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0);
               Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0 + 180.0);
               Line.stroke(1.0);
-              Draw.color(Pal.accent, 0.35);
+              Draw.color(Pal.accent, PARAM.unitRangeAlpha);
               LCDraw.circle(unit.x, unit.y, wp.bullet.splashDamageRadius, false);
             };
           });
           if(!hasAnyMountShown) {
-            Line.stroke(1.0);
-            Draw.color(Pal.accent, 0.35);
+            Lines.stroke(1.0);
+            Draw.color(Pal.accent, PARAM.unitRangeAlpha);
             LCDraw.circle(unit.x, unit.y, unit.range(), false);
           };
           Draw.reset();
@@ -167,7 +167,14 @@
               let z = Draw.z();
               Draw.z(VAR.lay_effHigh + 1.5);
 
-              Draw.color(Build.validPlace(pay.block(), unit.team, ot.x, ot.y, pay.build.rotation, false) ? Pal.items : Pal.remove, 0.5);
+              Draw.color(
+                Build.validPlace(pay.block(), unit.team, ot.x, ot.y, pay.build.rotation, false) ?
+                  Pal.items :
+                  ot.build != null && ot.build.acceptPayload(ot.build, pay) ?
+                    Pal.techBlue :
+                    Pal.remove,
+                0.5,
+              );
               Fill.rect(ot.worldx() + pay.block().offset, ot.worldy() + pay.block().offset, pay.block().size * Vars.tilesize, pay.block().size * Vars.tilesize);
               Draw.color();
 
@@ -209,7 +216,7 @@
     drawBaseBuildStats: b => {
       if(PARAM.drawUnitRange && b.block instanceof Turret && b.block.shootCone > 0.0 && b.block.shootCone < 179.99) {
         let z = Draw.z();
-        Draw.color(b.team.color, 0.12);
+        Draw.color(b.team.color, PARAM.unitRangeAlpha);
         Draw.z(VAR.lay_unitRange);
         Fill.arc(b.x, b.y, b.range() + b.block.shootY, b.block.shootCone / 180.0, b.rotation - b.block.shootCone);
         Draw.reset();

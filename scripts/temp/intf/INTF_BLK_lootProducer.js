@@ -55,11 +55,9 @@
       b.lootDumpX = b.x;
       b.lootDumpY = b.y;
     } else {
-      MDL_pos.setCoord_back(
-        b.x, b.y, b.block.size, b.rotation,
-        x => b.lootDumpX = x,
-        y => b.lootDumpY = y,
-      );
+      let coords = MDL_pos._coordsBack(b.x, b.y, b.block.size, b.rotation);
+      b.lootDumpX = coords[0];
+      b.lootDumpY = coords[1];
     };
   };
 

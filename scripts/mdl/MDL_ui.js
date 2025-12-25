@@ -22,7 +22,7 @@
   /* <---------- base ----------> */
 
 
-  var shouldMuteMusic = false;
+  let shouldMuteMusic = false;
   const setMute = function(bool) {
     shouldMuteMusic = bool;
   };

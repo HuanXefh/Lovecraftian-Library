@@ -89,7 +89,8 @@
       Draw.z(blk.drawTup[0] - 0.0005);
       Draw.rect(blk.shadow, t.worldx() + blk.shadowOffset, t.worldy() + blk.shadowOffset, Mathf.randomSeed(t.pos(), 0.0, 360.0));
     };
-    Draw.alpha(PARAM.treeAlpha * (PARAM.checkTreeDst && Mathf.dst(t.worldx(), t.worldy(), MDL_pos._playerX(), MDL_pos._playerY()) < blk.region.width * VAR.rad_treeScl ? 0.37 : 1.0));
+    let coords = MDL_pos._coordsPlayer();
+    Draw.alpha(PARAM.treeAlpha * (PARAM.checkTreeDst && Mathf.dst(t.worldx(), t.worldy(), coords[0], coords[1]) < blk.region.width * VAR.rad_treeScl ? 0.37 : 1.0));
     !PARAM.drawWobble ?
       Draw.rect(blk.region, t.worldx(), t.worldy(), Mathf.randomSeed(t.pos(), 0.0, 360.0)) :
       Draw.rectv(

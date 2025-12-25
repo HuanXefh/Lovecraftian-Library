@@ -144,6 +144,7 @@
 
       exports.drawUnitStat = fetchSetting("unit0stat-show");
       exports.drawUnitRange = fetchSetting("unit0stat-range");
+      exports.unitRangeAlpha = fetchSetting("unit0stat-range-alpha", true);
       exports.drawPlayerStat = fetchSetting("unit0stat-player");
       exports.drawUnitReload = fetchSetting("unit0stat-reload");
       exports.drawMissileStat = fetchSetting("unit0stat-missile");

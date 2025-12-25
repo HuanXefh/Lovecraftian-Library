@@ -12,7 +12,7 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_texture = require("lovec/mdl/MDL_texture");
-  
+
 
   const DB_block = require("lovec/db/DB_block");
   const DB_env = require("lovec/db/DB_env");
@@ -83,15 +83,12 @@
       MDL_texture._regHeat(8),
       MDL_texture._regHeat(9),
       MDL_texture._regHeat(10),
+      MDL_texture._regHeat(11),
+      MDL_texture._regHeat(12),
+      MDL_texture._regHeat(13),
+      MDL_texture._regHeat(14),
+      MDL_texture._regHeat(15),
     ];
-
-
-    exports.laserRegs = (function() {
-      const obj = {};
-      obj.lineReg = Core.atlas.find("laser");
-      obj.endReg = Core.atlas.find("laser-end");
-      return obj;
-    })();
 
 
     exports.wireRegs = (function() {
@@ -106,6 +103,13 @@
       obj.shaReg = Core.atlas.find("lovec-ast-wire-shadow");
       return obj;
     })();
+
+
+    exports.miscRegs = {
+      arrow: Core.atlas.find("bridge-arrow"),
+      laserLine: Core.atlas.find("laser"),
+      laserEnd: Core.atlas.find("laser-end"),
+    };
 
 
     exports.noiseTexs = (function() {

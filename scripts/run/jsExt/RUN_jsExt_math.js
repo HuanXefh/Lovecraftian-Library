@@ -150,6 +150,7 @@
   cls.n4 = 9999.0;
   cls.n6 = 999999.0;
   cls.n8 = 99999999.0;
+  cls.n12 = 999999999999.0;
 
 
   var ptp = Number.prototype;

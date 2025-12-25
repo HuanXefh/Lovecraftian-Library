@@ -21,6 +21,8 @@
   TMP_Z = 0;
   TMP_Z_A = 0;
   TMP_Z_B = 0;
+  TMP_XSCL = 1.0;
+  TMP_YSCL = 1.0;
   TMP_REG = new TextureRegion();
 
 
@@ -43,6 +45,27 @@
     processZ.isTail = !processZ.isTail;
   };
   processZ.isTail = false;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Basically {Draw.scl}, which cannot be called in JS cauz it's name of both field and method.
+   * ---------------------------------------- */
+  processScl = function(xscl, yscl) {
+    if(!processScl.isTail) {
+      TMP_XSCL = Draw.xscl;
+      TMP_YSCL = Draw.yscl;
+      Draw.xscl = tryVal(xscl, 1.0);
+      Draw.yscl = tryVal(yscl, tryVal(xscl, 1.0));
+    } else {
+      Draw.xscl = TMP_XSCL;
+      Draw.yscl = TMP_YSCL;
+    };
+
+    processScl.isTail = !processScl.isTail;
+  };
+  processScl.isTail = false;
 
 
   /* ----------------------------------------
