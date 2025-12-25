@@ -154,9 +154,9 @@
       }),
 
 
-      ex_processData: function(wr0rd, lovecRevi) {
+      ex_processData: function(wr0rd, LCRevi) {
         processData(
-          wr0rd, lovecRevi,
+          wr0rd, LCRevi,
 
           (wr, revi) => {
             MDL_io._wr_ct(wr, this.ctTg);

@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Some universal parameters (for settings mostly), only updated every several seconds.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -14,7 +28,6 @@
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_test = require("lovec/mdl/MDL_test");
-  const MDL_util = require("lovec/mdl/MDL_util");
 
 
   const DB_env = require("lovec/db/DB_env");
@@ -25,7 +38,7 @@
 
 
   let
-    updateSuppressTimeCur = 0, updateSuppressTime = 300,
+    updateSuppressCd = 0, updateSuppressCooldown = 300,
     unit_pl = null,
     secretCode = "",
     shouldLoadParam = true;
@@ -54,7 +67,7 @@
   // Parameters populated on load
   exports.debug = global.lovecUtil.prop.debug;
   exports.modded = (function() {
-    let cond1 = MDL_util._cfg("load-force-modded");
+    let cond1 = Core.settings.getBool("load-force-modded", false);
     let cond2 = DB_misc.db["mod"]["lovecMod"].some(nmMod => fetchMod(nmMod) != null);
     if(cond1 && !cond2) MDL_test._w_forceModded();
 
@@ -65,14 +78,7 @@
 
 
   // Settings that cannot be {undefined} when loading
-  exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
-
-
-
-
-  MDL_event._c_onLoad(() => {
-
-  }, 59556227);
+  exports.unitRemainsLifetime = 0.0;
 
 
 
@@ -89,9 +95,9 @@
   MDL_event._c_onUpdate(() => {
 
 
-    updateSuppressTimeCur--;
-    exports.updateSuppressed = updateSuppressTimeCur > 0;
-    exports.updateDeepSuppressed = updateSuppressTimeCur > -updateSuppressTime;
+    updateSuppressCd--;
+    exports.updateSuppressed = updateSuppressCd > 0;
+    exports.updateDeepSuppressed = updateSuppressCd > -updateSuppressCooldown;
 
 
     if(TIMER.paramGlobal || shouldLoadParam) {
@@ -99,7 +105,7 @@
 
       // Param load
       unit_pl = Vars.player.unit();
-      secretCode = MDL_util._cfg("misc-secret-code");
+      secretCode = fetchSetting("misc-secret-code");
       shouldLoadParam = false;
 
 
@@ -115,44 +121,44 @@
       /* <---------- setting ----------> */
 
 
-      exports.testDraw = MDL_util._cfg("test-draw");
-      exports.enableMemoryMonitor = MDL_util._cfg("test-memory");
+      exports.testDraw = fetchSetting("test-draw");
+      exports.enableMemoryMonitor = fetchSetting("test-memory");
 
 
-      exports.drawWobble = MDL_util._cfg("draw-wobble");
-      exports.drawStaticLoot = MDL_util._cfg("draw0loot-static");
-      exports.drawLootAmount = MDL_util._cfg("draw0loot-amount");
-      exports.treeAlpha = (Groups.player.size() > 1) ? 1.0 : MDL_util._cfg("draw0tree-alpha", true);
-      exports.checkTreeDst = MDL_util._cfg("draw0tree-player") && unit_pl != null && MDL_cond._isCoverable(unit_pl);
-      exports.showExtraInfo = MDL_util._cfg("draw0aux-extra-info");
-      exports.drawBridgeTransportLine = MDL_util._cfg("draw0aux-bridge");
-      exports.drawRouterHeresy = MDL_util._cfg("draw0aux-router");
-      exports.drawScannerResult = MDL_util._cfg("draw0aux-scanner");
-      exports.drawFluidHeat = MDL_util._cfg("draw0aux-fluid-heat");
-      exports.drawFurnaceHeat = MDL_util._cfg("draw0aux-furnace-heat");
+      exports.drawWobble = fetchSetting("draw-wobble");
+      exports.drawStaticLoot = fetchSetting("draw0loot-static");
+      exports.drawLootAmount = fetchSetting("draw0loot-amount");
+      exports.treeAlpha = (Groups.player.size() > 1) ? 1.0 : fetchSetting("draw0tree-alpha", true);
+      exports.checkTreeDst = fetchSetting("draw0tree-player") && unit_pl != null && MDL_cond._isCoverable(unit_pl);
+      exports.showExtraInfo = fetchSetting("draw0aux-extra-info");
+      exports.drawBridgeTransportLine = fetchSetting("draw0aux-bridge");
+      exports.drawRouterHeresy = fetchSetting("draw0aux-router");
+      exports.drawScannerResult = fetchSetting("draw0aux-scanner");
+      exports.drawFluidHeat = fetchSetting("draw0aux-fluid-heat");
+      exports.drawFurnaceHeat = fetchSetting("draw0aux-furnace-heat");
 
 
-      exports.flickerIconTag = MDL_util._cfg("icontag-flicker");
-      exports.iconTagIntv = MDL_util._cfg("icontag-interval", true);
+      exports.flickerIconTag = fetchSetting("icontag-flicker");
+      exports.iconTagIntv = fetchSetting("icontag-interval", true);
 
 
-      exports.drawUnitStat = MDL_util._cfg("unit0stat-show");
-      exports.drawUnitRange = MDL_util._cfg("unit0stat-range");
-      exports.drawPlayerStat = MDL_util._cfg("unit0stat-player");
-      exports.drawUnitReload = MDL_util._cfg("unit0stat-reload");
-      exports.drawMissileStat = MDL_util._cfg("unit0stat-missile");
-      exports.drawBuildStat = MDL_util._cfg("unit0stat-build");
-      exports.drawUnitNearMouse = MDL_util._cfg("unit0stat-mouse");
-      exports.drawMinimalisticStat = MDL_util._cfg("unit0stat-minimalistic");
-      exports.unitRemainsLifetime = MDL_util._cfg("unit0remains-lifetime", true);
-      exports.createBuildingRemains = MDL_util._cfg("unit0remains-building");
+      exports.drawUnitStat = fetchSetting("unit0stat-show");
+      exports.drawUnitRange = fetchSetting("unit0stat-range");
+      exports.drawPlayerStat = fetchSetting("unit0stat-player");
+      exports.drawUnitReload = fetchSetting("unit0stat-reload");
+      exports.drawMissileStat = fetchSetting("unit0stat-missile");
+      exports.drawBuildStat = fetchSetting("unit0stat-build");
+      exports.drawUnitNearMouse = fetchSetting("unit0stat-mouse");
+      exports.drawMinimalisticStat = fetchSetting("unit0stat-minimalistic");
+      exports.unitRemainsLifetime = fetchSetting("unit0remains-lifetime", true);
+      exports.createBuildingRemains = fetchSetting("unit0remains-build");
 
 
-      exports.displayDamage = MDL_util._cfg("damagedisplay-show");
-      exports.damageDisplayThreshold = MDL_util._cfg("damagedisplay-min", true);
+      exports.displayDamage = fetchSetting("damagedisplay-show");
+      exports.damageDisplayThreshold = fetchSetting("damagedisplay-min", true);
 
 
-      exports.showWindow = MDL_util._cfg("window-show");
+      exports.showWindow = fetchSetting("window-show");
 
 
       if(secretCode.includes("<crash>")) {
@@ -166,6 +172,8 @@
 
 
     };
+
+
   }, 12976533);
 
 
@@ -174,7 +182,7 @@
   MDL_event._c_onWorldLoad(() => {
 
 
-    updateSuppressTimeCur = updateSuppressTime;
+    updateSuppressCd = updateSuppressCooldown;
 
 
   }, 52647992);

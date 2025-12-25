@@ -1,5 +1,20 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Static effects used widely.
+   * This module is simply used to prevent duplication of effects, which renders Json files a mess.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */

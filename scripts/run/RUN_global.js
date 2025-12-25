@@ -41,6 +41,7 @@
   const CLS_objectBox = require("lovec/cls/struct/CLS_objectBox");
   const CLS_window = require("lovec/cls/ui/CLS_window");
   const CLS_achievement = require("lovec/cls/util/CLS_achievement");
+  const CLS_settingTerm = require("lovec/cls/util/CLS_settingTerm");
 
 
   const MATH_function = require("lovec/math/MATH_function");
@@ -136,6 +137,7 @@
       cls_objectBox: CLS_objectBox,
       cls_window: CLS_window,
       cls_achievement: CLS_achievement,
+      cls_settingTerm: CLS_settingTerm,
 
 
       math_function: MATH_function,

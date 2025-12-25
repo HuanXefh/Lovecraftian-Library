@@ -139,8 +139,8 @@
 
 
       write: function(wr) {
-        let lovecRevi = processRevision(wr);
-        this.ex_processData(wr, lovecRevi);
+        let LCRevi = processRevision(wr);
+        this.ex_processData(wr, LCRevi);
         MDL_io._wr_ct(wr, this.ctTg);
       }
       .setProp({
@@ -149,8 +149,8 @@
 
 
       read: function(rd, revi) {
-        let lovecRevi = processRevision(rd);
-        this.ex_processData(rd, lovecRevi);
+        let LCRevi = processRevision(rd);
+        this.ex_processData(rd, LCRevi);
         this.ctTg = MDL_io._rd_ct(rd);
       }
       .setProp({

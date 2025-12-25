@@ -12,8 +12,7 @@
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_texture = require("lovec/mdl/MDL_texture");
-  const MDL_util = require("lovec/mdl/MDL_util");
-
+  
 
   const DB_block = require("lovec/db/DB_block");
   const DB_env = require("lovec/db/DB_env");
@@ -199,7 +198,7 @@
       const arr = [];
       DB_item.db["param"]["fuel"]["item"].forEachRow(2, (nm, params) => {
         let itm = MDL_content._ct(nm, "rs");
-        if(itm != null && (MDL_util._cfg("load-ore-dict") ? true : !MDL_cond._isVanilla(itm))) arr.push(itm);
+        if(itm != null && (fetchSetting("load-ore-dict") ? true : !MDL_cond._isVanilla(itm))) arr.push(itm);
       });
       return arr;
     })();
@@ -207,7 +206,7 @@
       const arr = [];
       DB_item.db["param"]["fuel"]["fluid"].forEachRow(2, (nm, params) => {
         let liq = MDL_content._ct(nm, "rs");
-        if(liq != null && !liq.gas && (MDL_util._cfg("load-ore-dict") ? true : !MDL_cond._isVanilla(liq))) arr.push(liq);
+        if(liq != null && !liq.gas && (fetchSetting("load-ore-dict") ? true : !MDL_cond._isVanilla(liq))) arr.push(liq);
       });
       return arr;
     })();
@@ -215,7 +214,7 @@
       const arr = [];
       DB_item.db["param"]["fuel"]["fluid"].forEachRow(2, (nm, params) => {
         let liq = MDL_content._ct(nm, "rs");
-        if(liq != null && liq.gas && (MDL_util._cfg("load-ore-dict") ? true : !MDL_cond._isVanilla(liq))) arr.push(liq);
+        if(liq != null && liq.gas && (fetchSetting("load-ore-dict") ? true : !MDL_cond._isVanilla(liq))) arr.push(liq);
       });
       return arr;
     })();

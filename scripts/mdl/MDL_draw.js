@@ -715,8 +715,8 @@
     let
       x_fi = x - Vars.tilesize * 0.5 * size,
       y_fi = y + Vars.tilesize * 0.5 * size,
-      w = rs.uiIcon.width * rs.uiIcon.scl() * 0.75,
-      h = rs.uiIcon.height * rs.uiIcon.scl() * 0.75;
+      w = rs.uiIcon.width >= rs.uiIcon.height ? 8.0 : (rs.uiIcon.width / rs.uiIcon.height * 8.0),
+      h = rs.uiIcon.height >= rs.uiIcon.width ? 8.0 : (rs.uiIcon.height / rs.uiIcon.width * 8.0);
 
     processZ(z);
 
@@ -1016,27 +1016,19 @@
    * ---------------------------------------- */
   const _d_line = function(
     x1, y1, x2, y2,
-    color_gn, a, isDashed, noBot, z
+    color_gn, a, isDashed, z
   ) {
     if(a == null) a = 1.0;
     if(z == null) z = Layer.effect + VAR.lay_offDraw;
 
-    let amtSeg = !isDashed ? 0 : Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0);
-
     processZ(z);
 
-    if(!noBot) {
-      Lines.stroke(3.0, Pal.gray);
-      Draw.alpha(a);
-      isDashed ?
-        Lines.dashLine(x1, y1, x2, y2, amtSeg) :
-        Lines.line(x1, y1, x2, y2);
-    };
+    Lines.stroke(3.0, Pal.gray);
+    Draw.alpha(a);
+    LCDraw.line(x1, y1, x2, y2, isDashed);
     Lines.stroke(1.0, MDL_color._color(tryVal(color_gn, Pal.accent)));
     Draw.alpha(a);
-    isDashed ?
-      Lines.dashLine(x1, y1, x2, y2, amtSeg) :
-      Lines.line(x1, y1, x2, y2);
+    LCDraw.line(x1, y1, x2, y2, isDashed);
     Draw.reset();
 
     processZ(z);
@@ -1061,9 +1053,7 @@
 
     Lines.stroke(stroke, MDL_color._color(tryVal(color_gn, Pal.accent)));
     Draw.alpha(0.35 + Math.sin(Time.globalTime / scl * 15.0) * 0.25);
-    isDashed ?
-      Lines.dashLine(x1, y1, x2, y2, !isDashed ? 0 : Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0)) :
-      Lines.line(x1, y1, x2, y2);
+    LCDraw.line(x1, y1, x2, y2, isDashed);
     Draw.reset();
 
     processZ(z);
@@ -1182,48 +1172,27 @@
    * Ordinary rectangular range indicator.
    * {2 * r + size} is the total width in blocks.
    * ---------------------------------------- */
-  const _d_rect = function thisFun(
+  const _d_rect = function(
     x, y,
-    r, size, color_gn, a, isDashed, noBot, z
+    r, size, color_gn, a, isDashed, z
   ) {
     if(r == null) r = 0;
     if(size == null) size = 1;
     if(a == null) a = 1.0;
     if(z == null) z = Layer.effect + VAR.lay_offDraw;
 
-    let
-      hw = (size * 0.5 + r) * Vars.tilesize,
-      amtSeg = !isDashed ? 0 : (size + r * 2) * 2;
-
     processZ(z);
 
-    if(!noBot) {
-      Lines.stroke(3.0, Pal.gray);
-      Draw.alpha(a);
-      thisFun.tmpFun(x, y, hw, isDashed, amtSeg);
-    };
+    Lines.stroke(3.0, Pal.gray);
+    Draw.alpha(a);
+    LCDraw.rect(x, y, r, size, isDashed);
     Lines.stroke(1.0, MDL_color._color(tryVal(color_gn, Pal.accent)));
     Draw.alpha(a);
-    thisFun.tmpFun(x, y, hw, isDashed, amtSeg);
+    LCDraw.rect(x, y, r, size, isDashed);
     Draw.reset();
 
     processZ(z);
-  }
-  .setProp({
-    tmpFun: (x, y, hw, isDashed, amtSeg) => {
-      if(isDashed) {
-        Lines.dashLine(x - hw, y - hw, x + hw, y - hw, amtSeg);
-        Lines.dashLine(x + hw, y - hw, x + hw, y + hw, amtSeg);
-        Lines.dashLine(x + hw, y + hw, x - hw, y + hw, amtSeg);
-        Lines.dashLine(x - hw, y + hw, x - hw, y - hw, amtSeg);
-      } else {
-        Lines.line(x - hw, y - hw, x + hw, y - hw);
-        Lines.line(x + hw, y - hw, x + hw, y + hw);
-        Lines.line(x + hw, y + hw, x - hw, y + hw);
-        Lines.line(x - hw, y + hw, x - hw, y - hw);
-      };
-    },
-  });
+  };
   exports._d_rect = _d_rect;
 
 
@@ -1256,7 +1225,7 @@
    * ---------------------------------------- */
   const _d_circle = function(
     x, y,
-    rad, color_gn, a, isDashed, noBot, z
+    rad, color_gn, a, isDashed, z
   ) {
     if(rad == null) rad = 0.0;
     if(rad < 0.0001) return;
@@ -1265,18 +1234,12 @@
 
     processZ(z);
 
-    if(!noBot) {
-      Lines.stroke(3.0, Pal.gray);
-      Draw.alpha(a);
-      isDashed ?
-        Lines.dashCircle(x, y, rad) :
-        Lines.circle(x, y, rad);
-    };
+    Lines.stroke(3.0, Pal.gray);
+    Draw.alpha(a);
+    LCDraw.circle(x, y, rad, isDashed);
     Lines.stroke(1.0, MDL_color._color(tryVal(color_gn, Pal.accent)));
     Draw.alpha(a);
-    isDashed ?
-      Lines.dashCircle(x, y, rad) :
-      Lines.circle(x, y, rad);
+    LCDraw.circle(x, y, rad, isDashed);
     Draw.reset();
 
     processZ(z);
@@ -1315,7 +1278,7 @@
     processZ(z);
 
     Draw.color(MDL_color._color(tryVal(color_gn, Pal.accent)), a * 0.7);
-    Fill.rect(x, y, size * Vars.tilesize, size * Vars.tilesize);
+    LCDraw.area(x, y, size);
     Draw.color();
 
     processZ(z);
@@ -1336,11 +1299,13 @@
     if(t == null) return;
     if(size == null) size = 1;
 
-    let
-      off = size % 2 === 0 ? 4.0 : 0.0,
-      size_fi = (0.75 + Math.sin(Time.globalTime * 0.065) * 0.15) * size;
+    let off = size % 2 === 0 ? 4.0 : 0.0;
 
-    _d_area(t.worldx() + off, t.worldy() + off, size_fi, color_gn, a, z);
+    _d_area(
+      t.worldx() + off, t.worldy() + off,
+      (0.75 + Math.sin(Time.globalTime * 0.065) * 0.15) * size,
+      color_gn, a, z,
+    );
   };
   exports._d_areaShrink = _d_areaShrink;
 
@@ -1359,12 +1324,10 @@
     if(a == null) a = 1.0;
     if(z == null) z = Layer.effect + VAR.lay_offDraw;
 
-    let w = b.block.size * Vars.tilesize - pad * 2.0;
-
     processZ(z);
 
     Draw.color(MDL_color._color(tryVal(color_gn, Pal.accent)), a * 0.5);
-    Fill.rect(b.x, b.y, w, w);
+    LCDraw.area(b.x, b.y, b.block.size - pad * 2.0 / Vars.tilesize);
     Draw.color();
 
     processZ(z);
@@ -1395,7 +1358,7 @@
     processZ(z);
 
     Draw.color(MDL_color._color(tryVal(color_gn, Pal.accent)), Mathf.lerp(a, 0.0, frac));
-    Fill.circle(x, y, Mathf.lerp(0.0, rad, frac));
+    LCDraw.disk(x, y, Mathf.lerp(0.0, rad, frac));
     Draw.color();
 
     processZ(z);
@@ -1425,7 +1388,7 @@
       MDL_color._color(tryVal(color_gn, Pal.remove)),
       a * (0.15 + Math.sin(Time.globalTime / scl / 15.0) * 0.15),
     );
-    Fill.circle(x, y, rad);
+    LCDraw.disk(x, y, rad);
     Draw.color();
 
     processZ(z);
@@ -1643,9 +1606,10 @@
    * ---------------------------------------- */
   const _d_progRing = function(
     x, y, frac,
-    rad, ang, color_gn, a, noBot, rev, stroke_ow, z
+    stroke, rad, ang, color_gn, a, rev, z
   ) {
     if(frac == null) return;
+    if(stroke == null) stroke = 5.0;
     if(rad == null) rad = 24.0;
     if(ang == null) ang = 0.0;
     if(a == null) a = 1.0;
@@ -1654,39 +1618,25 @@
 
     let
       color = MDL_color._color(tryVal(color_gn, Pal.accent)),
-      sideAmt = Lines.circleVertices(rad) * (noBot ? 2 : 1),
-      angSide = 360.0 / sideAmt * (rev ? -1.0 : 1.0),
-      iCap = Math.round(sideAmt * Mathf.clamp(frac)),
-      stroke = tryVal(stroke_ow, 5.0),
-      radIn = rad - stroke * 0.5 * (noBot ? 1.0 : 0.6),
-      radOut = rad + stroke * 0.5 * (noBot ? 1.0 : 0.6);
+      radIn = rad - stroke * 0.3,
+      radOut = rad + stroke * 0.3;
 
     processZ(z);
 
-    if(!noBot) {
-      Lines.stroke(stroke, Pal.gray);
-      Draw.alpha(a * 0.7);
-      Lines.circle(x, y, rad);
-      Lines.stroke(stroke * 0.6, color);
-      Draw.alpha(a * 0.2);
-      Lines.circle(x, y, rad);
-    };
+    Lines.stroke(stroke, Pal.gray);
+    Draw.alpha(a * 0.7);
+    Lines.circle(x, y, rad);
+    Lines.stroke(stroke * 0.6, color);
+    Draw.alpha(a * 0.2);
+    Lines.circle(x, y, rad);
     Draw.color(color);
-    Draw.alpha(noBot ? 1.0 : 0.7);
-    let ang_i;
-    for(let i = 0; i < iCap; i++) {
-      ang_i = angSide * i + ang;
-      Fill.quad(
-        x + radIn * Mathf.cosDeg(ang_i),
-        y + radIn * Mathf.sinDeg(ang_i),
-        x + radIn * Mathf.cosDeg(ang_i + angSide),
-        y + radIn * Mathf.sinDeg(ang_i + angSide),
-        x + radOut * Mathf.cosDeg(ang_i + angSide),
-        y + radOut * Mathf.sinDeg(ang_i + angSide),
-        x + radOut * Mathf.cosDeg(ang_i),
-        y + radOut * Mathf.sinDeg(ang_i),
-      );
-    };
+    Draw.alpha(a * 0.7);
+    LCDraw.ring(
+      x, y,
+      rad - stroke * 0.3,
+      rad + stroke * 0.3,
+      ang, frac, rev,
+    );
     Draw.reset();
 
     processZ(z);
@@ -1868,7 +1818,7 @@
         _d_progRing(
           x, y_sta,
           Mathf.clamp(1.0 - (e == null ? 0.0 : e.getDuration(stackSta)) / stackSta.ex_getBurstTime()),
-          2.75, 90.0, Color.white, 1.0, false, true, 2.25,
+          2.25, 2.75, 90.0, Color.white, 1.0, true,
         );
         Draw.rect(stackSta.uiIcon, x, y_sta, 4.0, 4.0);
       };

@@ -156,15 +156,15 @@
 
 
       write: function(wr) {
-        let lovecRevi = processRevision(wr);
-        this.ex_processData(wr, lovecRevi);
+        let LCRevi = processRevision(wr);
+        this.ex_processData(wr, LCRevi);
         wr.f(this.presAllowFrac);
       },
 
 
       read: function(rd, revi) {
-        let lovecRevi = processRevision(rd);
-        this.ex_processData(rd, lovecRevi);
+        let LCRevi = processRevision(rd);
+        this.ex_processData(rd, LCRevi);
         this.presAllowFrac = rd.f();
       },
 

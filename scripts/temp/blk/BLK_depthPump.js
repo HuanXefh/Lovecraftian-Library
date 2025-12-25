@@ -185,8 +185,8 @@
 
       read: function thisFun(rd, revi) {
         // This hell is for backwards compatibility, I can't read it either
-        let lovecRevi = processRevision(rd);
-        if(lovecRevi < 1) {
+        let LCRevi = processRevision(rd);
+        if(LCRevi < 1) {
           rd.f();
           thisFun.funPrev.apply(this, [rd, revi]);
           rd.s();

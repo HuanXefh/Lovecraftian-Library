@@ -12,7 +12,6 @@
 
 
   const MDL_event = require("lovec/mdl/MDL_event");
-  const MDL_util = require("lovec/mdl/MDL_util");
 
 
   /* <---------- base ----------> */
@@ -58,7 +57,7 @@
     exports.secFive = timer_gn.get(5, 300.0);
     exports.min = timer_gn.get(6, 3600.0);
     exports.minTwo = timer_gn.get(7, 7200.0);
-    exports.effc = timer_effc.get(0, MDL_util._cfg("interval-efficiency", true));
+    exports.effc = timer_effc.get(0, fetchSetting("interval-efficiency", true));
     exports.rsCur = timer_effc.get(1, 180.0);
     exports.liq = timer_effc.get(2, VAR.time_liqIntv);
     exports.heat = timer_effc.get(3, VAR.time_heatIntv);

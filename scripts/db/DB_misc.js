@@ -2,6 +2,7 @@
 const LIB_pinyin = require("lovec/lib/LIB_pinyin");
 const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_cond = require("lovec/mdl/MDL_cond");
+const MDL_text = require("lovec/mdl/MDL_text");
 const DB_item = require("lovec/db/DB_item");
 const DB_fluid = require("lovec/db/DB_fluid");
 
@@ -46,8 +47,8 @@ const db = {
         if(itm == null) return;
 
         return String.multiline(
-          MDL_cond._isDepthOre(t.overlay()) ? null : (MDL_bundle._term("lovec", "ore") + ": " + itm.localizedName.plain()),
-          MDL_bundle._term("lovec", "ore-hardness") + ": " + itm.hardness,
+          MDL_cond._isDepthOre(t.overlay()) ? null : (MDL_bundle._term("lovec", "ore") + MDL_text._colon() + itm.localizedName.plain()),
+          MDL_bundle._term("lovec", "ore-hardness") + MDL_text._colon() + itm.hardness,
         );
       },
 
@@ -57,8 +58,8 @@ const db = {
         if(liq == null) return;
 
         return String.multiline(
-          MDL_bundle._term("lovec", "liquid") + ": " + liq.localizedName.plain(),
-          MDL_bundle._term("lovec", "liquid-multiplier") + ": " + t.floor().liquidMultiplier.perc(),
+          MDL_bundle._term("lovec", "liquid") + MDL_text._colon() + liq.localizedName.plain(),
+          MDL_bundle._term("lovec", "liquid-multiplier") + MDL_text._colon() + t.floor().liquidMultiplier.perc(),
         );
       },
 
@@ -69,7 +70,7 @@ const db = {
         if(itm == null) return;
 
         return String.multiline(
-          MDL_bundle._term("lovec", "item") + ": " + itm.localizedName.plain(),
+          MDL_bundle._term("lovec", "item") + MDL_text._colon() + itm.localizedName.plain(),
         );
       },
 
@@ -190,7 +191,7 @@ const db = {
           rowInd: 0,
           icon: "lovec-icon-health",
           clickScr: function() {
-            Core.settings.put("lovec-unit0stat-show", !global.lovec.mdl_util._cfg("unit0stat-show"));
+            Core.settings.put("lovec-unit0stat-show", !fetchSetting("unit0stat-show"));
             global.lovec.param.forceLoadParam();
           },
         },
@@ -199,7 +200,7 @@ const db = {
           rowInd: 0,
           icon: "lovec-icon-range",
           clickScr: function() {
-            Core.settings.put("lovec-unit0stat-range", !global.lovec.mdl_util._cfg("unit0stat-range"));
+            Core.settings.put("lovec-unit0stat-range", !fetchSetting("unit0stat-range"));
             global.lovec.param.forceLoadParam();
           },
         },
@@ -281,64 +282,6 @@ const db = {
 
 
   /* <------------------------------ CHUNK SPLITTER ------------------------------ */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * List of config names and their value getters.
-   * Used in {MDL_util._cfg}.
-   * ---------------------------------------- */
-  config: [
-
-    "test-draw", useScl => Core.settings.getBool("lovec-test-draw", false),
-    "test-memory", useScl => Core.settings.getBool("lovec-test-memory", false),
-    "test0error-shader", useScl => Core.settings.getBool("lovec-test0error-shader", false),
-    "load-ore-dict", useScl => Core.settings.getBool("lovec-load-ore-dict", false),
-    "load-ore-dict-def", useScl => Core.settings.getBool("lovec-load-ore-dict-def", true),
-
-    "load-vanilla-flyer", useScl => Core.settings.getBool("lovec-load-vanilla-flyer", false),
-    "load-colored-name", useScl => Core.settings.getBool("lovec-load-colored-name", true),
-    "load-force-modded", useScl => Core.settings.getBool("lovec-load-force-modded", false),
-
-    "interval-efficiency", useScl => Core.settings.getInt("lovec-interval-efficiency", 5) * (useScl ? 6.0 : 1.0),
-
-    "draw-wobble", useScl => Core.settings.getBool("lovec-draw-wobble", false),
-    "draw0loot-static", useScl => Core.settings.getBool("lovec-draw0loot-static", true),
-    "draw0loot-amount", useScl => Core.settings.getBool("lovec-draw0loot-amount", true),
-    "draw0tree-alpha", useScl => Core.settings.getInt("lovec-draw0tree-alpha", 10) * (useScl ? 0.1 : 1.0),
-    "draw0tree-player", useScl => Core.settings.getBool("lovec-draw0tree-player", true),
-    "draw0aux-extra-info", useScl => Core.settings.getBool("lovec-draw0aux-extra-info", true),
-    "draw0aux-bridge", useScl => Core.settings.getBool("lovec-draw0aux-bridge", true),
-    "draw0aux-router", useScl => Core.settings.getBool("lovec-draw0aux-router", true),
-    "draw0aux-scanner", useScl => Core.settings.getBool("lovec-draw0aux-scanner", true),
-    "draw0aux-fluid-heat", useScl => Core.settings.getBool("lovec-draw0aux-fluid-heat", true),
-    "draw0aux-furnace-heat", useScl => Core.settings.getBool("lovec-draw0aux-furnace-heat", true),
-
-    "icontag-flicker", useScl => Core.settings.getBool("lovec-icontag-flicker", true),
-    "icontag-interval", useScl => Core.settings.getInt("lovec-icontag-interval", 4) * (useScl ? 10.0 : 1.0),
-
-    "damagedisplay-show", useScl => Core.settings.getBool("lovec-damagedisplay-show", true),
-    "damagedisplay-min", useScl => Core.settings.getInt("lovec-damagedisplay-min", 0) * (useScl ? 20.0 : 1.0),
-
-    "unit0stat-show", useScl => Core.settings.getBool("lovec-unit0stat-show", true),
-    "unit0stat-range", useScl => Core.settings.getBool("lovec-unit0stat-range", true),
-    "unit0stat-player", useScl => Core.settings.getBool("lovec-unit0stat-player", true),
-    "unit0stat-reload", useScl => Core.settings.getBool("lovec-unit0stat-reload", true),
-    "unit0stat-missile", useScl => Core.settings.getBool("lovec-unit0stat-missile", false),
-    "unit0stat-build", useScl => Core.settings.getBool("lovec-unit0stat-build", true),
-    "unit0stat-mouse", useScl => Core.settings.getBool("lovec-unit0stat-mouse", true),
-    "unit0stat-minimalistic", useScl => Core.settings.getBool("lovec-unit0stat-minimalistic", false),
-    "unit0remains-lifetime", useScl => Core.settings.getInt("lovec-unit0remains-lifetime", 36) * (useScl ? 300.0 : 1.0),
-    "unit0remains-building", useScl => Core.settings.getBool("lovec-unit0remains-building", true),
-
-    "window-show", useScl => Core.settings.getBool("lovec-window-show", true),
-
-    "misc-title-name", useScl => Core.settings.getString("lovec-misc-title-name", "Mindustry"),
-    "misc-title-map", useScl => Core.settings.getBool("lovec-misc-title-map", true),
-    "misc-secret-code", useScl => Core.settings.getString("lovec-misc-secret-code", ""),
-
-  ],
 
 
   search: {
@@ -520,7 +463,7 @@ const db = {
     produceReader: [
 
       Drill, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => ((oblk instanceof Floor && !(oblk instanceof OverlayFloor)) || (oblk instanceof OverlayFloor && !oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, Math.pow(blk.size, 2) * (blk instanceof BurstDrill ? 1.0 : blk.drillTime / blk.getDrillTime(itm)), {"icon": "lovec-icon-mining"}));
+        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => ((oblk instanceof Floor && !(oblk instanceof OverlayFloor)) || (oblk instanceof OverlayFloor && !oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, Math.pow(blk.size, 2) * (blk instanceof BurstDrill ? 1.0 : blk.drillTime / blk.getDrillTime(itm)), {icon: "lovec-icon-mining"}));
       },
 
       BeamDrill, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {

@@ -86,6 +86,7 @@
   const TP_dialFlow = require("lovec/tp/TP_dialFlow");
   const TP_drawer = require("lovec/tp/TP_drawer");
   const TP_keyBind = require("lovec/tp/TP_keyBind");
+  const TP_setting = require("lovec/tp/TP_setting");
   const TP_stat = require("lovec/tp/TP_stat");
 
 
@@ -120,7 +121,7 @@
 
 
     // Initialize game window title
-    MDL_backend.setWinTitle(null, "[$1][$2]".format(MDL_util._cfg("misc-title-name"), !MDL_util._cfg("misc-title-map") ? "" : ": menu"));
+    MDL_backend.setWinTitle(null, "[$1][$2]".format(fetchSetting("misc-title-name"), !fetchSetting("misc-title-map") ? "" : ": menu"));
 
 
     // Map reading fallback addition
@@ -128,9 +129,9 @@
 
 
     // Set up ore dictionary, EXPERIMENTAL!
-    if(PARAM.modded && MDL_util._cfg("load-ore-dict")) (function() {
+    if(PARAM.modded && fetchSetting("load-ore-dict")) (function() {
       Log.info("[LOVEC] " + "Ore dictionary".color(Pal.accent) + " is enabled.");
-      if(!MDL_util._cfg("load-ore-dict-def")) Log.info("[LOVEC] Skipped default lists for ore dictionary.");
+      if(!fetchSetting("load-ore-dict-def")) Log.info("[LOVEC] Skipped default lists for ore dictionary.");
 
       let dir = MDL_file.sharedData.child("ore-dict").child("default");
       let verCur = fetchMod("lovec").meta.version;
@@ -153,7 +154,7 @@
         MDL_file._w_txt(dir.child("README.txt"), "Do not put files here, which may get overwritten!\nCustomized lists should be in ./saves/mods/data/sharedData/ore-dict!");
       };
 
-      let fiSeq = dir.parent().findAll(fi => fi.extension() === "csv" && (MDL_util._cfg("load-ore-dict-def") ? true : fi.parent() !== dir));
+      let fiSeq = dir.parent().findAll(fi => fi.extension() === "csv" && (fetchSetting("load-ore-dict-def") ? true : fi.parent() !== dir));
       fiSeq.each(fi => {
         let ct = Vars.content.byName(fi.nameWithoutExtension());
         if(ct == null) return;
@@ -242,7 +243,7 @@
 
 
     // Something
-    if(!Vars.headless && PARAM.modded && !MDL_util._cfg("load-vanilla-flyer")) {
+    if(!Vars.headless && PARAM.modded && !fetchSetting("load-vanilla-flyer")) {
       Reflect.set(MenuRenderer, Reflect.get(Vars.ui.menufrag, "renderer"), "flyerType", Vars.content.unit(DB_misc.db["mod"]["menuFlyer"].readRand()));
     };
 
@@ -286,7 +287,7 @@
 
 
     // Set up name colors
-    if(!Vars.headless && MDL_util._cfg("load-colored-name")) {
+    if(!Vars.headless && fetchSetting("load-colored-name")) {
       Core.app.post(() => {
         let fetchColor = rs => {
           let tmp = (rs.color.r + rs.color.g + rs.color.b) / 3.0;
@@ -371,66 +372,9 @@
     });
 
 
-    // Set up settings
+    // Initialize some settings
     (function() {
       Core.settings.put("lovec-window-show", true);
-
-      let settings = Vars.ui.settings;
-
-      // Debug settings
-      if(PARAM.debug) settings.addCategory(MDL_bundle._term("lovec", "settings-debug"), tb => {
-        tb.checkPref("lovec-test-draw", false);
-        tb.checkPref("lovec-test-todo", false);
-        tb.checkPref("lovec-test-memory", false);
-        tb.checkPref("lovec-test0error-shader", false);
-
-        tb.checkPref("lovec-load-ore-dict", false);
-        tb.checkPref("lovec-load-ore-dict-def", true);
-      });
-      // Visual settings
-      settings.addCategory(MDL_bundle._term("lovec", "settings-visual"), tb => {
-        tb.checkPref("lovec-load-colored-name", true);
-
-        tb.checkPref("lovec-draw-wobble", false);
-        tb.checkPref("lovec-draw0loot-static", true);
-        tb.checkPref("lovec-draw0loot-amount", true);
-        tb.sliderPref("lovec-draw0tree-alpha", 10, 0, 10, val => Strings.fixed(val * 10.0, 0) + "%");
-        tb.checkPref("lovec-draw0tree-player", true);
-        tb.checkPref("lovec-draw0aux-bridge", true);
-        tb.checkPref("lovec-draw0aux-router", true);
-        tb.checkPref("lovec-draw0aux-fluid-heat", true);
-        tb.checkPref("lovec-draw0aux-furnace-heat", true);
-      });
-      // Misc settings
-      settings.addCategory(MDL_bundle._term("lovec", "settings-misc"), tb => {
-        tb.checkPref("lovec-load-vanilla-flyer", false);
-        tb.checkPref("lovec-load-force-modded", false);
-
-        tb.sliderPref("lovec-interval-efficiency", 5, 1, 15, val => Strings.fixed(val * 0.1, 2) + "s");
-
-        tb.checkPref("lovec-draw0aux-extra-info", true);
-
-        tb.checkPref("lovec-icontag-flicker", true);
-        tb.sliderPref("lovec-icontag-interval", 4, 1, 12, val => Strings.fixed(val * 0.33333333, 2) + "s");
-
-        tb.checkPref("lovec-damagedisplay-show", true);
-        tb.sliderPref("lovec-damagedisplay-min", 0, 0, 50, val => Strings.fixed(val * 20.0, 0));
-
-        tb.checkPref("lovec-unit0stat-show", true);
-        tb.checkPref("lovec-unit0stat-range", true);
-        tb.checkPref("lovec-unit0stat-player", true);
-        tb.checkPref("lovec-unit0stat-reload", true);
-        tb.checkPref("lovec-unit0stat-missile", false);
-        tb.checkPref("lovec-unit0stat-build", true);
-        tb.checkPref("lovec-unit0stat-mouse", true);
-        tb.checkPref("lovec-unit0stat-minimalistic", false);
-        tb.sliderPref("lovec-unit0remains-lifetime", 36, 0, 120, val => Strings.fixed(val * 5.0, 0) + "s");
-        tb.checkPref("lovec-unit0remains-building", true);
-
-        tb.textPref("lovec-misc-title-name", "Mindustry");
-        tb.checkPref("lovec-misc-title-map", true);
-        tb.areaTextPref("lovec-misc-secret-code", "");
-      });
     })();
 
 

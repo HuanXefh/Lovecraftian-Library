@@ -165,6 +165,17 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Whether this resource is a link fluid (abstract fluid used for non-square building).
+   * ---------------------------------------- */
+  const _isLinkFluid = function(rs_gn) {
+    return matchTag(rs_gn, "rs-link", "rs");
+  };
+  exports._isLinkFluid = _isLinkFluid;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether this resource contains water.
    * ---------------------------------------- */
   const _isAqueousLiquid = function(rs_gn) {
@@ -547,6 +558,17 @@
     return matchTag(blk_gn, "blk-fac", "blk");
   };
   exports._isFactory = _isFactory;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether this block is a link component factory.
+   * ---------------------------------------- */
+  const _isLinkComponent = function(blk_gn) {
+    return matchTag(blk_gn, "blk-link0fac", "blk");
+  };
+  exports._isLinkComponent = _isLinkComponent;
 
 
   /* ----------------------------------------

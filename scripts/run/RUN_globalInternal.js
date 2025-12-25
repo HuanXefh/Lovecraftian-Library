@@ -130,8 +130,11 @@
 
 
       lovecUnits: [],
+
+
       keyBindListener: [],
       dialFlow: [],
+      settingTerm: [],
 
 
       weaponTemplate: [],

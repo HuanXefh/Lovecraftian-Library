@@ -18,10 +18,7 @@ const CLS_eventTrigger = newClass().initClass();
 
 
 CLS_eventTrigger.prototype.init = function(nm) {
-  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.throw("notUniqueName", nm, "event trigger");
-  insNms.push(nm);
-  this.name = nm;
-
+  this.name = registerUniqueName(nm, insNms, "event trigger");
   this.listeners = [];
   this.glbListeners = [];
   this.onceListeners = [];

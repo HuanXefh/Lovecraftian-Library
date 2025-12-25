@@ -107,7 +107,7 @@
       }),
 
 
-      ex_processData: function(wr0rd, lovecRevi) {
+      ex_processData: function(wr0rd, LCRevi) {
         // Do nothing
       }
       .setProp({

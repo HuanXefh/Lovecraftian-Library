@@ -210,9 +210,9 @@
       }),
 
 
-      ex_processData: function(wr0rd, lovecRevi) {
+      ex_processData: function(wr0rd, LCRevi) {
         processData(
-          wr0rd, lovecRevi,
+          wr0rd, LCRevi,
           (wr, revi) => {
             wr.i(this.lootCharge);
           },

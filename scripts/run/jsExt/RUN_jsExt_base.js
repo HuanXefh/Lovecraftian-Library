@@ -10,7 +10,7 @@
 
 /*
   ========================================
-  Section: Application
+  Section: Definition
   ========================================
 */
 
@@ -146,7 +146,7 @@
   setHiddenProp(ptp, "cloneProp", function(objOld) {
     return Object.cloneProp(this, objOld);
   });
-  
+
 
   /* <---------- number ----------> */
 

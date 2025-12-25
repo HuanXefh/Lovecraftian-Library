@@ -15,7 +15,7 @@
 
 
   function toggleSetting(nmCfg) {
-    Core.settings.put("lovec-" + nmCfg, !global.lovec.mdl_util._cfg(nmCfg));
+    Core.settings.put("lovec-" + nmCfg, !fetchSetting(nmCfg));
     global.lovec.param.forceLoadParam();
   };
 

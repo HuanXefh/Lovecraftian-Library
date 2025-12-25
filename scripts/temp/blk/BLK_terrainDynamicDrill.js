@@ -47,7 +47,7 @@
           terItmMap.each((ter, nmRs) => {
             let rs = MDL_content._ct(nmRs, "rs");
             if(rs == null) return;
-            MDL_recipeDict.addItmProdTerm(blk, rs, Math.pow(blk.size, 2) * blk.drillTime / blk.getDrillTime(rs), 1.0, {"icon": "lovec-icon-mining"});
+            MDL_recipeDict.addItmProdTerm(blk, rs, Math.pow(blk.size, 2) * blk.drillTime / blk.getDrillTime(rs), 1.0, {icon: "lovec-icon-mining"});
           });
         });
       });

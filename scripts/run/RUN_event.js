@@ -124,13 +124,17 @@
               Draw.color(unit.team.color, 0.1);
               Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0);
               Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0 + 180.0);
-              MDL_draw._d_circle(unit.x, unit.y, wp.bullet.splashDamageRadius, Pal.accent, 0.35, false, true);
+              Line.stroke(1.0);
+              Draw.color(Pal.accent, 0.35);
+              LCDraw.circle(unit.x, unit.y, wp.bullet.splashDamageRadius, false);
             };
           });
-          Draw.reset();
           if(!hasAnyMountShown) {
-            MDL_draw._d_circle(unit.x, unit.y, unit.range(), Pal.accent, 0.35, false, true);
+            Line.stroke(1.0);
+            Draw.color(Pal.accent, 0.35);
+            LCDraw.circle(unit.x, unit.y, unit.range(), false);
           };
+          Draw.reset();
 
           Draw.z(z);
         };
@@ -224,7 +228,10 @@
         if(hasReload) MDL_draw._d_reload(b, null, Pal.techBlue, 1.0, -16.0, -1.25 + VAR.r_offBuildStat, MDL_entity._reloadFrac(b));
         MDL_draw._d_reload(b, null, Pal.accent, 1.0, -16.0, (hasReload ? -0.25 : -1.25) + VAR.r_offBuildStat, MDL_entity._warmupFrac(b, true));
       };
-      MDL_draw._d_rect(b.x, b.y, VAR.r_offBuildStat, b.block.size, Pal.accent, 0.5, false, true);
+      Lines.stroke(1.0);
+      Draw.color(Pal.accent, 0.5);
+      LCDraw.rect(b.x, b.y, VAR.r_offBuildStat, b.block.size, false);
+      Draw.reset();
     },
   });
 

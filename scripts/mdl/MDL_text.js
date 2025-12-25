@@ -27,13 +27,29 @@
   }
   .setProp({
     noSpaceLocales: [
-      "zh_CN",
-      "zh_TW",
+      "zh_CN", "zh_TW",
       "ja",
       "ko",
     ],
   });
   exports._space = _space;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a colon character based on current locale.
+   * ---------------------------------------- */
+  const _colon = function() {
+    switch(global.lovecUtil.prop.locale) {
+      case "zh_CN" : return "：";
+      case "zh_TW" : return "：";
+      case "ja" : return "：";
+      case "ko" : return "：";
+      default : return ": ";
+    };
+  };
+  exports._colon = _colon;
 
 
   /* <---------- format (stat) ----------> */

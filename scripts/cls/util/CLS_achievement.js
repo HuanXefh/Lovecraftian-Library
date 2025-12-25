@@ -27,10 +27,8 @@ const CLS_achievement = newClass().initClass();
 CLS_achievement.prototype.init = function(nmMod, nm, icon, trigger, listener) {
   const thisIns = this;
 
-  if(nm == null || insNms.includes(nm)) ERROR_HANDLER.throw("notUniqueName", nm, "achievement");
-  insNms.push(nm);
   if(fetchMod(nmMod, true) == null) ERROR_HANDLER.throw("noModFound", nmMod);
-  this.name = nmMod + "-" + nm;
+  this.name = nmMod + "-" + registerUniqueName(nm, insNms, "achievement");
   this.mod = nmMod;
 
   this.icon = tryVal(icon, VARGEN.icons.ohno);

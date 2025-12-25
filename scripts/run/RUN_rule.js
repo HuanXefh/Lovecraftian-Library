@@ -29,7 +29,6 @@
 
   const MDL_backend = require("lovec/mdl/MDL_backend");
   const MDL_event = require("lovec/mdl/MDL_event");
-  const MDL_util = require("lovec/mdl/MDL_util");
 
 
   const DB_env = require("lovec/db/DB_env");
@@ -94,8 +93,8 @@
     MDL_backend.setWinTitle(
       null,
       "[$1][$2]".format(
-        MDL_util._cfg("misc-title-name"),
-        !MDL_util._cfg("misc-title-map") ? "" : ": [$1]".format(nmMap === "" ? "menu" : nmMap),
+        fetchSetting("misc-title-name"),
+        !fetchSetting("misc-title-map") ? "" : ": [$1]".format(nmMap === "" ? "menu" : nmMap),
       ),
     );
   });
