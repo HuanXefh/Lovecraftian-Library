@@ -27,7 +27,6 @@
 
 
   const MDL_content = require("lovec/mdl/MDL_content");
-  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_table = require("lovec/mdl/MDL_table");
 
 
@@ -39,9 +38,6 @@
 
   function comp_init(itm) {
     itm.intmdParent = MDL_content._ct(itm.intmdParent, "rs");
-    MDL_event._c_onLoad(() => {
-      itm.shownPlanets.add(Vars.content.planet("lovec-pla0sun-veibrus"));
-    });
   };
 
 
@@ -68,7 +64,11 @@
     // @PARAM: The parent of this intermediate.
     intmdParent: null,
     // @PARAM: Whether to generate icons based on parent. Set this to {false} if you have sprite for the intermediate.
-    useParentRegion: true,
+    useParentReg: true,
+    // @PARAM: Determines pixmap used to generate recolored sprite, intermediate parent is required. If {null}, icon tag is used instead to distinguish intermediates.
+    recolorRegStr: null,
+
+    databaseTag: "lovec-intermediate",
   })
   .setMethod({
 
@@ -81,7 +81,7 @@
     setStats: function() {
       comp_setStats(this);
     },
-    
+
 
   })
   .setGetter("intmdParent");

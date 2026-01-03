@@ -43,6 +43,62 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Encodes this string to hexadecimal numbers.
+   * ---------------------------------------- */
+  ptp.encodeHex = function() {
+    let str = "";
+    let l, i = 0, iCap = this.iCap();
+    while(i < iCap) {
+      l = this[i];
+      str += l.charCodeAt(0).toString(16);
+      i++;
+    };
+
+    return str;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Decodes this string from hexadecimal numbers.
+   * ---------------------------------------- */
+  ptp.decodeHex = function() {
+    let str = "";
+    let l, i = 0, iCap = this.iCap();
+    while(i < iCap) {
+      l = this.substring(i, i + 2);
+      str += String.fromCharCode(parseInt(l, 16));
+      i += 2;
+    };
+
+    return str;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Encodes this string with Arc {Base64Coder}.
+   * ---------------------------------------- */
+  ptp.encode64 = function() {
+    return Base64Coder.encodeString(this);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Decodes this string with Arc {Base64Coder}.
+   * ---------------------------------------- */
+  ptp.decode64 = function() {
+    return Base64Coder.decodeString(this);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Whether the string contains any piece from {strs}.
    * ---------------------------------------- */
   ptp.includesAny = function(strs) {

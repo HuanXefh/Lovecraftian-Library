@@ -142,5 +142,5 @@
   /* <---------- misc ----------> */
 
 
-  const ADAPTER = Packages.rhino.JavaAdapter;
+  const ADAPTER = rhino.JavaAdapter;
   exports.ADAPTER = ADAPTER;

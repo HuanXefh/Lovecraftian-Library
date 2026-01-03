@@ -124,7 +124,7 @@
               Draw.color(unit.team.color, 0.1);
               Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0);
               Fill.arc(unit.x, unit.y, wp.bullet.splashDamageRadius, 0.25, Time.time * 3.0 + 180.0);
-              Line.stroke(1.0);
+              Lines.stroke(1.0);
               Draw.color(Pal.accent, PARAM.unitRangeAlpha);
               LCDraw.circle(unit.x, unit.y, wp.bullet.splashDamageRadius, false);
             };
@@ -301,7 +301,7 @@
 
 
   function evComp_destroy_buildingRemains(b) {
-    if(!PARAM.createBuildingRemains || b == null || b.block.size < 2) return;
+    if(!PARAM.createBuildingRemains || b == null || b.block instanceof ConstructBlock || b.block.size < 2) return;
     if(MDL_cond._hasNoRemains(b.block)) return;
 
     MDL_effect.showAt_remains(b.x, b.y, b, b.team);

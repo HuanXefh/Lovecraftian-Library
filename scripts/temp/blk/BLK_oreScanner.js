@@ -29,6 +29,7 @@
   const VAR = require("lovec/glb/GLB_var");
 
 
+  const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_io = require("lovec/mdl/MDL_io");
@@ -37,6 +38,9 @@
 
 
   const TP_stat = require("lovec/tp/TP_stat");
+
+
+  const DB_misc = require("lovec/db/DB_misc");
 
 
   /* <---------- component ----------> */
@@ -64,7 +68,13 @@
 
   function comp_setStats(blk) {
     blk.stats.add(Stat.range, blk.blkRad / Vars.tilesize, StatUnit.blocks);
-    blk.stats.add(TP_stat.blk0min_scanTier, blk.scanTier);
+    blk.stats.add(
+      TP_stat.blk0min_scanTier,
+      "[$1] ([$2])".format(
+        blk.scanTier,
+        MDL_bundle._term.apply(null, DB_misc.db["block"]["depthName"].read(blk.scanTier, ["lovec", "unknown"]))
+      ),
+    );
   };
 
 
@@ -164,7 +174,7 @@
       // @PARAM: Color used for scan effects.
       scanColor: Pal.techBlue,
       // @PARAM: Sound played when the scanner scans (crafts).
-      craftSe: Sounds.none,
+      craftSe: Sounds.unset,
 
       useP3dRange: true,
     })

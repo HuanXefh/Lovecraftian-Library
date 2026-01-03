@@ -66,7 +66,7 @@
     ];
 
     MDL_event._c_onLoad(() => {
-      if(!blk.shadow.found()) MDL_test._w_noCusSha(blk);
+      if(!Vars.headless && !blk.shadow.found()) MDL_test._w_noCusSha(blk);
     });
   };
 

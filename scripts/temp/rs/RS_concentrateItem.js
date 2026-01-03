@@ -56,7 +56,9 @@
   module.exports = newClass().extendClass(PARENT).initClass()
   .setParent(Item)
   .setTags("rs-intmd", "rs-ore0conc")
-  .setParam({})
+  .setParam({
+    recolorRegStr: "lovec-gen-concentrate-item",
+  })
   .setMethod({
 
 
@@ -64,5 +66,5 @@
       comp_init(this);
     },
 
-    
+
   });

@@ -43,10 +43,7 @@
     .setParent(null)
     .setTags("blk-log")
     .setParam({})
-    .setMethod({
-
-
-    }),
+    .setMethod({}),
 
 
     // Building

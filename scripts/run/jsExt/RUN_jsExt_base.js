@@ -213,9 +213,9 @@
    * Iterates through each pair in {arr1} and {arr2}.
    * ---------------------------------------- */
   cls.forEachPair = function(arr1, arr2, scr) {
-    let i = 0, iCap = arr1.iCap();
-    let j = 0, jCap = arr2.iCap();
+    let i = 0, j, iCap = arr1.iCap(), jCap = arr2.iCap();
     while(i < iCap) {
+      j = 0;
       while(j < jCap) {
         scr(arr1[i], arr2[j]);
         j++;

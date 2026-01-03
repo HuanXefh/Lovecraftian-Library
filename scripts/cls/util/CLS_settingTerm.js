@@ -45,10 +45,10 @@ MDL_event._c_onLoad(() => {
     });
   };
 
+  categSetterArr.forEachRow(3, (nmMod, nmCateg, terms) => buildCateg(nmMod, nmCateg, terms));
   if(PARAM.debug) {
-    categSetterArr.forEachRow(3, (nmMod, nmCateg, terms) => buildCateg(nmMod, nmCateg, terms));
+    categSetterDebugArr.forEachRow(3, (nmMod, nmCateg, terms) => buildCateg(nmMod, nmCateg, terms));
   };
-  categSetterDebugArr.forEachRow(3, (nmMod, nmCateg, terms) => buildCateg(nmMod, nmCateg, terms));
 }, 19880207);
 
 

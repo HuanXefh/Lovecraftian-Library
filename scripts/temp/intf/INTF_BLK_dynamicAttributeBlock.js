@@ -75,8 +75,8 @@
           if(rs == null) return;
 
           rs instanceof Item ?
-            MDL_recipeDict.addItmProdTerm(blk, rs, blk.ex_getDynaAttrProdAmt(rs), 1.0, {"time": blk.ex_getCraftTime()}) :
-            MDL_recipeDict.addFldProdTerm(blk, rs, blk.ex_getDynaAttrProdAmt(rs));
+            MDL_recipeDict.addItmProdTerm(blk, rs, blk.ex_getDynaAttrProdAmt(rs), 1.0, {time: blk.ex_getCraftTime() / blk.dynaAttrRsEffcMap.get(rs.name, 1.0)}) :
+            MDL_recipeDict.addFldProdTerm(blk, rs, blk.ex_getDynaAttrProdAmt(rs) * blk.dynaAttrRsEffcMap.get(rs.name, 1.0));
         });
       });
     });
@@ -107,11 +107,12 @@
           "",
           MDL_bundle._term("lovec", "resource"),
           TP_stat.blk_attrReq.localized(),
+          MDL_bundle._term("lovec", "efficiency-multiplier"),
         ]];
         blk.attrRsMap.forEachRow(2, (nmAttr, nmRs) => {
           let rs = MDL_content._ct(nmRs, "rs");
           if(rs == null) return;
-          matArr.push([rs, rs.localizedName, MDL_attr._attrB(nmAttr)]);
+          matArr.push([rs, rs.localizedName, MDL_attr._attrB(nmAttr), blk.dynaAttrRsEffcMap.get(rs.name, 1.0).percColor(0)]);
         });
 
         return matArr;
@@ -204,6 +205,9 @@
 
   function comp_updateEfficiencyMultiplier(b) {
     b.efficiency *= b.dynaAttrEffc;
+    if(b.dynaAttrRs != null) {
+      b.efficiency *= b.block.ex_getDynaAttrRsEffcMap().get(b.dynaAttrRs.name, 1.0);
+    };
   };
 
 
@@ -222,7 +226,7 @@
 
 
   function comp_ex_postUpdateEfficiencyMultiplier(b) {
-    b.efficiency *= b.dynaAttrEffc;
+    comp_updateEfficiencyMultiplier(b);
   };
 
 
@@ -252,6 +256,8 @@
         attrMode: "floor",
         // @PARAM: The attribute-resource map used for this block. See {DB_item.db["map"]["attr"]}.
         attrRsMap: null,
+        // @PARAM: Used to add efficiency multipliers on specific resources.
+        dynaAttrRsEffcMap: prov(() => new ObjectMap()),
         // @PARAM: Whether the efficiency should be drawn in {blk.drawPlace}.
         shouldDrawDynaAttrText: true,
         // @PARAM: Text offset in {blk.drawPlace} for efficiency.
@@ -264,6 +270,7 @@
       __GETTER_SETTER__: () => [
         "attrMode",
         "attrRsMap",
+        "dynaAttrRsEffcMap",
       ],
 
 
@@ -361,9 +368,11 @@
 
 
       ex_getDynaAttrProdSpd: function(rs) {
-        return rs instanceof Item ?
-          this.ex_getDynaAttrBaseAmt_itm() / this.ex_getCraftTime() :
-          this.ex_getDynaAttrBaseAmt_liq() * 60.0;
+        return (
+          rs instanceof Item ?
+            this.ex_getDynaAttrBaseAmt_itm() / this.ex_getCraftTime() :
+            this.ex_getDynaAttrBaseAmt_liq() * 60.0
+        ) * this.dynaAttrRsEffcMap.get(rs.name, 1.0);
       }
       .setProp({
         noSuper: true,

@@ -74,6 +74,7 @@
         this.cont.add("You're not supposed to see this.");
         this.cont.row();
         this.cont.add("If you do, something just went wrong :(");
+        this.cont.row();
 
         // @TABLE: buttons
         MDL_table.__break(this.cont);
@@ -88,6 +89,32 @@
 
 
   /* <---------- info ----------> */
+
+
+  newDialog(
+    "infoContent",
+    () => extend(BaseDialog, "", {
+
+
+      ex_show(nmMod, nmInfo) {
+        resetDial(this, MDL_bundle._info(nmMod, "content-" + nmInfo));
+
+        // @TABLE: text
+        this.cont.pane(pn => {
+          MDL_table.__margin(pn);
+          MDL_table.__wrapLine(pn, MDL_bundle._info(nmMod, "content-" + nmInfo, true), Align.left, 1);
+        }).width(MDL_ui._uiW()).row();
+
+        // @TABLE: buttons
+        MDL_table.__break(this.cont);
+        MDL_table.__btnClose(this.buttons, this);
+
+        this.show();
+      },
+
+
+    }),
+  );
 
 
   /* ----------------------------------------
@@ -128,7 +155,16 @@
               MDL_bundle._term("lovec", "status"),
             ]];
             MDL_entity._waveArr(countWave).forEachRow(4, (utp, amt, shield, sta) => {
-              matArr.push([utp, utp.localizedName, amt, (utp.health * amt).ui(), shield.ui(), sta === StatusEffects.none ? "-" : sta]);
+              let amt_fi = Math.round(amt / Vars.state.rules.unitCost(Vars.state.rules.waveTeam));
+              if(amt_fi < 1) return;
+              matArr.push([
+                utp,
+                utp.localizedName,
+                amt_fi,
+                (utp.health * amt_fi * Vars.state.rules.unitHealth(Vars.state.rules.waveTeam)).ui(),
+                (shield * Vars.state.rules.unitHealth(Vars.state.rules.waveTeam)).ui(),
+                sta === StatusEffects.none ? "-" : sta,
+              ]);
             });
             matArr.length === 1 ?
               MDL_table.__textNothing(pn) :

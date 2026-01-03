@@ -116,7 +116,7 @@
     // Update furnace temperature and apply damage if overheated
     if(!PARAM.updateSuppressed && TIMER.secHalf) {
       b.tempCur = Mathf.lerpDelta(b.tempCur, Mathf.lerp(PARAM.glbHeat, b.fuelTup == null ? PARAM.glbHeat : b.fuelTup[2] * 100.0 * b.block.ex_getFuelLvlMtp(), b.fuelTup == null ? 0.0 : b.ex_calcTempTgFrac(b.fuelTup[0])), b.block.ex_getFuelWarmupRate() * 30.0);
-      if(b.tempCur > b.block.ex_getFuelTempRes()) FRAG_attack.damage(b, (VAR.blk_corDmgMin + VAR.blk_corDmgFrac * b.maxHealth) * (b.tempCur - b.block.ex_getFuelTempRes()) / 50.0, true, "heat");
+      if(b.tempCur > b.block.ex_getFuelTempRes()) FRAG_attack.damage(b, (VAR.blk_corDmgMin + VAR.blk_corDmgFrac * b.maxHealth) * (b.tempCur - b.block.ex_getFuelTempRes()) / 50.0, 0.0, "heat");
     };
 
     // Occasionally update fuel consumption status

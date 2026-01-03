@@ -25,9 +25,7 @@
   const PARENT = require("lovec/temp/rs/RS_baseFluid");
 
 
-  const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
-  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_table = require("lovec/mdl/MDL_table");
 
 
@@ -39,10 +37,6 @@
 
   function comp_init(liq) {
     liq.intmdParent = MDL_content._ct(liq.intmdParent, "rs");
-
-    MDL_event._c_onLoad(() => {
-      if(MDL_cond._isIntermediate(liq)) liq.shownPlanets.add(Vars.content.planet("lovec-pla0sun-veibrus"));
-    });
   };
 
 
@@ -69,7 +63,11 @@
     // @PARAM: See {RS_intermediateItem}.
     intmdParent: null,
     // @PARAM: See {RS_intermediateItem}.
-    useParentRegion: true,
+    useParentReg: true,
+    // @PARAM: See {RS_intermediateItem}.
+    recolorRegStr: null,
+
+    databaseTag: "lovec-intermediate",
   })
   .setMethod({
 
@@ -82,6 +80,6 @@
     setStats: function() {
       comp_setStats(this);
     },
-    
+
 
   });

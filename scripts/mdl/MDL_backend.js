@@ -77,7 +77,7 @@
    * Sets the title of a window.
    * ---------------------------------------- */
   const setWinTitle = function(winLong, str) {
-    SDL.SDL_SetWindowTitle(tryVal(winLong, Core.app.window), tryVal(str, "Mindustry"));
+    SDL.SDL_SetWindowTitle(tryVal(winLong, Core.app.window), tryVal(str, Vars.appName));
   }
   .setAnno(ANNO.$NON_MOBILE$);
   exports.setWinTitle = setWinTitle;

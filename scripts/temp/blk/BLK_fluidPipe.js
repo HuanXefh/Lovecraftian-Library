@@ -49,13 +49,12 @@
       blk.connectedPower = false;
       blk.enableDrawStatus = false;
 
-      MDL_event._c_onLoad(() => {
-        let blkCons = fetchConsumer("ConsumePowerShortCircuitPipe", {
+      setConsumer(blk, conss => [
+        conss,
+        fetchConsumer("ConsumePowerShortCircuitPipe", {
           amt: 0.5,
-        });
-        blk.consumers = [blkCons];
-        blk.consPower = blkCons;
-      });
+        }),
+      ]);
     };
   };
 

@@ -804,6 +804,7 @@
   })
   .setAnno(ANNO.$INIT$, function() {
     MDL_event._c_onLoad(() => {
+      if(Vars.headless) return;
       this.lightReg = Core.atlas.find("lovec-efr-shadow-cone");
       if(!this.lightReg.found()) this.lightReg = null;
     });
@@ -821,12 +822,22 @@
    * ---------------------------------------- */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Converts a coordinate to pseudo-3D coordinate.
+   * ---------------------------------------- */
   const toP3dCoord = function(coord, z3d, isY) {
     return coord + (coord - (isY ? (Core.camera.position.y - 48.0) : Core.camera.position.x)) * tryVal(z3d, 0.0) * 0.06;
   };
   exports.toP3dCoord = toP3dCoord;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a pseudo-3D wall.
+   * ---------------------------------------- */
   const _p3d_wall = function(
     x1, y1, x2, y2, z3d,
     colorIn_gn, colorOut_gn, z
@@ -852,6 +863,11 @@
   exports._p3d_wall = _p3d_wall;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a room with 4 pseudo-3D walls.
+   * ---------------------------------------- */
   const _p3d_room = function thisFun(
     x, y, z3d,
     w, h, colorIn_gn, colorOut_gn, z
@@ -911,6 +927,11 @@
   exports._p3d_room = _p3d_room;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Variant of {_p3d_room} for range display.
+   * ---------------------------------------- */
   const _p3d_roomFade = function(
     x, y, z3d,
     w, h, color_gn, z
@@ -924,6 +945,11 @@
   exports._p3d_roomFade = _p3d_roomFade;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a region with coordinates converted to pseudo-3D ones.
+   * ---------------------------------------- */
   const _p3d_reg = function(
     x, y, z3d,
     reg, regScl, z
@@ -945,6 +971,11 @@
   exports._p3d_reg = _p3d_reg;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draws a pseudo-3D block with region on the top with colored walls.
+   * ---------------------------------------- */
   const _p3d_regRoom = function(
     x, y, z3d,
     reg, regScl, regFixScl, color_gn, z
@@ -970,12 +1001,17 @@
   exports._p3d_regRoom = _p3d_regRoom;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Draw a pseudo-3D cylinder.
+   * ---------------------------------------- */
   const _p3d_cylinder = function(
     x, y, z3d,
     rad, colorIn_gn, colorOut_gn, z
   ) {
     let
-      sideAmt = Lines.circleVertices(rad) * 2,
+      sideAmt = Lines.circleVertices(rad),
       angSide = 360.0 / sideAmt;
 
     let ang_i;
@@ -993,6 +1029,11 @@
   exports._p3d_cylinder = _p3d_cylinder;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Variant of {_p3d_cylinder} for range display.
+   * ---------------------------------------- */
   const _p3d_cylinderFade = function(
     x, y, z3d,
     rad, color_gn, z
@@ -1012,7 +1053,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * The most normal way to draw lines, an inner bar and the outline.
+   * Vanilla way to draw lines..
    * ---------------------------------------- */
   const _d_line = function(
     x1, y1, x2, y2,

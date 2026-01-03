@@ -66,11 +66,11 @@
     let arr = arguments[0];
     if(arr.length === 0) return true;
 
-    let i = 2, iCap = arguments.length;
+    let i = 2, j, iCap = arguments.length, jCap;
     while(i < iCap) {
       if(arguments[i] !== arr[i - 2]) {
         if(arguments[1]) {
-          let j = 2, jCap = iCap;
+          j = 2, jCap = iCap;
           while(j < jCap) {
             arr[j - 2] = arguments[j];
             j++;
@@ -329,8 +329,8 @@
    *
    * {sort} for purely numeric array, since native {sort} always treats elements as strings.
    * ---------------------------------------- */
-  ptp.numSort = function() {
-    return this.sort((a, b) => a - b);
+  ptp.numSort = function(rev) {
+    return this.sort((a, b) => rev ? (b - a) : (a - b));
   };
 
 
@@ -648,9 +648,10 @@
     const arr = [];
     if(ord == null) ord = 1;
 
-    let i = 0, j = 0, iCap = Math.ceil(this.length / ord);
+    let i = 0, j, iCap = Math.ceil(this.length / ord);
     while(i < iCap) {
       let tmpArr = [];
+      j = 0;
       while(j < ord) {
         let tmp = this[i + j];
         if(tmp !== undefined) {
@@ -661,7 +662,6 @@
         j++;
       };
       arr.push(tmpArr);
-      j = 0;
       i++;
     };
 

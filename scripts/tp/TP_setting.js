@@ -64,6 +64,7 @@
 
   new CLS_settingTerm("load-vanilla-flyer", useScl => Core.settings.getBool("lovec-load-vanilla-flyer", false)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-load-vanilla-flyer", false));
   new CLS_settingTerm("load-force-modded", useScl => Core.settings.getBool("lovec-load-force-modded", false)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-load-force-modded", false));
+  new CLS_settingTerm("load-gen-recolor", useScl => Core.settings.getBool("lovec-load-gen-recolor", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-load-gen-recolor", true));
   new CLS_settingTerm("interval-efficiency", useScl => Core.settings.getInt("lovec-interval-efficiency", 5) * (useScl ? 6.0 : 1.0)).setDialSetter("lovec", "misc", tb => tb.sliderPref("lovec-interval-efficiency", 5, 1, 15, val => Strings.fixed(val * 0.1, 2) + "s"));
   new CLS_settingTerm("draw0aux-extra-info", useScl => Core.settings.getBool("lovec-draw0aux-extra-info", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-draw0aux-extra-info", true));
   new CLS_settingTerm("icontag-flicker", useScl => Core.settings.getBool("lovec-icontag-flicker", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-icontag-flicker", true));
@@ -81,6 +82,6 @@
   new CLS_settingTerm("unit0stat-minimalistic", useScl => Core.settings.getBool("lovec-unit0stat-minimalistic", false)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-unit0stat-minimalistic", false));
   new CLS_settingTerm("unit0remains-lifetime", useScl => Core.settings.getInt("lovec-unit0remains-lifetime", 36) * (useScl ? 300.0 : 1.0)).setDialSetter("lovec", "misc", tb => tb.sliderPref("lovec-unit0remains-lifetime", 36, 0, 120, val => Strings.fixed(val * 5.0, 0) + "s"));
   new CLS_settingTerm("unit0remains-build", useScl => Core.settings.getBool("lovec-unit0remains-build", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-unit0remains-build", true));
-  new CLS_settingTerm("misc-title-name", useScl => Core.settings.getString("lovec-misc-title-name", "Mindustry")).setDialSetter("lovec", "misc", tb => tb.textPref("lovec-misc-title-name", "Mindustry"));
+  new CLS_settingTerm("misc-title-name", useScl => Core.settings.getString("lovec-misc-title-name", Vars.appName)).setDialSetter("lovec", "misc", tb => tb.textPref("lovec-misc-title-name", Vars.appName));
   new CLS_settingTerm("misc-title-map", useScl => Core.settings.getBool("lovec-misc-title-map", true)).setDialSetter("lovec", "misc", tb => tb.checkPref("lovec-misc-title-map", true));
   new CLS_settingTerm("misc-secret-code", useScl => Core.settings.getString("lovec-secret-code", "")).setDialSetter("lovec", "misc", tb => tb.areaTextPref("lovec-misc-secret-code", ""));

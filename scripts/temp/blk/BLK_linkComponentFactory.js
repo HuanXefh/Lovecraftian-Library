@@ -9,7 +9,7 @@
    * NOTE:
    *
    * Used only to fake a non-square building, works as inlets for the center building.
-   * Not expected to consume anything!
+   * Not expected to consume anything else!
    * This block is technically not rotatable, I'm too lazy to deal with more math and sprites.
    * ---------------------------------------- */
 
@@ -41,8 +41,12 @@
     blk.rotate = false;
     blk.liquidOutputDirections = [blk.linkRot];
 
-    blk.linkFld = MDL_content._ct(blk.linkFld, "rs");
-    if(blk.linkFld == null) ERROR_HANDLER.throw("nullArgument", "linkFld");
+    blk.linkFldProd = MDL_content._ct(blk.linkFld, "rs");
+    if(blk.linkFldProd == null) ERROR_HANDLER.throw("nullArgument", "linkFld");
+    blk.linkFldCons = MDL_content._ct(blk.linkFld, null, true);
+    if(blk.linkFldCons != null) {
+      setConsumer(blk, conss => [new ConsumeLiquid(blk.linkFldCons, blk.linkFldConsRate)]);
+    };
     blk.outputLiquids = [new LiquidStack(blk.linkFld, blk.linkFldProdRate)];
     blk.outputsLiquid = true;
     blk.linkFld.ex_accProducedIn(blk);
@@ -117,10 +121,14 @@
     .setParam({
       // @PARAM: The rotation used to check link validity.
       linkRot: 0,
-      // @PARAM: The link fluid used for this block.
-      linkFld: null,
+      // @PARAM: The link fluid produced by this block.
+      linkFldProd: null,
+      // @PARAM: The link fluid consumed by this block, can be {null}.
+      linkFldCons: null,
       // @PARAM: Rate at which link fluid is produced.
       linkFldProdRate: 1.0 / 60.0,
+      // @PARAM: Rate at which link fluid is consumed.
+      linkFldConsRate: 1.0 / 60.0,
     })
     .setMethod({
 
@@ -130,7 +138,8 @@
       },
 
 
-    }),
+    })
+    .setGetter("linkFldCons"),
 
 
     // Building
@@ -180,6 +189,10 @@
 
 
       handleLiquid: function(b_f, liq, amt) {
+        if(liq === this.block.ex_getLinkFldCons()) {
+          this.super$handleLiquid(b_f, liq, amt);
+          return;
+        };
         if(this.linkCenter != null) this.linkCenter.handleLiquid(b_f, liq, amt);
       }
       .setProp({
@@ -207,7 +220,11 @@
 
 
       acceptLiquid: function(b_f, liq) {
-        return this.linkCenter == null ? false : this.linkCenter.acceptLiquid(b_f, liq);
+        return liq === this.block.ex_getLinkFldCons() ?
+          true :
+          this.linkCenter == null ?
+            false :
+            this.linkCenter.acceptLiquid(b_f, liq);
       }
       .setProp({
         noSuper: true,

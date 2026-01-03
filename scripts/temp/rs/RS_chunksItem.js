@@ -57,13 +57,15 @@
   module.exports = newClass().extendClass(PARENT).initClass()
   .setParent(Item)
   .setTags("rs-intmd", "rs-chunks")
-  .setParam({})
+  .setParam({
+    recolorRegStr: "lovec-gen-chunks-item",
+  })
   .setMethod({
 
 
     init: function() {
       comp_init(this);
     },
-    
+
 
   });

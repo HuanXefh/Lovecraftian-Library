@@ -46,6 +46,14 @@
     prefix: 'lc_run'
     body: 'const ${1:name} = require("lovec/run/${1:name}");'
 
+  'LIB_xxx':
+    prefix: 'lc_lib'
+    body: 'const ${1:name} = require("lovec/lib/${1:name}");'
+
+  'MATH_xxx':
+    prefix: 'lc_math'
+    body: 'const ${1:name} = require("lovec/math/${1:name}");'
+
   'FRAG_xxx':
     prefix: 'lc_frag'
     body: 'const ${1:name} = require("lovec/frag/${1:name}");'
@@ -57,6 +65,10 @@
   'TP_xxx':
     prefix: 'lc_tp'
     body: 'const ${1:name} = require("lovec/tp/${1:name}");'
+
+  'DB_xxx':
+    prefix: 'lc_db'
+    body: 'const ${1:name} = require("lovec/db/${1:name}");'
 
   'PARENT':
     prefix: 'lc_parent'

@@ -57,7 +57,9 @@
   module.exports = newClass().extendClass(PARENT).initClass()
   .setParent(Item)
   .setTags("rs-intmd", "rs-dust", "rs-p1")
-  .setParam({})
+  .setParam({
+    recolorRegStr: "lovec-gen-p1-dust-item",
+  })
   .setMethod({
 
 

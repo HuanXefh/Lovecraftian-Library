@@ -34,6 +34,22 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Variant of {perc} with color.
+   * ---------------------------------------- */
+  ptp.percColor = function(deciAmt, overColor, lessColor, midColor, midTol) {
+    return this.perc(deciAmt).color(
+      this.fEqual(1.0, tryVal(midTol, 0.025)) ?
+        tryVal(midColor, Pal.accent) :
+        this > 1.0 ?
+          tryVal(overColor, Pal.heal) :
+          tryVal(lessColor, Pal.remove),
+    );
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * To scientific notation string.
    * ---------------------------------------- */
   ptp.sci = function(pow, deciAmt) {

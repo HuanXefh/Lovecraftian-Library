@@ -108,7 +108,7 @@
     let dmg_fi = Math.min(dmg, VAR.dmg_heatMaxDmg);
     let staStackAmt = Math.round((dmg - dmg_fi) / VAR.dmg_overheatedConversionDmg);
 
-    FRAG_attack.damage(unit, dmg_fi, true, "heat");
+    FRAG_attack.damage(unit, dmg_fi, 0.0, "heat");
     let i = 0;
     while(i < staStackAmt) {
       unit.apply(Vars.content.statusEffect("loveclab-sta0bur-overheated"));

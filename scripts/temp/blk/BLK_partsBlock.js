@@ -48,7 +48,10 @@
     newClass().extendClass(PARENT[0]).initClass()
     .setParent(Wall)
     .setTags()
-    .setParam({})
+    .setParam({
+      databaseCategory: "lovec-material",
+      databaseTag: "default",
+    })
     .setMethod({
 
 

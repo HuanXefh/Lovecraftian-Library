@@ -107,6 +107,29 @@
   };
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Used to set consumers of some block in JS, can be called in {blk.init}.
+   * Format for {getter}: {conssOld => conssNew}.
+   * ---------------------------------------- */
+  setConsumer = function(blk, getter) {
+    Events.run(ClientLoadEvent, () => {
+      let
+        conss = getter(blk.consumers).pullAll(null).flatten(),
+        conssNew = conss.slice().pullAll(blk.consumers);
+
+      blk.consumers = conss;
+      blk.optionalConsumers = conss.filter(consX => consX.optional && !consX.ignore());
+      blk.nonOptionalConsumers = conss.filter(consX => !consX.optional && !consX.ignore());
+      blk.updateConsumers = conss.filter(consX => consX.update && !consX.ignore());
+      blk.hasConsumers = conss.length > 0;
+
+      conssNew.forEachFast(consX => consX.apply(blk));
+    });
+  };
+
+
   /* <---------- fetch ----------> */
 
 
@@ -145,12 +168,14 @@
    *
    * Used to load sound.
    * ---------------------------------------- */
-  fetchSound = function(se_gn) {
+  fetchSound = function(se_gn, returnUnset) {
     return se_gn instanceof Sound ?
       se_gn :
       typeof se_gn === "string" ?
         Vars.tree.loadSound(se_gn) :
-        Sounds.none;
+        returnUnset ?
+          Sounds.unset :
+          Sounds.none;
   };
 
 

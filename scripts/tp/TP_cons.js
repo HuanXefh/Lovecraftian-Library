@@ -44,5 +44,10 @@
       },
 
 
+      efficiency(b) {
+        return 1.0;
+      },
+
+
     }),
   );

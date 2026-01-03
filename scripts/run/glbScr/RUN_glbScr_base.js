@@ -407,3 +407,14 @@
   printObj = function(obj) {
     Object.printObj(obj);
   };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Prints {obj} and returns it.
+   * ---------------------------------------- */
+  printReturn = function(obj) {
+    print(obj);
+    return obj;
+  };

@@ -85,7 +85,7 @@
    * Gets the armor of some entity.
    * ---------------------------------------- */
   const _armor = newMultiFunction(
-    [Building], b => b.block.arnor,
+    [Building], b => b.block.armor,
     [Unit], unit => unit.armorOverride < 0.0 ? unit.armor : unit.armorOverride,
   );
   exports._armor = _armor;
@@ -162,15 +162,35 @@
    *
    * Gets the damage that {e} should take.
    * ---------------------------------------- */
-  const _dmgTake = function(e, dmg, piercesArmor) {
-    return piercesArmor ?
-      dmg :
-      Damage.applyArmor(dmg, _armor(e));
+  const _dmgTake = function(e, dmg, armorMtp) {
+    return Damage.applyArmor(dmg, _armor(e) * tryVal(armorMtp, 1.0));
   };
   exports._dmgTake = _dmgTake;
 
 
   /* <---------- building ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the amount of some block built for a team.
+   * ---------------------------------------- */
+  const _bCount = function(blk, team) {
+    return team.data().buildingTypes.get(blk, ARC_AIR.seq).size;
+  };
+  exports._bCount = _bCount;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Iterates through buildings of the same block in a team.
+   * ---------------------------------------- */
+  const _it_someBlk = function(blk, team, scr) {
+    team.data().buildingTypes.get(blk, ARC_AIR.seq).each(scr);
+  };
+  exports._it_someBlk = _it_someBlk;
 
 
   /* ----------------------------------------
@@ -223,6 +243,28 @@
 
 
   /* <---------- unit ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets the amount of some unit in a team.
+   * ---------------------------------------- */
+  const _unitCount = function(utp, team) {
+    return tryVal(team.data().unitsByType[utp.id], Array.air).length;
+  };
+  exports._unitCount = _unitCount;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Iterates through units of the same type in a team.
+   * ---------------------------------------- */
+  const _it_someUtp = function(utp, team, scr) {
+    return tryVal(team.data().unitsByType[utp.id], Array.air).forEachFast(scr);
+  };
+  exports._it_someUtp = _it_someUtp;
 
 
   /* ----------------------------------------

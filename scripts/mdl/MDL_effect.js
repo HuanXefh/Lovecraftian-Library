@@ -199,8 +199,9 @@
   .setProp({
     eff: (function() {
       const tmp = new Effect(80.0, eff => {
-        let frac1 = Interp.pow10Out.apply(Interp.pow10Out.apply(eff.fin()));
-        let frac2 = 1.0 - Interp.pow2In.apply(eff.fin());
+        let
+          frac1 = Interp.pow10Out.apply(Interp.pow10Out.apply(eff.fin())),
+          frac2 = 1.0 - Interp.pow2In.apply(eff.fin());
 
         Draw.color(eff.color);
         Angles.randLenVectors(eff.id, 18, eff.finpow() * eff.rotation, (x, y) => {
@@ -242,8 +243,9 @@
   }
   .setProp({
     eff: new Effect(280.0, eff => {
-      var ang = Mathf.angle(eff.data[0].x - eff.x, eff.data[0].y - eff.y);
-      var size = 24.0 - 18.0 * Interp.pow2Out.apply(1.0 - eff.fout());
+      let
+        ang = Mathf.angle(eff.data[0].x - eff.x, eff.data[0].y - eff.y),
+        size = 24.0 - 18.0 * Interp.pow2Out.apply(1.0 - eff.fout());
 
       Draw.color(eff.color, Interp.pow2In.apply(1.0 - eff.fin()));
       Draw.rect(
@@ -331,7 +333,7 @@
       const tmp = new Effect(20.0, eff => {
         eff.lifetime = 20.0 * Math.pow(eff.rotation * 0.025, 0.5);
 
-        Draw.color(Color.valueOf("ffffff30"), Color.valueOf("ffffff00"), eff.fin());
+        Draw.color(showAt_rotorWave.effColor1, showAt_rotorWave.effColor2, eff.fin());
         Lines.stroke(2.0);
         Lines.circle(eff.x, eff.y, eff.rotation * eff.fin());
         Draw.reset();
@@ -340,6 +342,8 @@
 
       return tmp;
     })(),
+    effColor1: Color.valueOf("ffffff30"),
+    effColor2: Color.valueOf("ffffff00"),
   })
   .setAnno(ANNO.$NON_HEADLESS$);
   exports.showAt_rotorWave = showAt_rotorWave;
@@ -355,18 +359,20 @@
     if(size == null) size = 1;
     if(liqColor == null) liqColor = Color.white;
 
-    var rad = size * Vars.tilesize * 0.5;
-    showAround(x, y, thisFun.eff, rad, null, liqColor, tryVal(isClogging, false));
+    showAround(x, y, thisFun.eff, size * Vars.tilesize * 0.5, null, liqColor, tryVal(isClogging, false));
   }
   .setProp({
     eff: new Effect(120.0, eff => {
       Draw.z(VAR.lay_effBase);
       Draw.color(eff.color);
-
-      var sizeScl = Interp.pow5Out.apply(1.0 - eff.fin());
       !eff.data ?
         Fill.circle(eff.x, eff.y, 0.8 * sizeScl) :
-        Draw.rect("lovec-efr-glob", eff.x, eff.y, 5.0 * sizeScl, 5.0 * sizeScl, eff.rotation);
+        Draw.rect(
+          "lovec-efr-glob", eff.x, eff.y,
+          5.0 * Interp.pow5Out.apply(1.0 - eff.fin()),
+          5.0 * Interp.pow5Out.apply(1.0 - eff.fin()),
+          eff.rotation,
+        );
     }),
   })
   .setAnno(ANNO.$NON_HEADLESS$);
@@ -386,11 +392,14 @@
     let t = Vars.world.tileWorld(x, y);
     if(t == null || !t.floor().canShadow) return;
 
-    let tint = null;
-    var a = 1.0;
-    var z = etp instanceof Block ? VAR.lay_buildingRemains : VAR.lay_unitRemains;
-    let inLiq = false;
-    let shouldFloat = false;
+    let
+      tint = null,
+      a = 1.0,
+      z = etp instanceof Block ?
+        VAR.lay_buildingRemains :
+        VAR.lay_unitRemains,
+      inLiq = false,
+      shouldFloat = false;
     if((function () {
       if(!t.floor().isLiquid) return false;
       if(etp instanceof Block) {
@@ -509,23 +518,27 @@
     if(Vars.state.isPaused() || e == null) return;
 
     if(e instanceof Building) {
-      let reg = e.block instanceof BaseTurret ?
-        tryVal(MDL_texture._regTurBase(e.block), e.block.region) :
-        e.block.fullIcon;
-      if(reg != null) showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.eff, 0.0, MDL_color._color(color_gn), [reg, e]);
-    } else {
-      if(MDL_color._isSameColor(color, Pal.heal)) {
-        unit.healTime = 1.0;
-      } else {
-        unit.hitTime = 1.0;
+      let reg = !(e.block instanceof BaseTurret) ?
+        e.block.fullIcon :
+        tryVal(MDL_texture._regTurBase(e.block), e.block.region);
+      if(reg != null) {
+        showAt(MDL_ui._cameraX(), MDL_ui._cameraY(), thisFun.eff, 0.0, MDL_color._color(color_gn), [reg, e]);
       };
+    } else {
+      MDL_color._color(color_gn).equals(Pal.heal) ?
+        unit.healTime = 1.0 :
+        unit.hitTime = 1.0;
     };
   }
   .setProp({
     eff: new Effect(20.0, eff => {
-      let e = eff.data[1];
-
-      MDL_draw._reg_normal(e.x, e.y, eff.data[0], e.drawrot(), 1.0, eff.color, eff.color.a * eff.fout(), Layer.effect + VAR.lay_offDrawOver, 1.0);
+      MDL_draw._reg_normal(
+        eff.data[1].x, eff.data[1].y,
+        eff.data[0], eff.data[1].drawrot(), 1.0, eff.color,
+        eff.color.a * eff.fout(),
+        Layer.effect + VAR.lay_offDrawOver,
+        1.0,
+      );
     }),
   })
   .setAnno(ANNO.$NON_HEADLESS$);
@@ -546,11 +559,10 @@
   .setProp({
     eff: new Effect(40.0, eff => {
       eff.lifetime = 40.0 * eff.rotation;
-      let a = eff.fout() * color.a;
 
       eff.data instanceof TextureRegion ?
-        MDL_draw._reg_normal(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a, Layer.effect + VAR.lay_offDrawOver) :
-        MDL_draw._reg_icon(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, a);
+        MDL_draw._reg_normal(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, eff.fout() * color.a, Layer.effect + VAR.lay_offDrawOver) :
+        MDL_draw._reg_icon(eff.x, eff.y, eff.data, 0.0, 1.0, eff.color, eff.fout() * color.a);
     }),
   })
   .setAnno(ANNO.$NON_HEADLESS$);
@@ -597,13 +609,10 @@
     modes: ["health", "shield", "heal", "heat"],
     eff: new Effect(40.0, eff => {
       MDL_draw._d_text(
-        eff.x,
-        eff.y,
+        eff.x, eff.y,
         eff.data[0],
         eff.data[1] - Interp.pow3In.apply(eff.fin()) * eff.data[1],
-        eff.color,
-        Align.center,
-        0.0,
+        eff.color, Align.center, 0.0,
         8.0 * eff.fin(),
         Math.min(eff.rotation / 10000.0, 10.0),
       );
@@ -626,11 +635,13 @@
   }
   .setProp({
     eff: new Effect(40.0, eff => {
-      let e0 = eff.data[0];
-
       Lines.stroke(2.0 * eff.rotation, eff.color);
       Draw.alpha(Interp.pow2In.apply(eff.fout()) * eff.color.a);
-      Lines.line(e0 == null ? eff.x : e0.x, e0 == null ? eff.y : e0.y, eff.data[1].x, eff.data[1].y);
+      Lines.line(
+        eff.data[0] == null ? eff.x : eff.data[0].x,
+        eff.data[0] == null ? eff.y : eff.data[0].y,
+        eff.data[1].x, eff.data[1].y,
+      );
       Draw.reset();
     }),
   })
@@ -711,11 +722,9 @@
   }
   .setProp({
     eff: new Effect(30.0, eff => {
-      let e0 = eff.data[0];
-
       MDL_draw._d_laser(
-        e0 == null ? eff.x : e0.x,
-        e0 == null ? eff.y : e0.y,
+        eff.data[0] == null ? eff.x : eff.data[0].x,
+        eff.data[0] == null ? eff.y : eff.data[0].y,
         eff.data[1].x,
         eff.data[1].y,
         eff.rotation * Interp.pow2Out.apply(1.0 - eff.fin()),

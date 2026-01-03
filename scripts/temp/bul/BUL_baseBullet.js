@@ -25,7 +25,56 @@
   const PARENT = require("lovec/cls/util/CLS_contentTemplate");
 
 
+  const FRAG_attack = require("lovec/frag/FRAG_attack");
+
+
   /* <---------- component ----------> */
+
+
+  function comp_hitEntity(btp, bul, e, hp) {
+    let wasDead = e instanceof Unit && e.dead;
+
+    if(e instanceof Healthc) {
+      let
+        dmg = bul.damage * FRAG_attack._dmgMtp_typeMtpArr(e, btp.typeMtpArr),
+        shield = e instanceof Shieldc ? Math.max(e.shield, 0.0) : 0.0;
+
+      if(btp.maxDamageFraction > 0.0) {
+        let cap = e.maxHealth * btp.maxDamageFraction + shield;
+        dmg = Math.min(dmg, cap);
+        hp = Math.min(hp, cap);
+      } else {
+        hp += shield;
+      };
+      if(btp.pierceArmor) {
+        e.damagePierce(dmg);
+      } else {
+        e.damage(dmg);
+      };
+    };
+
+    if(e instanceof Unit) {
+      // Knockback
+      if(!btp.knockback.fEqual(0.0)) {
+        Tmp.v3.set(e).sub(bul).nor().scl(btp.knockback * 80.0);
+        if(btp.impact) {
+          Tmp.v3.setAngle(bul.rotation + (btp.knockback < 0.0 ? 180.0 : 0.0));
+          e.impulse(Tmp.v3);
+        };
+      };
+
+      // Status effect
+      e.apply(btp.status, btp.statusDuration);
+
+      Events.fire(Reflect.get(BulletType, "bulletDamageEvent").set(e, bul));
+    };
+
+    if(!wasDead && e instanceof Unit && e.dead) {
+      Events.fire(new UnitBulletDestroyEvent(e, bul));
+    };
+
+    btp.handlePierce(bul, hp, e.x, e.y);
+  };
 
 
 /*
@@ -39,6 +88,9 @@
   .setParent(null)
   .setTags()
   .setParam({
+    // @PARAM: Used to define type affinity (damage multiplier on specific units) for the bullet.
+    typeMtpArr: prov(() => []),
+
     // For convenience
     hitSize: 4.0,
     drawSize: -1.0,
@@ -118,12 +170,12 @@
     "desEff", "despawnEffect", Fx.none,
     "smokeEff", "smokeEffect", Fx.none,
     "healEff", "healEffect", Fx.healBlockFull,
-    "shootSe", "shootSound", Sounds.none,
-    "hitSe", "hitSound", Sounds.none,
+    "shootSe", "shootSound", Sounds.unset,
+    "hitSe", "hitSound", Sounds.unset,
     "hitSeVol", "hitSoundVolume", 1.0,
     "hitSePitch", "hitSoundPitch", 1.0,
     "hitSeOffPitch", "hitSoundPitchRange", 0.1,
-    "desSe", "despawnSound", Sounds.none,
+    "desSe", "despawnSound", Sounds.unset,
     "healSe", "healSound", Sounds.blockHeal,
     "healSeVol", "healSoundVolume", 0.9,
     "shouldAimBlock", "targetBlocks", true,
@@ -147,6 +199,7 @@
     "puddleAmt", "puddles", 0,
     "puddleRad", "puddleRange", 0.0,
     "puddleLiqAmt", "puddleAmount", 5.0,
+    "armorMtp", "armorMultiplier", 1.0,
     "homingPow", "homingPower", 0.0,
     "homingRad", "homingRange", 50.0,
     "homingFollowRotSpd", "followAimSpeed", 0.0,
@@ -217,4 +270,15 @@
       return prov(() => val.get().toSeq());
     },
   ])
-  .setMethod({});
+  .setMethod({
+
+
+    hitEntity: function(bul, e, hp) {
+      comp_hitEntity(this, bul, e, hp);
+    }
+    .setProp({
+      noSuper: true,
+    }),
+
+
+  });

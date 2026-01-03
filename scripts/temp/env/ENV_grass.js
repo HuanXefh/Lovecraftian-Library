@@ -38,13 +38,13 @@
     blk.solid = false;
     blk.alwaysReplace = false;
     blk.placeableLiquid = true;
-    
+
     // Bypass vanilla shadow due to hard-coded alpha value
     blk.hasShadow = false;
     blk.customShadow = true;
 
     MDL_event._c_onLoad(() => {
-      if(!blk.customShadowRegion.found()) MDL_test._w_noCusSha(blk);
+      if(!Vars.headless && !blk.customShadowRegion.found()) MDL_test._w_noCusSha(blk);
     });
   };
 

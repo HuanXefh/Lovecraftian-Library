@@ -100,7 +100,7 @@
     // Update furnace temperature
     if(!PARAM.updateSuppressed && TIMER.secHalf) {
       b.tempCur = Mathf.lerpDelta(b.tempCur, Mathf.lerp(PARAM.glbHeat, Math.max(b.tempRiseTg, PARAM.glbHeat), b.power.status), b.block.ex_getFuelWarmupRate() * 30.0);
-      if(b.tempCur > b.block.ex_getFuelTempRes()) FRAG_attack.damage(b, (VAR.blk_corDmgMin + VAR.blk_corDmgFrac * b.maxHealth) * (b.tempCur - b.block.ex_getFuelTempRes()) / 50.0, true, "heat");
+      if(b.tempCur > b.block.ex_getFuelTempRes()) FRAG_attack.damage(b, (VAR.blk_corDmgMin + VAR.blk_corDmgFrac * b.maxHealth) * (b.tempCur - b.block.ex_getFuelTempRes()) / 50.0, 0.0, "heat");
     };
 
     // Update furnace efficiency

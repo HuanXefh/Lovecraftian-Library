@@ -70,7 +70,7 @@
     .setTags("blk-fac")
     .setParam({
       // @PARAM: Sound played when this building crafts.
-      craftSe: Sounds.none,
+      craftSe: Sounds.unset,
     })
     .setParamAlias([
       "craftEff", "craftEffect", Fx.none,

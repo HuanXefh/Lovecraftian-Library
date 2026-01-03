@@ -118,9 +118,11 @@
   const _mod = function(ct_gn, returnMod) {
     let ct = _ct(ct_gn);
     if(ct == null) return null;
-
     let mod = ct.minfo.mod;
-    return mod == null ? (returnMod ? null : "vanilla") : (returnMod ? mod : mod.name);
+
+    return mod == null ?
+      (returnMod ? null : "vanilla") :
+      (returnMod ? mod : mod.name);
   };
   exports._mod = _mod;
 
@@ -142,9 +144,9 @@
    * Whether the content has some tag.
    * ---------------------------------------- */
   const _hasTag = function(ct, tag) {
-    if(ct == null) return false;
-
-    return tryFun(ct.ex_getTags, ct, Array.air).includes(tag);
+    return ct == null ?
+      false :
+      tryFun(ct.ex_getTags, ct, Array.air).includes(tag);
   };
   exports._hasTag = _hasTag;
 
@@ -156,11 +158,11 @@
    * Whether the content has any of given tags.
    * ---------------------------------------- */
   const _hasAnyTag = function() {
-    if(arguments[0] == null) return false;
-
-    let arr = Array.from(arguments).splice(1);
-
-    return arr.some(tag => tryFun(arguments[0].ex_getTags, arguments[0], Array.air).includes(tag));
+    return arguments[0] == null ?
+      false :
+      Array.from(arguments).splice(1).some(
+        tag => tryFun(arguments[0].ex_getTags, arguments[0], Array.air).includes(tag),
+      );
   };
   exports._hasAnyTag = _hasAnyTag;
 
@@ -298,6 +300,7 @@
       i += 2;
     };
     if(valCaller != null) val = valCaller(blk, isDrillTime, _ct(ct_gn, null, true));
+    if(isDrillTime) val /= tryFun(blk.ex_getDrillAmtMtp, blk, 1.0);
 
     return val;
   };
@@ -318,6 +321,31 @@
     return powCons == null ? 0.0 : powCons.usage;
   };
   exports._powConsAmt = _powConsAmt;
+
+
+  /* <---------- unit type ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns the damage affinity type of some unit type.
+   * ---------------------------------------- */
+  const _unitDmgType = function(utp_gn) {
+    let utp = _ct(utp_gn, "utp");
+    if(utp == null) return null;
+
+    const arr = DB_unit.db["grpParam"]["typeTagMap"];
+
+    let i = 0, iCap = arr.iCap();
+    while(i < iCap) {
+      if(_hasTag(utp, arr[i + 1])) return arr[i];
+      i += 2;
+    };
+
+    return null;
+  };
+  exports._unitDmgType = _unitDmgType;
 
 
   /* <---------- faction ----------> */

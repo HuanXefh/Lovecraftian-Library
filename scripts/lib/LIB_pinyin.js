@@ -57,6 +57,11 @@
 */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets pinyin of some string containing Chinese characters.
+   * ---------------------------------------- */
   const fetchPinyin = function(str) {
     return codefans_net_CC2PY(str);
   };

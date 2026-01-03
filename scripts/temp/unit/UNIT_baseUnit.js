@@ -30,7 +30,9 @@
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
+  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pollution = require("lovec/mdl/MDL_pollution");
 
 
@@ -44,6 +46,11 @@
 
 
   function comp_init(utp) {
+    let dmgType = MDL_content._unitDmgType(utp);
+    if(dmgType != null) {
+      utp.databaseTag = "lovec-dmg0type-" + dmgType;
+    };
+
     FRAG_faci.comp_init_outline(utp);
   };
 

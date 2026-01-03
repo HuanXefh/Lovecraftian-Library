@@ -810,7 +810,7 @@
       let amt = raw[i + 1];
       arr.push(tmp.name, amt);
       if(blkInit != null) {
-        MDL_recipeDict.addPayProdTerm(
+        MDL_recipeDict.addPayConsTerm(
           blkInit, tmp, amt,
           {ct: _iconNm(rcMdl, rcHeader)},
         );

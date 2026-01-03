@@ -83,7 +83,7 @@
     let returnItm = Reflect.get(Drill, blk, "returnItem");
     let returnAmt = Reflect.get(Drill, blk, "returnCount");
     if(returnItm != null) {
-      let w = blk.drawPlaceText(Core.bundle.formatFloat("bar.drillspeed", 60.0 / blk.getDrillTime(returnItm) * returnAmt, 2), tx, ty, valid);
+      let w = blk.drawPlaceText(Core.bundle.formatFloat("bar.drillspeed", 60.0 / blk.getDrillTime(returnItm) / blk.drillAmtMtp * returnAmt, 2), tx, ty, valid);
       let x = tx.toFCoord(blk.size) - w * 0.5 - 4.0;
       let y = ty.toFCoord(blk.size) + blk.size * Vars.tilesize * 0.5 + 5.0;
       let iconW = Vars.iconSmall * 0.25;
@@ -111,6 +111,7 @@
 
 
   function comp_onProximityUpdate(b) {
+    b.dominantItems = Math.round(b.dominantItems * b.block.ex_getDrillAmtMtp());
     b.requiresScanner = b.block.ex_isMiningDpore(b.tileX(), b.tileY(), b.dominantItem);
   };
 
@@ -135,6 +136,8 @@
     .setParent(null)
     .setTags("blk-min", "blk-drl")
     .setParam({
+      // @PARAM: Multiplier on how many items outputted each round.
+      drillAmtMtp: 1.0,
       // @PARAM: Whether this drill can mine depth ore.
       canMineDepthOre: false,
       // @PARAM: Multiplier on drill tier when mining depth ore.
@@ -176,7 +179,8 @@
       }),
 
 
-    }),
+    })
+    .setGetter("drillAmtMtp"),
 
 
     // Building

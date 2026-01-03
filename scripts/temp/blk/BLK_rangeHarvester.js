@@ -110,7 +110,7 @@
       // @PARAM: See {BLK_wallHarvester}.
       shouldDropLoot: true,
       // @PARAM: See {BLK_baseFactory}.
-      craftSe: Sounds.none,
+      craftSe: Sounds.unset,
     })
     .setParamAlias([
       "craftEff", "craftEffect", Fx.none,

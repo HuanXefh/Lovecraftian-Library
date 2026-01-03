@@ -51,7 +51,7 @@
     fallEffect: Fx.none,
     fallEngineEffect: Fx.none,
     deathExplosionEffect: Fx.none,
-    deathSound: Sounds.none,
+    deathSound: Sounds.none,                // Don't use {Sounds.unset} here
     hoverable: false,
     drawMiniMap: false,
     isEnemy: false,

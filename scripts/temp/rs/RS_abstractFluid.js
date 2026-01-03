@@ -36,6 +36,8 @@
   function comp_init(aux) {
     if(!aux.gas) ERROR_HANDLER.throw("auxNotGas", aux.name);
 
+    aux.databaseCategory = "lovec-aux";
+
     if(aux.overwriteVanillaProp) {
       aux.incinerable = false;
       aux.coolant = false;

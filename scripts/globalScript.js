@@ -56,9 +56,27 @@
   };
 
 
+  /* <---------- class & package ----------> */
+
+
+  // Common packages
+  arc = Packages.arc;
+  mdt = Packages.mindustry;
+  rhino = Packages.rhino;
+
+
+  // Java regex
+  // To be honest, harder than JS to use, but faster of course
+  Pattern = java.util.regex.Pattern;
+  Matcher = java.util.regex.Matcher;
+  // Arc
+  SDL = arc.backend.sdl.jni.SDL;
+
+
   /* <---------- load ----------> */
 
 
+  globalRequire("lovec", dir => dir.child("scripts").child("run").child("glbScr").child("RUN_glbScr_air.js"));
   globalRequire("lovec", dir => dir.child("scripts").child("run").child("glbScr").child("RUN_glbScr_base.js"));
   globalRequire("lovec", dir => dir.child("scripts").child("run").child("glbScr").child("RUN_glbScr_data.js"));
   globalRequire("lovec", dir => dir.child("scripts").child("run").child("glbScr").child("RUN_glbScr_draw.js"));
@@ -66,12 +84,6 @@
   globalRequire("lovec", dir => dir.child("scripts").child("run").child("glbScr").child("RUN_glbScr_extend.js"));
   globalRequire("lovec", dir => dir.child("scripts").child("run").child("glbScr").child("RUN_glbScr_net.js"));
   globalRequire("lovec", dir => dir.child("scripts").child("run").child("glbScr").child("RUN_glbScr_util.js"));
-
-
-  /* <---------- class map ----------> */
-
-
-  SDL = fetchClass("arc.backend.sdl.jni.SDL");
 
 
 /*
@@ -186,101 +198,107 @@
     };
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Kills your unit or someone's instead.
-     * ---------------------------------------- */
-    _cmd_kill = function(nm) {
-      if(!checkCheatState()) return;
-      let unit = lovec.mdl_pos._unit_plNm(nm);
-      if(unit == null) {
-        Log.info("[LOVEC] No player found with name [$1].".format(nm));
-        return;
-      };
-
-      Call.unitDestroy(unit.id);
-    };
+    CHEAT = {
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Literally toggles invincibility.
-     * ---------------------------------------- */
-    _cmd_toggleInvincible = function() {
-      if(!checkCheatState()) return;
-      let unit = Vars.player.unit();
-      if(unit == null) return;
-
-      unit.hasEffect(StatusEffects.invincible) ?
-        unit.unapply(StatusEffects.invincible) :
-        unit.apply(StatusEffects.invincible, Number.fMax);
-      Time.run(2.0, () => {
-        Log.info("[LOVEC] Player invincibility: " + (unit.hasEffect(StatusEffects.invincible) ? "ON" : "OFF").color(Pal.accent));
-      });
-    };
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Toggles invincibility of cores.
-     * ---------------------------------------- */
-    _cmd_toggleCoreInvincible = function thisFun() {
-      thisFun.isOn = !thisFun.isOn;
-      Time.run(2.0, () => {
-        Log.info("[LOVEC] Core invincibility: " + (thisFun.isOn ? "ON" : "OFF").color(Pal.accent));
-      });
-    }
-    .setProp({
-      isOn: (function() {
-        Events.run(Trigger.update, () => {
-          if(_cmd_toggleCoreInvincible.isOn) Vars.player.team().data().cores.each(ob => ob.iframes = Math.max(ob.iframes, 60.0));
-        });
-        return false;
-      })(),
-    });
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Changes your team.
-     * ---------------------------------------- */
-    _cmd_changeTeam = function(team) {
-      if(!checkCheatState()) return;
-      if(typeof team === "string") {
-        try {
-          team = Team[team];
-        } catch(err) {
-          team = null;
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Kills your unit or someone's instead.
+       * ---------------------------------------- */
+      kill: function(nm) {
+        if(!checkCheatState()) return;
+        let unit = lovec.mdl_pos._unit_plNm(nm);
+        if(unit == null) {
+          Log.info("[LOVEC] No player found with name [$1].".format(nm));
+          return;
         };
-      };
-      if(!(team instanceof Team)) return;
 
-      Vars.player.team(team);
+        Call.unitDestroy(unit.id);
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Literally toggles invincibility.
+       * ---------------------------------------- */
+      toggleInvincible: function() {
+        if(!checkCheatState()) return;
+        let unit = Vars.player.unit();
+        if(unit == null) return;
+
+        unit.hasEffect(StatusEffects.invincible) ?
+          unit.unapply(StatusEffects.invincible) :
+          unit.apply(StatusEffects.invincible, Number.fMax);
+        Time.run(2.0, () => {
+          Log.info("[LOVEC] Player invincibility: " + (unit.hasEffect(StatusEffects.invincible) ? "ON" : "OFF").color(Pal.accent));
+        });
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Toggles invincibility of cores.
+       * ---------------------------------------- */
+      toggleCoreInvincible: function thisFun() {
+        thisFun.isOn = !thisFun.isOn;
+        Time.run(2.0, () => {
+          Log.info("[LOVEC] Core invincibility: " + (thisFun.isOn ? "ON" : "OFF").color(Pal.accent));
+        });
+      }
+      .setProp({
+        isOn: (function() {
+          Events.run(Trigger.update, () => {
+            if(CHEAT.toggleCoreInvincible.isOn) Vars.player.team().data().cores.each(ob => ob.iframes = Math.max(ob.iframes, 60.0));
+          });
+          return false;
+        })(),
+      }),
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Changes your team.
+       * ---------------------------------------- */
+      changeTeam: function(team) {
+        if(!checkCheatState()) return;
+        if(typeof team === "string") {
+          try {
+            team = Team[team];
+          } catch(err) {
+            team = null;
+          };
+        };
+        if(!(team instanceof Team)) return;
+
+        Vars.player.team(team);
+      },
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Spawns some unit at your unit.
+       * Internal units are banned, which may lead to crash.
+       * ---------------------------------------- */
+      spawnUnit: function thisFun(utp_gn) {
+        if(!checkCheatState()) return;
+        let unit = Vars.player.unit();
+        if(unit == null) return;
+        if(typeof utp_gn === "string" && utp_gn.equalsAny(thisFun.blacklist)) return;
+        let utp = lovec.mdl_content._ct(utp_gn, "utp");
+
+        lovec.mdl_call.spawnUnit_server(unit.x, unit.y, utp, unit.team);
+      }
+      .setProp({
+        blacklist: [],
+      }),
+
+
     };
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Spawns some unit at your unit.
-     * Internal units are banned, which may lead to crash.
-     * ---------------------------------------- */
-    _cmd_spawnUnit = function thisFun(utp_gn) {
-      if(!checkCheatState()) return;
-      let unit = Vars.player.unit();
-      if(unit == null) return;
-      if(typeof utp_gn === "string" && utp_gn.equalsAny(thisFun.blacklist)) return;
-      let utp = lovec.mdl_content._ct(utp_gn, "utp");
-
-      lovec.mdl_call.spawnUnit(unit.x, unit.y, utp, unit.team);
-    }
-    .setProp({
-      blacklist: [],
-    });
 
 
   }));

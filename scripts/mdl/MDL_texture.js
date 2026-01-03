@@ -11,6 +11,9 @@
   const ANNO = require("lovec/glb/BOX_anno");
 
 
+  const MDL_color = require("lovec/mdl/MDL_color");
+
+
   /* <---------- region ----------> */
 
 
@@ -119,16 +122,38 @@
 
 
   /* ----------------------------------------
+   * IMPORTANT:
+   *
+   * In Lovec {pix} refers to both {Pixmap} and {PixmapRegion}.
+   * The only thing you and I need to remember is, don't use {pix.each} which can lead to crash.
+   * ---------------------------------------- */
+
+
+  /* ----------------------------------------
    * NOTE:
    *
-   * Draws pixels from {pix2} on top of {pix1}, ignores transparent pixels.
+   * Draws pixels from {pixTop} on top of {pixBot}, ignores transparent pixels.
    * ---------------------------------------- */
-  const _pix_stack = function(pix1, pix2, aThr) {
-    let pix = new Pixmap(pix1.width, pix1.height);
-    let thr = Math.round(tryVal(aThr, 0.14) * 255);
-    pix.each((x, y) => {
-      pix.setRaw(x, y, pix2 == null || pix2.getA(x, y) < thr ? pix1.getRaw(x, y) : pix2.getRaw(x, y));
-    });
+  const _pix_stack = function(pixBot, pixTop, aThr) {
+    let
+      pix = new Pixmap(pixBot.width, pixBot.height),
+      thr = Math.round(tryVal(aThr, 0.14) * 255),
+      w = pix.width, h = pix.height;
+
+    let x = 0, y;
+    while(x < w) {
+      y = 0;
+      while(y < h) {
+        pix.set(
+          x, y,
+          pixTop == null || pixTop.getA(x, y) < thr ?
+            pixBot.get(x, y) :
+            pixTop.get(x, y),
+        );
+        y++;
+      };
+      x++;
+    };
 
     return pix;
   };
@@ -138,15 +163,17 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Draws a smaller icon of {ct_gn} on top of {pix0}.
+   * Draws a smaller icon of {ct_gn} on top of {pixBase}.
    * ---------------------------------------- */
-  const _pix_ctStack = function(pix0, ct_gn) {
+  const _pix_ctStack = function(pixBase, ct_gn) {
     let ct = global.lovecUtil.fun._ct(ct_gn);
     if(ct == null) ERROR_HANDLER.throw("noContentFound", ct_gn);
-    let pixCt = Core.atlas.getPixmap(ct instanceof Block ? _regBlk(ct) : ct.fullIcon);
-    let pixCtStack = new Pixmap(pix0.width, pix0.height);
+    let
+      pixCt = Core.atlas.getPixmap(ct instanceof Block ? _regBlk(ct) : ct.fullIcon),
+      pixCtStack = new Pixmap(pixBase.width, pixBase.height);
+
     pixCtStack.draw(pixCt, pixCtStack.width * 0.5, pixCtStack.height * 0.5, pixCtStack.width * 0.5, pixCtStack.height * 0.5);
-    let pix = _pix_stack(pix0, pixCtStack);
+    let pix = _pix_stack(pixBase, pixCtStack);
     pixCtStack.dispose();
 
     return pix;
@@ -157,32 +184,44 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts pixels from the icon region of {ct} to an icon tag pixmap.
+   * Copies colors from {pixRef}, and recolor {pixBase} which is from a grayscale sprite.
    * ---------------------------------------- */
-  const _pix_ctTag = function(ct_gn, w) {
-    if(w == null) w = 32;
-    let hw = w / 2;
-    let ct = global.lovecUtil.fun._ct(ct_gn);
-    if(ct == null) ERROR_HANDLER.throw("noContentFound", ct_gn);
-    let reg = ct instanceof Block ? _regBlk(ct) : Core.atlas.find(ct.name);
-    let pixCt = Core.atlas.getPixmap(reg);
-    let wCt = pixCt.width;
-    let hCt = pixCt.height;
-    let pix = new Pixmap(w, w);
-
-    for(let x = hw; x < w; x++) {
-      for(let y = hw; y < w; y++) {
-        let fracX = (x - hw) / hw;
-        let fracY = (y - hw) / hw;
-        let rawColor = pixCt.getRaw(Math.round(wCt * fracX), Math.round(hCt * fracY));
-
-        pix.setRaw(x, y, rawColor);
+  const _pix_gsColor = function(pixBase, pixRef) {
+    let pix = new Pixmap(pixBase.width, pixBase.height);
+    let
+      rawBaseColors = MDL_color._pixColors(pixBase),
+      rawRefColors = MDL_color._pixColors(pixRef);
+    // Make sure the two arrays match in length
+    if(rawRefColors.length > rawBaseColors) {
+      rawRefColors.length = rawBaseColors.length;
+    } else if(rawRefColors.length < rawBaseColors) {
+      if(rawRefColors.length === 0) throw new Error("Is the reference sprite empty???");
+      while(rawRefColors.length < rawBaseColors.length) {
+        rawRefColors.push(rawRefColors.last());
       };
     };
+    let w = pix.width, h = pix.height;
+
+    let x = 0, y, ind, rawColor;
+    while(x < w) {
+      y = 0;
+      while(y < h) {
+        rawColor = pixBase.get(x, y);
+        ind = rawBaseColors.indexOf(rawColor);
+        if(ind >= 0) {
+          rawColor = rawRefColors[ind];
+          pix.set(x, y, rawColor);
+        };
+        y++;
+      };
+      x++;
+    };
+    rawBaseColors.clear();
+    rawRefColors.clear();
 
     return pix;
   };
-  exports._pix_ctTag = _pix_ctTag;
+  exports._pix_gsColor = _pix_gsColor;
 
 
   const comp_createIcons_ctTag = function(ct, packer, ctUnd_gn, ctOv_gn, suffix) {
@@ -190,6 +229,7 @@
     if(ctUnd == null) ERROR_HANDLER.throw("noContentFound", ctUnd_gn);
     let ctOv = global.lovecUtil.fun._ct(ctOv_gn);
     if(ctOv == null) ERROR_HANDLER.throw("noContentFound", ctOv_gn);
+
     let pix = _pix_ctStack(Core.atlas.getPixmap(ctUnd.name), ctOv);
     packer.add(MultiPacker.PageType.main, ct.name + suffix, pix);
     pix.dispose();

@@ -1,4 +1,3 @@
-const MDL_color = require("lovec/mdl/MDL_color");
 const MDL_texture = require("lovec/mdl/MDL_texture");
 const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
 
@@ -209,7 +208,7 @@ const db = {
             flr.albedo = 0.2;
             flr.emitLight = true;
             flr.lightRadius = 40.0;
-            if(MDL_color._isSameColor(flr.lightColor, Color.white)) {
+            if(flr.lightColor.equals(Color.white)) {
               flr.lightColor = Color.valueOf("faae7560");
             };
           };

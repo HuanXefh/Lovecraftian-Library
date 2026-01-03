@@ -40,6 +40,13 @@
   exports.addKeyBind = addKeyBind;
 
 
+  /* <---------- dialog flow ----------> */
+
+
+  const dialFlowNmCtMap = new ObjectMap();
+  exports.dialFlowNmCtMap = dialFlowNmCtMap;
+
+
   /* <---------- achievement ----------> */
 
 

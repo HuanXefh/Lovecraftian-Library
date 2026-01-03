@@ -141,7 +141,7 @@
       FRAG_recipe.dump(b, b.co, b.dumpTup);
     };
 
-    // Payload dumping is not affected by {blk.disableDump}
+    // Payload dumping is not affected by {blk.disableDump}, because you cannot manually take payload out of the building
     if(b.hasPayOutput && TIMER.secHalf && b.payOutputBs.length > 0) {
       if(b.lastDumpPay == null) {
         let nmCt = Object.randKey(b.payStockObj);
@@ -314,10 +314,8 @@
       tb.row();
     };
 
-    if(thisFun.tmpB !== b) {
-      FRAG_recipe._inputLiqs(thisFun.tmpArr, b.ci, b.bi, b.aux);
-      FRAG_recipe._outputLiqs(thisFun.tmpArr1, b.co, b.bo);
-    };
+    FRAG_recipe._inputLiqs(thisFun.tmpArr, b.ci, b.bi, b.aux);
+    FRAG_recipe._outputLiqs(thisFun.tmpArr1, b.co, b.bo);
 
     thisFun.tmpArr.forEachFast(liq => thisFun.addLiqBar(tb, b, liq));
     thisFun.tmpArr1.forEachFast(liq => thisFun.addLiqBar(tb, b, liq));
@@ -325,7 +323,6 @@
   .setProp({
     tmpArr: [],
     tmpArr1: [],
-    tmpB: null,
     addLiqBar: (tb, b, liq) => {
       tb.add(new Bar(
         liq.localizedName,
@@ -370,6 +367,8 @@
   function comp_ex_resetRcParam(b) {
     comp_acceptItem.tmpMap.clear();
     comp_acceptLiquid.tmpMap.clear();
+    // Force the right-bottom hovered table to be rebuilt
+    Reflect.set(PlacementFragment, Vars.ui.hudfrag.blockfrag, "lastDisplayState", null);
 
     b.progress = 0.0;
     b.efficiency = 0.0;

@@ -57,13 +57,15 @@
   module.exports = newClass().extendClass(PARENT).initClass()
   .setParent(Item)
   .setTags("rs-intmd", "rs-dust")
-  .setParam({})
+  .setParam({
+    recolorRegStr: "lovec-gen-dust-item",
+  })
   .setMethod({
 
 
     init: function() {
       comp_init(this);
     },
-    
+
 
   });

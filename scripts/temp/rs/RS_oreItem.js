@@ -38,13 +38,15 @@
 
 
   function comp_init(itm) {
+    itm.databaseTag = "lovec-ore";
+
     itm.sintTemp = itm.sintTemp >= 0.0 ? itm.sintTemp : MDL_content._sintTemp(itm);
   };
 
 
   function comp_setStats(itm) {
     itm.stats.add(TP_stat.rs_isOre, true);
-    if(itm.sintTemp > 100.0) itm.stats.add(TP_stat.rs_sintTemp, itm.sintTemp, TP_stat.rs_heatUnits);    
+    if(itm.sintTemp > 100.0) itm.stats.add(TP_stat.rs_sintTemp, itm.sintTemp, TP_stat.rs_heatUnits);
   };
 
 

@@ -54,15 +54,7 @@
   exports._color = _color;
 
 
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Checks if two colors are the same in RGBA.
-   * ---------------------------------------- */
-  const _isSameColor = function(color1_gn, color2_gn) {
-    return _color(color1_gn, tmpColors[0]).rgba() === _color(color2_gn, tmpColors[1]).rgba();;
-  };
-  exports._isSameColor = _isSameColor;
+  /* <---------- sprite ----------> */
 
 
   /* ----------------------------------------
@@ -81,6 +73,48 @@
     return color.set(pix.get(Math.round(pix.width * 0.5) - 1, Math.round(pix.height * 0.5) - 1));
   };
   exports._iconColor = _iconColor;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a list colors in a pixmap, no transparent ones.
+   * ---------------------------------------- */
+  const _pixColors = function thisFun(pix, useArcColor) {
+    // No need for temporary array, there are always new color objects anyway
+    const arr = [];
+
+    let
+      w = pix.width, h = pix.height,
+      x = 0, y, rawColor;
+    while(x < w) {
+      y = 0;
+      while(y < h) {
+        rawColor = pix.get(x, y);
+        if(pix.getA(x, y) > 192 && !arr.includes(rawColor)) {
+          arr.push(Number(rawColor));
+        };
+        y++;
+      };
+      x++;
+    };
+    // Cursed color comparison
+    arr.sort((rgba1, rgba2) => RGB.calcLightness(thisFun.tmpColors[0].set(rgba1)) - RGB.calcLightness(thisFun.tmpColors[1].set(rgba2)));
+
+    return !useArcColor ?
+      arr :
+      arr.inSituMap(rawColor => new Color(rawColor));
+  }
+  .setProp({
+    tmpColors: [
+      new Color(),
+      new Color(),
+    ],
+  });
+  exports._pixColors = _pixColors;
+
+
+  /* <---------- misc ----------> */
 
 
   /* ----------------------------------------

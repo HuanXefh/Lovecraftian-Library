@@ -24,7 +24,6 @@
 
 
   const ANNO = require("lovec/glb/BOX_anno");
-  const COMP = require("lovec/glb/BOX_comp");
   const NOISE = require("lovec/glb/BOX_noise");
   const TRIGGER = require("lovec/glb/BOX_trigger");
   const EFF = require("lovec/glb/GLB_eff");
@@ -55,11 +54,15 @@
   const FRAG_faci = require("lovec/frag/FRAG_faci");
   const FRAG_fluid = require("lovec/frag/FRAG_fluid");
   const FRAG_item = require("lovec/frag/FRAG_item");
+  const FRAG_payload = require("lovec/frag/FRAG_payload");
+  const FRAG_puddle = require("lovec/frag/FRAG_puddle");
   const FRAG_unit = require("lovec/frag/FRAG_unit");
 
 
   const MDL_ai = require("lovec/mdl/MDL_ai");
+  const MDL_attr = require("lovec/mdl/MDL_attr");
   const MDL_backend = require("lovec/mdl/MDL_backend");
+  const MDL_bundle = require("lovec/mdl/MDL_bundle");
   const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -69,13 +72,20 @@
   const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_file = require("lovec/mdl/MDL_file");
+  const MDL_flag = require("lovec/mdl/MDL_flag");
+  const MDL_flow = require("lovec/mdl/MDL_flow");
+  const MDL_fuel = require("lovec/mdl/MDL_fuel");
+  const MDL_io = require("lovec/mdl/MDL_io");
   const MDL_json = require("lovec/mdl/MDL_json");
   const MDL_market = require("lovec/mdl/MDL_market");
   const MDL_net = require("lovec/mdl/MDL_net");
+  const MDL_pollution = require("lovec/mdl/MDL_pollution");
   const MDL_pos = require("lovec/mdl/MDL_pos");
   const MDL_reaction = require("lovec/mdl/MDL_reaction");
   const MDL_recipe = require("lovec/mdl/MDL_recipe");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
+  const MDL_table = require("lovec/mdl/MDL_table");
+  const MDL_terrain = require("lovec/mdl/MDL_terrain");
   const MDL_test = require("lovec/mdl/MDL_test");
   const MDL_text = require("lovec/mdl/MDL_text");
   const MDL_texture = require("lovec/mdl/MDL_texture");
@@ -97,6 +107,7 @@
   const DB_fluid = require("lovec/db/DB_fluid");
   const DB_item = require("lovec/db/DB_item");
   const DB_misc = require("lovec/db/DB_misc");
+  const DB_reaction = require("lovec/db/DB_reaction");
   const DB_status = require("lovec/db/DB_status");
   const DB_unit = require("lovec/db/DB_unit");
 
@@ -120,7 +131,6 @@
 
 
       anno: ANNO,
-      comp: COMP,
       noise: NOISE,
       trigger: TRIGGER,
       eff: EFF,
@@ -151,11 +161,15 @@
       frag_faci: FRAG_faci,
       frag_fluid: FRAG_fluid,
       frag_item: FRAG_item,
+      frag_payload: FRAG_payload,
+      frag_puddle: FRAG_puddle,
       frag_unit: FRAG_unit,
 
 
       mdl_ai: MDL_ai,
+      mdl_attr: MDL_attr,
       mdl_backend: MDL_backend,
+      mdl_bundle: MDL_bundle,
       mdl_call: MDL_call,
       mdl_color: MDL_color,
       mdl_cond: MDL_cond,
@@ -165,13 +179,20 @@
       mdl_entity: MDL_entity,
       mdl_event: MDL_event,
       mdl_file: MDL_file,
+      mdl_flag: MDL_flag,
+      mdl_flow: MDL_flow,
+      mdl_fuel: MDL_fuel,
+      mdl_io: MDL_io,
       mdl_json: MDL_json,
       mdl_market: MDL_market,
       mdl_net: MDL_net,
+      mdl_pollution: MDL_pollution,
       mdl_pos: MDL_pos,
       mdl_reaction: MDL_reaction,
       mdl_recipe: MDL_recipe,
       mdl_recipeDict: MDL_recipeDict,
+      mdl_table: MDL_table,
+      mdl_terrain: MDL_terrain,
       mdl_test: MDL_test,
       mdl_text: MDL_text,
       mdl_texture: MDL_texture,
@@ -193,6 +214,7 @@
       db_fluid: DB_fluid,
       db_item: DB_item,
       db_misc: DB_misc,
+      db_reaction: DB_reaction,
       db_status: DB_status,
       db_unit: DB_unit,
 
@@ -200,13 +222,10 @@
       mod_tmi: MOD_tmi,
 
 
-      modded: PARAM.modded,
-
-
     };
 
 
-    global.lovec.print = {
+    global.lovec.debug = {
 
 
       printLiq(tx, ty) {

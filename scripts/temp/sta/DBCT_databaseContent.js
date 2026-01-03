@@ -54,13 +54,39 @@
   module.exports = newClass().extendClass(PARENT).initClass()
   .setParent(null)
   .setTags()
-  .setParam({})
+  .setParam({
+    allDatabaseTabs: false,
+  })
   .setMethod({
 
 
     setStats: function() {
       comp_setStats(this);
     },
+
+
+    showUnlock: function() {
+      return true;
+    }
+    .setProp({
+      noSuper: true,
+    }),
+
+
+    isHidden: function() {
+      return !this.show;
+    }
+    .setProp({
+      noSuper: true,
+    }),
+
+
+    ex_checkDbctUnlocked: function() {
+      return this.unlocked || global.lovecUtil.prop.debug;
+    }
+    .setProp({
+      noSuper: true,
+    }),
 
 
   });

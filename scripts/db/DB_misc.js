@@ -627,6 +627,7 @@ const db = {
       "dynamic-pollution", 0.0, null,
       "bits", [], "string",
       "bit-hash", [], "string",
+      "flags", [], "string",
 
     ],
 
@@ -712,6 +713,9 @@ const db = {
       color: [
 
         "lovec", "earlan", "d4c0d8",
+
+        "projreind", "shirone", "e2cad1",
+        "projreind", "EXPE", "d6eaff",
 
       ],
 

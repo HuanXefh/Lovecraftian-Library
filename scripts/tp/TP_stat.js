@@ -188,6 +188,8 @@
   exports.spec_facFami = newIns_stat("spec-facfami");
   exports.spec_oreDict = newIns_stat("spec-oredict");
   exports.spec_fromTo = newIns_stat("spec-fromto");
+  exports.spec_info = newIns_stat("spec-info");
+  exports.spec_dialFlow = newIns_stat("spec-dialflow");
 
 
   /* <---------- stat unit ----------> */

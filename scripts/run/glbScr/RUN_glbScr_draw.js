@@ -76,6 +76,11 @@
   LCDraw = {
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Colored line.
+     * ---------------------------------------- */
     line: function(x1, y1, x2, y2, isDashed) {
       isDashed ?
         Lines.dashLine(x1, y1, x2, y2, Math.round(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / Vars.tilesize * 2.0)) :
@@ -83,6 +88,11 @@
     },
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Colored line rectangle.
+     * ---------------------------------------- */
     rect: function(x, y, r, size, isDashed) {
       let
         hw = (size * 0.5 + r) * Vars.tilesize,
@@ -102,11 +112,21 @@
     },
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Colored filled square.
+     * ---------------------------------------- */
     area: function(x, y, size) {
       Fill.rect(x, y, size * Vars.tilesize, size * Vars.tilesize);
     },
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Colored line circle.
+     * ---------------------------------------- */
     circle: function(x, y, rad, isDashed) {
       isDashed ?
         Lines.dashCircle(x, y, rad) :
@@ -114,6 +134,11 @@
     },
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Colored ring shape that can be cut.
+     * ---------------------------------------- */
     ring: function(x, y, radIn, radOut, ang, frac, rev) {
       let
         sideAmt = Lines.circleVertices((radIn + radOut) * 0.5),
@@ -138,9 +163,101 @@
     },
 
 
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Colored filled circle.
+     * ---------------------------------------- */
     disk: function(x, y, rad) {
       Fill.circle(x, y, rad);
     },
 
 
   };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Container of methods related to RGB color.
+   * ---------------------------------------- */
+  RGB = {
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Used to define color converter methods.
+     * ---------------------------------------- */
+    newColorConvert: function(rgbaCaller) {
+      return newMultiFunction(
+        [Color], function(color) {
+          return rgbaCaller(color.r, color.g, color.b, color.a);
+        },
+        ["number", "number", "number", "number"], function(r, g, b, a) {
+          return rgbaCaller(r, g, b, a);
+        },
+        ["number", "number", "number"], function(r, g, b) {
+          return rgbaCaller(r, g, b, 1.0);
+        },
+      );
+    },
+
+
+    calcLinearRgbParam: function(param) {
+      return param < 0.04045 ?
+        param / 12.92 :
+        Math.pow((param + 0.055) / 1.055, 2.4);
+    },
+
+
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Creates a grayscale color.
+   * ---------------------------------------- */
+  RGB.toGrayscale = RGB.newColorConvert(function(r, g, b, a) {
+    let val = r * 0.2126 + g * 0.7152 + b * 0.0722;
+    return Tmp.c1.set(val, val, val, a);
+  });
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Creates a negative color.
+   * ---------------------------------------- */
+  RGB.toNegative = RGB.newColorConvert(function(r, g, b, a) {
+    return Tmp.c1.set(1.0 - r, 1.0 - g, 1.0 - b, a);
+  });
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Calculates luminance of a color.
+   * ---------------------------------------- */
+  RGB.calcLuminance = RGB.newColorConvert(function(r, g, b, a) {
+    let
+      rLinear = RGB.calcLinearRgbParam(r),
+      gLinear = RGB.calcLinearRgbParam(g),
+      bLinear = RGB.calcLinearRgbParam(b);
+
+    return (rLinear * 0.2126 + gLinear * 0.7152 + bLinear * 0.0722) * a;
+  });
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Calculates perceived lightness of a color.
+   * ---------------------------------------- */
+  RGB.calcLightness = RGB.newColorConvert(function(r, g, b, a) {
+    let lumin = RGB.calcLuminance(r, g, b, a);
+    return lumin < 0.008856 ?
+      (lumin * 9.033) :
+      ((Math.pow(lumin, 0.33333333) * 116.0 - 16.0) * 0.01);
+  });

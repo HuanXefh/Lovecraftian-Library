@@ -277,26 +277,6 @@ const db = {
     faction: [],
 
 
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Used to add abilities to some unit types.
-     * The ability setter function must be registered first!
-     * See {TP_ability} where {nmAbi} and the function is added to {global.lovecUtil.db.abilitySetter}.
-     * Format: {nmUtp, nmAbi, paramObj}.
-     * ---------------------------------------- */
-    ability: [],
-
-
-    /* ----------------------------------------
-     * NOTE:
-     *
-     * Used to add ai controllers to some unit types.
-     * Similar to {"ability"}.
-     * ---------------------------------------- */
-    ai: [],
-
-
   },
 
 
@@ -383,11 +363,41 @@ const db = {
      * NOTE:
      *
      * Outline parameters used for units & turrets.
+     * Format: {nmMod, [stroke, color]}.
      * ---------------------------------------- */
     outline: [
 
       "loveclab", [2, "373a4d"],
       "projreind", [2, "373a4d"],
+
+    ],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Maps a type to some template tag.
+     * The type used here can affect damage dealt by Lovec bullets.
+     * ---------------------------------------- */
+    typeTagMap: [
+
+      // Highest priority
+      "experimental", "utp-exp",
+
+      "biotic", "utp-bio",
+      "infantry", "utp-inf",
+      "titan", "utp-titan",
+      "behemoth", "utp-beh",
+      "vehicle", "utp-veh",
+      "heavy-vehicle", "utp-hev0veh",
+      "aircraft", "utp-air",
+      "airship", "utp-aship",
+      "drone", "utp-drone",
+      "spacecraft", "utp-spa",
+      "boat", "utp-boat",
+      "ship", "utp-ship",
+      "heavy-ship", "utp-hev0ship",
+      "submarine", "utp-sub",
 
     ],
 

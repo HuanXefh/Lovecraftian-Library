@@ -464,6 +464,40 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Shows selection buttons for branched dialog flow.
+   * Is it really needed for a linear progression game???
+   * ---------------------------------------- */
+  const _d_selection = function(delay, textScrArr, w, h, inTimeS) {
+    if(w == null) w = 500.0;
+    if(h == null) h = 50.0;
+    if(inTimeS == null) inTimeS = 1.0;
+
+    const tb = new Table();
+    tb.center();
+    textScrArr.forEachRow(2, (text, scr) => {
+      tb.button(text, () => {
+        scr();
+        shouldClose = true;
+      }).center().size(w, h).row();
+    });
+
+    let shouldClose = false;
+    setActor_pos(tb);
+    setActor_action(tb, delay, [
+      Actions.fadeIn(inTimeS),
+      Actions.run(() => tb.update(() => {
+        if(shouldClose) removeActor(tb);
+      })),
+    ], true);
+
+    return inTimeS;
+  };
+  exports._d_selection = _d_selection;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * A common text box used for drama that is shown at the bottom of screen.
    * {tupDial} is a 3-tuple of {nmMod}, {nmDial} and {ind}.
    * {tupChara} is a 2-tuple of {nmMod} and {nmChara}.

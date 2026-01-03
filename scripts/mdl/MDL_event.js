@@ -148,6 +148,26 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Called whenever a tile is tapped by local player.
+   * The tile is never {null}.
+   * ---------------------------------------- */
+  const _c_onTileTap = function thisFun(scr, id) {
+    if(id != null && thisFun.ids.includes(id)) return;
+    if(id != null) thisFun.ids.push(id);
+
+    Events.on(TapEvent, ev => {
+      if(ev.player === Vars.player && ev.tile != null) scr(ev.tile);
+    });
+  }
+  .setProp({
+    ids: [],
+  });
+  exports._c_onTileTap = _c_onTileTap;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Called whenever a building gets damaged.
    * ---------------------------------------- */
   const _c_onBDamage = function thisFun(scr, id) {

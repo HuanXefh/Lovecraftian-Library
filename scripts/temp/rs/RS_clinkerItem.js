@@ -54,13 +54,15 @@
   module.exports = newClass().extendClass(PARENT).initClass()
   .setParent(Item)
   .setTags("rs-intmd", "rs-clinker")
-  .setParam({})
+  .setParam({
+    recolorRegStr: "lovec-gen-clinker-item",
+  })
   .setMethod({
 
 
     init: function() {
       comp_init(this);
     },
-    
+
 
   });

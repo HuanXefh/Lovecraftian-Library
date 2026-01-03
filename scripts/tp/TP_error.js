@@ -13,7 +13,6 @@
 
   batchCall(ERROR_HANDLER, function() {
 
-
     this.add("debug", "[$1] sucks.");
     this.add("nullArgument", "Argument [$1] cannot be null!");
     this.add("notProv", "Argument [$1] is not a Prov!");
@@ -21,10 +20,8 @@
     this.add("headerConflict", "Header name [$1] has already been used!");
     this.add("notUniqueName", "Name [$1] (for [$2]) has already been used!");
 
-
     this.add("arrayLengthMismatch", "Two array arguments are expected to have same length!");
     this.add("not3dArray", "Array argument is expected to be 3D!");
-
 
     this.add("functionLengthWrapFail", "Wrapped function length ([$1]) is out of bound!");
     this.add("notClass", "Argument [$1] is not a function class!");
@@ -40,14 +37,12 @@
     this.add("contentTemplateInstance", "Do not create instance of a content template!");
     this.add("contentTemplateNoParentJavaClass", "Cannot build the object when parent Java class is not assigned!");
 
-
     this.add("notVector", "Argument [$1] is not a vector (CLS_matrix)!");
     this.add("not3dVector", "Vector argument is expected to be 3D!");
     this.add("arcVectorConversionFail", "Only 2D or 3D vectors can be converted to Arc vectors!");
     this.add("notSquareMatrix", "Argument [$1] is not a square matrix!");
     this.add("matrixSizeMismatch", "Two matrix arguments are expected to have same size!");
     this.add("matrixMultiplicationInvalid", "Two matrix arguments cannot multiply with each other!");
-
 
     this.add("noModFound", "Mod [$1] is not found!");
     this.add("noContentFound", "Content [$1] is not found!");
@@ -62,9 +57,10 @@
     this.add("evenSizedCogwheel", "Cogwheel size cannot be even! Exception: [$1]");
     this.add("planetMeshLoadFail", "Failed to load mesh ([$1]) for [$2].");
 
-
     this.add("recipeDictionaryNotInitialized", "Recipe dictionary has not been initialized yet! Do not modify it before or just on CLIENT LOAD!");
     this.add("dialogFlowGenerateFail", "Failed to generate dialog flow. Make sure the structure is correct!");
-
+    this.add("dialogFlowDoubleBuild", "Don't build the same dialog flow twice!");
+    this.add("dialogFlowMissingBackgroundEnd", "The dialog flow has a background that never ends!");
+    this.add("dialogFlowMissingMusicEnd", "The dialog flow has a BGM that never ends!");
 
   });

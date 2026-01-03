@@ -160,7 +160,7 @@
   function comp_ex_updateRpmDmg(b, ob, rateAdd, rateCons) {
     if(rateCons < 0.0001 || rateAdd <= rateCons * 3.0) return;
 
-    FRAG_attack.damage(ob, ob.maxHealth * (VAR.blk_rpmDmgFrac + (rateAdd - rateCons * 3.0) / rateCons));
+    FRAG_attack.damage(ob, ob.maxHealth * (VAR.blk_rpmDmgFrac + (rateAdd - rateCons * 3.0) / rateCons), 0.0);
   };
 
 

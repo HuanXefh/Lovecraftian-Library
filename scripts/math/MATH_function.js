@@ -39,11 +39,12 @@
    *
    * Derivative of {mathFun} at x.
    * ---------------------------------------- */
-  const _f_deri = function(x, mathFun) {
-    const delta = 0.00001;
-
-    return (mathFun(x + delta) - mathFun(x)) / delta;
-  };
+  const _f_deri = function thisFun(x, mathFun) {
+    return (mathFun(x + thisFun.delta) - mathFun(x)) / thisFun.delta;
+  }
+  .setProp({
+    delta: 0.00001,
+  });
   exports._f_deri = _f_deri;
 
 
@@ -56,8 +57,8 @@
   const _f_riemannSum = function(base, cap, mathFun, segAmt) {
     if(segAmt == null) segAmt = 1000;
 
-    var val = 0.0;
-    var dx = (cap - base) / segAmt;
+    let val = 0.0;
+    let dx = (cap - base) / segAmt;
     for(let i = 0; i < segAmt; i++) {
       val += mathFun(base + dx * (0.5 + i));
     };

@@ -39,7 +39,8 @@
 
   function comp_init(blk) {
     if(blk.overwriteVanillaProp) {
-      if(blk.walkSound === Sounds.none) {
+      // TODO: Wait until Anuke decides to change this.
+      if(blk.walkSound === Sounds.none || blk.walkSound === Sounds.unset) {
         blk.walkSound = fetchSound("se-step-" + blk.ex_getMatGrp());
         blk.walkSoundVolume = 0.2;
         blk.walkSoundPitchMin = 0.95;

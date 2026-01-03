@@ -88,14 +88,14 @@
     "pattern", "shoot", prov(() => new ShootPattern()),
     "shootSta", "shootStatus", StatusEffects.none,
     "shootStaDur", "shootStatusDuration", 300.0,
-    "activeSe", "activeSound", Sounds.none,
+    "activeSe", "activeSound", Sounds.unset,
     "activeSeVol", "activeSoundVolume", 1.0,
     "shootSe", "shootSound", Sounds.shoot,
     "shootSeVol", "shootSoundVolume", 1.0,
     "shootSePitchMin", "soundPitchMin", 0.8,
     "shootSePitchMax", "shootSePitchMax", 1.0,
-    "firstShootSe", "initialShootSound", Sounds.none,
-    "chargeSe", "chargeSound", Sounds.none,
+    "firstShootSe", "initialShootSound", Sounds.unset,
+    "chargeSe", "chargeSound", Sounds.unset,
   ])
   .setParamParser([
     "cooldownTime", function(val) {

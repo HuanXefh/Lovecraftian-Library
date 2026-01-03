@@ -117,7 +117,7 @@
    * Gets the drill speed for {blk}.
    * ---------------------------------------- */
   const _drillSpd = function(blk, boosted) {
-    return readClassFunMap(DB_block.db["class"]["map"]["drillSpd"], blk, Function.airZero)(blk, tryVal(boosted, false));
+    return readClassFunMap(DB_block.db["class"]["map"]["drillSpd"], blk, Function.airZero)(blk, tryVal(boosted, false)) / tryFun(blk.ex_getDrillAmtMtp, blk, 1.0);
   };
   exports._drillSpd = _drillSpd;
 

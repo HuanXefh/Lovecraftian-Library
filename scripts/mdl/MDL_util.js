@@ -19,20 +19,6 @@
   const DB_misc = require("lovec/db/DB_misc");
 
 
-  /* <---------- setting ----------> */
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * Reads the settings. See {DB_misc}.
-   * ---------------------------------------- */
-  const _cfg = function(nmCfg, useScl) {
-    return DB_misc.db["config"].read(nmCfg, Function.airNull)(useScl);
-  };
-  exports._cfg = _cfg;
-
-
   /* <---------- input ----------> */
 
 

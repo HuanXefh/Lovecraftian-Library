@@ -68,7 +68,7 @@
       if(b.durabFrac < 0.0) {
         b.durabFrac = 0.0;
         b.durabMode = "inc";
-        FRAG_attack.damage(b, b.maxHealth * b.block.ex_getDurabDmgFrac(), true);
+        FRAG_attack.damage(b, b.maxHealth * b.block.ex_getDurabDmgFrac(), 0.0);
       };
     } else {
       // Exit increase mode when fully repaired

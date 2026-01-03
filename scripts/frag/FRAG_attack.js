@@ -18,6 +18,7 @@
   const MDL_call = require("lovec/mdl/MDL_call");
   const MDL_color = require("lovec/mdl/MDL_color");
   const MDL_cond = require("lovec/mdl/MDL_cond");
+  const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_effect = require("lovec/mdl/MDL_effect");
   const MDL_entity = require("lovec/mdl/MDL_entity");
   const MDL_net = require("lovec/mdl/MDL_net");
@@ -114,18 +115,18 @@
    *
    * Applies damage (triggers damage display).
    * ---------------------------------------- */
-  const damage = function(e, dmg, pierceArmor, mode_ow) {
+  const damage = function(e, dmg, armorMtp, mode_ow) {
     if(e == null) return false;
     if(dmg < 0.0001) return false;
 
-    let dmg_fi = MDL_entity._dmgTake(e, dmg, pierceArmor);
+    let dmg_fi = MDL_entity._dmgTake(e, dmg, armorMtp);
     if(e instanceof Building) {
-      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, tryVal(mode_ow, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health"));
+      MDL_effect.showAt_dmg(e.x, e.y, dmg_fi, null, tryVal(mode_ow, MDL_entity._bShield(e, true) > dmg_fi ? "shield" : "health"));
       MDL_effect.showAt_flash(e);
     } else {
-      MDL_effect.showAt_dmg(e.x, e.y, dmg, null, tryVal(mode_ow, e.shield > dmg_fi ? "shield" : "health"));
+      MDL_effect.showAt_dmg(e.x, e.y, dmg_fi, null, tryVal(mode_ow, e.shield > dmg_fi ? "shield" : "health"));
     };
-    pierceArmor ? e.damagePierce(dmg, true) : e.damage(dmg, true);
+    e.damagePierce(dmg_fi, true);
 
     return true;
   };
@@ -161,35 +162,32 @@
    *
    * Finds the multiplier on final damage based on type affinity.
    * ---------------------------------------- */
-  const _dmgTagMtp = function(mode, mtp) {
-    switch(mode) {
-      case "infantry" : return !MDL_cond._isInfantryUnit(e.type) ? 1.0 : mtp;
-      case "vehicle" : return !MDL_cond._isVehicleUnit(e.type) ? 1.0 : mtp;
-      case "heavy-vehicle" : return !MDL_cond._isHeavyVehicleUnit(e.type) ? 1.0 : mtp;
-      case "drone" : return !MDL_cond._isDroneUnit(e.type) ? 1.0 : mtp;
-      case "experimental" : return !MDL_cond._isExperimentalUnit(e.type) ? 1.0 : mtp;
-      default : return 1.0;
-    };
+  const _dmgMtp_type = function(e, type, mtp) {
+    let tag = DB_unit.db["grpParam"]["typeTagMap"].read(type);
+    return tag == null || !MDL_content._hasTag(e.type, tag) ?
+      1.0 :
+      mtp;
   };
-  exports._dmgTagMtp = _dmgTagMtp;
+  exports._dmgMtp_type = _dmgMtp_type;
 
 
   /* ----------------------------------------
    * NOTE:
    *
-   * Applies damage with type affinity included.
+   * Calculates the final damage multiplier with given type multipliers.
    * ---------------------------------------- */
-  const damage_tagMtp = function(e, dmg, modeMtpArr) {
-    if(modeMtpArr == null || modeMtpArr.length === 0) damage(e, dmg);
+  const _dmgMtp_typeMtpArr = function(e, typeMtpArr) {
+    if(typeMtpArr == null || typeMtpArr.length === 0) return 1.0;
 
-    let i = 0, iCap = modeMtpArr.iCap(), mtp = 1.0;
+    let i = 0, iCap = typeMtpArr.iCap(), mtp = 1.0;
     while(i < iCap) {
-      mtp *= _dmgTagMtp(modeMtpArr[i], modeMtpArr[i + 1]);
+      mtp *= _dmgMtp_type(e, typeMtpArr[i], typeMtpArr[i + 1]);
       i += 2;
     };
-    damage(e, dmg * mtp);
+
+    return mtp;
   };
-  exports.damage_tagMtp = damage_tagMtp;
+  exports._dmgMtp_typeMtpArr = _dmgMtp_typeMtpArr;
 
 
   /* <---------- ranged ----------> */
@@ -284,7 +282,7 @@
       };
 
       MDL_call.knockback(x, y, unit, dmg / 100.0, rad);
-      damage(unit, dmg_fi, true);
+      damage(unit, dmg_fi, 0.0);
       if(Mathf.chance(Math.max(frac, 0.2))) unit.apply(VARGEN.staStunned, staDur);
     });
 

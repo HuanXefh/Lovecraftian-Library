@@ -46,7 +46,7 @@
     );
 
     MDL_event._c_onLoad(() => {
-      if(!aux.uiIcon.found()) aux.fullIcon = aux.uiIcon = Core.atlas.find("lovec-gen-link-fluid");
+      if(!Vars.headless && !aux.uiIcon.found()) aux.fullIcon = aux.uiIcon = Core.atlas.find("lovec-gen-link-fluid");
     });
   };
 
