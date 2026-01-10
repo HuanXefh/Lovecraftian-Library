@@ -60,9 +60,9 @@
     let treeGrp = blk.ex_getTreeGrp();
     blk.drawTup = [
       Mathf.clamp(blk.layTree, 76.0, 80.0),
-      treeParams.read([treeGrp, "scl"], 1.0),
-      treeParams.read([treeGrp, "mag"], 1.0),
-      treeParams.read([treeGrp, "wob"], 1.0),
+      readParam(treeParams.read(treeGrp), "scl", 1.0),
+      readParam(treeParams.read(treeGrp), "mag", 1.0),
+      readParam(treeParams.read(treeGrp), "wob", 1.0),
     ];
 
     MDL_event._c_onLoad(() => {

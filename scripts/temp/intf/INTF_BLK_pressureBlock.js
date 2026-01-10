@@ -105,7 +105,7 @@
     };
     if(Math.abs(b.presTmp) > 0.0) {
       b.noSleep();
-      if(b.next() != null) b.next().noSleep();
+      if(b.next != null && b.next() != null) b.next().noSleep();
     };
 
     if(TIMER.sec && Math.abs(b.presTmp) > 0.0) {

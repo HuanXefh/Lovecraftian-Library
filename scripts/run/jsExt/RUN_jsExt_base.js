@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Fundamental methods for JavaScript native types.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -43,6 +57,21 @@
     };
 
     return tg;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Deletes every accessible properties in {obj}.
+   * Use with care!
+   * ---------------------------------------- */
+  cls.clear = function(obj) {
+    for(let key in obj) {
+      delete obj[key];
+    };
+
+    return obj;
   };
 
 
@@ -284,6 +313,26 @@
     if(iCap === 0) return;
     for(let i = 0; i < iCap; i++) {
       if(boolF(this[i])) scr(this[i]);
+    };
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * {forEach} that works for layered array.
+   * This one provides index and array reference in {scr}, which are hard to access directly.
+   * ---------------------------------------- */
+  ptp.forEachAll = function(scr) {
+    Array.prototype.forEachAll.callIt.apply(this, [scr]);
+  };
+  ptp.forEachAll.callIt = function(scr) {
+    let i = 0, iCap = this.iCap();
+    while(i < iCap) {
+      this[i] instanceof Array ?
+        Array.prototype.forEachAll.callIt.apply(this[i], [scr]) :
+        scr(this[i], i, this);
+      i++;
     };
   };
 

@@ -46,11 +46,23 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Evaluates the given string in global scope.
+   * ---------------------------------------- */
+  globalEval = function(scrStr) {
+    Vars.mods.scripts.context.evaluateString(Vars.mods.scripts.scope, scrStr, "globalEval_" + globalEval.ind + ".js", 0);
+    globalEval.ind++;
+  };
+  globalEval.ind = 0;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Requires a JS file (as Arc Fi instance), which will be run under global scope.
    * ---------------------------------------- */
   globalRequire = function(nmMod, fiGetter) {
-    let fi = fiGetter(Vars.mods.locateMod(nmMod).file);
-    if(fi == null || !fi.exists() || fi.extension() !== "js") throw new Error("Failed to require a script in global script for " + nmMod + "!");
+    let fi = fiGetter(Vars.mods.locateMod(nmMod).root);
+    if(fi == null || !fi.exists() || fi.extension() !== "js") throw new Error("Failed to require a script in global script for [$1]! [$2] is not a valid .js file.".format(nmMod, fi));
 
     Vars.mods.scripts.context.evaluateString(Vars.mods.scripts.scope, fi.readString(), fi.name(), 0);
   };

@@ -1,3 +1,11 @@
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database of unit properties.
+ * Entity id mapping is done here.
+ * ---------------------------------------- */
+
+
 const db = {
 
 

@@ -118,6 +118,7 @@
 
 
   function comp_buildConfiguration(b, tb) {
+    tb.row();
     b.ex_buildTempSlider(tb);
   };
 
@@ -138,7 +139,6 @@
 
 
   function comp_ex_buildTempSlider(b, tb) {
-    tb.row();
     tb.table(Styles.black3, tb1 => {
       tb1.left();
       MDL_table.__margin(tb1);

@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Mostly function decorators.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -61,16 +75,23 @@
    *
    * The method's returned values will be cached.
    * If {objMap} is given it will be used to store cached results.
+   * If {stateGetter} is given, the cache will be cleared whenever state is changed. {this} will be passed to the getter.
    * Used for very costy methods.
    * ---------------------------------------- */
-  ptp.setCache = function thisDecor(objMap) {
+  ptp.setCache = function thisDecor(objMap, stateGetter) {
     const thisFun = this;
 
     let cacheMap = objMap != null ? objMap : new ObjectMap();
     let fun = function() {
       let hash = thisDecor.calcHash.apply(this, arguments);
-      if(cacheMap.containsKey(hash)) return cacheMap.get(hash);
 
+      // Reset cache if state is changed
+      if(stateGetter != null && stateGetter.call(this) !== fun.__CACHED_STATE__) {
+        cacheMap.clear();
+        fun.__CACHED_STATE__ = stateGetter();
+      };
+
+      if(cacheMap.containsKey(hash)) return cacheMap.get(hash);
       let val = thisFun.apply(this, arguments);
       cacheMap.put(hash, val);
 
@@ -167,7 +188,7 @@
        * Returns a list of used {this} values.
        * ---------------------------------------- */
       fun.getCallThis = function() {
-        return fun.__CALLED_THIS__.slice();
+        return fun.__CALLED_THIS__.cpy();
       };
 
 
@@ -177,7 +198,7 @@
        * Returns the last {this} value.
        * ---------------------------------------- */
       fun.getLastThis = function() {
-        return fun.__CALLED_THIS__.last();
+        return fun.__CALLED_THIS__.cpy();
       };
 
 
@@ -197,7 +218,7 @@
        * Returns a list of used arguments.
        * ---------------------------------------- */
       fun.getCallArgs = function() {
-        return fun.__CALLED_ARGS__.slice();
+        return fun.__CALLED_ARGS__.cpy();
       };
 
 
@@ -227,7 +248,7 @@
        * Returns a list of returned values.
        * ---------------------------------------- */
       fun.getReturnVals = function() {
-        return fun.__RETURNED_VALS__.slice();
+        return fun.__RETURNED_VALS__.cpy();
       };
 
 

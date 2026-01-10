@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Handles Json read/write.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -86,9 +100,9 @@
         case "array" :
           // NOTE: I have to convert it to js array, or the game somehow converts it to object after saving 3 times, WTF.
           if(arrMode === "number") {
-            tmpVal = tmpJsonVal.asDoubleArray().slice();
+            tmpVal = tmpJsonVal.asDoubleArray().cpy();
           } else if(arrMode === "string") {
-            tmpVal = tmpJsonVal.asStringArray().slice();
+            tmpVal = tmpJsonVal.asStringArray().cpy();
           } else {
             tmpVal = tmpJsonVal;
           };

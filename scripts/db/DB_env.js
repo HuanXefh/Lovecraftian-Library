@@ -1,3 +1,10 @@
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database of environmental blocks, planets and maps, basically everything related to a map.
+ * ---------------------------------------- */
+
+
 const MDL_texture = require("lovec/mdl/MDL_texture");
 const TP_cacheLayer = require("lovec/tp/TP_cacheLayer");
 
@@ -15,7 +22,6 @@ const db = {
        * NOTE:
        *
        * Wind attribute multiplier for a planet.
-       * Format: {nmPla, num}.
        * ---------------------------------------- */
       wind: [],
 
@@ -25,9 +31,16 @@ const db = {
        *
        * Global heat for a planet.
        * 1.0 here equals 100.0 HU.
-       * Format: {nmPla, num}.
        * ---------------------------------------- */
       heat: [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Base pollution for a planet.
+       * ---------------------------------------- */
+      pol: [],
 
 
     },
@@ -51,7 +64,6 @@ const db = {
        *
        * Weather entries for a map (always permanent), used for campaign maps but works for any map.
        * No need to set weathers for those maps in editor.
-       * Format: {nmMap, nmWeas}.
        * ---------------------------------------- */
       weaEn: [],
 
@@ -60,7 +72,6 @@ const db = {
        * NOTE:
        *
        * Wind attribute multiplier for a map.
-       * Format: {nmMap, num}.
        * ---------------------------------------- */
       wind: [],
 
@@ -69,9 +80,16 @@ const db = {
        * NOTE:
        *
        * Global heat for a map.
-       * Format: {nmMap, num}.
        * ---------------------------------------- */
       heat: [],
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Base pollution for a map.
+       * ---------------------------------------- */
+      pol: [],
 
 
     },
@@ -244,20 +262,34 @@ const db = {
      * ---------------------------------------- */
     tree: [
 
-      "tree", "scl", 1.0,
-      "tree", "mag", 1.0,
-      "tree", "wob", 1.0,
-      "tree", "attrsGetter", () => ["lovec-attr0blk-tree", "lovec-attr0blk-hard-tree"],
+      "tree", {
+        scl: 1.0,
+        mag: 1.0,
+        wob: 1.0,
+        attrsGetter: () => [
+          "lovec-attr0blk-tree",
+          "lovec-attr0blk-hard-tree",
+        ],
+      },
 
-      "bush", "scl", 0.5,
-      "bush", "mag", 1.5,
-      "bush", "wob", 0.7,
-      "bush", "attrsGetter", () => [/*TODO*/],
+      "bush", {
+        scl: 0.5,
+        mag: 1.5,
+        wob: 0.7,
+        attrsGetter: () => [
+          // TODO: Add bush dynamic attributes.
+        ],
+      },
 
-      "fungi", "scl", 3.0,
-      "fungi", "mag", 0.4,
-      "fungi", "wob", 0.3,
-      "fungi", "attrsGetter", () => ["lovec-attr0blk-fungi", "lovec-attr0blk-hard-fungi"]
+      "fungi", {
+        scl: 3.0,
+        mag: 0.4,
+        wob: 0.3,
+        attrsGetter: () => [
+          "lovec-attr0blk-fungi",
+          "lovec-attr0blk-hard-fungi",
+        ],
+      },
 
     ],
 

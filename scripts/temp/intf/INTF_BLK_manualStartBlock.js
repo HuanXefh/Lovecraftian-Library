@@ -69,7 +69,7 @@
   function comp_setBars(blk) {
     blk.addBar("lovec-warmup", b => new Bar(
       prov(() => Core.bundle.format("bar.lovec-bar-warmup-amt", b.ex_getManualStartFrac().perc())),
-      prov(() => Pal.accent),
+      prov(() => Pal.ammo),
       () => b.ex_getManualStartFrac(),
     ));
   };

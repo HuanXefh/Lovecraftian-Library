@@ -1,7 +1,7 @@
 /* ----------------------------------------
  * NOTE:
  *
- * Used to register settings less randomly.
+ * Used to register settings less randomly. See {TP_setting}.
  * ---------------------------------------- */
 
 

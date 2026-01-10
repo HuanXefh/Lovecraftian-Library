@@ -104,9 +104,10 @@ const BOX_annotation = new CLS_objectBox({
    * NOTE:
    *
    * Method won't be called on mobile end.
+   * I have to include MacOS here, cauz it's too annoying.
    * ---------------------------------------- */
   $NON_MOBILE$: new CLS_annotation("non-mobile", function() {
-    return Core.app.isMobile();
+    return Core.app.isMobile() || OS.isMac;
   }),
 
 

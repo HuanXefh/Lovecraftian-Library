@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * More methods for JavaScript function that should be called later.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -66,7 +80,7 @@
    * Gets a copy of the annotation list of this function.
    * ---------------------------------------- */
   ptp.getAnnos = function() {
-    return tryVal(this.annos, Array.air).slice();
+    return tryVal(this.annos, Array.air).cpy();
   };
 
 

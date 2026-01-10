@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods related to fuels, used mostly for {INTF_BLK_furnaceBlock}.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -63,7 +77,7 @@
     let blk = MDL_content._ct(blk_gn, "blk");
     if(blk == null) return arr;
 
-    switch(tryFun(blk.ex_getFuelTp, blk, "item")) {
+    switch(tryFun(blk.ex_getFuelType, blk, "item")) {
       case "item" :
         arr.pushAll(VARGEN.fuelItms);
         break;
@@ -97,7 +111,7 @@
     if(rs == null) return false;
     if(tryFun(blk.ex_getBlockedFuels, blk, Array.air).includes(rs.name)) return false;
 
-    switch(tryFun(blk.ex_getFuelTp, blk, "item")) {
+    switch(tryFun(blk.ex_getFuelType, blk, "item")) {
       case "item" : return VARGEN.fuelItms.includes(rs);
       case "liquid" : return VARGEN.fuelLiqs.includes(rs);
       case "gas" : return VARGEN.fuelGases.includes(rs);
@@ -115,7 +129,7 @@
    * ---------------------------------------- */
   const _fuelTup = function thisFun(b) {
     let
-      fuelTp = tryFun(b.block.ex_getFuelTp, b.block, "item"),
+      fuelType = tryFun(b.block.ex_getFuelType, b.block, "item"),
       blockedFuels = tryFun(b.block.ex_getBlockedFuels, b.block, Array.air),
       fuel = null,
       fuelLvl = 0.0,
@@ -124,7 +138,7 @@
 
     // Find the fuel with highest fuel level
     let tmpLvl;
-    if(b.items != null && fuelTp.equalsAny(thisFun.filterTup1)) VARGEN.fuelItms.forEachFast(itm => {
+    if(b.items != null && fuelType.equalsAny(thisFun.filterTup1)) VARGEN.fuelItms.forEachFast(itm => {
       if(blockedFuels.includes(itm.name) || !b.items.has(itm)) return;
       tmpLvl = _fuelLvl(itm);
       if(tmpLvl > fuelLvl) {
@@ -135,7 +149,7 @@
       };
     });
     if(b.liquids != null) {
-      if(fuelTp.equalsAny(thisFun.filterTup2)) VARGEN.fuelLiqs.forEachFast(liq => {
+      if(fuelType.equalsAny(thisFun.filterTup2)) VARGEN.fuelLiqs.forEachFast(liq => {
         if(blockedFuels.includes(liq.name) || b.liquids.get(liq < 0.01)) return;
         tmpLvl = _fuelLvl(liq);
         if(tmpLvl > fuelLvl) {
@@ -145,7 +159,7 @@
           fuelLvl = tmpLvl;
         };
       });
-      if(fuelTp.equalsAny(thisFun.filterTup3)) VARGEN.fuelGases.forEachFast(gas => {
+      if(fuelType.equalsAny(thisFun.filterTup3)) VARGEN.fuelGases.forEachFast(gas => {
         if(blockedFuels.includes(gas.name) || b.liquids.get(gas < 0.01)) return;
         tmpLvl = _fuelLvl(gas);
         if(tmpLvl > fuelLvl) {

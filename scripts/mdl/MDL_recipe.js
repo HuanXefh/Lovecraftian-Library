@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * The bedrock for multi-crafters.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -19,6 +33,9 @@
 
 
   const TP_stat = require("lovec/tp/TP_stat");
+
+
+  const DB_item = require("lovec/db/DB_item");
 
 
   /* <---------- base ----------> */
@@ -167,6 +184,11 @@
   exports._rcVal = _rcVal;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether there is some resource input in a recipe module.
+   * ---------------------------------------- */
   const _hasInput = function thisFun(rs_gn, rcMdl) {
     let ci, bi, aux, opt;
     return _rcHeaders(rcMdl).some(rcHeader => {
@@ -187,6 +209,11 @@
   exports._hasInput = _hasInput;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether there is any payload input in a recipe module.
+   * ---------------------------------------- */
   const _hasAnyInput_pay = function thisFun(rcMdl) {
     let payi;
     return _rcHeaders(rcMdl).some(rcHeader => {
@@ -201,6 +228,11 @@
   exports._hasAnyInput_pay = _hasAnyInput_pay;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether there is some resource output in a recipe module.
+   * ---------------------------------------- */
   const _hasOutput = function thisFun(rs_gn, rcMdl) {
     let co, bo, fo;
     return _rcHeaders(rcMdl).some(rcHeader => {
@@ -261,6 +293,11 @@
   exports._hasAnyOutput_liq = _hasAnyOutput_liq;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Whether there is any payload output in a recipe module.
+   * ---------------------------------------- */
   const _hasAnyOutput_pay = function thisFun(rcMdl) {
     let payo;
     return _rcHeaders(rcMdl).some(rcHeader => {
@@ -275,7 +312,7 @@
   exports._hasAnyOutput_pay = _hasAnyOutput_pay;
 
 
-  /* <---------- recipe ----------> */
+  /* <---------- recipe fields ----------> */
 
 
   /* ----------------------------------------
@@ -590,13 +627,18 @@
   exports._ttStr = _ttStr;
 
 
+  /* <---------- recipe I/O ----------> */
+
+
   /* ----------------------------------------
    * NOTE:
    *
-   * Adds data to recipe dictionary.
-   * Called in {init}.
+   * Call this to add data to recipe dictionary.
+   * Should be called in {init}.
    * ---------------------------------------- */
-  const initRc = function(rcMdl, blkInit) {
+  const initRc = function thisFun(rcMdl, blkInit) {
+    if(thisFun.blks.includes(blkInit)) throw new Error("Block [$1] has its recipe initialized more than once???".format(blkInit.name));
+
     _rcHeaders(rcMdl).forEachFast(rcHeader => {
       let timeScl = _timeScl(rcMdl, rcHeader);
       _ci(rcMdl, rcHeader, null, blkInit);
@@ -610,8 +652,86 @@
       _fo(rcMdl, rcHeader, null, blkInit, timeScl, failP);
       _payo(rcMdl, rcHeader, null, blkInit, timeScl);
     });
-  };
+  }
+  .setProp({
+    blks: [],
+  });
   exports.initRc = initRc;
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Parses a row in the I/O array, and pushes results into {arr}.
+   * ---------------------------------------- */
+  const parseRcIoRow = function(arr, tg, amt, p, ctCaller, isSecondary) {
+    if(ctCaller == null) ctCaller = Function.air;
+    let isContinuous = p == null;
+
+    if(tg instanceof Array) {
+      let i = 0, iCap = tg.iCap(), tmpArr = [];
+      while(i < iCap) {
+        parseRcIoRow(tmpArr, tg[i], tg[i + 1], isContinuous ? null : tg[i + 2], ctCaller, true);
+        i += isContinuous ? 2 : 3;
+      };
+      if(tmpArr.length > 0) {
+        isSecondary ?
+          arr.pushAll(tmpArr) :
+          isContinuous ?
+            (
+              tmpArr.length === 2 ?
+                arr.push(tmpArr[0], tmpArr[1]) :
+                arr.push(tmpArr, -1.0)
+            ) :
+            (
+              tmpArr.length === 3 ?
+                arr.push(tmpArr[0], tmpArr[1], tmpArr[2]) :
+                arr.push(tmpArr, -1.0, -1.0)
+            );
+      };
+    } else if(tg instanceof UnlockableContent) {
+      if(isContinuous) {
+        arr.push(tg, amt);
+        ctCaller(tg, amt, null);
+      } else {
+        arr.push(tg, Math.round(amt), p);
+        ctCaller(tg, Math.round(amt), p);
+      };
+    } else if(typeof tg === "string") {
+      if(tg.startsWith("GROUP: ")) {
+        let tmpArr = [];
+        DB_item.db["group"]["rcGroup"].readList(tg.replace("GROUP: ", "")).forEachFast(tup => {
+          parseRcIoRow(
+            tmpArr, tup[0],
+            amt * readParam(tup[1], "amtScl", 1.0),
+            isContinuous ? null : (p * readParam(tup[1], "pScl", 1.0)),
+            ctCaller, true,
+          );
+        });
+        if(tmpArr.length > 0) {
+          isSecondary ?
+            arr.pushAll(tmpArr) :
+            isContinuous ?
+              (
+                tmpArr.length === 2 ?
+                  arr.push(tmpArr[0], tmpArr[1]) :
+                  arr.push(tmpArr, -1.0)
+              ) :
+              (
+                tmpArr.length === 3 ?
+                  arr.push(tmpArr[0], tmpArr[1], tmpArr[2]) :
+                  arr.push(tmpArr, -1.0, -1.0)
+              );
+        };
+      } else {
+        let ct = MDL_content._ct(tg, null, true);
+        if(ct != null) parseRcIoRow(arr, ct, amt, p, ctCaller);
+      };
+    } else {
+      throw new Error("WTF did you put into the I/O array???\n" + tg);
+    };
+  };
+  exports.parseRcIoRow = parseRcIoRow;
 
 
   /* ----------------------------------------
@@ -625,19 +745,13 @@
     let raw = _rcVal(rcMdl, rcHeader, "ci", Array.air).concat(_rcBaseVal(rcMdl, "baseCi", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], "rs");
-      if(tmp == null) {
-        i += 2;
-        continue;
-      };
-      let amt = raw[i + 1];
-      arr.push(tmp, amt);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], null, (ct, amt) => {
+        if(blkInit == null) return;
         MDL_recipeDict.addFldConsTerm(
-          blkInit, tmp, amt,
+          blkInit, ct, amt,
           {ct: _iconNm(rcMdl, rcHeader)},
         );
-      };
+      });
       i += 2;
     };
 
@@ -655,56 +769,20 @@
     const arr = contArr != null ? contArr.clear() : [];
 
     let raw = _rcVal(rcMdl, rcHeader, "bi", Array.air).concat(_rcBaseVal(rcMdl, "baseBi", Array.air));
-    let i = 0, iCap = raw.iCap(), j, jCap;
+    let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = raw[i];
-      if(!(tmp instanceof Array)) {
-        tmp = MDL_content._ct(tmp, "rs");
-        if(tmp == null) {
-          i += 3;
-          continue;
-        };
-        let amt = raw[i + 1];
-        let p = raw[i + 2];
-        arr.push(tmp, amt, p);
-        if(blkInit != null) {
-          tmp instanceof Item ?
-            MDL_recipeDict.addItmConsTerm(
-              blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p,
-              {ct: _iconNm(rcMdl, rcHeader)},
-            ) :
-            MDL_recipeDict.addFldConsTerm(
-              blkInit, tmp, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
-              {ct: _iconNm(rcMdl, rcHeader)},
-            );
-        };
-      } else {
-        let tmpArr = [];
-        j = 0, jCap = tmp.iCap();
-        while(j < jCap) {
-          let tmp1 = MDL_content._ct(tmp[j], "rs");
-          if(tmp1 == null) {
-            j += 3;
-            continue;
-          };
-          let amt = tmp[j + 1];
-          let p = tmp[j + 2];
-          tmpArr.push(tmp1, amt, p);
-          if(blkInit != null) {
-            tmp1 instanceof Item ?
-              MDL_recipeDict.addItmConsTerm(
-                blkInit, tmp1, amt / tryVal(timeSclInit, 1.0), p,
-                {ct: _iconNm(rcMdl, rcHeader)},
-              ) :
-              MDL_recipeDict.addFldConsTerm(
-                blkInit, tmp1, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
-                {ct: _iconNm(rcMdl, rcHeader)},
-              );
-          };
-          j += 3;
-        };
-        if(tmpArr.length > 0) arr.push(tmpArr, -1.0, -1.0);
-      };
+      parseRcIoRow(arr, raw[i], raw[i + 1], raw[i + 2], (ct, amt, p) => {
+        if(blkInit == null) return;
+        ct instanceof Item ?
+          MDL_recipeDict.addItmConsTerm(
+            blkInit, ct, amt / tryVal(timeSclInit, 1.0), p,
+            {ct: _iconNm(rcMdl, rcHeader)},
+          ) :
+          MDL_recipeDict.addFldConsTerm(
+            blkInit, ct, amt / blkInit.craftTime / tryVal(timeSclInit, 1.0),
+            {ct: _iconNm(rcMdl, rcHeader)},
+          );
+      });
       i += 3;
     };
 
@@ -725,19 +803,13 @@
     let raw = _rcVal(rcMdl, rcHeader, "aux", Array.air).concat(_rcBaseVal(rcMdl, "baseAux", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], "rs");
-      if(tmp == null) {
-        i += 2;
-        continue;
-      };
-      let amt = raw[i + 1];
-      arr.push(tmp, amt);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], null, (ct, amt) => {
+        if(blkInit == null) return;
         MDL_recipeDict.addFldConsTerm(
-          blkInit, tmp, amt,
+          blkInit, ct, amt,
           {ct: _iconNm(rcMdl, rcHeader)},
         );
-      };
+      });
       i += 2;
     };
 
@@ -768,21 +840,14 @@
     let raw = _rcVal(rcMdl, rcHeader, "opt", Array.air).concat(_rcBaseVal(rcMdl, "baseOpt", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], "rs");
-      if(tmp == null) {
-        i += 4;
-        continue;
-      };
-      let amt = raw[i + 1];
-      let p = raw[i + 2];
-      let mtp = raw[i + 3];
-      arr.push(tmp, amt, p, mtp);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], raw[i + 2], (ct, amt, p) => {
+        arr.push(Number(raw[i + 3]));
+        if(blkInit == null) return;
         MDL_recipeDict.addItmConsTerm(
-          blkInit, tmp, amt, p,
+          blkInit, ct, amt, p,
           {ct: _iconNm(rcMdl, rcHeader), icon: "lovec-icon-optional"},
         );
-      };
+      });
       i += 4;
     };
 
@@ -802,19 +867,13 @@
     let raw = _rcVal(rcMdl, rcHeader, "payi", Array.air).concat(_rcBaseVal(rcMdl, "basePayi", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], null, true);
-      if(tmp == null) {
-        i += 2;
-        continue;
-      };
-      let amt = raw[i + 1];
-      arr.push(tmp.name, amt);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], null, (ct, amt) => {
+        if(blkInit == null) return;
         MDL_recipeDict.addPayConsTerm(
-          blkInit, tmp, amt,
+          blkInit, ct, amt,
           {ct: _iconNm(rcMdl, rcHeader)},
         );
-      };
+      });
       i += 2;
     };
 
@@ -834,19 +893,13 @@
     let raw = _rcVal(rcMdl, rcHeader, "co", Array.air).concat(_rcBaseVal(rcMdl, "baseCo", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], "rs");
-      if(tmp == null) {
-        i += 2;
-        continue;
-      };
-      let amt = raw[i + 1];
-      arr.push(tmp, amt);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], null, (ct, amt) => {
+        if(blkInit == null) return;
         MDL_recipeDict.addFldProdTerm(
-          blkInit, tmp, amt,
+          blkInit, ct, amt,
           {ct: _iconNm(rcMdl, rcHeader)},
         );
-      };
+      });
       i += 2;
     };
 
@@ -866,20 +919,13 @@
     let raw = _rcVal(rcMdl, rcHeader, "bo", Array.air).concat(_rcBaseVal(rcMdl, "baseBo", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], "rs");
-      if(tmp == null) {
-        i += 3;
-        continue;
-      };
-      let amt = raw[i + 1];
-      let p = raw[i + 2];
-      arr.push(tmp, amt, p);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], raw[i + 2], (ct, amt, p) => {
+        if(blkInit == null) return;
         MDL_recipeDict.addItmProdTerm(
-          blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p * (failPInit == null ? 1.0 : (1.0 - failPInit)),
+          blkInit, ct, amt / tryVal(timeSclInit, 1.0), p * (failPInit == null ? 1.0 : (1.0 - failPInit)),
           {ct: _iconNm(rcMdl, rcHeader)},
         );
-      };
+      });
       i += 3;
     };
 
@@ -911,20 +957,13 @@
     let raw = _rcVal(rcMdl, rcHeader, "fo", Array.air).concat(_rcBaseVal(rcMdl, "baseFo", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], "rs");
-      if(tmp == null) {
-        i += 3;
-        continue;
-      };
-      let amt = raw[i + 1];
-      let p = raw[i + 2];
-      arr.push(tmp, amt, p);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], raw[i + 2], (ct, amt, p) => {
+        if(blkInit == null) return;
         MDL_recipeDict.addItmProdTerm(
-          blkInit, tmp, amt / tryVal(timeSclInit, 1.0), p * (failPInit == null ? 0.0 : failPInit),
+          blkInit, ct, amt / tryVal(timeSclInit, 1.0), p * (failPInit == null ? 0.0 : failPInit),
           {ct: _iconNm(rcMdl, rcHeader)},
         );
-      };
+      });
       i += 3;
     };
 
@@ -944,19 +983,13 @@
     let raw = _rcVal(rcMdl, rcHeader, "payo", Array.air).concat(_rcBaseVal(rcMdl, "basePayo", Array.air));
     let i = 0, iCap = raw.iCap();
     while(i < iCap) {
-      let tmp = MDL_content._ct(raw[i], null, true);
-      if(tmp == null) {
-        i += 2;
-        continue;
-      };
-      let amt = raw[i + 1];
-      arr.push(tmp.name, amt);
-      if(blkInit != null) {
+      parseRcIoRow(arr, raw[i], raw[i + 1], null, (ct, amt) => {
+        if(blkInit == null) return;
         MDL_recipeDict.addPayProdTerm(
-          blkInit, tmp, amt / tryVal(timeSclInit, 1.0),
+          blkInit, ct, amt / tryVal(timeSclInit, 1.0),
           {ct: _iconNm(rcMdl, rcHeader)},
         );
-      };
+      });
       i += 2;
     };
 

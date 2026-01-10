@@ -10,6 +10,7 @@
 
 const MDL_content = require("lovec/mdl/MDL_content");
 const MDL_event = require("lovec/mdl/MDL_event");
+const MDL_recipe = require("lovec/mdl/MDL_recipe");
 
 
 /* <---------- meta ----------> */
@@ -178,29 +179,46 @@ ptp.processPayo = function(ct_gn, payAmtO, paramObj) {
 /* ----------------------------------------
  * NOTE:
  *
+ * Parses a raw I/O array.
+ * ---------------------------------------- */
+ptp.parseRawIo = function thisFun(raw, baseAmt, isContinuous) {
+  const arr = [];
+
+  let tmpArr = raw.cpy();
+  thisFun.convertFrac.apply(this, [tmpArr, baseAmt, isContinuous]);
+  tmpArr.forEachRow(isContinuous ? 2 : 3, (tg, amt, p) => {
+    MDL_recipe.parseRcIoRow(arr, tg, amt, isContinuous ? null : p, null);
+  });
+  arr.forEachAll((ele, ind, arr1) => {
+    if(ele instanceof UnlockableContent) arr1[ind] = ele.name;
+  });
+
+  return arr;
+}
+.setProp({
+  convertFrac: function(arr, baseAmt, isContinuous) {
+    let i = 0, iCap = arr.iCap();
+    while(i < iCap) {
+      if(arr[i] instanceof Array) {
+        this.parseRawIo.convertFrac(arr[i], baseAmt, isContinuous);
+      } else {
+        arr[i + 1] = isContinuous ?
+          (baseAmt * arr[i + 1]) :
+          Math.round(baseAmt * arr[i + 1] * (1.0 / arr[i + 2]));
+      };
+      i += isContinuous ? 2 : 3;
+    };
+  },
+});
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
  * Parses raw BI data, returns the array used in recipe object.
  * ---------------------------------------- */
 ptp.parseRawBi = function(rawBi, amtO, pO) {
-  let amt = amtO * pO;
-  let bi = [];
-
-  rawBi.forEachRow(3, (tmp, frac, p) => {
-    if(!(tmp instanceof Array)) {
-      let tmp1 = MDL_content._ct(tmp, "rs");
-      if(tmp1 == null) return;
-      bi.push(tmp1.name, Math.round(amt * frac * (1.0 / p)), p);
-    } else {
-      let subBi = [];
-      tmp.forEachRow(3, (tmp1, frac1, p1) => {
-        let tmp2 = MDL_content._ct(tmp1, "rs");
-        if(tmp2 == null) return;
-        subBi.push(tmp2.name, Math.round(amt * frac1 * (1.0 / p1)), p1);
-      });
-      bi.push(subBi, -1.0, -1.0);
-    };
-  });
-
-  return bi;
+  return this.parseRawIo(rawBi, amtO * pO, false);
 };
 
 
@@ -210,15 +228,7 @@ ptp.parseRawBi = function(rawBi, amtO, pO) {
  * Parses raw PAYI data, returns the array used in recipe object.
  * ---------------------------------------- */
 ptp.parseRawPayi = function(rawPayi, payAmtO) {
-  let payi = [];
-
-  rawPayi.forEachRow(2, (nm, frac) => {
-    let ct = MDL_content._ct(nm, null, true);
-    if(ct == null) return;
-    payi.push(nm, Math.round(payAmtO * frac));
-  });
-
-  return payi;
+  return this.parseRawIo(rawPayi, payAmtO, true);
 };
 
 
@@ -228,16 +238,7 @@ ptp.parseRawPayi = function(rawPayi, payAmtO) {
  * Parses raw BO data, returns the array used in recipe object.
  * ---------------------------------------- */
 ptp.parseRawBo = function(rawBo, amtI, pI) {
-  let amt = amtI * pI;
-  let bo = [];
-
-  rawBo.forEachRow(3, (nm, frac, p) => {
-    let tmp = MDL_content._ct(nm, "rs");
-    if(tmp == null) return;
-    bo.push(tmp.name, Math.round(amt * frac * (1.0 / p)), p);
-  });
-
-  return bo;
+  return this.parseRawIo(rawBo, amtI * pI, false);
 };
 
 

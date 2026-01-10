@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods related to fluids and abstract fluids.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -131,7 +145,7 @@
 
   const _fTagsB = function(liq_gn) {
     return MDL_text._tagText(
-      _fTags(liq_gn).slice().substitute(tag => MDL_bundle._term("common", "grp-" + tag))
+      _fTags(liq_gn).cpy().substitute(tag => MDL_bundle._term("common", "grp-" + tag))
     );
   };
   exports._fTagsB = _fTagsB;
@@ -480,16 +494,20 @@
 
     // Heat from building and global heat
     let rHeat = t.build == null ?
-      0.0 :
+      PARAM.glbHeat :
       (_heat_b(t.build) * 0.25 + _fHeat_b(t.build) * 0.5 + PARAM.glbHeat);
     // Heat from attribute
     rHeat += t.floor().attributes.get(Attribute.get("lovec-attr0env-heat")) * 100.0;
     // Heat from nearby buildings
-    let ot;
+    let rHeatSpare = 0.0, countSpare = 0, ot;
     (4)._it(1, ind => {
       ot = t.nearby(ind);
-      if(ot != null && ot.build != null) rHeat += _heat_b(ot.build);
+      if(ot != null && ot.build != null) {
+        rHeatSpare += _heat_b(ot.build);
+        countSpare++;
+      };
     });
+    if(countSpare > 0) rHeat += rHeatSpare / countSpare;
 
     return rHeat;
   };
@@ -502,6 +520,6 @@
    * Gets the range heat resistance for a unit type.
    * ---------------------------------------- */
   const _rHeatRes = function(utp) {
-    return Math.sqrt(utp.health) * utp.hitSize * 0.5;
+    return Math.sqrt(utp.health) * utp.hitSize * 0.75;
   };
   exports._rHeatRes = _rHeatRes;

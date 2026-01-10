@@ -1,4 +1,12 @@
-// NOTE: Be careful with any module here to avoid looped reference! Better use {global}.
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database of miscellaneous uncategorized data.
+ * ---------------------------------------- */
+
+
+// Be careful with any module here to avoid looped reference!
+// Better use {global.lovec} if possible
 const LIB_pinyin = require("lovec/lib/LIB_pinyin");
 const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_cond = require("lovec/mdl/MDL_cond");
@@ -463,60 +471,60 @@ const db = {
     produceReader: [
 
       Drill, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => ((oblk instanceof Floor && !(oblk instanceof OverlayFloor)) || (oblk instanceof OverlayFloor && !oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, Math.pow(blk.size, 2) * (blk instanceof BurstDrill ? 1.0 : blk.drillTime / blk.getDrillTime(itm)), {icon: "lovec-icon-mining"}));
+        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => ((oblk instanceof Floor && !(oblk instanceof OverlayFloor)) || (oblk instanceof OverlayFloor && !oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, Math.pow(blk.size, 2) * (blk instanceof BurstDrill ? 1.0 : blk.drillTime / blk.getDrillTime(itm)) * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {icon: "lovec-icon-mining"}));
       },
 
       BeamDrill, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => (oblk instanceof Prop || oblk instanceof TallBlock || (oblk instanceof OverlayFloor && oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, blk.size, {icon: "lovec-icon-mining"}));
+        Vars.content.items().each(itm => itm.hardness <= blk.tier && !((blk.blockedItems != null && blk.blockedItems.contains(itm)) || ((blk.blockedItems == null || blk.blockedItems.size === 0) && tryFun(blk.ex_getItmWhiteList, blk) != null && !tryFun(blk.ex_getItmWhiteList, blk).includes(itm))) && Vars.content.blocks().toArray().some(oblk => (oblk instanceof Prop || oblk instanceof TallBlock || (oblk instanceof OverlayFloor && oblk.wallOre)) && oblk.itemDrop === itm), itm => dictProdItm[itm.id].push(blk, blk.size * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {icon: "lovec-icon-mining"}));
       },
 
       WallCrafter, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        dictProdItm[blk.output.id].push(blk, 1, {icon: "lovec-icon-mining"});
+        dictProdItm[blk.output.id].push(blk, tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {icon: "lovec-icon-mining"});
       },
 
       Pump, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        Vars.content.liquids().each(liq => Vars.content.blocks().toArray().some(blk => blk instanceof Floor && blk.liquidDrop === liq), liq => dictProdFld[liq.id].push(blk, blk.pumpAmount * Math.pow(blk.size, 2), {icon: "lovec-icon-pumping"}));
+        Vars.content.liquids().each(liq => Vars.content.blocks().toArray().some(blk => blk instanceof Floor && blk.liquidDrop === liq), liq => dictProdFld[liq.id].push(blk, blk.pumpAmount * Math.pow(blk.size, 2) * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {icon: "lovec-icon-pumping"}));
       },
 
       SolidPump, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        dictProdFld[blk.result.id].push(blk, blk.pumpAmount * Math.pow(blk.size, 2), {icon: "lovec-icon-pumping"});
+        dictProdFld[blk.result.id].push(blk, blk.pumpAmount * Math.pow(blk.size, 2) * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {icon: "lovec-icon-pumping"});
       },
 
       ConsumeGenerator, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        if(blk.outputLiquid != null) dictProdFld[blk.outputLiquid.liquid.id].push(blk, blk.outputLiquid.amount, {});
+        if(blk.outputLiquid != null) dictProdFld[blk.outputLiquid.liquid.id].push(blk, blk.outputLiquid.amount * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {});
       },
 
       ThermalGenerator, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        if(blk.outputLiquid != null) dictProdFld[blk.outputLiquid.liquid.id].push(blk, blk.outputLiquid.amount * Math.pow(blk.size, 2), {});
+        if(blk.outputLiquid != null) dictProdFld[blk.outputLiquid.liquid.id].push(blk, blk.outputLiquid.amount * Math.pow(blk.size, 2) * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {});
       },
 
       GenericCrafter, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
-        if(blk.outputItems != null) blk.outputItems.forEachFast(itmStack => dictProdItm[itmStack.item.id].push(blk, itmStack.amount, {}));
-        if(blk.outputLiquids != null) blk.outputLiquids.forEachFast(liqStack => dictProdFld[liqStack.liquid.id].push(blk, liqStack.amount, {}));
+        if(blk.outputItems != null) blk.outputItems.forEachFast(itmStack => dictProdItm[itmStack.item.id].push(blk, itmStack.amount * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {}));
+        if(blk.outputLiquids != null) blk.outputLiquids.forEachFast(liqStack => dictProdFld[liqStack.liquid.id].push(blk, liqStack.amount * tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {}));
       },
 
       Constructor, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
         Vars.content.blocks().each(
           oblk => !(oblk instanceof CoreBlock) && oblk.size >= blk.minBlockSize && oblk.size <= blk.maxBlockSize && (blk.filter.size === 0 || blk.filter.contains(oblk)),
-          oblk => dictProdBlk[oblk.id].push(blk, 1, {time: oblk.buildTime / blk.buildSpeed}),
+          oblk => dictProdBlk[oblk.id].push(blk, tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {time: oblk.buildTime / blk.buildSpeed}),
         );
       },
 
       UnitFactory, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
         blk.plans.each(uPlan => {
-          dictProdUtp[uPlan.unit.id].push(blk, 1, {time: uPlan.time});
+          dictProdUtp[uPlan.unit.id].push(blk, tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {time: uPlan.time});
         });
       },
 
       UnitAssembler, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
         blk.plans.each(uPlan => {
-          dictProdUtp[uPlan.unit.id].push(blk, 1, {time: uPlan.time});
+          dictProdUtp[uPlan.unit.id].push(blk, tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {time: uPlan.time});
         });
       },
 
       Reconstructor, (blk, dictProdItm, dictProdFld, dictProdBlk, dictProdUtp) => {
         blk.upgrades.each(arr => {
-          dictProdUtp[arr[1].id].push(blk, 1, {ct: arr[0]});
+          dictProdUtp[arr[1].id].push(blk, tryFun(blk.ex_getRcDictOutputScl, blk, 1.0), {ct: arr[0]});
         });
       },
 
@@ -554,7 +562,7 @@ const db = {
       "tungsten", [],
 
       "cryofluid", [],
-      "oil", [],
+      "oil", ["loveclab-liq0ore-crude-oil"],
       "slag", [],
       "water", ["loveclab-liq0ore-water"],
 
@@ -677,7 +685,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * Icons polulated in {VARGEN.noiseTexs}.
+     * Noise textures polulated in {VARGEN.noiseTexs}.
      * Format: {nm, path}.
      * ---------------------------------------- */
     noise: [
@@ -707,7 +715,7 @@ const db = {
       /* ----------------------------------------
        * NOTE:
        *
-       * The color used for a character.
+       * The colors used for characters in dialog flow.
        * Format: {nmMod, nmChara, color_gn}.
        * ---------------------------------------- */
       color: [
@@ -715,7 +723,7 @@ const db = {
         "lovec", "earlan", "d4c0d8",
 
         "projreind", "shirone", "e2cad1",
-        "projreind", "EXPE", "d6eaff",
+        "projreind", "expe", "d6eaff",
 
       ],
 

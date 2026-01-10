@@ -57,32 +57,34 @@ var cls = CLS_window;
  *
  * Modified button styles used for window.
  * ---------------------------------------- */
-cls.btnStyles = {
-  close: extend(TextButton.TextButtonStyle, {
-    font: Fonts.outline,
-    fontColor: Pal.remove,
-    downFontColor: Pal.remove,
-    overFontColor: Color.white,
-  }),
-  minimize: extend(TextButton.TextButtonStyle, {
-    font: Fonts.outline,
-    fontColor: Pal.heal,
-    downFontColor: Pal.heal,
-    overFontColor: Color.white,
-  }),
-  restore: extend(TextButton.TextButtonStyle, {
-    font: Fonts.outline,
-    fontColor: Pal.accent,
-    downFontColor: Pal.accent,
-    overFontColor: Color.white,
-  }),
-  top: extend(TextButton.TextButtonStyle, {
-    font: Fonts.outline,
-    fontColor: Pal.techBlue,
-    downFontColor: Pal.techBlue,
-    overFontColor: Color.white,
-  }),
-};
+MDL_event._c_onLoad(() => {
+  cls.btnStyles = {
+    close: extend(TextButton.TextButtonStyle, {
+      font: Fonts.outline,
+      fontColor: Pal.remove,
+      downFontColor: Pal.remove,
+      overFontColor: Color.white,
+    }),
+    minimize: extend(TextButton.TextButtonStyle, {
+      font: Fonts.outline,
+      fontColor: Pal.heal,
+      downFontColor: Pal.heal,
+      overFontColor: Color.white,
+    }),
+    restore: extend(TextButton.TextButtonStyle, {
+      font: Fonts.outline,
+      fontColor: Pal.accent,
+      downFontColor: Pal.accent,
+      overFontColor: Color.white,
+    }),
+    top: extend(TextButton.TextButtonStyle, {
+      font: Fonts.outline,
+      fontColor: Pal.techBlue,
+      downFontColor: Pal.techBlue,
+      overFontColor: Color.white,
+    }),
+  };
+});
 
 
 cls.getRootTable = function(win) {

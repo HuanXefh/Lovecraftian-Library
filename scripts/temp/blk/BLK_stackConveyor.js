@@ -36,8 +36,10 @@
     if(blk.size !== 1) ERROR_HANDLER.throw("notSingleSized", blk.name);
 
     if(blk.overwriteVanillaProp) {
-      blk.conductivePower = true;
-      blk.connectedPower = false;
+      if(blk.hasPower) {
+        blk.conductivePower = true;
+        blk.connectedPower = false;
+      };
       blk.unloadable = true;
       // Because it looks like a mess
       blk.enableDrawStatus = false;

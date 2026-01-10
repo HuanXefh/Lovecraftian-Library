@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods to check conditions.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -712,17 +726,6 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Whether this unit is created with Lovec methods.
-   * ---------------------------------------- */
-  const _isLovecUnit = function(utp_gn) {
-    return global.lovecUtil.db.lovecUnits.includes(MDL_content._ct(utp_gn, "utp"));
-  };
-  exports._isLovecUnit = _isLovecUnit;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
    * Whether this unit is related to core.
    * ---------------------------------------- */
   const _isCoreUnit = function(utp_gn) {
@@ -866,7 +869,7 @@
    * Whether this unit is covered by trees.
    * ---------------------------------------- */
   const _isCovered = function(unit) {
-    return unit.hasEffect(global.lovec.varGen.staHiddenWell);
+    return global.lovec.varGen.staHiddenWell != null && unit.hasEffect(global.lovec.varGen.staHiddenWell);
   };
   exports._isCovered = _isCovered;
 

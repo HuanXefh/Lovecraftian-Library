@@ -63,6 +63,8 @@
     // @PARAM: See {RS_intermediateItem}.
     intmdParent: null,
     // @PARAM: See {RS_intermediateItem}.
+    extraIntmdParents: prov(() => []),
+    // @PARAM: See {RS_intermediateItem}.
     useParentReg: true,
     // @PARAM: See {RS_intermediateItem}.
     recolorRegStr: null,

@@ -60,7 +60,7 @@
   function comp_setStats(sta) {
     sta.stats.add(TP_stat.spec_info, newStatValue(tb => {
       tb.row();
-      MDL_table.__btnSmall(tb, "i", () => {
+      MDL_table.__btnSmall(tb, "I", () => {
         !sta.ex_checkDbctUnlocked() ?
           MDL_ui.show_fadeInfo("lovec", "info-locked") :
           fetchDialog("infoContent").ex_show(sta.minfo.mod.name, sta.nmInfo);
@@ -80,7 +80,7 @@
   .setParent(StatusEffect)
   .setTags()
   .setParam({
-    // @PARAM: Name for information used, the info text will be {info.*your mod*-info-content-*nmInfo*.description} in the bundle (.name for the title).
+    // @PARAM: Name for information used, the info text will be {info.*your mod*-info-content-*nmInfo*.description} in the bundle (.name for the title). Yep don't include mod name here.
     nmInfo: null,
   })
   .setMethod({

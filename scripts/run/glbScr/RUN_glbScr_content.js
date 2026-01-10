@@ -1,5 +1,24 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Adds global methods that are used to modify contents.
+   * Does not provide methods to create contents like block, unit type, etc. See {RUN_glbScr_extend} instead.
+   *
+   * {newXxx} is used to create and register some content.
+   * {fetchXxx} is used to get the content created by {newXxx}.
+   * {setXxx} is used to modify existing contents, where {fetchXxx} is frequently called.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -27,6 +46,26 @@
     blk.flags = EnumSet.of.apply(null, flags);
     if(blk.fogRadius > 0) blk.flags.with(BlockFlag.hasFogRadius);
     if(blk.sync) blk.flags.with(BlockFlag.synced);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * This content will be only unlockable by calling {ct.unlock()}.
+   * Mostly used for contents that has a tech tree node but cannot be researched.
+   * Should be called on INIT.
+   * ---------------------------------------- */
+  lockTechNode = function(ct) {
+    if(ct.techNode == null) return;
+    ct.techNode.objectives.add(extend(Objectives.Objective, {
+      complete() {
+        return false;
+      },
+      display() {
+        Core.bundle.get("info.lovec-info-no-unlock.name");
+      },
+    }));
   };
 
 
@@ -96,7 +135,7 @@
         return;
       };
 
-      let drawers = blk.drawer instanceof DrawMulti ? blk.drawer.drawers.slice() : [blk.drawer];
+      let drawers = blk.drawer instanceof DrawMulti ? blk.drawer.drawers.cpy() : [blk.drawer];
       try {
         blk.drawer = new DrawMulti(getter(drawers).pullAll(null).flatten().toSeq());
         if(!Vars.headless) blk.drawer.load(blk);
@@ -117,7 +156,7 @@
     Events.run(ClientLoadEvent, () => {
       let
         conss = getter(blk.consumers).pullAll(null).flatten(),
-        conssNew = conss.slice().pullAll(blk.consumers);
+        conssNew = conss.cpy().pullAll(blk.consumers);
 
       blk.consumers = conss;
       blk.optionalConsumers = conss.filter(consX => consX.optional && !consX.ignore());
@@ -196,7 +235,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a weapon from registered weapon templates.
+   * Gets a weapon built from some registered weapon template.
    * ---------------------------------------- */
   fetchWeapon = function(nm, paramObj) {
     let temp = global.lovecUtil.db.weaponTemplate.read(nm);
@@ -208,10 +247,22 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets a bullet type from registered bullet templates.
+   * Gets a bullet type built from some registered bullet template.
    * ---------------------------------------- */
   fetchBullet = function(nm, paramObj) {
     let temp = global.lovecUtil.db.bulletTemplate.read(nm);
+    if(temp == null) ERROR_HANDLER.throw("noTemplateFound", nm);
+    return temp.build(paramObj);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets a part built from some registered part template.
+   * ---------------------------------------- */
+  fetchPart = function(nm, paramObj) {
+    let temp = global.lovecUtil.db.partTemplate.read(nm);
     if(temp == null) ERROR_HANDLER.throw("noTemplateFound", nm);
     return temp.build(paramObj);
   };
@@ -310,7 +361,7 @@
    * Registers a weapon template.
    * Format for {tempGetter}: {() => temp}.
    * ---------------------------------------- */
-  newWeapon = function(nm, tempGetter) {
+  newWeaponTemplate = function(nm, tempGetter) {
     if(global.lovecUtil.db.weaponTemplate.includes(nm)) return;
     global.lovecUtil.db.weaponTemplate.push(nm, tempGetter());
   };
@@ -322,9 +373,21 @@
    * Registers a bullet template.
    * Format for {tempGetter}: {() => temp}.
    * ---------------------------------------- */
-  newBullet = function(nm, tempGetter) {
+  newBulletTemplate = function(nm, tempGetter) {
     if(global.lovecUtil.db.bulletTemplate.includes(nm)) return;
     global.lovecUtil.db.bulletTemplate.push(nm, tempGetter());
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Registers a part template.
+   * Format for {tempGetter}: {() => temp}.
+   * ---------------------------------------- */
+  newPartTemplate = function(nm, tempGetter) {
+    if(global.lovecUtil.db.partTemplate.includes(nm)) return;
+    global.lovecUtil.db.partTemplate.push(nm, tempGetter());
   };
 
 

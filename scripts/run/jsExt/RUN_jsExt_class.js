@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * More methods for JavaScript constructor function to make it more like a class.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -98,7 +112,7 @@
     // Clone all native objects/arrays to prevent modification of the super one
     Object._it(this, (key, val) => {
       if(isNativeObject(val)) this[key] = Object.assign({}, val);
-      if(val instanceof Array) this[key] = val.slice();
+      if(val instanceof Array) this[key] = val.cpy();
     });
 
     this.__SUPER_CLASS__ = cls;

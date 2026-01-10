@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Lovec version of {Events.on} and {Events.run}.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -9,6 +23,14 @@
 
 
   /* <---------- trigger ----------> */
+
+
+  /* ----------------------------------------
+   * IMPORTANT:
+   *
+   * When required by several mods, {Event.on} and {Events.run} in a module can be called several times where bugs may occur.
+   * It's avoidable by using methods below and setting the {id} argument.
+   * ---------------------------------------- */
 
 
   /* ----------------------------------------

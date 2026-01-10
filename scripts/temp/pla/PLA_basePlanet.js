@@ -149,7 +149,7 @@
     if(pla.sectors.size === 0) pla.sectors.add(new Sector(pla, PlanetGrid.Ptile.empty));
   }
   .setProp({
-    locate: (ctTp, nm) => Reflect.invoke(ContentParser, VAR.ctParser, "locate", [ctTp, nm], [ContentType, JAVA.STRING]),
+    locate: (ctType, nm) => Reflect.invoke(ContentParser, VAR.ctParser, "locate", [ctType, nm], [ContentType, JAVA.STRING]),
     read: runnable => Reflect.invoke(ContentParser, VAR.ctParser, "read", [runnable], [JAVA.RUNNABLE]),
     readFields: (obj, jVal) => Reflect.invoke(ContentParser, VAR.ctParser, "readFields", [obj, jVal], [JAVA.OBJECT, JsonValue]),
     parseMesh: (pla, jVal) => Reflect.invoke(ContentParser, VAR.ctParser, "parseMesh", [pla, jVal], [Planet, JsonValue]),

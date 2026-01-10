@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods related to the Lovec pollution mechanics.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -23,7 +37,9 @@
 
 
   const DB_block = require("lovec/db/DB_block");
+  const DB_env = require("lovec/db/DB_env");
   const DB_fluid = require("lovec/db/DB_fluid");
+  const DB_item = require("lovec/db/DB_item");
   const DB_unit = require("lovec/db/DB_unit");
 
 
@@ -31,6 +47,7 @@
 
 
   let basePol = 0.0;
+  let mapPol = 0.0;
   let dynaPol = 0.0;
 
 
@@ -52,23 +69,23 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Gets pollution of some fluid.
+   * Gets pollution of some resource.
    * ---------------------------------------- */
-  const _liqPol = function(liq_gn) {
-    let liq = MDL_content._ct(liq_gn, "rs");
-    if(liq == null) return 0.0;
+  const _rsPol = function(rs_gn) {
+    let rs = MDL_content._ct(rs_gn, "rs");
+    if(rs == null) return 0.0;
 
-    return DB_fluid.db["param"]["pol"].read(liq.name, (function() {
-      if(liq.ex_getIntmdParent == null) {
+    return DB_item.db["param"]["pol"][rs instanceof Item ? "item" : "fluid"].read(rs.name, (function() {
+      if(rs.ex_getIntmdParent == null) {
         return 0.0;
       } else {
-        let parent = liq.ex_getIntmdParent();
-        return parent == null ? 0.0 : _liqPol(parent);
+        let parent = rs.ex_getIntmdParent();
+        return parent == null ? 0.0 : _rsPol(parent);
       };
     })());
   }
   .setCache();
-  exports._liqPol = _liqPol;
+  exports._rsPol = _rsPol;
 
 
   /* ----------------------------------------
@@ -77,7 +94,7 @@
    * Gets current total pollution.
    * ---------------------------------------- */
   const _glbPol = function() {
-    return basePol + dynaPol;
+    return basePol + mapPol + dynaPol * 0.25;
   };
   exports._glbPol = _glbPol;
 
@@ -143,6 +160,10 @@ MDL_event._c_onLoad(() => {
 MDL_event._c_onWorldLoad(() => {
 
   Time.run(25.0, () => {
+    mapPol = DB_env.db["param"]["map"]["pol"].read(
+      PARAM.mapCur,
+      DB_env.db["param"]["pla"]["pol"].read(PARAM.plaCur, 0.0),
+    );
     dynaPol = SAVE.get("dynamic-pollution");
   });
 

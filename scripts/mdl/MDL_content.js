@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods to read contents and their properties.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -48,9 +62,9 @@
     let ct = null;
     if(mode != null) {
       // Try finding content in specific categories
-      thisFun.modeMap.get(mode, Array.air).forEachFast(ctTpStr => {
+      thisFun.modeMap.get(mode, Array.air).forEachFast(ctTypeStr => {
         if(ct != null) return;
-        ct = Vars.content.getByName(ContentType[ctTpStr], ct_gn);
+        ct = Vars.content.getByName(ContentType[ctTypeStr], ct_gn);
       });
     } else {
       // Try finding content in all categories, can be costy

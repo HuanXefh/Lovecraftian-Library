@@ -1,14 +1,16 @@
 /* ----------------------------------------
  * NOTE:
  *
- * Utility class to generate data for dialog flow in {TP_dialFlow}.
+ * Utility class to generate raw data (as array) for {newDialogFlow} method. See {TP_dialFlow}.
  * ---------------------------------------- */
 
 
 /* <---------- import ----------> */
 
 
+const MDL_bundle = require("lovec/mdl/MDL_bundle");
 const MDL_color = require("lovec/mdl/MDL_color");
+const MDL_ui = require("lovec/mdl/MDL_ui");
 
 
 /* <---------- meta ----------> */
@@ -292,27 +294,24 @@ ptp.setChara = function(charaObjs_p) {
  *
  * Pushes selections that don't affect how things go, usually used to display words spoken by the main character.
  * This always ends the row.
+ *
+ * Format for {selTextParamArr}: {nmMod, nmDial, selInd}.
  * ---------------------------------------- */
-ptp.setUselessSelections = function(texts, w, h, waitTimeS) {
-  if(waitTimeS == null) waitTimeS = 2.5;
+ptp.setUselessSelections = function(selTextParamArr, w, h, waitTimeS) {
+  if(waitTimeS == null) waitTimeS = 1.25;
+
+  const texts = [];
+  selTextParamArr.forEachRow(3, (nmMod, nmDial, selInd) => texts.push(MDL_bundle._dialSelText(nmMod, nmDial, selInd)));
 
   this.fixArrFormat();
   let paramObj = this.fixParamObj();
-  let callFlow = () => MDL_ui._d_flow.callFlow(this.dialFlowArr);
+  let callFlow = () => MDL_ui._d_flow.callNext(this.dialFlowArr);
   let textScrArr = [];
   (texts.length)._it(1, i => {
     textScrArr.push(texts[i], callFlow);
   });
 
-  if(paramObj.scr == null) {
-    paramObj.scr = MDL_ui._d_selection(waitTimeS, textScrArr, w, h);
-  } else {
-    let scr = paramObj.scr;
-    paramObj.scr = () => {
-      MDL_ui._d_selection(waitTimeS, textScrArr, w, h);
-      scr();
-    };
-  };
+  paramObj.selectionScr = () => MDL_ui._d_selection(waitTimeS, textScrArr, w, h);
 
   return this;
 };

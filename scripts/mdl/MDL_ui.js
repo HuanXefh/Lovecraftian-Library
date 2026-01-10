@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A mess of UI and dialog flow methods.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -22,6 +36,11 @@
   /* <---------- base ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Used to mute vanilla sound control.
+   * ---------------------------------------- */
   let shouldMuteMusic = false;
   const setMute = function(bool) {
     shouldMuteMusic = bool;
@@ -29,48 +48,88 @@
   exports.setMute = setMute;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * X coordinate of camera.
+   * ---------------------------------------- */
   const _cameraX = function() {
     return Core.camera.position.x;
   };
   exports._cameraX = _cameraX;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Y coordinate of camera.
+   * ---------------------------------------- */
   const _cameraY = function() {
     return Core.camera.position.y;
   };
   exports._cameraY = _cameraY;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Screen width.
+   * ---------------------------------------- */
   const _screenW = function() {
     return Core.graphics.getWidth();
   };
   exports._screenW = _screenW;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Screen height.
+   * ---------------------------------------- */
   const _screenH = function() {
     return Core.graphics.getHeight();
   };
   exports._screenH = _screenH;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * X coordinate of screen center.
+   * ---------------------------------------- */
   const _centerX = function() {
     return Core.graphics.getWidth() * 0.5;
   };
   exports._centerX = _centerX;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Y coordinate of screen center.
+   * ---------------------------------------- */
   const _centerY = function() {
     return Core.graphics.getHeight() * 0.5;
   };
   exports._centerY = _centerY;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Zoom scale.
+   * ---------------------------------------- */
   const _zoom = function() {
     return Vars.renderer.getDisplayScale();
   };
   exports._zoom = _zoom;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Standard UI width.
+   * ---------------------------------------- */
   const _uiW = function(pad, cap, offW, offH) {
     if(pad == null) pad = 20.0;
     if(cap == null) cap = 760.0;
@@ -82,6 +141,11 @@
   exports._uiW = _uiW;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Standard UI height.
+   * ---------------------------------------- */
   const _uiH = function(pad, cap, offW, offH) {
     if(pad == null) pad = 20.0;
     if(cap == null) cap = 760.0;
@@ -93,6 +157,11 @@
   exports._uiH = _uiH;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Standard scale for some UI fragments.
+   * ---------------------------------------- */
   const _uiScl = function() {
     return Math.min(_screenW() / VAR.len_bgW, _screenH() / VAR.len_bgH);
   };
@@ -336,12 +405,12 @@
    *
    * {fracX} determines the initial position of the character, 0.5 for center.
    * {isDark0color} can be boolean or Arc color. If {true} the character is darkened, if color the image will be tinted.
-   * {anim} is the animation used, see the code below, {animParam} can be used if noted.
+   * {anim} is the animation used, see the code below.
    * {customActs} is a list of cutomized actions, and {customActTimeS} is the expected duration in seconds.
    * ---------------------------------------- */
   const _d_chara = function(
     delay, nmMod, chara, endGetter,
-    fracX, isDark0color, anim, animParam,
+    fracX, isDark0color, anim, animParamObj,
     customActs, customActTimeS
   ) {
     if(customActs == null) customActs = [];
@@ -370,7 +439,9 @@
     });
 
     // I have to hard-code this or it's bugged, WTF???
-    let transTimeS, animTup, tup;
+    let
+      animTup,
+      transTimeS, fracXFrom, fracXTo;
     switch(anim) {
 
 
@@ -378,10 +449,9 @@
        * NOTE:
        *
        * Lets the chara fades in or out.
-       * {animParam} should be the time of transition.
        * ---------------------------------------- */
       case "fade-in" :
-        transTimeS = typeof animParam !== "number" ? 0.75 : animParam;
+        transTimeS = readParam(animParamObj, "transTimeS", 0.75);
         animTup = [transTimeS, [
           Actions.fadeIn(transTimeS),
         ]];
@@ -389,7 +459,7 @@
 
 
       case "fade-out" :
-        transTimeS = typeof animParam !== "number" ? 0.75 : animParam;
+        transTimeS = readParam(animParamObj, "transTimeS", 0.75);
         animTup = [transTimeS, [
           Actions.fadeIn(0.0),
           Actions.fadeOut(transTimeS),
@@ -401,15 +471,15 @@
        * NOTE:
        *
        * Lets the chara move somewhere else, no y-coordinate.
-       * {animParam} should be a 3-tup.
-       * Format: {transTimeS, fracX_f, fracX_t}.
        * ---------------------------------------- */
       case "move" :
-        tup = (animParam instanceof Array && animParam.length === 3) ? animParam : [0.75, 0.5, 0.5];
-        animTup = [tup[0], [
+        transTimeS = readParam(animParamObj, "transTimeS", 0.75);
+        fracXFrom = readParam(animParamObj, "fracXFrom", 0.5);
+        fracXTo = readParam(animParamObj, "fracXTo", 0.5);
+        animTup = [transTimeS, [
           Actions.fadeIn(0.0),
-          Actions.translateBy((tup[2] - tup[1]) * _screenW() * 0.5, 0.0, tup[0] * 0.5, Interp.pow2In),
-          Actions.translateBy((tup[2] - tup[1]) * _screenW() * 0.5, 0.0, tup[0] * 0.5, Interp.pow2Out),
+          Actions.translateBy((fracXTo - fracXFrom) * _screenW() * 0.5, 0.0, transTimeS * 0.5, Interp.pow2In),
+          Actions.translateBy((fracXTo - fracXFrom) * _screenW() * 0.5, 0.0, transTimeS * 0.5, Interp.pow2Out),
         ]];
         break;
 
@@ -422,6 +492,30 @@
       case "jump" :
         animTup = [0.5, [
           Actions.fadeIn(0.0),
+          Actions.translateBy(0.0, 40.0, 0.125),
+          Actions.translateBy(0.0, -40.0, 0.125),
+          Actions.translateBy(0.0, 40.0, 0.125),
+          Actions.translateBy(0.0, -40.0, 0.125),
+        ]];
+        break;
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Lets the chara jump six times.
+       * ---------------------------------------- */
+      case "jump-violent" :
+        animTup = [1.5, [
+          Actions.fadeIn(0.0),
+          Actions.translateBy(0.0, 40.0, 0.125),
+          Actions.translateBy(0.0, -40.0, 0.125),
+          Actions.translateBy(0.0, 40.0, 0.125),
+          Actions.translateBy(0.0, -40.0, 0.125),
+          Actions.translateBy(0.0, 40.0, 0.125),
+          Actions.translateBy(0.0, -40.0, 0.125),
+          Actions.translateBy(0.0, 40.0, 0.125),
+          Actions.translateBy(0.0, -40.0, 0.125),
           Actions.translateBy(0.0, 40.0, 0.125),
           Actions.translateBy(0.0, -40.0, 0.125),
           Actions.translateBy(0.0, 40.0, 0.125),
@@ -470,7 +564,7 @@
   const _d_selection = function(delay, textScrArr, w, h, inTimeS) {
     if(w == null) w = 500.0;
     if(h == null) h = 50.0;
-    if(inTimeS == null) inTimeS = 1.0;
+    if(inTimeS == null) inTimeS = 0.75;
 
     const tb = new Table();
     tb.center();
@@ -479,6 +573,7 @@
         scr();
         shouldClose = true;
       }).center().size(w, h).row();
+      tb.add("").row();
     });
 
     let shouldClose = false;
@@ -503,7 +598,7 @@
    * {tupChara} is a 2-tuple of {nmMod} and {nmChara}.
    * {scr} is called before the box is removed.
    * ---------------------------------------- */
-  const _d_text = function(delay, tupDial, tupChara, scr, paramObj) {
+  const _d_text = function(delay, tupDial, tupChara, scr, paramObj, endGetter) {
     if(scr == null) scr = Function.air;
     if(paramObj == null) paramObj = Object.air;
 
@@ -525,7 +620,7 @@
       tb1.add(dialText).left().fontScale(1.35).style(Styles.outlineLabel).labelAlign(Align.left).wrap().width(_uiW(90.0));
     }).width(_screenW() * 0.6).height(160.0).row();
 
-    if(paramObj.haltTimeS == null && !paramObj.autoClick && !paramObj.isTail) tb.clicked(() => {
+    if(paramObj.haltTimeS == null && !paramObj.autoClick && !paramObj.isTail && paramObj.selectionScr == null) tb.clicked(() => {
       scr();
       tb.actions(Actions.remove());
     });
@@ -538,10 +633,15 @@
           [Actions.fadeIn(0.25), Actions.run(() => scr()), Actions.remove()] :
           paramObj.isTail ?
             [Actions.fadeIn(0.25), Actions.run(() => scr()), Actions.fadeOut(0.25), Actions.remove()] :
-            [Actions.fadeIn(0.25)],
+            [Actions.fadeIn(0.25), Actions.run(() => tb.update(() => {
+              if(endGetter != null && endGetter()) {
+                removeActor(tb);
+              };
+            }))],
       true,
     );
 
+    if(paramObj.selectionScr != null) paramObj.selectionScr();
     if(paramObj.sound != null) MDL_effect.play(paramObj.sound);
 
     return paramObj.haltTimeS != null ?
@@ -558,7 +658,7 @@
    *
    * Creates a dialog flow (multiple texts in sequence).
    * Format for {dialFlowArr}: {[nmMod1, nmDial, dialInd], [nmMod2, nmChara], paramObj, charaArgs}.
-   * Format for {charaArgs}: {[delay, nmMod, nmChara, fracX, isDark0color, anim, animParam, customActs]}
+   * Format for {charaArgs}: {[delay, nmMod, nmChara, fracX, isDark0color, anim, animParamObj, customActs]}
    * ---------------------------------------- */
   const _d_flow = function thisFun(nmDialFlow) {
     let dialFlowArr = fetchDialogFlow(nmDialFlow);
@@ -576,21 +676,29 @@
       let ind = _d_flow.flowIndMap.get(flowArr, 0);
       let obj = tryVal(flowArr[ind * 4 + 2], Object.air);
       let args = flowArr[ind * 4 + 3];
-      let cond = false;
 
       if(obj.scr != null) obj.scr();
       if(args != null) {
-        args.forEachFast(arr => _d_chara(arr[0], arr[1], arr[2], () => cond, arr[3], arr[4], arr[5], arr[6], arr[7]));
+        args.forEachFast(arr => _d_chara(arr[0], arr[1], arr[2], () => _d_flow.tmpBools[ind], arr[3], arr[4], arr[5], arr[6], arr[7]));
       };
       _d_text(0.0, flowArr[ind * 4], flowArr[ind * 4 + 1], () => {
         let nextInd = ind + 1;
         _d_flow.flowIndMap.put(flowArr, nextInd);
-        cond = true;
+        _d_flow.tmpBools[ind] = true;
         if(nextInd * 4 < flowArr.length) {
           _d_flow.callFlow(flowArr);
+        } else {
+          _d_flow.tmpBools.clear();
         };
-      }, obj);
+      }, obj, () => _d_flow.tmpBools[ind]);
     },
+    callNext: flowArr => {
+      let nextInd = _d_flow.flowIndMap.get(flowArr, 0) + 1;
+      _d_flow.flowIndMap.put(flowArr, nextInd);
+      _d_flow.tmpBools[nextInd - 1] = true;
+      _d_flow.callFlow(flowArr);
+    },
+    tmpBools: [],
   });
   exports._d_flow = _d_flow;
 

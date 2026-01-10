@@ -1,3 +1,10 @@
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database of item properties.
+ * ---------------------------------------- */
+
+
 const db = {
 
 
@@ -22,6 +29,23 @@ const db = {
         "coal", [8.0, 8.0],
 
       ],
+
+
+      fluid: [],
+
+
+    },
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * Dynamic pollution induced by some resource.
+     * ---------------------------------------- */
+    pol: {
+
+
+      item: [],
 
 
       fluid: [],
@@ -209,6 +233,15 @@ const db = {
      * Items like sodium, which react with water and explode.
      * ---------------------------------------- */
     sodium: [],
+
+
+    /* ----------------------------------------
+     * NOTE:
+     *
+     * "GROUP: xxx" in recipe I/O arrays.
+     * Format: {grp, [nmRs, paramObj]}.
+     * ---------------------------------------- */
+    rcGroup: [],
 
 
   },

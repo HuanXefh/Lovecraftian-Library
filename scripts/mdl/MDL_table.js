@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * A nightmare of table, that's all it's for.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -991,10 +1005,12 @@
             } else {
               tb2.table(Tex.whiteui, tb3 => {
                 tb3.left().setColor(Color.darkGray);
-                tmp.forEachRow(3, (tmp1, amt, p) => {
-                  __rcCt(tb3, tmp1, amt, p, true).row();
+                tb3.pane(pn => {
+                  tmp.forEachRow(3, (tmp1, amt, p) => {
+                    __rcCt(pn, tmp1, amt, p, true).row();
+                  });
                 });
-              }).padRight(16.0);
+              }).padRight(16.0).maxHeight(82.0);
             };
           });
         }).left().marginRight(24.0);

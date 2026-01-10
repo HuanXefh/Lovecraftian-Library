@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Collection of stats.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -16,11 +30,13 @@
 
     return new Stat("lovec-stat-" + bp, statCat);
   };
+  exports.newIns_stat = newIns_stat;
 
 
   const newIns_statUnit = function(bp, param) {
     return param == null ? new StatUnit("lovec-stat0unit-" + bp) : new StatUnit("lovec-stat0unit-" + bp, param);
   };
+  exports.newIns_statUnit = newIns_statUnit;
 
 
   /* <---------- stat ----------> */
@@ -30,6 +46,8 @@
 
 
   exports.blk_minR = newIns_stat("blk-minr");
+  exports.blk_cd = newIns_stat("blk-cd");
+  exports.blk_cdInit = newIns_stat("blk-cdinit");
   exports.blk_canExplode = newIns_stat("blk-canexplode");
   exports.blk_exploR = newIns_stat("blk-explor");
   exports.blk_exploDmg = newIns_stat("blk-explodmg");
@@ -50,6 +68,7 @@
 
   exports.blk0env_ventSize = newIns_stat("blk0env-ventsize", StatCat.general);
   exports.blk0env_treeType = newIns_stat("blk0env-treetype", StatCat.general);
+  exports.blk0env_hardnessMtp = newIns_stat("blk0env-hardnessmtp", StatCat.general);
   exports.blk0env_rsLvl = newIns_stat("blk0env-rslvl", StatCat.general);
   exports.blk0env_depthLvl = newIns_stat("blk0env-depthlvl", StatCat.general);
 
@@ -135,7 +154,6 @@
   exports.rs_sintTemp = newIns_stat("rs-sinttemp");
 
 
-  exports.rs_isConsumable = newIns_stat("rs-isconsumable");
   exports.rs_isIntermediate = newIns_stat("rs-isintermediate");
   exports.rs_isWastete = newIns_stat("rs-iswaste");
 

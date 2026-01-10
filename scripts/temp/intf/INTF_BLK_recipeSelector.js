@@ -52,6 +52,7 @@
 
 
   function comp_buildConfiguration(b, tb) {
+    tb.row();
     MDL_table.setSelector_recipe(tb, b, () => b.rcHeader, val => b.configure(val), false, b.block.selectionColumns);
   };
 

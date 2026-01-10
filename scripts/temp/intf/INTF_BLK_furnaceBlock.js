@@ -42,6 +42,7 @@
   const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_flow = require("lovec/mdl/MDL_flow");
   const MDL_fuel = require("lovec/mdl/MDL_fuel");
+  const MDL_pollution = require("lovec/mdl/MDL_pollution");
   const MDL_recipeDict = require("lovec/mdl/MDL_recipeDict");
   const MDL_table = require("lovec/mdl/MDL_table");
 
@@ -111,6 +112,14 @@
     // Update currently used fuel
     if(TIMER.secFive) {
       b.fuelTup = MDL_fuel._fuelTup(b);
+      b.fuelPolProd = b.fuelTup == null ?
+        0.0 :
+        MDL_pollution._rsPol(b.fuelTup[0]);
+    };
+
+    // Add dynamic pollution
+    if(TIMER.sec && b.fuelPonCur > 0.0) {
+      MDL_pollution.addDynaPol(b.fuelPolProd);
     };
 
     // Update furnace temperature and apply damage if overheated
@@ -208,7 +217,7 @@
 
       __PARAM_OBJ_SETTER__: () => ({
         // @PARAM: Type of fuel to consume. Possible values: "item", "liquid", "gas", "any".
-        fuelTp: "item",
+        fuelType: "item",
         // @PARAM: List of resources that cannot be consumed as fuel.
         blockedFuels: prov(() => []),
         // @PARAM: Multiplier on fuel consumption.
@@ -222,7 +231,7 @@
         fuelHeatReg: null,
       }),
       __GETTER_SETTER__: () => [
-        "fuelTp",
+        "fuelType",
         "blockedFuels",
         "fuelConsMtp",
         "fuelLvlMtp",
@@ -281,6 +290,7 @@
         fuelTup: null,
         fuelEffc: 0.0,
         furnEffc: 0.0,
+        fuelPolProd: 0.0,
       }),
       __GETTER_SETTER__: () => [
         "tempCur",

@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Just random methods for random purpose.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -132,17 +146,17 @@
   const _treeRsLvl = function(blk) {
     if(!MDL_cond._isTreeBlock(blk)) return 0.0;
 
-    let treeGrp = blk.ex_getTreeGrp();
-    let rsLvl = 0.0;
-    let attrs = DB_env.db["grpParam"]["tree"].read([treeGrp, "attrsGetter"], Function.airArr)();
+    let
+      treeGrp = blk.ex_getTreeGrp(),
+      rsLvl = 0.0,
+      attrs = readParam(DB_env.db["grpParam"]["tree"].read(treeGrp), "attrsGetter", Function.airArr)();
 
     if(attrs.length !== 0) {
       rsLvl = Math.max.apply(null, attrs.map(nmAttr => blk.attributes.get(Attribute.get(nmAttr))));
     };
 
     return rsLvl;
-  }
-  .setTodo("Set up bush map in {DB_block.db['map']['attrMap']['bush']}.");
+  };
   exports._treeRsLvl = _treeRsLvl;
 
 

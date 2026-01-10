@@ -48,7 +48,7 @@
     if(!Vars.headless) {
       MDL_content.rename(
         sta,
-        Core.bundle.find("dial." + sta.nmDialFlow);
+        Core.bundle.get("dial." + sta.nmDialFlow),
       );
     };
 
@@ -59,6 +59,7 @@
     });
 
     VARGEN.dialFlowNmCtMap.put(sta.nmDialFlow, sta);
+    lockTechNode(sta);
   };
 
 

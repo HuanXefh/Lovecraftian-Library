@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Most generated parameters, some are only populated after CLIENT LOAD.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -209,7 +223,7 @@
       const arr = [];
       DB_item.db["param"]["fuel"]["item"].forEachRow(2, (nm, params) => {
         let itm = MDL_content._ct(nm, "rs");
-        if(itm != null && (fetchSetting("load-ore-dict") ? true : !MDL_cond._isVanilla(itm))) arr.push(itm);
+        if(itm != null) arr.push(itm);
       });
       return arr;
     })();
@@ -217,7 +231,7 @@
       const arr = [];
       DB_item.db["param"]["fuel"]["fluid"].forEachRow(2, (nm, params) => {
         let liq = MDL_content._ct(nm, "rs");
-        if(liq != null && !liq.gas && (fetchSetting("load-ore-dict") ? true : !MDL_cond._isVanilla(liq))) arr.push(liq);
+        if(liq != null && !liq.gas) arr.push(liq);
       });
       return arr;
     })();
@@ -225,7 +239,7 @@
       const arr = [];
       DB_item.db["param"]["fuel"]["fluid"].forEachRow(2, (nm, params) => {
         let liq = MDL_content._ct(nm, "rs");
-        if(liq != null && liq.gas && (fetchSetting("load-ore-dict") ? true : !MDL_cond._isVanilla(liq))) arr.push(liq);
+        if(liq != null && liq.gas) arr.push(liq);
       });
       return arr;
     })();
@@ -254,7 +268,6 @@
 
     exports.buildaleUtps = Vars.content.units().select(utp => !utp.internal && (TechTree.all.find(node => node.content === utp && node.requirements.length > 0) != null || tryVal(utp.getRequirements(null, null), Array.air).length > 0)).toArray();
     exports.vanillaUtps = Vars.content.units().select(utp => MDL_content._mod(utp) === "vanilla").toArray();
-    exports.lovecUtps = Vars.content.units().select(utp => MDL_cond._isLovecUnit(utp)).toArray();
     exports.bioticUtps = Vars.content.units().select(utp => MDL_cond._isNonRobot(utp)).toArray();
     exports.navalUtps = Vars.content.units().select(utp => utp.naval).toArray();
     exports.missileUtps = Vars.content.units().select(utp => utp instanceof MissileUnitType).toArray();

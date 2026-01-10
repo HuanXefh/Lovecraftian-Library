@@ -37,7 +37,7 @@
 
 
   function comp_loadIcon(rs) {
-    // Copy the texture region to keep "ohno" intact
+    // Use a new texture region to keep "ohno" intact
     if(rs.fullIcon === Core.atlas.find("error")) {
       rs.fullIcon = rs.uiIcon = new TextureRegion();
     };
@@ -108,20 +108,28 @@
       pixCombine.dispose();
       alts++;
     } else {
+      let nmMod = MDL_content._mod(rs), pixTag;
       // For other sprites, use text label as the icon tag
-      let nmMod, pixTag;
-      tags.forEachFast(tag => {
-        nmMod = MDL_content._mod(rs);
-        if(nmMod == null) return;
-        if(!Core.atlas.has(nmMod + "-rs0tag-" + tag)) return;
+      if(nmMod != null) {
+        tags.forEachFast(tag => {
+          if(!Core.atlas.has(nmMod + "-rs0tag-" + tag)) return;
 
-        pixTag = Core.atlas.getPixmap(nmMod + "-rs0tag-" + tag);
-        pixCombine = MDL_texture._pix_stack(pixBase, pixTag);
-        packer.add(MultiPacker.PageType.main, rs.name + "-t" + (alts + 1), pixCombine);
-        pixCombine.dispose();
-        alts++;
-      });
+          pixTag = Core.atlas.getPixmap(nmMod + "-rs0tag-" + tag);
+          pixCombine = MDL_texture._pix_stack(pixBase, pixTag);
+          packer.add(MultiPacker.PageType.main, rs.name + "-t" + (alts + 1), pixCombine);
+          pixCombine.dispose();
+          alts++;
+        });
+      };
     };
+    // Extra resource icon tags, if used
+    rs.extraIntmdParents.forEachFast(nmRs => {
+      pixCombine = MDL_texture._pix_ctStack(pixBase, nmRs);
+      packer.add(MultiPacker.PageType.main, rs.name + "-t" + (alts + 1), pixCombine);
+      pixCombine.dispose();
+      alts++;
+    });
+
     rs.alts = alts;
   };
 
@@ -148,6 +156,7 @@
 
     alts: 0,
     intmdParent: null,
+    extraIntmdParents: prov(() => []),
     useParentReg: false,
     recolorRegStr: null,
   })

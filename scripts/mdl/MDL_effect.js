@@ -1,5 +1,20 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods to create effects.
+   * Unlike {TP_effect} which provides effects, this module is only meant to spawn pre-defined effects.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -415,7 +430,7 @@
         if(liq != null) {
           tint = liq.color;
         } else {
-          tint = t.floor().mapColor;
+          tint = t.getFloorColor();
         };
         a = 0.5;
         z = etp instanceof Block ? VAR.lay_buildingRemainsDrown : VAR.lay_unitRemainsDrown;

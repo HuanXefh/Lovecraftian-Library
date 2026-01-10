@@ -89,16 +89,21 @@
        * Bypasses {MDL_content} to resolve module coupling.
        * This one is less stable and won't warn, do not abuse it! Use {global.lovec.mdl_content._ct} instead whenever possible.
        * ---------------------------------------- */
-      _ct(ct_gn, ctTpStr) {
+      _ct(ct_gn, ctTypeStr) {
         if(ct_gn == null) return null;
         if(ct_gn instanceof UnlockableContent) return ct_gn;
 
-        return ctTpStr == null ?
+        return ctTypeStr == null ?
           Vars.content.byName(ct_gn) :
-          Vars.content.getByName(ContentType[ctTpStr], ct_gn);
+          Vars.content.getByName(ContentType[ctTypeStr], ct_gn);
       },
 
 
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Calculates global heat for current map.
+       * ---------------------------------------- */
       _glbHeat() {
         let nmPla = global.lovecUtil.fun._plaCur();
         if(nmPla === "") return 26.0;
@@ -120,9 +125,6 @@
       oreDict: new ObjectMap(),
 
 
-      lovecUnits: [],
-
-
       keyBindListener: [],
       dialFlow: [],
       settingTerm: [],
@@ -130,6 +132,9 @@
 
       weaponTemplate: [],
       bulletTemplate: [],
+      partTemplate: [],
+
+
       abilitySetter: [],
       aiSetter: [],
       drawerSetter: [],

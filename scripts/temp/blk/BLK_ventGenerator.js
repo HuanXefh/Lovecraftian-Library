@@ -135,6 +135,14 @@
       }),
 
 
+      ex_getRcDictOutputScl: function() {
+        return 1.0 / Math.pow(this.size, 2);
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
     }),
 
 

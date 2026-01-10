@@ -1,3 +1,10 @@
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database of block properties. Does not include environmental blocks.
+ * ---------------------------------------- */
+
+
 const db = {
 
 

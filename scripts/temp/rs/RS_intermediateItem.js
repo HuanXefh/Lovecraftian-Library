@@ -63,6 +63,8 @@
   .setParam({
     // @PARAM: The parent of this intermediate.
     intmdParent: null,
+    // @PARAM: Extra resources used for icon tag generation.
+    extraIntmdParents: prov(() => []),
     // @PARAM: Whether to generate icons based on parent. Set this to {false} if you have sprite for the intermediate.
     useParentReg: true,
     // @PARAM: Determines pixmap used to generate recolored sprite, intermediate parent is required. If {null}, icon tag is used instead to distinguish intermediates.

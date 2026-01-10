@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Utility global methods.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -187,3 +201,104 @@
 
 
   };
+
+
+  /* <---------- game ----------> */
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Used to control some in-game HUD related things.
+   * ---------------------------------------- */
+  HUD_HANDLER = {
+
+
+    placeFrag: {
+
+
+      /* ----------------------------------------
+       * NOTE:
+       *
+       * Used for blocks that can have different placement HUD layouts for buildings, e.g. multi-crafters.
+       * ---------------------------------------- */
+      forceUpdate() {
+        Reflect.set(PlacementFragment, Vars.ui.hudfrag.blockfrag, "lastDisplayState", null);
+      },
+
+
+    },
+
+
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Used to set position-related config for buildings.
+   * ---------------------------------------- */
+  POS_CONFIG_HANDLER = {
+
+
+    isReady: false,
+    __INT_QUEUE__: [],
+    __PON2_QUEUE__: [],
+    __VEC2_QUEUE__: [],
+
+
+    init() {
+      Events.run(ClientLoadEvent, () => {
+        Core.app.post(() => {
+          global.lovec.mdl_event._c_onTileTap(t => POS_CONFIG_HANDLER.trigger(t), 12050505);
+        });
+      });
+    },
+
+
+    add(b, posType) {
+      switch(posType) {
+        case "int":
+          POS_CONFIG_HANDLER.__INT_QUEUE__.push(b);
+          break;
+        case "pon2":
+          POS_CONFIG_HANDLER.__PON2_QUEUE__.push(b);
+          break;
+        case "vec2":
+          POS_CONFIG_HANDLER.__VEC2_QUEUE__.push(b);
+          break;
+        default :
+          throw new Error("Unknown position type: " + posType);
+      };
+      POS_CONFIG_HANDLER.isReady = true;
+    },
+
+
+    remove(b) {
+      POS_CONFIG_HANDLER.__INT_QUEUE__.pull(b);
+      POS_CONFIG_HANDLER.__PON2_QUEUE__.pull(b);
+      POS_CONFIG_HANDLER.__VEC2_QUEUE__.pull(b);
+      POS_CONFIG_HANDLER.isReady = POS_CONFIG_HANDLER.__INT_QUEUE__.length > 0 && POS_CONFIG_HANDLER.__PON2_QUEUE__.length > 0 && POS_CONFIG_HANDLER.__VEC2_QUEUE__.length > 0;
+    },
+
+
+    clear() {
+      POS_CONFIG_HANDLER.__INT_QUEUE__.clear();
+      POS_CONFIG_HANDLER.__PON2_QUEUE__.clear();
+      POS_CONFIG_HANDLER.__VEC2_QUEUE__.clear();
+      POS_CONFIG_HANDLER.isReady = false;
+    },
+
+
+    trigger(t) {
+      if(!POS_CONFIG_HANDLER.isReady) return;
+
+      POS_CONFIG_HANDLER.__INT_QUEUE__.forEachFast(b => b.configure(t.pos()));
+      POS_CONFIG_HANDLER.__PON2_QUEUE__.forEachFast(b => b.configure(Tmp.p1.set(t.x, t.y)));
+      POS_CONFIG_HANDLER.__VEC2_QUEUE__.forEachFast(b => b.configure(Tmp.v1.set(t.worldx(), t.worldy())));
+      POS_CONFIG_HANDLER.clear();
+    },
+
+
+  };
+  POS_CONFIG_HANDLER.init();

@@ -21,6 +21,7 @@ CLS_graph.prototype.init = function() {
   this.dataMap = new ObjectMap();
   this.neighborMap = new ObjectMap();
   this.weightArr = [];
+  this.adjacencyList = [];
 };
 
 
@@ -53,7 +54,7 @@ ptp.cpy = function(contGraph) {
     graph.addNode(id, this.dataMap.get(id));
   });
   this.edges.forEachFast(arr => {
-    graph.edges.addEdge(arr[0], arr[1]);
+    graph.addEdge(arr[0], arr[1]);
   });
   graph.notifyChange();
 
@@ -64,7 +65,55 @@ ptp.cpy = function(contGraph) {
 /* ----------------------------------------
  * NOTE:
  *
- * Gets a list of nodes connected to some node.
+ * Merges {graph} into this graph.
+ * ---------------------------------------- */
+ptp.merge = function(graph) {
+  graph.nodes.forEachFast(id => {
+    this.addNode(id, graph.dataMap.get(id));
+  });
+  graph.edges.forEachFast(arr => {
+    this.addEdge(arr[0], arr[1]);
+  });
+  this.notifyChange();
+
+  return this;
+};
+
+
+/* ----------------------------------------
+* NOTE:
+*
+* Gets amount of nodes in this graph.
+* ---------------------------------------- */
+ptp.getOrder = function() {
+  return this.nodes.length;
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Gets the adjacency list of this graph, which is a 2D array.
+ * ---------------------------------------- */
+ptp.getAdjacencyList = function() {
+  this.adjacencyList.clear();
+  let i = 0, iCap = this.node.iCap();
+  while(i < iCap) {
+    this.adjacencyList[i] = this.getNeighbors(this.nodes[i]);
+    i++;
+  };
+
+  return this.adjacencyList;
+}
+.setCache(null, function() {
+  return this.stateRand;
+});
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Gets a list of nodes connected to some node (one array in the adjacency list).
  * ---------------------------------------- */
 ptp.getNeighbors = function(id) {
   return this.neighborMap.get(id, Array.air);
@@ -106,6 +155,7 @@ ptp.notifyChange = function() {
  *
  * @ARGS: id, data, oid1, oid2, oid3, ...
  * Adds a node (or vertex) to the graph.
+ * If {oidx} is given, this will also add a edge between {id} and {oidx}.
  * ---------------------------------------- */
 ptp.addNode = function(id, data) {
   if(this.hasNode(id)) return this;
@@ -231,30 +281,37 @@ ptp.hasEdge = function thisFun(id1, id2) {
 /* ----------------------------------------
  * NOTE:
  *
+ * Whether {graph} is part of this graph.
+ * ---------------------------------------- */
+ptp.hasGraph = function(graph) {
+  return this.getOrder() < graph.getOrder() ?
+    false :
+    graph.nodes.every(oid => this.nodes.includes(oid)) && graph.edges.every(oedge => this.edges.looseIncludes(oedge));
+};
+
+
+/* ----------------------------------------
+ * NOTE:
+ *
  * Whether this graph has any rings.
  * ---------------------------------------- */
-ptp.hasRing = function thisFun() {
-  if(this.stateRand === thisFun.lastStateRand) {
-    return thisFun.lastVal;
-  } else {
-    let graph = this.cpy(CLS_graph.TMP_A);
-    while(graph.nodes.length > 0) {
-      thisFun.tmpArr.clear();
-      graph.nodes.forEachCond(id => graph.getDegree(id) <= 1, id => thisFun.tmpArr.push(id));
-      if(thisFun.tmpArr.length === 0) {
-        thisFun.lastVal = true;
-        return thisFun.lastVal;
-      };
-      thisFun.tmpArr.forEachFast(id => graph.removeNode(id));
+ptp.hasRing = function() {
+  let graph = this.cpy(CLS_graph.TMP_A);
+  while(graph.nodes.length > 0) {
+    thisFun.tmpArr.clear();
+    graph.nodes.forEachCond(id => graph.getDegree(id) <= 1, id => thisFun.tmpArr.push(id));
+    if(thisFun.tmpArr.length === 0) {
+      return true;
     };
-    thisFun.lastVal = false;
-    return thisFun.lastVal;
+    thisFun.tmpArr.forEachFast(id => graph.removeNode(id));
   };
+  return false;
 }
 .setProp({
-  lastStateRand: -1.0,
-  lastVal: false,
   tmpArr: [],
+})
+.setCache(null, function() {
+  return this.stateRand;
 });
 
 

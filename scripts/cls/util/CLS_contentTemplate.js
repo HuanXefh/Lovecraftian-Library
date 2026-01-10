@@ -2,7 +2,7 @@
  * NOTE:
  *
  * The base class of content templates.
- * Templates are used to create the object used in {extend} in Lovec.
+ * Templates are used to create the object used in {extend} and its variants in Lovec.
  * No instance usage.
  * ---------------------------------------- */
 

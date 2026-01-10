@@ -8,7 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Vanilla {ConsumeGenerator}.
+   * Vanilla {ConsumeGenerator} but has warmup like {ImpactReactor}.
    * ---------------------------------------- */
 
 
@@ -28,6 +28,29 @@
   /* <---------- component ----------> */
 
 
+  function comp_setBars(blk) {
+    if(blk.genWarmupRate < 0.0) return;
+
+    blk.addBar("lovec-warmup", b => new Bar(
+      prov(() => Core.bundle.format("bar.lovec-bar-warmup-amt", b.ex_getGenWarmup().perc())),
+      prov(() => Pal.ammo),
+      () => Mathf.clamp(b.ex_getGenWarmup()),
+    ));
+  };
+
+
+  function comp_updateTile(b) {
+    let rate = b.block.ex_getGenWarmupRate();
+    if(rate < 0.0) {
+      b.genWarmup = 1.0;
+    } else {
+      b.genWarmup = b.efficiency > 0.9999 && b.power.status > 0.99 ?
+        Mathf.approachDelta(b.genWarmup, 1.0, rate * b.timeScale) :
+        Mathf.approachDelta(b.genWarmup, 0.0, rate * 5.0);
+    };
+  };
+
+
 /*
   ========================================
   Section: Application
@@ -42,18 +65,75 @@
     newClass().extendClass(PARENT[0]).initClass()
     .setParent(ConsumeGenerator)
     .setTags("blk-pow", "blk-pow0gen")
-    .setParam({})
+    .setParam({
+      // @PARAM: Warmup rate for power generation, just like impact reactor. Set this to negative value to disable warmup mechanics.
+      genWarmupRate: -1.0,
+    })
     .setParamAlias([
       "consEff", "consumeEffect", Fx.none,
     ])
-    .setMethod({}),
+    .setMethod({})
+    .setGetter("genWarmupRate"),
 
 
     // Building
     newClass().extendClass(PARENT[1]).initClass()
     .setParent(ConsumeGenerator.ConsumeGeneratorBuild)
-    .setParam({})
-    .setMethod({}),
+    .setParam({
+      genWarmup: 0.0,
+    })
+    .setMethod({
+
+
+      updateTile: function() {
+        comp_updateTile(this);
+      },
+
+
+      getPowerProduction: function() {
+        return !this.enabled ?
+          0.0 :
+          (b.block.powerProduction * b.productionEfficiency * b.genWarmup);
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
+      warmup: function() {
+        return !this.enabled ?
+          0.0 :
+          (this.productionEfficiency * this.genWarmup);
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
+      write: function(wr) {
+        let LCRevi = processRevision(wr);
+        this.ex_processData(wr, LCRevi);
+        wr.f(this.genWarmup);
+      },
+
+
+      read: function(rd, revi) {
+        let LCRevi = processRevision(rd);
+        this.ex_processData(rd, LCRevi);
+        this.genWarmup = rd.f();
+      },
+
+
+      ex_processData: function(wr0rd, revi) {
+        // Do nothing
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
+    })
+    .setGetter("genWarmup"),
 
 
   ];

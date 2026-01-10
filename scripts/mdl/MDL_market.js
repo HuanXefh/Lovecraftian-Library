@@ -1,5 +1,20 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Handles bit, a currency provided by Lovec.
+   * Bit data is saved for each map.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -62,8 +77,8 @@
     if(team == null || amt == null) return;
     if(amt < 0.0) amt = 0.0;
 
-    let arr1 = SAVE.get("bits").slice().write(team.toString(), String(amt));
-    let arr2 = SAVE.get("bit-hash").slice().write(team.toString(), _bitHash(amt));
+    let arr1 = SAVE.get("bits").cpy().write(team.toString(), String(amt));
+    let arr2 = SAVE.get("bit-hash").cpy().write(team.toString(), _bitHash(amt));
 
     if(!Vars.net.client()) {
       SAVE.set("bits", arr1);

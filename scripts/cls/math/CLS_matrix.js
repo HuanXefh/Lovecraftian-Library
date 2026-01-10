@@ -74,7 +74,7 @@ cls.getUnitMat = function(n, def) {
 cls.getVec = function(arr, isRowVec) {
   const matArr = [];
   if(isRowVec) {
-    matArr.push(arr.slice());
+    matArr.push(arr.cpy());
   } else {
     arr.forEachFast(num => matArr.push([num]));
   };
@@ -107,7 +107,7 @@ cls.pack = function(mat) {
 cls.unpack = function(matArrPack) {
   if(!(matArrPack instanceof Array)) return null;
 
-  const mat = matArrPack.slice();
+  const mat = matArrPack.cpy();
 
   return new CLS_matrix(mat.chunk(mat.shift(), 0));
 };
@@ -191,7 +191,7 @@ ptp.getColAmt = function() {
  * Returns a copy of the internal array.
  * ---------------------------------------- */
 ptp.toArray = function() {
-  return this.matArr.slice();
+  return this.matArr.cpy();
 };
 
 

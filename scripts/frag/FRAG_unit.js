@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods related to units.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -25,7 +39,7 @@
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
-  /* <---------- auxilliary ----------> */
+  /* <---------- base ----------> */
 
 
   const STA_DUR = VAR.time_unitStaDef;
@@ -34,6 +48,12 @@
   /* <---------- component (unit type) ----------> */
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Makes a unit gain status effects based on current health.
+   * Called only for Lovec units for obvious reason.
+   * ---------------------------------------- */
   const comp_update_damaged = function(utp, unit) {
     if(!TIMER.unit || !Mathf.chance(VAR.p_unitUpdateP)) return;
 
@@ -60,6 +80,12 @@
   exports.comp_update_damaged = comp_update_damaged;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Generic update that handles surroundings of a unit.
+   * Called for every unit.
+   * ---------------------------------------- */
   const comp_update_surrounding = function thisFun(utp, unit) {
     if(!TIMER.unit || !Mathf.chance(VAR.p_unitUpdateP)) return;
 
@@ -82,11 +108,12 @@
 
       // Tree
       if(
-        MDL_cond._isCoverable(unit, true) && MDL_cond._isTreeBlock(oblk)
+        ob == null && oblk !== Blocks.air
+          && MDL_cond._isCoverable(unit, true) && MDL_cond._isTreeBlock(oblk)
           && oblk.ex_getHidable()
           && dst < oblk.region.width * VAR.rad_treeScl
       ) {
-        if(!unit.hasEffect(VARGEN.staHiddenWell)) TRIGGER.treeHide.fire(unit);
+        if(VARGEN.staHiddenWell != null && !unit.hasEffect(VARGEN.staHiddenWell)) TRIGGER.treeHide.fire(unit);
         unit.apply(VARGEN.staHiddenWell, STA_DUR);
       };
     });
@@ -97,6 +124,11 @@
   exports.comp_update_surrounding = comp_update_surrounding;
 
 
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Handles heat damage, called for every unit.
+   * ---------------------------------------- */
   const comp_update_heat = function(utp, unit) {
     if(!TIMER.unit || !Mathf.chance(VAR.p_unitUpdateP * 0.3)) return;
     if(!MDL_cond._isHeatDamageable(unit)) return;

@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Registers new dialog flows.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -35,7 +49,11 @@
     .setText("lovec", "test", 2).setChara({
       nmMod: "lovec", nmChara: "earlan",
       fracX: 0.5, isDark: true,
-      anim: "move", animParam: [1.0, 0.5, 0.33],
+      anim: "move", animParamObj: {
+        transTimeS: 1.0,
+        fracXFrom: 0.5,
+        fracXTo: 0.33,
+      },
     })
     .setBgmEnd().setChara({
       nmMod: "lovec", nmChara: "earlan",

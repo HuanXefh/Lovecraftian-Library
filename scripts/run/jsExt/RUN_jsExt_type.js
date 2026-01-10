@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods for type conversion.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -24,7 +38,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript number to java integer.
+   * Converts JavaScript number to Java integer.
    * ---------------------------------------- */
   ptp.toInt = function() {
     return new java.lang.Integer(this);
@@ -34,7 +48,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript number to java byte.
+   * Converts JavaScript number to Java byte.
    * ---------------------------------------- */
   ptp.toByte = function() {
     return new java.lang.Byte(this);
@@ -44,7 +58,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript number to java short.
+   * Converts JavaScript number to Java short.
    * ---------------------------------------- */
   ptp.toShort = function() {
     return new java.lang.Short(this);
@@ -54,7 +68,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript number to java long.
+   * Converts JavaScript number to Java long.
    * ---------------------------------------- */
   ptp.toLong = function() {
     return new java.lang.Long(this);
@@ -64,7 +78,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript number to java float.
+   * Converts JavaScript number to Java float.
    * ---------------------------------------- */
   ptp.toF = function() {
     return new java.lang.Float(this);
@@ -74,7 +88,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript number to java double.
+   * Converts JavaScript number to Java double.
    * ---------------------------------------- */
   ptp.toDouble = function() {
     return new java.lang.Double(this);
@@ -84,7 +98,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript number (double) to integer bits (as string).
+   * Converts JavaScript number (double) to integer bits (as string).
    * ---------------------------------------- */
   ptp.toIntBits = function() {
     let arrBuffer = new ArrayBuffer(4);
@@ -130,8 +144,8 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript array to java array, which you will definitely need.
-   * {Object[]} by default, you can use a java class to set the type.
+   * Converts JavaScript array to Java array, which you will definitely need.
+   * {Object[]} by default, you can use a Java class to set the type.
    * ---------------------------------------- */
   ptp.toJavaArr = function(javaClsObj) {
     let iCap = this.iCap();
@@ -149,7 +163,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript array to Arc seq.
+   * Converts JavaScript array to Arc seq.
    * ---------------------------------------- */
   ptp.toSeq = function() {
     return new Seq(this);
@@ -159,7 +173,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * Converts javascript array to Arc object set.
+   * Converts JavaScript array to Arc object set.
    * ---------------------------------------- */
   ptp.toObjSet = function() {
     return ObjectSet.with(this);

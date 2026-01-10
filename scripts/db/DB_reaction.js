@@ -1,3 +1,10 @@
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database of reaction properties used in {MDL_reaction}.
+ * ---------------------------------------- */
+
+
 const EFF = require("lovec/glb/GLB_eff");
 
 

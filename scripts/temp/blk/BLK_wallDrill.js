@@ -53,17 +53,23 @@
   .setProp({
     tmpTup: [],
     tmpBoolF: (blk, t, team, rot) => {
-      let ot = null, itm;
+      let ot = null, itm = null, isBlockDrop = false;
       for(let i = 0; i < blk.size; i++) {
         blk.nearbySide(t.x, t.y, rot, i, Tmp.p1);
         for(let j = 0; j < blk.range; j++) {
           ot = Vars.world.tile(Tmp.p1.x + Geometry.d4x[rot] * j, Tmp.p1.y + Geometry.d4y[rot] * j);
           if(ot != null && ot.solid()) {
-            itm = ot.wallDrop();
-            if(itm != null && itm.hardness <= blk.tier && !(
+            if(ot.overlay().itemDrop != null) {
+              itm = ot.overlay().itemDrop;
+            } else if(ot.block().itemDrop != null) {
+              itm = ot.block().itemDrop;
+              isBlockDrop = true;
+            };
+            if(itm != null && itm.hardness * tryFun((isBlockDrop ? ot.block() : ot.overlay()).ex_getDropHardnessMtp, isBlockDrop ? ot.block() : ot.overlay(), 1.0) <= blk.tier && !(
               (blk.blockedItems != null && blk.blockedItems.contains(itm))
                 || ((blk.blockedItems == null || blk.blockedItems.size === 0) && blk.itmWhitelist.length > 0 && !blk.itmWhitelist.includes(itm))
             )) return true;
+            isBlockDrop = false;
             break;
           };
         };

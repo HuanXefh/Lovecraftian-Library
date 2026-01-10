@@ -8,9 +8,7 @@
   /* ----------------------------------------
    * NOTE:
    *
-   * This file defines dialogs, which are closely related to tables.
-   * Dialogs are only created after load event, to ensure {Core.scene} is not {null}.
-   * Do NOT call a dialog before that!
+   * Registers new dialogs.
    * ---------------------------------------- */
 
 

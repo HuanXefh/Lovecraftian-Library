@@ -1,5 +1,22 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods related to Arc {Fi} class.
+   * Also provides methods to read/write files.
+   *
+   * For Json-related methods, see {MDL_json}.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -118,11 +135,11 @@
    *
    * Returns the "content/xxx" folder of a mod according to {ctType}.
    * ---------------------------------------- */
-  const _subContent = function(nmMod, ctTp) {
-    if(ctTp == null) return null;
+  const _subContent = function(nmMod, ctType) {
+    if(ctType == null) return null;
     let dirCt = _content(nmMod);
     if(dirCt == null) return null;
-    let str = ctTp.name().toLowerCase(java.util.Locale.ROOT);
+    let str = ctType.name().toLowerCase(java.util.Locale.ROOT);
     let dir = dirCt.child(str + (str.endsWith("s") ? "" : "s"));
 
     return !dir.exists() ? null : dir;

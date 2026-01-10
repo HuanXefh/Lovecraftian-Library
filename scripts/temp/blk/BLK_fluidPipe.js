@@ -85,7 +85,7 @@
     };
 
     if(TIMER.sec && b.isLeak && b.liquids.currentAmount() > 0.001) {
-      MDL_pollution.addDynaPol(MDL_pollution._liqPol(b.liquids.current()) / 60.0);
+      MDL_pollution.addDynaPol(MDL_pollution._rsPol(b.liquids.current()) / 60.0);
     };
   };
 

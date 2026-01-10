@@ -70,7 +70,7 @@
     parts: prov(() => []),
   })
   .setParamAlias([
-    "nm", "name", "",
+    "nm", "name", null
     "btp", "bullet", Bullets.placeholder,
     "isTop", "top", false,
     "shaRad", "shadow", -1.0,

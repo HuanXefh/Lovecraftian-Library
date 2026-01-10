@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Extension for JavaScript array, with methods from various JS packages.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -130,6 +144,35 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * 1. Returns a copy of this array.
+   * 2. Copies elements from another array (overwrites this array).
+   * ---------------------------------------- */
+  ptp.cpy = newMultiFunction(
+    [], function() {
+      return this.slice();
+    },
+    [Array], function(arr) {
+      return this.clear().pushAll(arr);
+    },
+  );
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Returns fraction of index (of given element) by array length.
+   * ---------------------------------------- */
+  ptp.getIndFrac = function(ele0ind, useInd, returnNull) {
+    let ind = useInd ? ele0ind : this.indexOf(ele0ind);
+    return ind < 0 ?
+      (returnNull ? null : 0.0) :
+      ((ind + 1) / this.length);
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Pushes the element only when it is not in the array.
    * ---------------------------------------- */
   ptp.pushUnique = function(ele) {
@@ -175,13 +218,53 @@
   /* ----------------------------------------
    * NOTE:
    *
+   * Inserts an element at some index, modifying the original array.
+   * ---------------------------------------- */
+  ptp.insert = function(ele, ind) {
+    let i = this.iCap(), iBase = ind;
+    while(i > iBase) {
+      this[i] = this[i - 1];
+      i--;
+    };
+    this[ind] = ele;
+
+    return this.length;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Batch variant of {insert}.
+   * ---------------------------------------- */
+  ptp.insertAll = function(eles_p, ind) {
+    let eles = eles_p instanceof Array ? eles_p : [eles_p];
+    let i = this.iCap(), iBase = ind, j = 0, jCap = eles.iCap();
+    while(i > iBase) {
+      this[i + jCap - 1] = this[i - 1];
+      i--;
+    };
+    while(j < jCap) {
+      this[ind + j] = eles[j];
+      j++;
+    };
+
+    return this;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
    * Removes the first matching element in the array.
    * ---------------------------------------- */
   ptp.remove = function(ele) {
     let ind = this.indexOf(ele);
-    if(ind > -1) this.splice(ind, 1);
+    if(ind > -1) {
+      return this.splice(ind, 1)[0];
+    };
 
-    return this;
+    return null;
   };
 
 
@@ -434,7 +517,7 @@
    * Whether the two arrays equal each other regardless of order.
    * ---------------------------------------- */
   ptp.looseEquals = function(arr) {
-    return this.slice().mixSort().equals(arr.slice().mixSort());
+    return this.cpy().mixSort().equals(arr.cpy().mixSort());
   };
 
 
@@ -560,12 +643,13 @@
    * Returns an array of random elements in the array.
    * ---------------------------------------- */
   ptp.sample = function(amt) {
+    const arr = this.cpy().randomize();
+
     if(amt == null) amt = this.iCap();
 
-    let tmpArr = this.slice().randomize();
-    return amt >= tmpArr.length ?
-      tmpArr :
-      tmpArr.slice(0, amt);
+    return amt >= arr.length ?
+      arr :
+      arr.slice(0, amt);
   };
 
 
@@ -685,6 +769,23 @@
       !(this[i] instanceof Array) ?
         arr.push(this[i]) :
         this[i].forEachFast(ele => arr.push(ele));
+      i++;
+    };
+
+    return arr;
+  };
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Variant of {flatten} that ensures no array exists in the result (on most occassions excluding self-reference).
+   * Very costy however.
+   * ---------------------------------------- */
+  ptp.flattenAll = function(maxTry) {
+    let i = 0, iCap = tryVal(maxTry, 500), arr = this.flatten();
+    while(i < iCap && arr.some(ele => ele instanceof Array)) {
+      arr = arr.flatten();
       i++;
     };
 

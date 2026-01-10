@@ -25,11 +25,13 @@
   const PARENT = require("lovec/temp/unit/UNIT_technicalUnit");
   const PARAM = require("lovec/glb/GLB_param");
   const VAR = require("lovec/glb/GLB_var");
+  const VARGEN = require("lovec/glb/GLB_varGen");
 
 
   const MDL_cond = require("lovec/mdl/MDL_cond");
   const MDL_content = require("lovec/mdl/MDL_content");
   const MDL_draw = require("lovec/mdl/MDL_draw");
+  const MDL_event = require("lovec/mdl/MDL_event");
   const MDL_pos = require("lovec/mdl/MDL_pos");
 
 
@@ -44,6 +46,12 @@
       let sta = MDL_content._ct(sta_gn, "sta", true);
       if(sta == null) return;
       utp.immunities.add(sta);
+    });
+    MDL_event._c_onLoad(() => {
+      Core.app.post(() => {
+        VARGEN.deathStas.forEachFast(sta => utp.immunities.add(sta));
+      });
+      if(!Vars.headless) utp.fullIcon = utp.uiIcon = Core.atlas.find("lovec-icon-drop-loot");
     });
   };
 

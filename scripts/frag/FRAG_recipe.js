@@ -1,5 +1,20 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods specifically used by {BLK_recipeFactory}.
+   * If you're trying to figure out how multi-crafter in Lovec works, also see {MDL_recipe}, {INTF_BLK_recipeSelector}, {INTF_BLK_recipeHandler} and {BLK_recipeFactory}.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */

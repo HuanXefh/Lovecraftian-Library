@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Handles color, mostly Arc color.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -41,7 +55,7 @@
   }
   .setProp({
     tmpGetter: newMultiFunction(
-      [Tile, null], (t, colorMod) => colorMod === "new" ? new Color(t.floor().mapColor) : t.floor().mapColor,
+      [Tile, null], (t, colorMod) => colorMod === "new" ? new Color(t.getFloorColor()) : t.getFloorColor(),
       [Item, null], (itm, colorMod) => colorMod === "new" ? itm.color.cpy() : itm.color,
       [Liquid, null], (liq, colorMod) => colorMod === "new" ? liq.color.cpy() : liq.color,
       [Team, null], (team, colorMod) => colorMod === "new" ? team.color.cpy() : team.color,

@@ -66,7 +66,7 @@
         if(Mathf.chance(0.5)) b.block.updateEffect.at(
           ot.worldx() + Mathf.range(3.0),
           ot.worldy() + Mathf.range(3.0),
-          ot.block().mapColor,
+          ot.block().getColor(ot),
         );
       });
     };

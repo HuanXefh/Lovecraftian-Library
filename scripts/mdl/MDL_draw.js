@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods related to draw.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -197,38 +211,6 @@
     processZ(z);
   };
   exports._reg_side = _reg_side;
-
-
-  /* ----------------------------------------
-   * NOTE:
-   *
-   * {DrawRegion} with a shader applied.
-   * ---------------------------------------- */
-  const _reg_shader = function(
-    x, y, reg, shader,
-    ang, regScl, color_gn, a, z
-  ) {
-    if(reg == null) return;
-    if(ang == null) ang = 0.0;
-    if(regScl == null) regScl = 1.0;
-    if(a == null) a = 1.0;
-
-    processZ(z);
-
-    Draw.color(MDL_color._color(color_gn), a);
-    Draw.shader(shader);
-    Draw.rect(
-      reg, x, y,
-      reg.width * reg.scl() * regScl,
-      reg.height * reg.scl() * regScl,
-      ang,
-    );
-    Draw.shader();
-    Draw.color();
-
-    processZ(z);
-  };
-  exports._reg_shader = _reg_shader;
 
 
   /* ----------------------------------------
@@ -1093,7 +1075,7 @@
     processZ(z);
 
     Lines.stroke(stroke, MDL_color._color(tryVal(color_gn, Pal.accent)));
-    Draw.alpha(0.35 + Math.sin(Time.globalTime / scl * 15.0) * 0.25);
+    Draw.alpha(0.35 + Math.sin(Time.globalTime / scl / 15.0) * 0.25);
     LCDraw.line(x1, y1, x2, y2, isDashed);
     Draw.reset();
 

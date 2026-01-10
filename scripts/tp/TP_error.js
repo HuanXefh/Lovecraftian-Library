@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Registers new errors to {ERROR_HANDLER}.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -22,6 +36,10 @@
 
     this.add("arrayLengthMismatch", "Two array arguments are expected to have same length!");
     this.add("not3dArray", "Array argument is expected to be 3D!");
+    this.add("noRootNode", "No root node found!");
+    this.add("duplicateRootNode", "Root node can only be added once!");
+    this.add("noParentNode", "No parent node found for [$1]!");
+    this.add("tooManyNodes", "Cannot add more nodes! Maximum: [$1]");
 
     this.add("functionLengthWrapFail", "Wrapped function length ([$1]) is out of bound!");
     this.add("notClass", "Argument [$1] is not a function class!");

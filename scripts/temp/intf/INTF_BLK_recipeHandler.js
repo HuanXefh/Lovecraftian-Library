@@ -51,6 +51,10 @@
 
 
   function comp_init(blk) {
+    // Have to keep these to prevent crash on specific client sides like MindustryX
+    blk.outputItems = [];
+    blk.outputLiquids = [];
+
     MDL_event._c_onLoad(() => {
       blk.outputsLiquid = MDL_recipe._hasAnyOutput_liq(blk.rcMdl, false);
       blk.hasConsumers = true;
@@ -171,34 +175,28 @@
   };
 
 
-  const comp_acceptItem = function thisFun(b, b_f, itm) {
+  function comp_acceptItem(b, b_f, itm) {
     if(b.items == null) return false;
     if(b.items.get(itm) >= b.getMaximumAccepted(itm)) return false;
-    if(thisFun.tmpMap.containsKey(itm)) return thisFun.tmpMap.get(itm);
+    if(b.itmAcceptCacheMap.containsKey(itm)) return b.itmAcceptCacheMap.get(itm);
 
     let cond = FRAG_recipe._hasInput(itm, b.ci, b.bi, b.aux, b.opt);
-    thisFun.tmpMap.put(itm, cond);
+    b.itmAcceptCacheMap.put(itm, cond);
 
     return cond;
-  }
-  .setProp({
-    tmpMap: new ObjectMap(),
-  });
+  };
 
 
-  const comp_acceptLiquid = function thisFun(b, b_f, liq) {
+  function comp_acceptLiquid(b, b_f, liq) {
     if(b.liquids == null) return false;
     if(b.liquids.get(liq) >= b.block.liquidCapacity) return false;
-    if(thisFun.tmpMap.containsKey(liq)) return thisFun.tmpMap.get(liq);
+    if(b.liqAcceptCacheMap.containsKey(liq)) return b.liqAcceptCacheMap.get(liq);
 
     let cond = FRAG_recipe._hasInput(liq, b.ci, b.bi, b.aux, b.opt);
-    thisFun.tmpMap.put(liq, cond);
+    b.liqAcceptCacheMap.put(liq, cond);
 
     return cond;
-  }
-  .setProp({
-    tmpMap: new ObjectMap(),
-  });
+  };
 
 
   function comp_craft(b) {
@@ -365,10 +363,9 @@
 
 
   function comp_ex_resetRcParam(b) {
-    comp_acceptItem.tmpMap.clear();
-    comp_acceptLiquid.tmpMap.clear();
-    // Force the right-bottom hovered table to be rebuilt
-    Reflect.set(PlacementFragment, Vars.ui.hudfrag.blockfrag, "lastDisplayState", null);
+    b.itmAcceptCacheMap.clear();
+    b.liqAcceptCacheMap.clear();
+    HUD_HANDLER.placeFrag.forceUpdate();
 
     b.progress = 0.0;
     b.efficiency = 0.0;
@@ -573,6 +570,8 @@
         lastProgInc: 0.0,
         lastLiqProgInc: 0.0,
         lastCanAdd: false,
+        itmAcceptCacheMap: prov(() => new ObjectMap()),
+        liqAcceptCacheMap: prov(() => new ObjectMap()),
         hasRun: false,
         hasStopped: false,
       }),

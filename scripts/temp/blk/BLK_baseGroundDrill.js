@@ -53,7 +53,13 @@
 
   function comp_canMine(blk, t) {
     if(t == null || t.block().isStatic()) return false;
-    let itm = t.drop();
+    let itm = null, isFloorDrop = false;
+    if(t.overlay().itemDrop != null) {
+      itm = t.overlay().itemDrop;
+    } else if(t.floor().itemDrop != null) {
+      itm = t.floor().itemDrop;
+      isFloorDrop = true;
+    };
     if(itm == null) return false;
 
     if(blk.blockedItems != null && blk.blockedItems.size > 0) {
@@ -62,11 +68,11 @@
       if(blk.itmWhitelist.length > 0 && !blk.itmWhitelist.includes(itm)) return false;
     };
 
-    let isDpore = MDL_cond._isDepthOre(t.overlay());
+    let isDpore = isFloorDrop ? false : MDL_cond._isDepthOre(t.overlay());
     if(isDpore) {
-      if(!blk.canMineDepthOre || itm.hardness > blk.tier * blk.depthTierMtp) return false;
+      if(!blk.canMineDepthOre || itm.hardness * tryFun(t.overlay().ex_getDropHardnessMtp, t.overlay(), 1.0) > blk.tier * blk.depthTierMtp) return false;
     } else {
-      if(itm.hardness > blk.tier) return false;
+      if(itm.hardness * tryFun((isFloorDrop ? t.floor() : t.overlay()).ex_getDropHardnessMtp, isFloorDrop ? t.floor() : t.overlay(), 1.0) > blk.tier) return false;
     };
 
     return true;
@@ -173,6 +179,14 @@
 
       drawPlace: function(tx, ty, rot, valid) {
         comp_drawPlace(this, tx, ty, rot, valid);
+      }
+      .setProp({
+        noSuper: true,
+      }),
+
+
+      ex_getRcDictOutputScl: function() {
+        return this.drillAmtMtp;
       }
       .setProp({
         noSuper: true,

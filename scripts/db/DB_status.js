@@ -1,3 +1,13 @@
+/* ----------------------------------------
+ * NOTE:
+ *
+ * Database of status effect properties.
+ *
+ * Don't define affinities and opposites by {sta.init}, it's broken by Lovec templates.
+ * It's just possible and easier to organize by using this DB file.
+ * ---------------------------------------- */
+
+
 const db = {
 
 
@@ -43,7 +53,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These status effects will react with basic status effects.
+     * These status effects will react with (opposite to) basic status effects.
      * ---------------------------------------- */
     acidic: [
 
@@ -58,7 +68,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These status effects will react with acidic status effects.
+     * These status effects will react with (opposite to) acidic status effects.
      * ---------------------------------------- */
     basic: [
 
@@ -73,7 +83,7 @@ const db = {
     /* ----------------------------------------
      * NOTE:
      *
-     * These status effects can't be applied to biotic units.
+     * These status effects can't be applied on biotic units.
      * ---------------------------------------- */
     robotOnly: [
 
@@ -107,7 +117,7 @@ const db = {
      * NOTE:
      *
      * Missile units will be immune to these.
-     * By default missiles are immune to {STA_deathStatus}.
+     * By default missiles are always immune to death status effects.
      * ---------------------------------------- */
     missileImmune: [
 
@@ -122,7 +132,7 @@ const db = {
      * @CONTENTGEN
      * Loot unit should be immune to these status effects.
      * A loot is a collectable stack of items on the ground.
-     * By default, loot units are always immune to robot-only status effects.
+     * By default, loot units are always immune to robot-only and death status effects.
      * ---------------------------------------- */
     lootImmune: [
 
@@ -172,6 +182,7 @@ const db = {
 
 
 Object.mergeDB(db, "DB_status");
+
 
 db["map"]["affinity"].pushAll((function() {
   const arr = [];

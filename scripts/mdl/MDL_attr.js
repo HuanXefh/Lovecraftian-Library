@@ -1,5 +1,19 @@
 /*
   ========================================
+  Section: Introduction
+  ========================================
+*/
+
+
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Methods related to attribute and dynamic attribute calculation.
+   * ---------------------------------------- */
+
+
+/*
+  ========================================
   Section: Definition
   ========================================
 */
@@ -296,22 +310,26 @@
   exports._sumWind = _sumWind;
 
 
-  const _windX = function() {
-    return windVec.x;
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets currently used global wind vector.
+   * ---------------------------------------- */
+  const _windVec = function() {
+    return windVec;
   };
-  exports._windX = _windX;
+  exports._windVec = _windVec;
 
 
-  const _windY = function() {
-    return windVec.y;
-  };
-  exports._windY = _windY;
-
-
+  /* ----------------------------------------
+   * NOTE:
+   *
+   * Gets angle of the global wind vector.
+   * ---------------------------------------- */
   const _windAng = function() {
     return Math.atan(windVec.y / windVec.x) * Mathf.radDeg;
   };
-  exports._windY = _windY;
+  exports._windAng = _windAng;
 
 
 /*
